@@ -11,7 +11,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  updateUserProfile: (displayName: string) => Promise<void>;
+  updateUserProfile: (displayName: string, avatarUrl?: string) => Promise<void>;
+  uploadProfileImage: (uri: string) => Promise<string>;
 }
 
 // Default context value
@@ -25,6 +26,7 @@ const defaultContextValue: AuthContextType = {
   signOut: async () => {},
   resetPassword: async () => {},
   updateUserProfile: async () => {},
+  uploadProfileImage: async () => '',
 };
 
 // Create context
@@ -143,8 +145,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     setLoading(true);
     try {
-      await supabase.auth.resetPasswordForEmail(email);
+      console.log('Sending password reset email to:', email);
+      
+      // Create a proper redirect URL for the password reset
+      const redirectUrl = 'rusty://reset-password';
+      console.log('Using redirect URL:', redirectUrl);
+      
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      
+      if (resetError) {
+        console.error('Error sending reset email:', resetError.message);
+        throw resetError;
+      }
+      
+      console.log('Password reset email sent successfully');
     } catch (err: any) {
+      console.error('Password reset failed:', err.message);
       setError(err.message || 'An error occurred during password reset');
     } finally {
       setLoading(false);
@@ -152,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Update user profile
-  const updateUserProfile = async (displayName: string) => {
+  const updateUserProfile = async (displayName: string, avatarUrl?: string) => {
     setError(null);
     setLoading(true);
     try {
@@ -160,14 +178,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       
       if (currentUser) {
-        await supabase.auth.updateUser({
+        const updates = {
           data: {
             user_metadata: {
               ...(currentUser.user_metadata || {}),
               displayName,
+              ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
             },
           },
-        });
+        };
+        
+        const { error: updateError } = await supabase.auth.updateUser(updates);
+        
+        if (updateError) {
+          throw updateError;
+        }
         
         // Refresh the user data
         const { data: { user: updatedUser } } = await supabase.auth.getUser();
@@ -177,6 +202,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred updating profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Upload profile image
+  const uploadProfileImage = async (uri: string) => {
+    setError(null);
+    setLoading(true);
+    try {
+      if (!user) throw new Error('No user logged in');
+
+      // Convert the image to a blob
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      // Generate a unique filename
+      const fileExt = uri.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, blob, {
+          contentType: `image/${fileExt}`,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update user profile with the new avatar URL
+      await updateUserProfile(user.user_metadata?.displayName || '', publicUrl);
+
+      return publicUrl;
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload profile image');
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -192,6 +262,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     resetPassword,
     updateUserProfile,
+    uploadProfileImage,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

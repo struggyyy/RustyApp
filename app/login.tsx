@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { supabase } from '../src/lib/supabase';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const params = useLocalSearchParams();
+  const [email, setEmail] = useState(params.email as string || '');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
-  const [localLoading, setLocalLoading] = useState(false);
-  const { signIn, signUp, loading: authLoading, error, user, session } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const { signIn, loading: authLoading, error, user, session } = useAuth();
   const router = useRouter();
 
   // Log initial render
@@ -23,6 +23,13 @@ export default function Login() {
     });
   }, []);
 
+  // Handle email parameter if passed
+  useEffect(() => {
+    if (params.email) {
+      setEmail(params.email as string);
+    }
+  }, [params.email]);
+
   // Check for authenticated user and redirect
   useEffect(() => {
     if (user && session) {
@@ -31,64 +38,63 @@ export default function Login() {
     }
   }, [user, session, router]);
 
-  const handleAuth = async () => {
-    setLocalLoading(true);
+  const handleLogin = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+
+    if (!password) {
+      Alert.alert('Error', 'Please enter your password');
+      return;
+    }
     
+    setLoading(true);
     try {
-      console.log(`Attempting ${isLogin ? 'login' : 'signup'} with:`, email);
+      console.log('Starting sign in process for:', email);
       
-      if (isLogin) {
-        // Check the session first
-        const { data: { session: existingSession } } = await supabase.auth.getSession();
-        
-        if (existingSession) {
-          console.log('Found existing session, checking validity');
-          const { data: { user: existingUser } } = await supabase.auth.getUser();
-          
-          if (existingUser) {
-            console.log('Existing user is valid, redirecting to home');
-            router.replace('/home');
-            return;
-          }
-        }
-        
-        // No valid session, try login
-        console.log('No valid session found, attempting login');
-        const { data, error: loginError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (loginError) {
-          console.error('Login error:', loginError.message);
-          Alert.alert('Login Error', loginError.message);
-        } else if (data?.user) {
-          console.log('Login successful, redirecting to home');
-          router.replace('/home');
-        }
-      } else {
-        // Handle signup
-        await signUp(email, password);
-        Alert.alert(
-          'Signup Successful', 
-          'Please check your email for verification instructions.',
-          [{ text: 'OK', onPress: () => setIsLogin(true) }]
-        );
+      const { data, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      console.log('Sign in response:', { 
+        success: !loginError, 
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        errorMessage: loginError?.message
+      });
+      
+      if (loginError) {
+        console.error('Supabase auth error:', loginError.message);
+        Alert.alert('Login Error', loginError.message);
+      } else if (data?.user) {
+        console.log('Login successful, redirecting to home');
+        router.replace('/home');
       }
     } catch (err: any) {
       console.error('Auth error:', err.message);
       Alert.alert('Error', err.message || 'An error occurred during authentication');
     } finally {
-      setLocalLoading(false);
+      setLoading(false);
     }
   };
 
-  const toggleAuthMode = () => {
-    setIsLogin(!isLogin);
+  // Navigation to signup while preserving email
+  const goToSignUp = () => {
+    // Dismiss keyboard first to prevent flickering
+    Keyboard.dismiss();
+    // Add a small delay before navigation
+    setTimeout(() => {
+      router.push({
+        pathname: '/signup',
+        params: { email }
+      });
+    }, 100);
   };
 
   // Determine if we're in a loading state
-  const isLoading = localLoading || authLoading;
+  const isLoading = loading || authLoading;
 
   return (
     <KeyboardAvoidingView 
@@ -98,15 +104,15 @@ export default function Login() {
     >
       <Stack.Screen
         options={{
-          title: isLogin ? 'Login' : 'Sign Up',
+          title: 'Login',
           headerShown: true,
         }}
       />
       
       <View style={styles.formContainer}>
-        <Text style={styles.title}>{isLogin ? 'Welcome Back' : 'Create Account'}</Text>
+        <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>
-          {isLogin ? 'Log in to your Rusty account' : 'Sign up to start reporting abandoned vehicles'}
+          Log in to your Rusty account
         </Text>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
@@ -130,22 +136,39 @@ export default function Login() {
         />
 
         <TouchableOpacity 
+          style={styles.forgotPasswordButton}
+          onPress={() => {
+            // Dismiss keyboard first to prevent flickering
+            Keyboard.dismiss();
+            // Add a small delay before navigation to ensure keyboard is fully dismissed
+            setTimeout(() => {
+              router.push({
+                pathname: '/forgot-password',
+                params: { email }
+              });
+            }, 100);
+          }}
+        >
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
           style={styles.button} 
-          onPress={handleAuth}
+          onPress={handleLogin}
           disabled={isLoading}
         >
           {isLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.buttonText}>
-              {isLogin ? 'Log In' : 'Sign Up'}
+              Log In
             </Text>
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={toggleAuthMode} style={styles.switchButton}>
+        <TouchableOpacity onPress={goToSignUp} style={styles.switchButton}>
           <Text style={styles.switchText}>
-            {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Log In"}
+            Don't have an account? Sign Up
           </Text>
         </TouchableOpacity>
       </View>
@@ -204,6 +227,14 @@ const styles = StyleSheet.create({
   switchText: {
     color: '#BD5151',
     fontSize: 16,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 15,
+  },
+  forgotPasswordText: {
+    color: '#BD5151',
+    fontSize: 14,
   },
   errorText: {
     color: '#F44336',
