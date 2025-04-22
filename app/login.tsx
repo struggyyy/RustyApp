@@ -1,104 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { supabase } from '../src/lib/supabase';
 
 export default function Login() {
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(params.email as string || '');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signIn, loading: authLoading, error, user, session } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const { logIn, loading: authLoading, user, initialLoading } = useAuth();
   const router = useRouter();
+  const passwordInputRef = useRef<TextInput | null>(null);
 
-  // Log initial render
+  useEffect(() => {
+    if (localError) {
+      setLocalError(null);
+    }
+  }, [email, password]);
+
   useEffect(() => {
     console.log('Login screen rendered, auth state:', {
       hasUser: !!user,
-      hasSession: !!session,
+      initialLoading: initialLoading,
       userEmail: user?.email || 'none',
-      hasError: !!error,
-      loading: authLoading
+      authLoading: authLoading
     });
-  }, []);
+  }, [user, initialLoading, authLoading]);
 
-  // Handle email parameter if passed
   useEffect(() => {
-    if (params.email) {
-      setEmail(params.email as string);
-    }
-  }, [params.email]);
-
-  // Check for authenticated user and redirect
-  useEffect(() => {
-    if (user && session) {
+    if (!initialLoading && user) {
       console.log('User authenticated in login screen, redirecting to home:', user.email);
-      router.replace('/home');
     }
-  }, [user, session, router]);
+  }, [user, initialLoading]);
 
   const handleLogin = async () => {
+    setLocalError(null);
+    Keyboard.dismiss();
+
     if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
+      setLocalError('Please enter your email address');
+      return;
+    }
+    if (!password) {
+      setLocalError('Please enter your password');
       return;
     }
 
-    if (!password) {
-      Alert.alert('Error', 'Please enter your password');
-      return;
-    }
-    
-    setLoading(true);
+    setIsSubmitting(true);
     try {
-      console.log('Starting sign in process for:', email);
-      
-      const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      console.log('Sign in response:', { 
-        success: !loginError, 
-        hasUser: !!data?.user,
-        hasSession: !!data?.session,
-        errorMessage: loginError?.message
-      });
-      
-      if (loginError) {
-        console.error('Supabase auth error:', loginError.message);
-        Alert.alert('Login Error', loginError.message);
-      } else if (data?.user) {
-        console.log('Login successful, redirecting to home');
-        router.replace('/home');
-      }
+      console.log('Calling useAuth logIn function for:', email);
+      await logIn(email, password);
+      console.log('logIn function completed successfully (redirect handled by listener in _layout).');
     } catch (err: any) {
-      console.error('Auth error:', err.message);
-      Alert.alert('Error', err.message || 'An error occurred during authentication');
+      console.error('Login handler error:', err.code, err.message);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        setLocalError('User not found or invalid credentials.');
+      } else if (err.code === 'auth/wrong-password') {
+        setLocalError('Incorrect password. Please try again.');
+      } else if (err.code === 'auth/invalid-email') {
+        setLocalError('Please enter a valid email address.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setLocalError('Too many login attempts. Please try again later.');
+      } else {
+        setLocalError(err.message || 'Login failed. Please check your connection and try again.');
+      }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // Navigation to signup while preserving email
   const goToSignUp = () => {
-    // Dismiss keyboard first to prevent flickering
     Keyboard.dismiss();
-    // Add a small delay before navigation
+    setLocalError(null);
     setTimeout(() => {
-      router.push({
+      router.push({ 
         pathname: '/signup',
         params: { email }
       });
     }, 100);
   };
 
-  // Determine if we're in a loading state
-  const isLoading = loading || authLoading;
+  const goToForgotPassword = () => {
+    Keyboard.dismiss();
+    setLocalError(null);
+    setTimeout(() => {
+      router.push({ 
+        pathname: '/forgot-password',
+        params: { email }
+      });
+    }, 100);
+  };
+
+  const isLoading = initialLoading || isSubmitting || authLoading;
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={100}
     >
@@ -108,56 +106,55 @@ export default function Login() {
           headerShown: true,
         }}
       />
-      
+
       <View style={styles.formContainer}>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>
           Log in to your Rusty account
         </Text>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {localError && <Text style={styles.errorText}>{localError}</Text>}
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, !!localError && styles.inputError]}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          editable={!isLoading}
+          onSubmitEditing={() => passwordInputRef.current?.focus()}
+          blurOnSubmit={false}
+          returnKeyType="next"
         />
 
         <TextInput
-          style={styles.input}
+          ref={passwordInputRef}
+          style={[styles.input, !!localError && styles.inputError]}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           autoCapitalize="none"
+          editable={!isLoading}
+          onSubmitEditing={handleLogin}
+          returnKeyType="go"
         />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.forgotPasswordButton}
-          onPress={() => {
-            // Dismiss keyboard first to prevent flickering
-            Keyboard.dismiss();
-            // Add a small delay before navigation to ensure keyboard is fully dismissed
-            setTimeout(() => {
-              router.push({
-                pathname: '/forgot-password',
-                params: { email }
-              });
-            }, 100);
-          }}
+          onPress={goToForgotPassword}
+          disabled={isLoading}
         >
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.button} 
+        <TouchableOpacity
+          style={[styles.button, isLoading && styles.buttonDisabled]}
           onPress={handleLogin}
           disabled={isLoading}
         >
-          {isLoading ? (
+          {isSubmitting || authLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.buttonText}>
@@ -166,8 +163,12 @@ export default function Login() {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={goToSignUp} style={styles.switchButton}>
-          <Text style={styles.switchText}>
+        <TouchableOpacity 
+          onPress={goToSignUp} 
+          style={styles.switchButton}
+          disabled={isLoading}
+        >
+          <Text style={[styles.switchText, isLoading && styles.textDisabled]}>
             Don't have an account? Sign Up
           </Text>
         </TouchableOpacity>
@@ -240,5 +241,14 @@ const styles = StyleSheet.create({
     color: '#F44336',
     marginBottom: 15,
     textAlign: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
+  },
+  textDisabled: {
+      color: '#999999'
+  },
+  inputError: {
+      borderColor: '#D32F2F',
   },
 }); 

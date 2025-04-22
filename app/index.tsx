@@ -1,46 +1,26 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
-import { Redirect, useRouter } from 'expo-router';
-import { useAuth } from '../src/context/AuthContext';
+// Removed useRouter and useAuth as this page should not handle redirects directly
+// import { Redirect, useRouter } from 'expo-router';
+// import { useAuth } from '../src/context/AuthContext';
 
+/**
+ * This is the initial screen loaded by the router.
+ * It should simply render a loading indicator.
+ * The actual routing logic (checking auth state and redirecting)
+ * is handled by the AuthGuard component in `app/_layout.tsx`.
+ */
 export default function Index() {
-  const { user, loading, session } = useAuth();
-  const router = useRouter();
+  // Removed useEffect hook that performed redirects
+  // const { user, loading, session } = useAuth();
+  // const router = useRouter();
+  // useEffect(() => { ... redirect logic removed ... }, [loading, user, session, router]);
 
-  // Add logging to debug authentication state
-  useEffect(() => {
-    console.log('Index page - Auth state:', { 
-      isLoading: loading,
-      hasUser: !!user,
-      hasSession: !!session,
-      userEmail: user?.email || 'none'
-    });
-    
-    if (!loading) {
-      if (user) {
-        console.log('Index redirecting to home:', user.email);
-        router.replace('/home');
-      } else {
-        console.log('Index redirecting to login: No user found');
-        router.replace('/login');
-      }
-    }
-  }, [loading, user, session, router]);
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#BD5151" />
-        <Text style={styles.loadingText}>Loading authentication...</Text>
-      </View>
-    );
-  }
-
-  // We'll handle redirects in the useEffect hook
+  // Render a simple loading indicator while the AuthGuard in layout decides the route.
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#BD5151" />
-      <Text style={styles.loadingText}>Redirecting...</Text>
+      <Text style={styles.loadingText}>Loading...</Text>
     </View>
   );
 }

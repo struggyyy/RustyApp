@@ -1,66 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Switch, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Switch, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { supabase } from '../src/lib/supabase';
 
 export default function Settings() {
-  const { user, signOut } = useAuth();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { user, profile, updateUserProfile, updateUserAuth, logOut, loading, deleteAccount } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    // Load user preferences
-    if (user) {
-      setNotificationsEnabled(user.user_metadata?.notifications_enabled || false);
-    }
-  }, [user]);
+  const [displayName, setDisplayName] = useState(profile?.displayName || user?.displayName || '');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleToggleNotifications = async () => {
-    setLoading(true);
+    setIsSubmitting(true);
+    const newValue = !notificationsEnabled;
     try {
-      const newValue = !notificationsEnabled;
-      await supabase.auth.updateUser({
-        data: { notifications_enabled: newValue }
+      const currentEmailPref = profile?.notificationPreferences?.email ?? true;
+      await updateUserProfile({
+        notificationPreferences: {
+            email: currentEmailPref,
+            push: newValue
+        }
       });
       setNotificationsEnabled(newValue);
+      Alert.alert('Success', 'Notification settings updated.');
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to update notification settings');
+      Alert.alert('Error', error.message || 'Failed to update notification settings.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setIsSubmitting(true);
+    try {
+      await updateUserProfile({ displayName });
+      await updateUserAuth({ displayName });
+      Alert.alert('Success', 'Profile updated successfully.');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to update profile.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setIsSubmitting(true);
+    try {
+      await logOut();
+      router.replace('/login');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Logout failed.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
+      'Are you ABSOLUTELY SURE you want to delete your account? This action is irreversible and will remove all your data.',
       [
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
+          text: 'DELETE PERMANENTLY',
           style: 'destructive',
           onPress: async () => {
-            setLoading(true);
+            setIsSubmitting(true);
             try {
-              // Delete user data from Supabase
-              await supabase.auth.admin.deleteUser(user?.id || '');
-              await signOut();
+              console.log('[Settings] Calling deleteAccount from context...');
+              await deleteAccount();
+              console.log('[Settings] deleteAccount successful. Navigating to login.');
+              Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
               router.replace('/login');
             } catch (error: any) {
-              Alert.alert('Error', 'Failed to delete account');
+              console.error('[Settings] Failed to delete account:', error);
+              Alert.alert('Deletion Failed', error.message || 'Failed to delete account. Please try again.');
             } finally {
-              setLoading(false);
+              setIsSubmitting(false);
             }
           },
         },
       ]
     );
   };
+
+  const isLoading = loading || isSubmitting;
 
   return (
     <View style={styles.container}>
@@ -73,12 +98,15 @@ export default function Settings() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Notifications</Text>
-        <View style={styles.settingItem}>
+        <View style={styles.notificationRow}>
           <Text style={styles.settingLabel}>Enable Notifications</Text>
           <Switch
-            value={notificationsEnabled}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={notificationsEnabled ? "#f5dd4b" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
             onValueChange={handleToggleNotifications}
-            disabled={loading}
+            value={notificationsEnabled}
+            disabled={isLoading}
           />
         </View>
       </View>
@@ -107,10 +135,11 @@ export default function Settings() {
 
       <View style={styles.section}>
         <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={signOut}
+          style={[styles.logoutButton, isLoading && styles.buttonDisabled]}
+          onPress={handleLogout}
+          disabled={isLoading}
         >
-          <Text style={styles.logoutButtonText}>Log Out</Text>
+          {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.logoutButtonText}>Log Out</Text>}
         </TouchableOpacity>
       </View>
     </View>
@@ -161,5 +190,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
+    borderColor: '#cccccc',
+  },
+  notificationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
   },
 }); 

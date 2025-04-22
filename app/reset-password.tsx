@@ -1,136 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { supabase } from '../src/lib/supabase';
+import { useAuth } from '../src/context/AuthContext';
 
-export default function ResetPassword() {
+export default function ResetPasswordScreen() {
+  const router = useRouter();
+  const { token } = useLocalSearchParams();
+  const { user, initialLoading, resetPassword, logOut } = useAuth();
+
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [tokenVerified, setTokenVerified] = useState(false);
-  const [tokenChecking, setTokenChecking] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { token } = useLocalSearchParams();
-  
-  // Verify we have a token
-  useEffect(() => {
-    const verifyToken = async () => {
-      setTokenChecking(true);
-      console.log('Verifying reset token status:', token ? 'Token exists' : 'No token');
-      
-      try {
-        if (!token) {
-          throw new Error('No reset token provided');
-        }
-        
-        // With the latest Supabase version, we can't directly verify the token
-        // But we can check if we have a session from the token by getting the user
-        const { data, error } = await supabase.auth.getUser();
-        
-        if (error) {
-          console.error('Token verification error:', error.message);
-          throw error;
-        }
-        
-        if (data?.user) {
-          console.log('Token is valid, user found:', data.user.email);
-          setTokenVerified(true);
-        } else {
-          console.error('No user found with token');
-          throw new Error('Invalid or expired token');
-        }
-      } catch (err: any) {
-        console.error('Token verification failed:', err.message);
-        Alert.alert(
-          'Invalid Reset Link',
-          'The password reset link is invalid or has expired. Please request a new password reset.',
-          [{ text: 'OK', onPress: () => router.replace('/login') }]
-        );
-      } finally {
-        setTokenChecking(false);
-      }
-    };
-    
-    verifyToken();
-  }, [token, router]);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-  const handleResetPassword = async () => {
-    setError(null);
-    
-    // Validate passwords
-    if (!newPassword) {
-      Alert.alert('Error', 'Please enter a new password');
-      return;
-    }
+  const handlePasswordUpdate = async () => {
+    setError('');
+    setMessage('');
     
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      setError('Passwords do not match.');
       return;
     }
-    
-    if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters long.');
       return;
     }
     
     setLoading(true);
     try {
-      console.log('Attempting to reset password...');
-      
-      // Update the user's password
-      const { error: resetError } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-      
-      if (resetError) {
-        console.error('Password reset error:', resetError.message);
-        throw resetError;
+      const emailToReset = user?.email;
+      if (!emailToReset) {
+          setError('Could not determine email for password reset. Please go back and try again.');
+          setLoading(false);
+          return;
       }
-      
-      // Ensure user is logged out after password reset
-      await supabase.auth.signOut();
-      
-      Alert.alert(
-        'Success',
-        'Your password has been successfully updated. You can now log in with your new password.',
-        [{ text: 'OK', onPress: () => router.replace('/login') }]
-      );
+      await resetPassword(emailToReset);
+      setMessage('Password reset email sent successfully. Check your inbox.');
     } catch (err: any) {
-      console.error('Reset password error:', err.message);
-      Alert.alert('Error', err.message || 'Failed to reset password');
+      console.error('Password update/reset error:', err.message);
+      setError(err.message || 'An error occurred.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading state while checking token
-  if (tokenChecking) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color="#BD5151" />
-        <Text style={styles.loadingText}>Verifying reset link...</Text>
-      </View>
-    );
+  if (initialLoading) {
+      return <ActivityIndicator style={{ flex: 1 }} size="large" />;
   }
 
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={100}
     >
-      <Stack.Screen
-        options={{
-          title: 'Set New Password',
-          headerShown: true,
-        }}
-      />
-      
+      <Stack.Screen options={{ title: 'Reset Password' }} />
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Create New Password</Text>
-        <Text style={styles.subtitle}>
-          Enter and confirm your new password
+        <Text style={styles.title}>Set New Password</Text>
+
+        {message && <Text style={styles.messageText}>{message}</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        <Text style={styles.infoText}>
+           If you requested a password reset, please check your email for instructions.
+           This screen currently initiates the password reset email process.
         </Text>
 
         <TextInput
@@ -139,35 +72,27 @@ export default function ResetPassword() {
           value={newPassword}
           onChangeText={setNewPassword}
           secureTextEntry
-          autoCapitalize="none"
+          editable={!loading}
         />
-
         <TextInput
           style={styles.input}
           placeholder="Confirm New Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
-          autoCapitalize="none"
+          editable={!loading}
         />
 
         <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleResetPassword}
-          disabled={loading || !tokenVerified}
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handlePasswordUpdate}
+          disabled={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>Reset Password</Text>
-          )}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Send Reset Email</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.push('/login')}
-        >
-          <Text style={styles.backButtonText}>Back to Login</Text>
+        <TouchableOpacity onPress={() => router.push('/login')} style={styles.linkButton}>
+            <Text style={styles.linkText}>Back to Login</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -177,16 +102,7 @@ export default function ResetPassword() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  loadingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 20,
-    color: '#656565',
-    fontSize: 16,
+    backgroundColor: '#fff',
   },
   formContainer: {
     flex: 1,
@@ -194,44 +110,58 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 28,
+      fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+      marginBottom: 20,
     textAlign: 'center',
-    color: '#656565',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 30,
-    textAlign: 'center',
-    color: '#656565',
   },
   input: {
-    backgroundColor: '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#ccc',
     borderRadius: 8,
-    padding: 15,
+      padding: 12,
     marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#D9D9D9',
-    color: '#656565',
+      fontSize: 16,
   },
   button: {
     backgroundColor: '#BD5151',
+      padding: 15,
     borderRadius: 8,
-    padding: 15,
     alignItems: 'center',
-    marginTop: 10,
+      marginBottom: 15,
   },
   buttonText: {
-    color: '#FFFFFF',
+      color: '#fff',
+      fontSize: 16,
     fontWeight: 'bold',
+  },
+  buttonDisabled: {
+      backgroundColor: '#cccccc',
+  },
+  messageText: {
+      color: 'green',
+      marginBottom: 15,
+      textAlign: 'center',
+      fontSize: 16,
+  },
+  errorText: {
+      color: 'red',
+      marginBottom: 15,
+      textAlign: 'center',
     fontSize: 16,
   },
-  backButton: {
-    marginTop: 20,
+  infoText: {
+      color: '#666',
+      marginBottom: 20,
+      textAlign: 'center',
+      fontSize: 14,
+      fontStyle: 'italic',
+  },
+   linkButton: {
+        marginTop: 10,
     alignItems: 'center',
   },
-  backButtonText: {
+    linkText: {
     color: '#BD5151',
     fontSize: 16,
   },

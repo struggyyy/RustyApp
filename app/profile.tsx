@@ -1,75 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Pressable, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Pressable, StatusBar, RefreshControl } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
-import { supabase } from '../src/lib/supabase';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Profile() {
-  const { user, updateUserProfile, loading: authLoading, uploadProfileImage, signOut } = useAuth();
+  const { user, profile, logOut, uploadProfileImage, loading: authLoading, initialLoading } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
+
+  const isLoading = authLoading || initialLoading || uploading || refreshing;
+
+  const profileImageUrl = profile?.profileImage || user?.photoURL;
 
   useEffect(() => {
     if (user) {
-      setDisplayName(user.user_metadata?.displayName || '');
+      setDisplayName(user.displayName || '');
       setEmail(user.email || '');
-      setProfileImage(user.user_metadata?.avatar_url || null);
     }
   }, [user]);
 
-  const handleUpdateProfile = async () => {
-    if (!displayName.trim()) {
-      Alert.alert('Error', 'Display name cannot be empty');
-      return;
+  useEffect(() => {
+    if (!initialLoading && !user) {
+      router.replace('/login');
     }
+  }, [initialLoading, user, router]);
 
-    setLoading(true);
+  const handleLogout = async () => {
     try {
-      await updateUserProfile(displayName);
-      Alert.alert('Success', 'Profile updated successfully');
+      await logOut();
+      router.replace('/login');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile');
-    } finally {
-      setLoading(false);
+      Alert.alert('Logout Error', error.message || 'Failed to log out.');
     }
   };
 
-  const pickImage = async () => {
-    try {
+  const handleChoosePhoto = async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
+      Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
+    let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.5,
+      quality: 0.7,
       });
 
-      if (!result.canceled) {
-        setLoading(true);
-        const uri = result.assets[0].uri;
-        const avatarUrl = await uploadProfileImage(uri);
-        await updateUserProfile(avatarUrl);
-        setLoading(false);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const source = result.assets[0];
+      setUploading(true);
+      try {
+        if (!user?.uid) throw new Error('User not found for upload');
+        const uploadedUrl = await uploadProfileImage(user.uid, source.uri);
+        if (uploadedUrl) {
+          Alert.alert('Success', 'Profile picture updated!');
+        } else {
+          throw new Error('Upload completed but no URL was returned.');
       }
-    } catch (error) {
-      console.error('Error picking image:', error);
-      setLoading(false);
-      alert('Failed to upload image. Please try again.');
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        Alert.alert('Upload Error', error.message || 'Failed to upload image.');
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
+  const onRefresh = useCallback(() => {
+    console.log('Refreshing profile...');
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
+  if (initialLoading) {
+    return <ActivityIndicator style={styles.loadingIndicator} size="large" />;
+  }
+
+  if (!user) {
+    return <View style={styles.container}><Text>Please log in.</Text></View>;
+    }
+
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Stack.Screen
         options={{
           title: 'Your Profile',
@@ -96,34 +121,33 @@ export default function Profile() {
         }}
       />
 
-      <View style={styles.content}>
-        <Pressable 
-          style={styles.profileImageContainer}
-          onPress={pickImage}
-          disabled={loading}
-        >
-          {profileImage ? (
+      <View style={styles.profileHeader}>
+        <TouchableOpacity onPress={handleChoosePhoto} disabled={isLoading}>
+          <View style={styles.avatarContainer}>
+            {profileImageUrl ? (
             <Image
-              source={{ uri: profileImage }}
-              style={styles.profileImage}
+                source={{ uri: profileImageUrl }}
+                style={styles.avatar}
             />
           ) : (
-            <View style={styles.profilePlaceholder}>
-              <Text style={styles.profilePlaceholderText}>
-                {user?.email?.[0]?.toUpperCase() || '?'}
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarPlaceholderText}>
+                  {user?.email?.[0]?.toUpperCase() || 'P'}
               </Text>
             </View>
           )}
-          {loading && (
-            <View style={styles.loadingOverlay}>
-              <Text style={styles.loadingText}>Uploading...</Text>
+            {uploading && (
+              <ActivityIndicator style={styles.uploadIndicator} size="small" color="#fff" />
+            )}
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.userName}>{profile?.displayName || user?.displayName || 'Username'}</Text>
+        <Text style={styles.userEmail}>{user?.email}</Text>
             </View>
-          )}
-        </Pressable>
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Display Name</Text>
-          <Text style={styles.value}>{user?.user_metadata?.display_name || 'Not set'}</Text>
+        <Text style={styles.value}>{user?.displayName || 'Not set'}</Text>
           
           <Text style={styles.label}>Email</Text>
           <Text style={styles.value}>{user?.email}</Text>
@@ -131,34 +155,28 @@ export default function Profile() {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={handleUpdateProfile}
-          disabled={loading || authLoading}
+        onPress={() => router.push('/reports')}
+        disabled={isLoading}
         >
-          {loading || authLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>Update Profile</Text>
-          )}
+        <Text style={styles.buttonText}>View My Reports</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.reportsButton}
-          onPress={() => router.push('/reports')}
+        style={styles.button}
+        onPress={() => router.push('/settings')}
+        disabled={isLoading}
         >
-          <Text style={styles.reportsButtonText}>View My Reports</Text>
+        <Text style={styles.buttonText}>Settings</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.signOutButton}
-          onPress={async () => {
-            await signOut();
-            router.replace('/login');
-          }}
+        style={[styles.button, styles.logoutButton]}
+        onPress={handleLogout}
+        disabled={isLoading}
         >
-          <Text style={styles.signOutButtonText}>Sign Out</Text>
+        <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -199,49 +217,58 @@ const styles = StyleSheet.create({
   settingsIcon: {
     fontSize: 20,
   },
-  content: {
-    flex: 1,
-    padding: 20,
+  contentContainer: {
     alignItems: 'center',
+    paddingVertical: 30,
+    paddingHorizontal: 20,
   },
-  profileImageContainer: {
-    marginTop: 20,
+  profileHeader: {
+    alignItems: 'center',
     marginBottom: 30,
+  },
+  avatarContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
     position: 'relative',
+    borderWidth: 3,
+    borderColor: '#BD5151',
   },
-  profileImage: {
-    width: 120,
-    height: 120,
+  avatar: {
+    width: '100%',
+    height: '100%',
     borderRadius: 60,
   },
-  profilePlaceholder: {
-    width: 120,
-    height: 120,
+  avatarPlaceholder: {
+    width: '100%',
+    height: '100%',
     borderRadius: 60,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: '#ccc',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  profilePlaceholderText: {
-    color: '#656565',
+  avatarPlaceholderText: {
     fontSize: 40,
+    color: '#fff',
     fontWeight: 'bold',
   },
-  loadingOverlay: {
+  uploadIndicator: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  loadingText: {
-    color: '#FFFFFF',
-    fontSize: 14,
+  userName: {
+    fontSize: 22,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  userEmail: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 30,
   },
   infoContainer: {
     width: '100%',
@@ -259,42 +286,25 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#BD5151',
-    borderRadius: 8,
-    padding: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
     alignItems: 'center',
-    marginTop: 10,
+    marginBottom: 15,
+    width: '80%',
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
   },
-  reportsButton: {
+  logoutButton: {
+    backgroundColor: '#6c757d',
     marginTop: 20,
-    padding: 15,
+  },
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#BD5151',
-    borderRadius: 8,
-  },
-  reportsButtonText: {
-    color: '#BD5151',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  signOutButton: {
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 8,
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: '#BD5151',
-  },
-  signOutButtonText: {
-    color: '#BD5151',
-    fontSize: 16,
-    fontWeight: '600',
   },
 }); 

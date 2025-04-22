@@ -1,65 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 
-export default function SignUp() {
-  const router = useRouter();
+export default function SignupScreen() {
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(params.email as string || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signUp, error } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signUp, loading: authLoading, error } = useAuth();
+  const router = useRouter();
 
-  // Handle back navigation with email preservation
-  const handleBackToLogin = () => {
-    // Dismiss keyboard first to prevent flickering
-    Keyboard.dismiss();
-    // Add a small delay before navigation
-    setTimeout(() => {
-      router.push({
-        pathname: '/login', 
-        params: { email }
-      });
-    }, 100);
-  };
-
-  const handleSignUp = async () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
-      return;
-    }
-
-    if (!password) {
-      Alert.alert('Error', 'Please enter a password');
-      return;
-    }
-
-    if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
-      return;
-    }
-
+  const handleSignup = async () => {
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      Alert.alert('Error', 'Passwords do not match.');
       return;
     }
+    if (!email.includes('@')) {
+        Alert.alert('Error', 'Please enter a valid email address.');
+        return;
+    }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
-      await signUp(email, password);
-      Alert.alert(
-        'Signup Successful', 
-        'Please check your email for verification instructions.',
-        [{ text: 'OK', onPress: () => router.replace('/login') }]
-      );
+      const newUser = await signUp(email, password);
+      
+      if (newUser) {
+        console.log('Signup successful, navigating to verification screen.');
+        router.replace({ pathname: '/verify-email', params: { email } }); 
+      } else {
+        console.log('Signup failed (error likely set in context).');
+      }
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'An error occurred during signup');
+      console.error('Signup handler error:', err);
+      Alert.alert('Error', err.message || 'An unexpected error occurred during sign up.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  const isLoading = isSubmitting || authLoading;
 
   return (
     <KeyboardAvoidingView 
@@ -89,6 +70,7 @@ export default function SignUp() {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          editable={!isLoading}
         />
 
         <TextInput
@@ -98,6 +80,7 @@ export default function SignUp() {
           onChangeText={setPassword}
           secureTextEntry
           autoCapitalize="none"
+          editable={!isLoading}
         />
 
         <TextInput
@@ -107,14 +90,15 @@ export default function SignUp() {
           onChangeText={setConfirmPassword}
           secureTextEntry
           autoCapitalize="none"
+          editable={!isLoading}
         />
 
         <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleSignUp}
-          disabled={loading}
+          style={[styles.button, isLoading && styles.buttonDisabled]}
+          onPress={handleSignup}
+          disabled={isLoading}
         >
-          {loading ? (
+          {isLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.buttonText}>Sign Up</Text>
@@ -123,9 +107,13 @@ export default function SignUp() {
 
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={handleBackToLogin}
+          onPress={() => {
+            Keyboard.dismiss();
+            router.replace('/login');
+          }}
+          disabled={isLoading}
         >
-          <Text style={styles.backButtonText}>Already have an account? Log In</Text>
+          <Text style={[styles.backButtonText, isLoading && styles.textDisabled]}>Already have an account? Log In</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -189,4 +177,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  buttonDisabled: { backgroundColor: '#cccccc' },
+  textDisabled: { color: '#999999' },
 }); 

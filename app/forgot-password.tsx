@@ -14,13 +14,11 @@ export default function ForgotPassword() {
   const handleBackToLogin = () => {
     // Dismiss keyboard first to prevent flickering
     Keyboard.dismiss();
-    // Add a small delay before navigation
-    setTimeout(() => {
-      router.push({
-        pathname: '/login', 
-        params: { email }
-      });
-    }, 100);
+    // Remove setTimeout, call replace directly, passing params
+    router.replace({ 
+      pathname: '/login', 
+      params: { email }
+    });
   };
 
   const handleResetPassword = async () => {
