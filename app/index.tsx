@@ -1,8 +1,22 @@
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, View, Text } from 'react-native';
+import styled from 'styled-components/native';
 // Removed useRouter and useAuth as this page should not handle redirects directly
 // import { Redirect, useRouter } from 'expo-router';
 // import { useAuth } from '../src/context/AuthContext';
+
+// Styled Components
+const StyledContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#FFFFFF',
+});
+
+const LoadingText = styled.Text({
+  marginTop: 10,
+  color: '#656565',
+});
 
 /**
  * This is the initial screen loaded by the router.
@@ -18,22 +32,9 @@ export default function Index() {
 
   // Render a simple loading indicator while the AuthGuard in layout decides the route.
   return (
-    <View style={styles.container}>
+    <StyledContainer>
       <ActivityIndicator size="large" color="#BD5151" />
-      <Text style={styles.loadingText}>Loading...</Text>
-    </View>
+      <LoadingText>Loading...</LoadingText>
+    </StyledContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#656565',
-  }
-}); 
+} 

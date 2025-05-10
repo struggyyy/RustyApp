@@ -1,7 +1,72 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Switch, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Switch, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledContainer = styled.View({
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+});
+
+const SectionView = styled.View({
+  marginBottom: 30,
+  paddingHorizontal: 20,
+});
+
+const SectionTitleText = styled.Text({
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#656565',
+  marginBottom: 15,
+});
+
+interface SettingItemProps {
+  isDangerItem?: boolean;
+}
+const SettingItemTouchable = styled.TouchableOpacity<SettingItemProps>((props: SettingItemProps) => ({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 15,
+  borderBottomWidth: props.isDangerItem ? 0 : 1,
+  borderBottomColor: '#D9D9D9',
+}));
+
+interface SettingLabelTextProps {
+  isDangerText?: boolean;
+}
+const SettingLabelText = styled.Text<SettingLabelTextProps>((props: SettingLabelTextProps) => ({
+  fontSize: 16,
+  color: props.isDangerText ? '#FF3B30' : '#656565',
+}));
+
+interface LogoutButtonProps {
+  isDisabled?: boolean;
+}
+const LogoutButtonTouchable = styled.TouchableOpacity<LogoutButtonProps>((props: LogoutButtonProps) => ({
+  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
+  borderColor: props.isDisabled ? '#cccccc' : 'transparent', // Assuming default border is transparent or not set
+  borderRadius: 8,
+  padding: 15,
+  alignItems: 'center',
+  marginHorizontal: 20,
+}));
+
+const LogoutButtonText = styled.Text({
+  color: '#FFFFFF',
+  fontWeight: 'bold',
+  fontSize: 16,
+});
+
+const NotificationRowView = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 20,
+  marginTop: 10,
+});
 
 export default function Settings() {
   const { user, profile, updateUserProfile, updateUserAuth, logOut, loading, deleteAccount } = useAuth();
@@ -88,7 +153,7 @@ export default function Settings() {
   const isLoading = loading || isSubmitting;
 
   return (
-    <View style={styles.container}>
+    <StyledContainer>
       <Stack.Screen
         options={{
           title: 'Settings',
@@ -96,10 +161,10 @@ export default function Settings() {
         }}
       />
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Notifications</Text>
-        <View style={styles.notificationRow}>
-          <Text style={styles.settingLabel}>Enable Notifications</Text>
+      <SectionView>
+        <SectionTitleText>Notifications</SectionTitleText>
+        <NotificationRowView>
+          <SettingLabelText>Enable Notifications</SettingLabelText>
           <Switch
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={notificationsEnabled ? "#f5dd4b" : "#f4f3f4"}
@@ -108,98 +173,38 @@ export default function Settings() {
             value={notificationsEnabled}
             disabled={isLoading}
           />
-        </View>
-      </View>
+        </NotificationRowView>
+      </SectionView>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
-        <TouchableOpacity
-          style={styles.settingItem}
+      <SectionView>
+        <SectionTitleText>Account</SectionTitleText>
+        <SettingItemTouchable
           onPress={() => router.push('/profile')}
         >
-          <Text style={styles.settingLabel}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.settingItem}
+          <SettingLabelText>Edit Profile</SettingLabelText>
+        </SettingItemTouchable>
+        <SettingItemTouchable
           onPress={() => router.push('/reports')}
         >
-          <Text style={styles.settingLabel}>View Report History</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.settingItem, styles.dangerItem]}
+          <SettingLabelText>View Report History</SettingLabelText>
+        </SettingItemTouchable>
+        <SettingItemTouchable
+          isDangerItem
           onPress={handleDeleteAccount}
         >
-          <Text style={[styles.settingLabel, styles.dangerText]}>Delete Account</Text>
-        </TouchableOpacity>
-      </View>
+          <SettingLabelText isDangerText>Delete Account</SettingLabelText>
+        </SettingItemTouchable>
+      </SectionView>
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={[styles.logoutButton, isLoading && styles.buttonDisabled]}
+      <SectionView>
+        <LogoutButtonTouchable
+          isDisabled={isLoading}
           onPress={handleLogout}
           disabled={isLoading}
         >
-          {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.logoutButtonText}>Log Out</Text>}
-        </TouchableOpacity>
-      </View>
-    </View>
+          {isLoading ? <ActivityIndicator color="#fff" /> : <LogoutButtonText>Log Out</LogoutButtonText>}
+        </LogoutButtonTouchable>
+      </SectionView>
+    </StyledContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  section: {
-    marginBottom: 30,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#656565',
-    marginBottom: 15,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#D9D9D9',
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: '#656565',
-  },
-  dangerItem: {
-    borderBottomWidth: 0,
-  },
-  dangerText: {
-    color: '#FF3B30',
-  },
-  logoutButton: {
-    backgroundColor: '#BD5151',
-    borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginHorizontal: 20,
-  },
-  logoutButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  buttonDisabled: {
-    backgroundColor: '#cccccc',
-    borderColor: '#cccccc',
-  },
-  notificationRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 10,
-  },
-}); 
+} 

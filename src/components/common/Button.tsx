@@ -1,8 +1,7 @@
 import React from 'react';
 import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
+  TouchableOpacityProps,
+  TextProps,
   ActivityIndicator,
   View,
   StyleProp,
@@ -10,6 +9,7 @@ import {
   TextStyle,
 } from 'react-native';
 import { colors, typography, spacing } from '../../theme';
+import styled, { css } from 'styled-components/native';
 
 // Button variants
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'text';
@@ -18,7 +18,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'text';
 export type ButtonSize = 'small' | 'medium' | 'large';
 
 // Button props
-export interface ButtonProps {
+export interface ButtonProps extends TouchableOpacityProps {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
@@ -28,10 +28,132 @@ export interface ButtonProps {
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
+  style?: StyleProp<ViewStyle>; // Keep for external overrides
+  textStyle?: StyleProp<TextStyle>; // Keep for external overrides
   testID?: string;
 }
+
+interface StyledButtonContainerProps {
+  variant: ButtonVariant;
+  size: ButtonSize;
+  fullWidth?: boolean;
+  isDisabled?: boolean;
+}
+
+const ButtonContainer = styled.TouchableOpacity<StyledButtonContainerProps>`
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+
+  /* Size Styles */
+  ${(props: StyledButtonContainerProps) => {
+    switch (props.size) {
+      case 'small':
+        return css`
+          padding: ${spacing.xs}px ${spacing.md}px;
+          min-height: 32px;
+        `;
+      case 'large':
+        return css`
+          padding: ${spacing.md}px ${spacing.lg}px;
+          min-height: 56px;
+        `;
+      case 'medium':
+      default:
+        return css`
+          padding: ${spacing.sm}px ${spacing.md}px;
+          min-height: 44px;
+        `;
+    }
+  }}
+
+  /* Full Width */
+  ${(props: StyledButtonContainerProps) => props.fullWidth && css`width: 100%;`}
+
+  /* Variant and Disabled Styles */
+  ${(props: StyledButtonContainerProps) => {
+    const { variant, isDisabled } = props;
+    if (isDisabled) {
+      switch (variant) {
+        case 'primary': return css`background-color: ${colors.gray[300]};`;
+        case 'secondary': return css`background-color: ${colors.gray[200]};`;
+        case 'outline': return css`border-color: ${colors.gray[300]}; background-color: transparent; border-width: 1px;`;
+        case 'text': return css`background-color: transparent;`; // No special disabled style for text button container
+        default: return css`background-color: ${colors.gray[300]};`;
+      }
+    } else {
+      switch (variant) {
+        case 'primary': return css`background-color: ${colors.primary};`;
+        case 'secondary': return css`background-color: ${colors.secondary};`;
+        case 'outline': return css`background-color: transparent; border-width: 1px; border-color: ${colors.primary};`;
+        case 'text': return css`background-color: transparent; border-width: 0;`;
+        default: return css`background-color: ${colors.primary};`;
+      }
+    }
+  }}
+`;
+
+interface StyledButtonTextProps {
+  variant: ButtonVariant;
+  size: ButtonSize;
+  isDisabled?: boolean;
+}
+
+const ButtonTitle = styled.Text<StyledButtonTextProps>`
+  ${typography.textStyles.button}
+  text-align: center;
+
+  /* Text Size Styles */
+  ${(props: StyledButtonTextProps) => {
+    switch (props.size) {
+      case 'small': return css`font-size: ${typography.fontSize.caption}px;`;
+      case 'large': return css`font-size: ${typography.fontSize.h6}px;`;
+      case 'medium':
+      default: return css`font-size: ${typography.fontSize.button}px;`; // Default button font size from theme
+    }
+  }}
+
+  /* Text Variant and Disabled Styles */
+  ${(props: StyledButtonTextProps) => {
+    const { variant, isDisabled } = props;
+    if (isDisabled) {
+      switch (variant) {
+        case 'primary':
+        case 'secondary': return css`color: ${colors.gray[500]};`;
+        case 'outline':
+        case 'text': return css`color: ${colors.gray[400]};`;
+        default: return css`color: ${colors.gray[500]};`;
+      }
+    } else {
+      switch (variant) {
+        case 'primary':
+        case 'secondary': return css`color: ${colors.white};`;
+        case 'outline':
+        case 'text': return css`color: ${colors.primary};`;
+        default: return css`color: ${colors.white};`;
+      }
+    }
+  }}
+`;
+
+const ContentContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
+
+const IconContainer = styled.View`
+  /* Base for both left and right icon containers */
+`;
+
+const LeftIconContainer = styled(IconContainer)`
+  margin-right: ${spacing.xs}px;
+`;
+
+const RightIconContainer = styled(IconContainer)`
+  margin-left: ${spacing.xs}px;
+`;
 
 const Button: React.FC<ButtonProps> = ({
   title,
@@ -46,169 +168,42 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   testID,
+  ...rest
 }) => {
-  // Get appropriate styles based on props
-  const buttonStyles = [
-    styles.button,
-    styles[`${variant}Button`],
-    styles[`${size}Button`],
-    fullWidth && styles.fullWidth,
-    disabled && styles[`${variant}DisabledButton`],
-    style,
-  ];
-
-  const textStyles = [
-    styles.text,
-    styles[`${variant}Text`],
-    styles[`${size}Text`],
-    disabled && styles[`${variant}DisabledText`],
-    textStyle,
-  ];
-
   return (
-    <TouchableOpacity
-      style={buttonStyles}
+    <ButtonContainer
+      variant={variant}
+      size={size}
+      fullWidth={fullWidth}
+      isDisabled={disabled || loading} // Pass combined disabled state
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={disabled || loading} // Native disabled prop
       activeOpacity={0.7}
+      style={style} // Apply external style overrides
       testID={testID}
+      {...rest}
     >
       {loading ? (
         <ActivityIndicator 
           size="small" 
-          color={variant === 'primary' ? colors.white : '#BD5151'} 
+          color={variant === 'primary' || variant === 'secondary' ? colors.white : colors.primary} 
         />
       ) : (
-        <View style={styles.contentContainer}>
-          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
-          <Text style={textStyles}>{title}</Text>
-          {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
-        </View>
+        <ContentContainer>
+          {leftIcon && <LeftIconContainer>{leftIcon}</LeftIconContainer>}
+          <ButtonTitle 
+            variant={variant} 
+            size={size} 
+            isDisabled={disabled || loading}
+            style={textStyle} // Apply external text style overrides
+          >
+            {title}
+          </ButtonTitle>
+          {rightIcon && <RightIconContainer>{rightIcon}</RightIconContainer>}
+        </ContentContainer>
       )}
-    </TouchableOpacity>
+    </ButtonContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  
-  // Variant styles
-  primaryButton: {
-    backgroundColor: colors.primary,
-  },
-  secondaryButton: {
-    backgroundColor: colors.secondary,
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  textButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-  },
-  
-  // Size styles
-  smallButton: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    minHeight: 32,
-  },
-  mediumButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    minHeight: 44,
-  },
-  largeButton: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    minHeight: 56,
-  },
-  
-  // Width style
-  fullWidth: {
-    width: '100%',
-  },
-  
-  // Disabled styles
-  primaryDisabledButton: {
-    backgroundColor: colors.gray[300],
-  },
-  secondaryDisabledButton: {
-    backgroundColor: colors.gray[200],
-  },
-  outlineDisabledButton: {
-    borderColor: colors.gray[300],
-  },
-  textDisabledButton: {
-    // No special styling needed
-  },
-  
-  // Text styles
-  text: {
-    ...typography.textStyles.button,
-    textAlign: 'center',
-  },
-  primaryText: {
-    color: colors.white,
-  },
-  secondaryText: {
-    color: colors.white,
-  },
-  outlineText: {
-    color: colors.primary,
-  },
-  textText: {
-    color: colors.primary,
-  },
-  
-  // Disabled text styles
-  primaryDisabledText: {
-    color: colors.gray[500],
-  },
-  secondaryDisabledText: {
-    color: colors.gray[500],
-  },
-  outlineDisabledText: {
-    color: colors.gray[400],
-  },
-  textDisabledText: {
-    color: colors.gray[400],
-  },
-  
-  // Text sizes
-  smallText: {
-    ...typography.textStyles.button,
-    fontSize: typography.fontSize.caption,
-  },
-  mediumText: {
-    ...typography.textStyles.button,
-  },
-  largeText: {
-    ...typography.textStyles.button,
-    fontSize: typography.fontSize.h6,
-  },
-  
-  // Content container for icon + text layout
-  contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  leftIconContainer: {
-    marginRight: spacing.xs,
-  },
-  
-  rightIconContainer: {
-    marginLeft: spacing.xs,
-  },
-});
 
 export default Button; 

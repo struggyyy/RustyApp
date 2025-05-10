@@ -1,7 +1,82 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+  backgroundColor: '#FFFFFF',
+});
+
+const TitleText = styled.Text({
+  fontSize: 24,
+  fontWeight: 'bold',
+  marginBottom: 15,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+const SubtitleText = styled.Text({
+  fontSize: 16,
+  textAlign: 'center',
+  marginBottom: 10,
+  color: '#656565',
+});
+
+const EmailHighlightText = styled.Text({
+  fontWeight: 'bold',
+  color: '#BD5151',
+});
+
+const InstructionsText = styled.Text({
+  fontSize: 14,
+  textAlign: 'center',
+  marginBottom: 30,
+  color: '#656565',
+  lineHeight: 20,
+});
+
+interface StyledButtonProps {
+  isLoginButton?: boolean;
+  isDisabled?: boolean;
+}
+const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
+  backgroundColor: props.isDisabled ? '#cccccc' : (props.isLoginButton ? '#6c757d' : '#BD5151'),
+  borderRadius: 8,
+  paddingVertical: 15,
+  paddingHorizontal: 30,
+  alignItems: 'center',
+  marginBottom: 15,
+  width: '90%',
+}));
+
+const ButtonText = styled.Text({
+  color: '#FFFFFF',
+  fontWeight: 'bold',
+  fontSize: 16,
+});
+
+interface FeedbackTextProps {
+  isError?: boolean;
+}
+const FeedbackText = styled.Text<FeedbackTextProps>((props: FeedbackTextProps) => ({
+  color: props.isError ? 'red' : 'green',
+  marginBottom: 15,
+  textAlign: 'center',
+  fontWeight: props.isError ? 'normal' : 'bold',
+}));
+
+const InfoText = styled.Text({
+  fontSize: 12,
+  color: '#888',
+  marginTop: 20,
+  textAlign: 'center',
+});
 
 export default function VerifyEmailScreen() {
   const params = useLocalSearchParams();
@@ -47,125 +122,55 @@ export default function VerifyEmailScreen() {
   const isLoading = loading || isResending || isLoggingOut;
 
   return (
-    <View style={styles.container}>
+    <StyledContainer>
       {/* Add Stack.Screen options to hide the header */}
       <Stack.Screen options={{ headerShown: false }} />
 
-      <Text style={styles.title}>Check Your Email</Text>
-      <Text style={styles.subtitle}>
+      <TitleText>Check Your Email</TitleText>
+      <SubtitleText>
         We've sent a verification link to 
-        <Text style={styles.emailText}> {emailToVerify || 'your email address'}</Text>.
-      </Text>
-      <Text style={styles.instructions}>
+        <EmailHighlightText> {emailToVerify || 'your email address'}</EmailHighlightText>.
+      </SubtitleText>
+      <InstructionsText>
         Please click the link in that email to activate your account. You may need to check your spam folder.
-      </Text>
+      </InstructionsText>
 
        {/* Display general context errors or resend feedback */} 
-       {(error && !resendMessage) && <Text style={styles.errorText}>{error}</Text>}
+       {(error && !resendMessage) && <FeedbackText isError>{error}</FeedbackText>}
        {resendMessage && 
-         <Text style={[styles.messageText, error && styles.errorText]}>
+         <FeedbackText isError={!!error}>
            {resendMessage}
-         </Text>
+         </FeedbackText>
        }
 
-      <TouchableOpacity
-        style={[styles.button, isLoading && styles.buttonDisabled]}
+      <StyledButton
+        isDisabled={isLoading}
         onPress={handleResendVerification}
         disabled={isLoading}
       >
         {isResending ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text style={styles.buttonText}>Resend Verification Email</Text>
+          <ButtonText>Resend Verification Email</ButtonText>
         )}
-      </TouchableOpacity>
+      </StyledButton>
 
-      <TouchableOpacity
-        style={[styles.button, styles.loginButton, isLoading && styles.buttonDisabled]}
+      <StyledButton
+        isLoginButton
+        isDisabled={isLoading}
         onPress={goToLogin}
         disabled={isLoading}
       >
         {isLoggingOut ? (
             <ActivityIndicator color="#FFFFFF" /> 
         ) : (
-            <Text style={styles.buttonText}>Go to Login</Text>
+            <ButtonText>Go to Login</ButtonText>
         )}
-      </TouchableOpacity>
+      </StyledButton>
 
-       <Text style={styles.infoText}>
+       <InfoText>
            (After verifying, please use the Login button).
-       </Text>
-    </View>
+       </InfoText>
+    </StyledContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 10,
-    color: '#656565',
-  },
-   emailText: {
-    fontWeight: 'bold',
-    color: '#BD5151',
-  },
-  instructions: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 30,
-    color: '#656565',
-    lineHeight: 20,
-  },
-  button: {
-    backgroundColor: '#BD5151',
-    borderRadius: 8,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '90%', // Wider button
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-   loginButton: {
-    backgroundColor: '#6c757d',
-  },
-  buttonDisabled: {
-    backgroundColor: '#cccccc',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  messageText: {
-      color: 'green',
-      marginBottom: 15,
-      textAlign: 'center',
-      fontWeight: 'bold',
-  },
-   infoText: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 20,
-    textAlign: 'center',
-  },
-}); 
+} 

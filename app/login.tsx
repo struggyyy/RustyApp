@@ -1,7 +1,94 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+});
+
+const FormContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  padding: 20,
+});
+
+const TitleText = styled.Text({
+  fontSize: 28,
+  fontWeight: 'bold',
+  marginBottom: 10,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+const SubtitleText = styled.Text({
+  fontSize: 16,
+  marginBottom: 30,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+interface StyledInputProps {
+  hasError?: boolean;
+}
+const StyledInput = styled.TextInput<StyledInputProps>((props: StyledInputProps) => ({
+  backgroundColor: '#FFFFFF',
+  borderRadius: 8,
+  padding: 15,
+  marginBottom: 15,
+  borderWidth: 1,
+  borderColor: props.hasError ? '#D32F2F' : '#D9D9D9',
+  color: '#656565',
+}));
+
+interface StyledButtonProps {
+  isDisabled?: boolean;
+}
+const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
+  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
+  borderRadius: 8,
+  padding: 15,
+  alignItems: 'center',
+  marginTop: 10,
+}));
+
+const ButtonText = styled.Text({
+  color: '#FFFFFF',
+  fontWeight: 'bold',
+  fontSize: 16,
+});
+
+const SwitchButton = styled.TouchableOpacity({
+  marginTop: 20,
+  alignItems: 'center',
+});
+
+interface SwitchTextProps {
+  isDisabled?: boolean;
+}
+const SwitchText = styled.Text<SwitchTextProps>((props: SwitchTextProps) => ({
+  color: props.isDisabled ? '#999999' : '#BD5151',
+  fontSize: 16,
+}));
+
+const ForgotPasswordButton = styled.TouchableOpacity({
+  alignSelf: 'flex-end',
+  marginBottom: 15,
+});
+
+const ForgotPasswordText = styled.Text({
+  color: '#BD5151',
+  fontSize: 14,
+});
+
+const ErrorText = styled.Text({
+  color: '#F44336',
+  marginBottom: 15,
+  textAlign: 'center',
+});
 
 export default function Login() {
   const params = useLocalSearchParams();
@@ -95,8 +182,7 @@ export default function Login() {
   const isLoading = initialLoading || isSubmitting || authLoading;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
+    <StyledKeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={100}
     >
@@ -107,16 +193,16 @@ export default function Login() {
         }}
       />
 
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>
+      <FormContainer>
+        <TitleText>Welcome Back</TitleText>
+        <SubtitleText>
           Log in to your Rusty account
-        </Text>
+        </SubtitleText>
 
-        {localError && <Text style={styles.errorText}>{localError}</Text>}
+        {localError && <ErrorText>{localError}</ErrorText>}
 
-        <TextInput
-          style={[styles.input, !!localError && styles.inputError]}
+        <StyledInput
+          hasError={!!localError}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -128,9 +214,9 @@ export default function Login() {
           returnKeyType="next"
         />
 
-        <TextInput
+        <StyledInput
           ref={passwordInputRef}
-          style={[styles.input, !!localError && styles.inputError]}
+          hasError={!!localError}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
@@ -141,114 +227,36 @@ export default function Login() {
           returnKeyType="go"
         />
 
-        <TouchableOpacity
-          style={styles.forgotPasswordButton}
+        <ForgotPasswordButton
           onPress={goToForgotPassword}
           disabled={isLoading}
         >
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
+          <ForgotPasswordText>Forgot Password?</ForgotPasswordText>
+        </ForgotPasswordButton>
 
-        <TouchableOpacity
-          style={[styles.button, isLoading && styles.buttonDisabled]}
+        <StyledButton
+          isDisabled={isLoading}
           onPress={handleLogin}
           disabled={isLoading}
         >
           {isSubmitting || authLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.buttonText}>
+            <ButtonText>
               Log In
-            </Text>
+            </ButtonText>
           )}
-        </TouchableOpacity>
+        </StyledButton>
 
-        <TouchableOpacity 
+        <SwitchButton 
           onPress={goToSignUp} 
-          style={styles.switchButton}
           disabled={isLoading}
         >
-          <Text style={[styles.switchText, isLoading && styles.textDisabled]}>
+          <SwitchText isDisabled={isLoading}>
             Don't have an account? Sign Up
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          </SwitchText>
+        </SwitchButton>
+      </FormContainer>
+    </StyledKeyboardAvoidingView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 30,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#D9D9D9',
-    color: '#656565',
-  },
-  button: {
-    backgroundColor: '#BD5151',
-    borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  switchButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  switchText: {
-    color: '#BD5151',
-    fontSize: 16,
-  },
-  forgotPasswordButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 15,
-  },
-  forgotPasswordText: {
-    color: '#BD5151',
-    fontSize: 14,
-  },
-  errorText: {
-    color: '#F44336',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#cccccc',
-  },
-  textDisabled: {
-      color: '#999999'
-  },
-  inputError: {
-      borderColor: '#D32F2F',
-  },
-}); 
+} 

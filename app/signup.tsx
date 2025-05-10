@@ -1,7 +1,81 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+});
+
+const FormContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  padding: 20,
+});
+
+const TitleText = styled.Text({
+  fontSize: 28,
+  fontWeight: 'bold',
+  marginBottom: 10,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+const SubtitleText = styled.Text({
+  fontSize: 16,
+  marginBottom: 30,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+const StyledInput = styled.TextInput({
+  backgroundColor: '#FFFFFF',
+  borderRadius: 8,
+  padding: 15,
+  marginBottom: 15,
+  borderWidth: 1,
+  borderColor: '#D9D9D9',
+  color: '#656565',
+});
+
+interface StyledButtonProps {
+  isDisabled?: boolean;
+}
+const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
+  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
+  borderRadius: 8,
+  padding: 15,
+  alignItems: 'center',
+  marginTop: 10,
+}));
+
+const ButtonText = styled.Text({
+  color: '#FFFFFF',
+  fontWeight: 'bold',
+  fontSize: 16,
+});
+
+const BackButtonTouchable = styled.TouchableOpacity({
+  marginTop: 20,
+  alignItems: 'center',
+});
+
+interface BackButtonTextProps {
+  isDisabled?: boolean;
+}
+const BackButtonText = styled.Text<BackButtonTextProps>((props: BackButtonTextProps) => ({
+  color: props.isDisabled ? '#999999' : '#BD5151',
+  fontSize: 16,
+}));
+
+const ErrorText = styled.Text({
+  color: '#F44336',
+  marginBottom: 15,
+  textAlign: 'center',
+});
 
 export default function SignupScreen() {
   const params = useLocalSearchParams();
@@ -43,8 +117,7 @@ export default function SignupScreen() {
   const isLoading = isSubmitting || authLoading;
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <StyledKeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={100}
     >
@@ -55,16 +128,15 @@ export default function SignupScreen() {
         }}
       />
       
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>
+      <FormContainer>
+        <TitleText>Create Account</TitleText>
+        <SubtitleText>
           Sign up to start reporting abandoned vehicles
-        </Text>
+        </SubtitleText>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && <ErrorText>{error}</ErrorText>}
 
-        <TextInput
-          style={styles.input}
+        <StyledInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -73,8 +145,7 @@ export default function SignupScreen() {
           editable={!isLoading}
         />
 
-        <TextInput
-          style={styles.input}
+        <StyledInput
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
@@ -83,8 +154,7 @@ export default function SignupScreen() {
           editable={!isLoading}
         />
 
-        <TextInput
-          style={styles.input}
+        <StyledInput
           placeholder="Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -93,90 +163,28 @@ export default function SignupScreen() {
           editable={!isLoading}
         />
 
-        <TouchableOpacity 
-          style={[styles.button, isLoading && styles.buttonDisabled]}
+        <StyledButton 
+          isDisabled={isLoading}
           onPress={handleSignup}
           disabled={isLoading}
         >
           {isLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.buttonText}>Sign Up</Text>
+            <ButtonText>Sign Up</ButtonText>
           )}
-        </TouchableOpacity>
+        </StyledButton>
 
-        <TouchableOpacity 
-          style={styles.backButton}
+        <BackButtonTouchable 
           onPress={() => {
             Keyboard.dismiss();
             router.replace('/login');
           }}
           disabled={isLoading}
         >
-          <Text style={[styles.backButtonText, isLoading && styles.textDisabled]}>Already have an account? Log In</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <BackButtonText isDisabled={isLoading}>Already have an account? Log In</BackButtonText>
+        </BackButtonTouchable>
+      </FormContainer>
+    </StyledKeyboardAvoidingView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 30,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#D9D9D9',
-    color: '#656565',
-  },
-  button: {
-    backgroundColor: '#BD5151',
-    borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  backButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  backButtonText: {
-    color: '#BD5151',
-    fontSize: 16,
-  },
-  errorText: {
-    color: '#F44336',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  buttonDisabled: { backgroundColor: '#cccccc' },
-  textDisabled: { color: '#999999' },
-}); 
+} 

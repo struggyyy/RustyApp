@@ -3,9 +3,16 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import * as Linking from 'expo-linking';
+import styled from 'styled-components/native';
+
+// Styled Component Definition
+const StyledSafeAreaProvider = styled(SafeAreaProvider)({
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+});
 
 // Re-introduce AuthenticatedStack pattern (based on original + updated context)
 function AuthenticatedStack() {
@@ -92,19 +99,12 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <SafeAreaProvider style={styles.container}>
+        <StyledSafeAreaProvider>
           <ExpoStatusBar style="dark" />
           {/* Render the AuthenticatedStack component */}
           <AuthenticatedStack />
-        </SafeAreaProvider>
+        </StyledSafeAreaProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-}); 
+} 

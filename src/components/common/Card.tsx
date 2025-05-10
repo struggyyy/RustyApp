@@ -1,73 +1,80 @@
 import React from 'react';
 import {
-  StyleSheet,
-  View,
+  ViewProps,
+  TouchableOpacityProps,
   StyleProp,
   ViewStyle,
-  TouchableOpacity,
 } from 'react-native';
 import { colors, spacing } from '../../theme';
+import styled, { css } from 'styled-components/native';
 
 export interface CardProps {
   children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>; // Keep for external overrides
   onPress?: () => void;
   elevation?: number;
   testID?: string;
 }
 
+interface StyledCardProps {
+  elevation: number;
+}
+
+const cardBaseStyles = css<StyledCardProps>`
+  background-color: ${colors.white};
+  border-radius: 8px;
+  padding: ${spacing.layout.cardPadding}px;
+  margin-vertical: ${spacing.sm}px;
+  elevation: ${(props: StyledCardProps) => props.elevation};
+
+  ${(props: StyledCardProps) => 
+    props.elevation > 0 && 
+    css`
+      shadow-color: ${colors.black};
+      shadow-offset: 0px 2px; /* width height */
+      shadow-opacity: 0.1;
+      shadow-radius: 3.84px;
+    `}
+`;
+
+const CardView = styled.View<StyledCardProps & ViewProps>`
+  ${cardBaseStyles}
+`;
+
+const CardTouchable = styled.TouchableOpacity<StyledCardProps & TouchableOpacityProps>`
+  ${cardBaseStyles}
+`;
+
 const Card: React.FC<CardProps> = ({
   children,
   style,
   onPress,
-  elevation = 2,
+  elevation = 2, // Default elevation
   testID,
 }) => {
-  const cardStyles = [
-    styles.card,
-    { elevation },
-    elevation > 0 && styles.shadow,
-    style,
-  ];
-
-  // If onPress is provided, make the card touchable
   if (onPress) {
     return (
-      <TouchableOpacity
-        style={cardStyles}
+      <CardTouchable
+        elevation={elevation}
         onPress={onPress}
         activeOpacity={0.7}
+        style={style} // Apply external style overrides
         testID={testID}
       >
         {children}
-      </TouchableOpacity>
+      </CardTouchable>
     );
   }
 
-  // Otherwise render as a regular view
   return (
-    <View style={cardStyles} testID={testID}>
+    <CardView 
+      elevation={elevation} 
+      style={style} // Apply external style overrides
+      testID={testID}
+    >
       {children}
-    </View>
+    </CardView>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    padding: spacing.layout.cardPadding,
-    marginVertical: spacing.sm,
-  },
-  shadow: {
-    shadowColor: colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-  },
-});
 
 export default Card; 

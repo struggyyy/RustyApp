@@ -1,7 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+});
+
+const FormContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  padding: 20,
+});
+
+const TitleText = styled.Text({
+  fontSize: 28,
+  fontWeight: 'bold',
+  marginBottom: 10,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+const SubtitleText = styled.Text({
+  fontSize: 16,
+  marginBottom: 30,
+  textAlign: 'center',
+  color: '#656565',
+});
+
+const StyledInput = styled.TextInput({
+  backgroundColor: '#FFFFFF',
+  borderRadius: 8,
+  padding: 15,
+  marginBottom: 15,
+  borderWidth: 1,
+  borderColor: '#D9D9D9',
+  color: '#656565',
+});
+
+const StyledButton = styled.TouchableOpacity({
+  backgroundColor: '#BD5151',
+  borderRadius: 8,
+  padding: 15,
+  alignItems: 'center',
+  marginTop: 10,
+});
+
+const ButtonText = styled.Text({
+  color: '#FFFFFF',
+  fontWeight: 'bold',
+  fontSize: 16,
+});
+
+const BackButton = styled.TouchableOpacity({
+  marginTop: 20,
+  alignItems: 'center',
+});
+
+const BackButtonText = styled.Text({
+  color: '#BD5151',
+  fontSize: 16,
+});
+
+const ErrorText = styled.Text({
+  color: '#F44336',
+  marginBottom: 15,
+  textAlign: 'center',
+});
 
 export default function ForgotPassword() {
   const router = useRouter();
@@ -43,8 +111,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <StyledKeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={100}
     >
@@ -55,16 +122,15 @@ export default function ForgotPassword() {
         }}
       />
       
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Reset Your Password</Text>
-        <Text style={styles.subtitle}>
+      <FormContainer>
+        <TitleText>Reset Your Password</TitleText>
+        <SubtitleText>
           Enter your email address and we'll send you instructions to reset your password
-        </Text>
+        </SubtitleText>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && <ErrorText>{error}</ErrorText>}
 
-        <TextInput
-          style={styles.input}
+        <StyledInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -72,84 +138,23 @@ export default function ForgotPassword() {
           keyboardType="email-address"
         />
 
-        <TouchableOpacity 
-          style={styles.button} 
+        <StyledButton 
           onPress={handleResetPassword}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.buttonText}>Send Reset Instructions</Text>
+            <ButtonText>Send Reset Instructions</ButtonText>
           )}
-        </TouchableOpacity>
+        </StyledButton>
 
-        <TouchableOpacity 
-          style={styles.backButton}
+        <BackButton 
           onPress={handleBackToLogin}
         >
-          <Text style={styles.backButtonText}>Back to Login</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <BackButtonText>Back to Login</BackButtonText>
+        </BackButton>
+      </FormContainer>
+    </StyledKeyboardAvoidingView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 30,
-    textAlign: 'center',
-    color: '#656565',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#D9D9D9',
-    color: '#656565',
-  },
-  button: {
-    backgroundColor: '#BD5151',
-    borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  backButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  backButtonText: {
-    color: '#BD5151',
-    fontSize: 16,
-  },
-  errorText: {
-    color: '#F44336',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-}); 
+} 

@@ -1,7 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
+  flex: 1,
+  backgroundColor: '#fff',
+});
+
+const FormContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  padding: 20,
+});
+
+const TitleText = styled.Text({
+  fontSize: 24,
+  fontWeight: 'bold',
+  marginBottom: 20,
+  textAlign: 'center',
+});
+
+const StyledInput = styled.TextInput({
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 8,
+  padding: 12,
+  marginBottom: 15,
+  fontSize: 16,
+});
+
+interface StyledButtonProps {
+  isDisabled?: boolean;
+}
+const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
+  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
+  padding: 15,
+  borderRadius: 8,
+  alignItems: 'center',
+  marginBottom: 15,
+}));
+
+const ButtonText = styled.Text({
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: 'bold',
+});
+
+const MessageText = styled.Text({
+  color: 'green',
+  marginBottom: 15,
+  textAlign: 'center',
+  fontSize: 16,
+});
+
+const ErrorText = styled.Text({
+  color: 'red',
+  marginBottom: 15,
+  textAlign: 'center',
+  fontSize: 16,
+});
+
+const InfoText = styled.Text({
+  color: '#666',
+  marginBottom: 20,
+  textAlign: 'center',
+  fontSize: 14,
+  fontStyle: 'italic',
+});
+
+const LinkButton = styled.TouchableOpacity({
+  marginTop: 10,
+  alignItems: 'center',
+});
+
+const LinkText = styled.Text({
+  color: '#BD5151',
+  fontSize: 16,
+});
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -46,36 +124,33 @@ export default function ResetPasswordScreen() {
   };
 
   if (initialLoading) {
-      return <ActivityIndicator style={{ flex: 1 }} size="large" />;
+      return <ActivityIndicator size="large" />;
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <StyledKeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <Stack.Screen options={{ title: 'Reset Password' }} />
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Set New Password</Text>
+      <FormContainer>
+        <TitleText>Set New Password</TitleText>
 
-        {message && <Text style={styles.messageText}>{message}</Text>}
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {message && <MessageText>{message}</MessageText>}
+        {error && <ErrorText>{error}</ErrorText>}
 
-        <Text style={styles.infoText}>
+        <InfoText>
            If you requested a password reset, please check your email for instructions.
            This screen currently initiates the password reset email process.
-        </Text>
+        </InfoText>
 
-        <TextInput
-          style={styles.input}
+        <StyledInput
           placeholder="New Password"
           value={newPassword}
           onChangeText={setNewPassword}
           secureTextEntry
           editable={!loading}
         />
-        <TextInput
-          style={styles.input}
+        <StyledInput
           placeholder="Confirm New Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -83,86 +158,18 @@ export default function ResetPasswordScreen() {
           editable={!loading}
         />
 
-        <TouchableOpacity 
-          style={[styles.button, loading && styles.buttonDisabled]}
+        <StyledButton 
+          isDisabled={loading}
           onPress={handlePasswordUpdate}
           disabled={loading}
         >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Send Reset Email</Text>}
-        </TouchableOpacity>
+          {loading ? <ActivityIndicator color="#fff" /> : <ButtonText>Send Reset Email</ButtonText>}
+        </StyledButton>
 
-        <TouchableOpacity onPress={() => router.push('/login')} style={styles.linkButton}>
-            <Text style={styles.linkText}>Back to Login</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <LinkButton onPress={() => router.push('/login')} >
+            <LinkText>Back to Login</LinkText>
+        </LinkButton>
+      </FormContainer>
+    </StyledKeyboardAvoidingView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-      fontSize: 24,
-    fontWeight: 'bold',
-      marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-      borderWidth: 1,
-      borderColor: '#ccc',
-    borderRadius: 8,
-      padding: 12,
-    marginBottom: 15,
-      fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#BD5151',
-      padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-      marginBottom: 15,
-  },
-  buttonText: {
-      color: '#fff',
-      fontSize: 16,
-    fontWeight: 'bold',
-  },
-  buttonDisabled: {
-      backgroundColor: '#cccccc',
-  },
-  messageText: {
-      color: 'green',
-      marginBottom: 15,
-      textAlign: 'center',
-      fontSize: 16,
-  },
-  errorText: {
-      color: 'red',
-      marginBottom: 15,
-      textAlign: 'center',
-    fontSize: 16,
-  },
-  infoText: {
-      color: '#666',
-      marginBottom: 20,
-      textAlign: 'center',
-      fontSize: 14,
-      fontStyle: 'italic',
-  },
-   linkButton: {
-        marginTop: 10,
-    alignItems: 'center',
-  },
-    linkText: {
-    color: '#BD5151',
-    fontSize: 16,
-  },
-}); 
+} 

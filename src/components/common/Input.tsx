@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
-  StyleSheet,
-  TextInput,
+  TextInput as RNTextInput, // Renaming to avoid conflict with styled component
   View,
   Text,
   StyleProp,
@@ -11,6 +10,7 @@ import {
   TextInputProps,
 } from 'react-native';
 import { colors, typography, spacing } from '../../theme';
+import styled, { css } from 'styled-components/native';
 
 export interface InputProps extends TextInputProps {
   label?: string;
@@ -21,11 +21,81 @@ export interface InputProps extends TextInputProps {
   onRightIconPress?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
+  inputContainerStyle?: StyleProp<ViewStyle>; // Added for clarity
   inputStyle?: StyleProp<TextStyle>;
   errorStyle?: StyleProp<TextStyle>;
   hintStyle?: StyleProp<TextStyle>;
   required?: boolean;
 }
+
+// Styled Components
+const InputWrapper = styled.View`
+  margin-bottom: ${spacing.form.fieldMargin}px;
+  width: 100%;
+`;
+
+const LabelWrapper = styled.View`
+  margin-bottom: ${spacing.form.labelMargin}px;
+`;
+
+const LabelText = styled.Text`
+  ${typography.textStyles.label}
+  color: ${colors.text.primary};
+`;
+
+const RequiredText = styled.Text`
+  color: ${colors.error.main};
+`;
+
+interface StyledInputContainerProps {
+  isFocused: boolean;
+  hasError?: boolean;
+}
+
+const StyledInputContainer = styled.View<StyledInputContainerProps>`
+  flex-direction: row;
+  align-items: center;
+  border-width: 1px;
+  border-radius: 8px;
+  background-color: ${colors.white};
+  padding-horizontal: ${spacing.md}px;
+  height: 48px;
+  border-color: ${(props: StyledInputContainerProps) => 
+    props.hasError ? colors.error.main : 
+    props.isFocused ? colors.brand[500] : 
+    colors.border.medium};
+`;
+
+const StyledTextInput = styled.TextInput`
+  ${typography.textStyles.body1}
+  flex: 1;
+  color: ${colors.text.primary};
+  padding-vertical: ${spacing.sm}px;
+`;
+
+const ErrorText = styled.Text`
+  ${typography.textStyles.caption}
+  color: ${colors.error.main};
+  margin-top: ${spacing.xxs}px;
+`;
+
+const HintText = styled.Text`
+  ${typography.textStyles.caption}
+  color: ${colors.text.tertiary};
+  margin-top: ${spacing.xxs}px;
+`;
+
+const IconView = styled.View`
+  /* Base for icon containers */
+`;
+
+const LeftIconView = styled(IconView)`
+  margin-right: ${spacing.sm}px;
+`;
+
+const RightIconTouchable = styled.TouchableOpacity`
+  margin-left: ${spacing.sm}px;
+`;
 
 const Input: React.FC<InputProps> = ({
   label,
@@ -36,6 +106,7 @@ const Input: React.FC<InputProps> = ({
   onRightIconPress,
   containerStyle,
   labelStyle,
+  inputContainerStyle, // Consuming this new prop
   inputStyle,
   errorStyle,
   hintStyle,
@@ -56,35 +127,26 @@ const Input: React.FC<InputProps> = ({
     onBlur && onBlur(e);
   };
 
-  // Determine border color based on state
-  const getBorderColor = () => {
-    if (error) return colors.error.main;
-    if (isFocused) return colors.brand[500];
-    return colors.border.medium;
-  };
-
   return (
-    <View style={[styles.container, containerStyle]}>
+    <InputWrapper style={containerStyle}>
       {label && (
-        <View style={styles.labelContainer}>
-          <Text style={[styles.label, labelStyle]}>
+        <LabelWrapper>
+          <LabelText style={labelStyle}>
             {label}
-            {required && <Text style={styles.required}> *</Text>}
-          </Text>
-        </View>
+            {required && <RequiredText> *</RequiredText>}
+          </LabelText>
+        </LabelWrapper>
       )}
 
-      <View
-        style={[
-          styles.inputContainer,
-          { borderColor: getBorderColor() },
-          isFocused && styles.focusedInput,
-        ]}
+      <StyledInputContainer 
+        isFocused={isFocused} 
+        hasError={!!error}
+        style={inputContainerStyle} // Apply external style for the container
       >
-        {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
+        {leftIcon && <LeftIconView>{leftIcon}</LeftIconView>}
 
-        <TextInput
-          style={[styles.input, inputStyle]}
+        <StyledTextInput
+          style={inputStyle} // Apply external style for the text input itself
           placeholderTextColor={colors.text.tertiary}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -92,81 +154,28 @@ const Input: React.FC<InputProps> = ({
         />
 
         {rightIcon && (
-          <TouchableOpacity
-            style={styles.rightIconContainer}
+          <RightIconTouchable
             onPress={onRightIconPress}
             disabled={!onRightIconPress}
           >
             {rightIcon}
-          </TouchableOpacity>
+          </RightIconTouchable>
         )}
-      </View>
+      </StyledInputContainer>
 
       {error && (
-        <Text style={[styles.error, errorStyle]}>
+        <ErrorText style={errorStyle}>
           {error}
-        </Text>
+        </ErrorText>
       )}
 
       {hint && !error && (
-        <Text style={[styles.hint, hintStyle]}>
+        <HintText style={hintStyle}>
           {hint}
-        </Text>
+        </HintText>
       )}
-    </View>
+    </InputWrapper>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.form.fieldMargin,
-    width: '100%',
-  },
-  labelContainer: {
-    marginBottom: spacing.form.labelMargin,
-  },
-  label: {
-    ...typography.textStyles.label,
-    color: colors.text.primary,
-  },
-  required: {
-    color: colors.error.main,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: colors.white,
-    borderColor: colors.border.medium,
-    paddingHorizontal: spacing.md,
-    height: 48,
-  },
-  focusedInput: {
-    borderColor: '#BD5151',
-  },
-  input: {
-    ...typography.textStyles.body1,
-    flex: 1,
-    color: colors.text.primary,
-    paddingVertical: spacing.sm,
-  },
-  error: {
-    ...typography.textStyles.caption,
-    color: colors.error.main,
-    marginTop: spacing.xxs,
-  },
-  hint: {
-    ...typography.textStyles.caption,
-    color: colors.text.tertiary,
-    marginTop: spacing.xxs,
-  },
-  leftIconContainer: {
-    marginRight: spacing.sm,
-  },
-  rightIconContainer: {
-    marginLeft: spacing.sm,
-  },
-});
 
 export default Input; 

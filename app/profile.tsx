@@ -1,9 +1,164 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Pressable, StatusBar, RefreshControl } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Pressable, StatusBar, RefreshControl } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { ScrollView } from 'react-native-gesture-handler';
+import styled from 'styled-components/native';
+
+// Styled Components
+const StyledScrollView = styled(ScrollView)({
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+});
+
+const BaseContainer = styled.View({
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+});
+
+const HeaderView = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingHorizontal: 16,
+  paddingTop: StatusBar.currentHeight || 0,
+  paddingBottom: 8,
+  backgroundColor: '#FFFFFF',
+  borderBottomWidth: 1,
+  borderBottomColor: '#D9D9D9',
+});
+
+const HeaderTitle = styled.Text({
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: '#656565',
+});
+
+const HeaderPressable = styled.Pressable<{ pressed?: boolean }>((props: { pressed?: boolean }) => ({
+  padding: 8,
+  borderRadius: 20,
+  ...(props.pressed && { backgroundColor: 'rgba(0, 0, 0, 0.05)' }),
+}));
+
+const SettingsButtonContainer = styled.View({
+  width: 32,
+  height: 32,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const SettingsIconText = styled.Text({
+  fontSize: 20,
+});
+
+// For ScrollView's contentContainerStyle, we define an object, not a styled component
+const contentContainerStyleObject = {
+  alignItems: 'center',
+  paddingVertical: 30,
+  paddingHorizontal: 20,
+};
+
+const ProfileHeaderView = styled.View({
+  alignItems: 'center',
+  marginBottom: 30,
+});
+
+const AvatarTouchable = styled.TouchableOpacity({}); // No specific styles for the touchable itself, props will handle disabled state
+
+const AvatarWrapper = styled.View({
+  width: 120,
+  height: 120,
+  borderRadius: 60,
+  backgroundColor: '#eee',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginBottom: 15,
+  position: 'relative',
+  borderWidth: 3,
+  borderColor: '#BD5151',
+});
+
+const AvatarImage = styled.Image({
+  width: '100%',
+  height: '100%',
+  borderRadius: 60,
+});
+
+const AvatarPlaceholderView = styled.View({
+  width: '100%',
+  height: '100%',
+  borderRadius: 60,
+  backgroundColor: '#ccc',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const AvatarPlaceholderText = styled.Text({
+  fontSize: 40,
+  color: '#fff',
+  fontWeight: 'bold',
+});
+
+const UploadIndicator = styled(ActivityIndicator)({
+  position: 'absolute',
+});
+
+const UserNameText = styled.Text({
+  fontSize: 22,
+  fontWeight: 'bold',
+  color: '#333',
+  marginBottom: 5,
+});
+
+const UserEmailText = styled.Text({
+  fontSize: 16,
+  color: '#666',
+  marginBottom: 30,
+});
+
+const InfoContainerView = styled.View({
+  width: '100%',
+  marginBottom: 30,
+});
+
+const LabelText = styled.Text({
+  fontSize: 14,
+  color: '#656565',
+  marginBottom: 4,
+});
+
+const ValueText = styled.Text({
+  fontSize: 16,
+  color: '#000000',
+  marginBottom: 16,
+});
+
+interface StyledButtonProps {
+  isLogoutButton?: boolean;
+}
+const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
+  backgroundColor: props.isLogoutButton ? '#6c757d' : '#BD5151',
+  paddingVertical: 12,
+  paddingHorizontal: 30,
+  borderRadius: 25,
+  alignItems: 'center',
+  marginBottom: 15,
+  width: '80%',
+  ...(props.isLogoutButton && { marginTop: 20 }),
+}));
+
+const ButtonText = styled.Text({
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: 'bold',
+});
+
+const LoadingIndicatorView = styled(ActivityIndicator)({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
 
 export default function Profile() {
   const { user, profile, logOut, uploadProfileImage, loading: authLoading, initialLoading } = useAuth();
@@ -80,17 +235,17 @@ export default function Profile() {
   }, []);
 
   if (initialLoading) {
-    return <ActivityIndicator style={styles.loadingIndicator} size="large" />;
+    return <LoadingIndicatorView size="large" />;
   }
 
   if (!user) {
-    return <View style={styles.container}><Text>Please log in.</Text></View>;
+    // Using BaseContainer here which has flex: 1 and backgroundColor
+    return <BaseContainer><Text>Please log in.</Text></BaseContainer>; 
     }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+    <StyledScrollView
+      contentContainerStyle={contentContainerStyleObject} // Use the style object here
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -100,211 +255,75 @@ export default function Profile() {
           title: 'Your Profile',
           headerShown: true,
           header: () => (
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>Your Profile</Text>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.headerButton,
-                  pressed && styles.headerButtonPressed
-                ]}
+            <HeaderView>
+              <HeaderTitle>Your Profile</HeaderTitle>
+              <HeaderPressable
                 onPress={() => {
                   console.log('Settings button pressed');
                   router.push('/settings');
                 }}
               >
-                <View style={styles.settingsButtonContainer}>
-                  <Text style={styles.settingsIcon}>⚙️</Text>
-                </View>
-              </Pressable>
-            </View>
+                <SettingsButtonContainer>
+                  <SettingsIconText>⚙️</SettingsIconText>
+                </SettingsButtonContainer>
+              </HeaderPressable>
+            </HeaderView>
           ),
         }}
       />
 
-      <View style={styles.profileHeader}>
-        <TouchableOpacity onPress={handleChoosePhoto} disabled={isLoading}>
-          <View style={styles.avatarContainer}>
+      <ProfileHeaderView>
+        <AvatarTouchable onPress={handleChoosePhoto} disabled={isLoading}>
+          <AvatarWrapper>
             {profileImageUrl ? (
-            <Image
+            <AvatarImage
                 source={{ uri: profileImageUrl }}
-                style={styles.avatar}
             />
           ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarPlaceholderText}>
+              <AvatarPlaceholderView>
+                <AvatarPlaceholderText>
                   {user?.email?.[0]?.toUpperCase() || 'P'}
-              </Text>
-            </View>
+              </AvatarPlaceholderText>
+            </AvatarPlaceholderView>
           )}
             {uploading && (
-              <ActivityIndicator style={styles.uploadIndicator} size="small" color="#fff" />
+              <UploadIndicator size="small" color="#fff" />
             )}
-          </View>
-        </TouchableOpacity>
-        <Text style={styles.userName}>{profile?.displayName || user?.displayName || 'Username'}</Text>
-        <Text style={styles.userEmail}>{user?.email}</Text>
-            </View>
+          </AvatarWrapper>
+        </AvatarTouchable>
+        <UserNameText>{profile?.displayName || user?.displayName || 'Username'}</UserNameText>
+        <UserEmailText>{user?.email}</UserEmailText>
+      </ProfileHeaderView>
 
-        <View style={styles.infoContainer}>
-          <Text style={styles.label}>Display Name</Text>
-        <Text style={styles.value}>{user?.displayName || 'Not set'}</Text>
+        <InfoContainerView>
+          <LabelText>Display Name</LabelText>
+        <ValueText>{user?.displayName || 'Not set'}</ValueText>
           
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user?.email}</Text>
-        </View>
+          <LabelText>Email</LabelText>
+          <ValueText>{user?.email}</ValueText>
+        </InfoContainerView>
 
-        <TouchableOpacity
-          style={styles.button}
+        <StyledButton
         onPress={() => router.push('/reports')}
         disabled={isLoading}
         >
-        <Text style={styles.buttonText}>View My Reports</Text>
-        </TouchableOpacity>
+        <ButtonText>View My Reports</ButtonText>
+        </StyledButton>
 
-        <TouchableOpacity 
-        style={styles.button}
+        <StyledButton 
         onPress={() => router.push('/settings')}
         disabled={isLoading}
         >
-        <Text style={styles.buttonText}>Settings</Text>
-        </TouchableOpacity>
+        <ButtonText>Settings</ButtonText>
+        </StyledButton>
 
-        <TouchableOpacity 
-        style={[styles.button, styles.logoutButton]}
+        <StyledButton 
+        isLogoutButton // This prop will apply the logout button specific styles
         onPress={handleLogout}
         disabled={isLoading}
         >
-        <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-    </ScrollView>
+        <ButtonText>Logout</ButtonText>
+        </StyledButton>
+    </StyledScrollView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: StatusBar.currentHeight || 0,
-    paddingBottom: 8,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#D9D9D9',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#656565',
-  },
-  headerButton: {
-    padding: 8,
-    borderRadius: 20,
-  },
-  headerButtonPressed: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  settingsButtonContainer: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  settingsIcon: {
-    fontSize: 20,
-  },
-  contentContainer: {
-    alignItems: 'center',
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  avatarContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#eee',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-    position: 'relative',
-    borderWidth: 3,
-    borderColor: '#BD5151',
-  },
-  avatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-  },
-  avatarPlaceholder: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-    backgroundColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarPlaceholderText: {
-    fontSize: 40,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  uploadIndicator: {
-    position: 'absolute',
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
-  },
-  infoContainer: {
-    width: '100%',
-    marginBottom: 30,
-  },
-  label: {
-    fontSize: 14,
-    color: '#656565',
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 16,
-    color: '#000000',
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: '#BD5151',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '80%',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    backgroundColor: '#6c757d',
-    marginTop: 20,
-  },
-  loadingIndicator: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-}); 
+} 
