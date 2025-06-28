@@ -285,7 +285,16 @@ const getFallbackLocation = () => ({
   timestamp: Date.now()
 });
 
-export default function Home() {
+export default function HomeScreen() {
+  return (
+    <>
+      <Stack.Screen options={{ headerBackVisible: false }} />
+      <HomeScreenComponent />
+    </>
+  );
+}
+
+function HomeScreenComponent() {
   const { user, profile, initialLoading } = useAuth();
   const router = useRouter();
   const [location, setLocation] = useState<Location.LocationObject | null>(null);

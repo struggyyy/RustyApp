@@ -125,7 +125,7 @@ export default function Settings() {
 
         <SettingsCard>
           <CardHeader>Account</CardHeader>
-          <ActionButton onPress={logOut} disabled={loading}>
+                    <ActionButton onPress={() => logOut(router)} disabled={loading}>
             {loading && !isSubmitting ? (
               <ActivityIndicator color={colors.white} />
             ) : (

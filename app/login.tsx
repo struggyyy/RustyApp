@@ -190,6 +190,7 @@ export default function Login() {
         options={{
           title: 'Login',
           headerShown: true,
+          headerBackVisible: false,
         }}
       />
 

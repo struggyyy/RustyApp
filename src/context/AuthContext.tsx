@@ -42,7 +42,7 @@ interface AuthContextType {
   error: string | null;
   signUp: (email: string, password: string) => Promise<User | null>; // Return user or null
   logIn: (email: string, password: string) => Promise<void>;
-  logOut: () => Promise<void>;
+  logOut: (router: any) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   sendVerificationEmail: () => Promise<void>; // Add function to resend
   updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
@@ -210,13 +210,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logOut = async () => {
+  const logOut = async (router: any) => {
     setLoading(true);
     setError(null);
     try {
       console.log('[AuthContext] Attempting logout...');
       await signOut(auth);
       console.log('[AuthContext] Logout successful.');
+      if (router) {
+        router.replace('/login');
+      }
       // Auth state listener handles clearing user and profile
     } catch (e: any) {
       console.error('[AuthContext] Logout error:', e);

@@ -171,8 +171,7 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      await logOut();
-      router.replace('/login');
+      await logOut(router);
     } catch (error: any) {
       Alert.alert('Logout Error', error.message || 'Failed to log out.');
     }

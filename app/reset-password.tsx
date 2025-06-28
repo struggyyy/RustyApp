@@ -166,7 +166,7 @@ export default function ResetPasswordScreen() {
           {loading ? <ActivityIndicator color="#fff" /> : <ButtonText>Send Reset Email</ButtonText>}
         </StyledButton>
 
-        <LinkButton onPress={() => router.push('/login')} >
+                <LinkButton onPress={() => router.replace('/login')} >
             <LinkText>Back to Login</LinkText>
         </LinkButton>
       </FormContainer>
