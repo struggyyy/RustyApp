@@ -11,10 +11,15 @@ import {
   updateEmail, // If you need to update email separately
   sendEmailVerification, // Import sendEmailVerification
   deleteUser, // <-- Import deleteUser
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink as firebaseSignInWithEmailLink, // Rename to avoid conflicts
+  UserCredential,
   // Add other Firebase Auth methods as needed (e.g., GoogleAuthProvider, signInWithCredential)
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp, FirestoreError, deleteDoc } from 'firebase/firestore'; // Firestore for user profiles and deleteDoc
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage for uploads
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define the shape of the user profile data stored in Firestore
 interface UserProfile {
@@ -45,6 +50,8 @@ interface AuthContextType {
   logOut: (router: any) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   sendVerificationEmail: () => Promise<void>; // Add function to resend
+  signInWithEmailLink: (email: string) => Promise<void>;
+  handleSignInWithLink: (url: string) => Promise<void>;
   updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
   updateUserAuth: (updates: { displayName?: string, photoURL?: string, email?: string }) => Promise<void>;
   uploadProfileImage: (userId: string, fileUri: string) => Promise<string | undefined>;
@@ -380,6 +387,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signInWithEmailLink = async (email: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    const actionCodeSettings = {
+      url: 'https://rusty-7faf0.firebaseapp.com/__/auth/action',
+      handleCodeInApp: true,
+      iOS: {
+        bundleId: 'com.anonymous.rusty'
+      },
+      android: {
+        packageName: 'com.anonymous.rusty',
+        installApp: true,
+        minimumVersion: '1'
+      },
+    };
+
+    try {
+      console.log(`[AuthContext] Sending sign-in link to: ${email}`);
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      await AsyncStorage.setItem('emailForSignIn', email);
+      console.log('[AuthContext] Sign-in link sent successfully.');
+    } catch (e: any) {
+      console.error('[AuthContext] Error sending sign-in link:', e);
+      setError(e.message || 'Failed to send sign-in link.');
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignInWithLink = async (url: string): Promise<void> => {
+    if (isSignInWithEmailLink(auth, url)) {
+      let email = await AsyncStorage.getItem('emailForSignIn');
+      if (!email) {
+        const message = 'Sign-in email not found. Please try the sign-in process again on this device.';
+        console.error(message);
+        setError(message);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        console.log(`[AuthContext] Attempting to sign in with link for email: ${email}`);
+        const userCredential: UserCredential = await firebaseSignInWithEmailLink(auth, email, url);
+        console.log('[AuthContext] Successfully signed in with email link:', userCredential.user.uid);
+        await AsyncStorage.removeItem('emailForSignIn');
+      } catch (e: any) {
+        console.error('[AuthContext] Error signing in with email link:', e);
+        setError(e.message || 'Failed to sign in with email link.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   // Delete user account and associated data
   const deleteAccount = async (): Promise<void> => {
     const currentUser = auth.currentUser;
@@ -444,10 +507,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logOut,
     resetPassword,
     sendVerificationEmail,
+    signInWithEmailLink,
+    handleSignInWithLink,
     updateUserProfile,
     updateUserAuth,
     uploadProfileImage,
-    deleteAccount, // <-- Add deleteAccount to context value
+    deleteAccount,
   }), [user, profile, loading, initialLoading, error]);
 
   return (

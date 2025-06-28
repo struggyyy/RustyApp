@@ -1,0 +1,32 @@
+{
+  "hosting": {
+    "public": "web-build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/__/auth/action",
+        "destination": "/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "appAssociation": "AUTO",
+    "headers": [
+      {
+        "source": "/.well-known/apple-app-site-association",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    ]
+  }
+}

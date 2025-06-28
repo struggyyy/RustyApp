@@ -108,7 +108,7 @@ export default function VerifyEmailScreen() {
       console.log('[VerifyEmail] Logging out before navigating to login...');
       setIsLoggingOut(true);
       try {
-          await logOut();
+          await logOut(router);
           console.log('[VerifyEmail] Logout successful. Navigating to login screen...');
           router.replace('/login');
       } catch (err: any) {

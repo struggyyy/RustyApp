@@ -2,6 +2,7 @@
   "expo": {
     "name": "Rusty",
     "slug": "Rusty",
+    "scheme": "rusty",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/CAR.png",
@@ -15,13 +16,35 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.rusty",
+      "associatedDomains": [
+        "applinks:rusty-7faf0.firebaseapp.com"
+      ]
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/CAR.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.rusty",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "rusty-7faf0.firebaseapp.com",
+              "pathPrefix": "/__/auth/action"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro"
