@@ -219,7 +219,7 @@ export default function Profile() {
       <StatusBar barStyle="dark-content" />
       <Stack.Screen options={{ title: 'Your Profile' }} />
       <Container
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
       >
         <ProfileCard>
           <ProfileCardHeader>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar, RefreshControl } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import styled from 'styled-components/native';
 import colors from '../src/theme/colors';
@@ -74,6 +74,17 @@ export default function MyReportsScreen() {
   const router = useRouter();
   const hasReports = reports.length > 0;
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // In a real app, you would fetch reports from a server.
+    // Here, we'll just simulate a network delay.
+    setTimeout(() => {
+      // You could update the reports list here.
+      setRefreshing(false);
+    }, 1500);
+  }, []);
 
   return (
     <>
@@ -87,17 +98,22 @@ export default function MyReportsScreen() {
         <HistoryContainer>
           <HistoryTitle>HISTORY OF REPORTS</HistoryTitle>
           {/* TODO: Add blinking "We are processing your report..." text here when isLoading is true */}
-          {hasReports ? (
-            <ReportsScrollView contentContainerStyle={{ flexGrow: 1 }}>
-              {reports.map((report) => (
+          <ReportsScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+            }
+          >
+            {hasReports ? (
+              reports.map((report) => (
                 <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
-              ))}
-            </ReportsScrollView>
-          ) : (
-            <NoReportsContainer>
-                <NoReportsText>You have no reports yet.</NoReportsText>
-            </NoReportsContainer>
-          )}
+              ))
+            ) : (
+              <NoReportsContainer>
+                  <NoReportsText>You have no reports yet.</NoReportsText>
+              </NoReportsContainer>
+            )}
+          </ReportsScrollView>
         </HistoryContainer>
       </Container>
     </>

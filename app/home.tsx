@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, Pressable, StatusBar, Dimensions, Platform, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { View, Text, TouchableOpacity, Image, Pressable, StatusBar, Dimensions, Platform, ActivityIndicator, RefreshControl } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as Location from 'expo-location';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
+import colors from '../src/theme/colors';
 import styled from 'styled-components/native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
 
 // Styled Components Definitions
@@ -23,9 +24,12 @@ const LoadingIndicatorContainer = styled.View({
   backgroundColor: '#FFFFFF',
 });
 
-const ContentView = styled.View({
+const ContentView = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    padding: 24,
+  },
+})({
   flex: 1,
-  padding: 24,
 });
 
 const ScoreSection = styled.View({
@@ -49,7 +53,7 @@ const ScoreValueText = styled.Text({
 
 const CarImageCard = styled.View<{ isWeb?: boolean }>((props: { isWeb?: boolean }) => ({
   width: '100%',
-  aspectRatio: 1.2,
+  aspectRatio: 1.3,
   backgroundColor: '#F5F5F5',
   borderRadius: 24,
   marginBottom: 24,
@@ -119,7 +123,7 @@ const MyReportsButtonText = styled.Text`
 `;
 
 const MapSection = styled.View<{ isWeb?: boolean }>((props: { isWeb?: boolean }) => ({
-  flex: 1,
+  height: height * 0.33,
   borderRadius: 24,
   overflow: 'hidden',
   backgroundColor: '#F5F5F5',
@@ -302,37 +306,45 @@ function HomeScreenComponent() {
   const [isLocationLoading, setIsLocationLoading] = useState(true);
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const mapRef = useRef<MapView>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchLocation = useCallback(async () => {
+    setIsLocationLoading(true);
+    setLocationErrorMsg(null);
+    setFallbackUsed(false);
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        throw new Error('Permission to access location was denied');
+      }
+      let currentLocation = await Location.getLastKnownPositionAsync({});
+      if (!currentLocation) {
+        currentLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      }
+      setLocation(currentLocation);
+    } catch (error: any) {
+      console.error("Location Error:", error.message);
+      if (isWeb) {
+        setLocation(getFallbackLocation());
+        setFallbackUsed(true);
+      } else {
+        setLocation(null);
+      }
+      setLocationErrorMsg(error.message || 'Failed to get location');
+    } finally {
+      setIsLocationLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    (async () => {
-        setIsLocationLoading(true);
-        setLocationErrorMsg(null);
-        setFallbackUsed(false);
-        try {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                throw new Error('Permission to access location was denied');
-            }
-            let currentLocation = await Location.getCurrentPositionAsync({});
-            if (isMounted) setLocation(currentLocation);
-        } catch (error: any) {
-             console.error("Location Error:", error.message);
-             if (isMounted) {
-                 setLocationErrorMsg(error.message || 'Failed to get location');
-                 if (isWeb) {
-                     setLocation(getFallbackLocation());
-                     setFallbackUsed(true);
-                 } else {
-                     setLocation(null);
-                 }
-             }
-        } finally {
-            if (isMounted) setIsLocationLoading(false);
-        }
-    })();
-    return () => { isMounted = false; };
-  }, []);
+    fetchLocation();
+  }, [fetchLocation]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchLocation();
+    setRefreshing(false);
+  }, [fetchLocation]);
 
   const goToMyLocation = () => {
     if (location && mapRef.current) {
@@ -433,7 +445,9 @@ function HomeScreenComponent() {
           title: 'Rusty',
         }}
       />
-      <ContentView>
+      <ContentView
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
+    >
         <ScoreSection>
           <View>
             <ScoreLabelText>COMMUNITY SCORE</ScoreLabelText>
@@ -454,7 +468,7 @@ function HomeScreenComponent() {
 
         <CarImageCard isWeb={isWeb}>
           <CarDisplayImage
-            source={require('../assets/images/CAR.png')}
+            source={require('../assets/images/car-image.png')}
             resizeMode="cover"
           />
         </CarImageCard>
