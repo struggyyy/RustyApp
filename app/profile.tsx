@@ -260,7 +260,7 @@ export default function Profile() {
 
         <ReportsCard>
           <TouchableOpacity onPress={() => router.push('/my-reports')}>
-            <ReportsTitle>View my reports</ReportsTitle>
+            <ReportsTitle>View all my reports</ReportsTitle>
           </TouchableOpacity>
           {reports.slice(0, 2).map((report) => (
             <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />

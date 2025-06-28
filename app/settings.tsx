@@ -1,121 +1,79 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Switch, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, Switch, Alert, ActivityIndicator, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
+import colors from '../src/theme/colors';
 
-// Styled Components
-const StyledContainer = styled.View({
-  flex: 1,
-  backgroundColor: '#FFFFFF',
-});
+// --- STYLED COMPONENTS ---
+const Container = styled.View`
+  flex: 1;
+  background-color: ${colors.white};
+  padding: 20px;
+`;
 
-const SectionView = styled.View({
-  marginBottom: 30,
-  paddingHorizontal: 20,
-});
+const SettingsCard = styled.View`
+  background-color: ${colors.componentBackground};
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 20px;
+`;
 
-const SectionTitleText = styled.Text({
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#656565',
-  marginBottom: 15,
-});
+const CardHeader = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+  margin-bottom: 20px;
+  text-transform: uppercase;
+`;
 
-interface SettingItemProps {
-  isDangerItem?: boolean;
-}
-const SettingItemTouchable = styled.TouchableOpacity<SettingItemProps>((props: SettingItemProps) => ({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 15,
-  borderBottomWidth: props.isDangerItem ? 0 : 1,
-  borderBottomColor: '#D9D9D9',
-}));
+const NotificationRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
 
-interface SettingLabelTextProps {
-  isDangerText?: boolean;
-}
-const SettingLabelText = styled.Text<SettingLabelTextProps>((props: SettingLabelTextProps) => ({
-  fontSize: 16,
-  color: props.isDangerText ? '#FF3B30' : '#656565',
-}));
+const NotificationLabel = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
+`;
 
-interface LogoutButtonProps {
-  isDisabled?: boolean;
-}
-const LogoutButtonTouchable = styled.TouchableOpacity<LogoutButtonProps>((props: LogoutButtonProps) => ({
-  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
-  borderColor: props.isDisabled ? '#cccccc' : 'transparent', // Assuming default border is transparent or not set
-  borderRadius: 8,
-  padding: 15,
-  alignItems: 'center',
-  marginHorizontal: 20,
-}));
+const ActionButton = styled.TouchableOpacity<{ isDelete?: boolean }>`
+  background-color: ${(props: { isDelete?: boolean }) => (props.isDelete ? colors.text.secondary : colors.primary)};
+  padding: 15px;
+  border-radius: 15px;
+  align-items: center;
+  margin-top: 10px;
+`;
 
-const LogoutButtonText = styled.Text({
-  color: '#FFFFFF',
-  fontWeight: 'bold',
-  fontSize: 16,
-});
+const ButtonText = styled.Text`
+  color: ${colors.white};
+  font-size: 16px;
+  font-weight: bold;
+`;
 
-const NotificationRowView = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 20,
-  marginTop: 10,
-});
-
+// --- COMPONENT ---
 export default function Settings() {
-  const { user, profile, updateUserProfile, updateUserAuth, logOut, loading, deleteAccount } = useAuth();
+  const { profile, updateUserProfile, logOut, deleteAccount, loading } = useAuth();
   const router = useRouter();
-  const [displayName, setDisplayName] = useState(profile?.displayName || user?.displayName || '');
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleToggleNotifications = async () => {
+  const handleToggleNotifications = async (value: boolean) => {
     setIsSubmitting(true);
-    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(value);
     try {
-      const currentEmailPref = profile?.notificationPreferences?.email ?? true;
       await updateUserProfile({
         notificationPreferences: {
-            email: currentEmailPref,
-            push: newValue
-        }
+          push: value,
+          email: profile?.notificationPreferences?.email ?? true, // Keep email preference as is
+        },
       });
-      setNotificationsEnabled(newValue);
       Alert.alert('Success', 'Notification settings updated.');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update notification settings.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!user) return;
-    setIsSubmitting(true);
-    try {
-      await updateUserProfile({ displayName });
-      await updateUserAuth({ displayName });
-      Alert.alert('Success', 'Profile updated successfully.');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    setIsSubmitting(true);
-    try {
-      await logOut();
-      router.replace('/login');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Logout failed.');
+      Alert.alert('Error', error.message || 'Failed to update settings.');
+      setNotificationsEnabled(!value); // Revert on error
     } finally {
       setIsSubmitting(false);
     }
@@ -124,25 +82,19 @@ export default function Settings() {
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
-      'Are you ABSOLUTELY SURE you want to delete your account? This action is irreversible and will remove all your data.',
+      'Are you sure you want to delete your account? This action is irreversible.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'DELETE PERMANENTLY',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            setIsSubmitting(true);
             try {
-              console.log('[Settings] Calling deleteAccount from context...');
               await deleteAccount();
-              console.log('[Settings] deleteAccount successful. Navigating to login.');
-              Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
+              Alert.alert('Success', 'Your account has been deleted.');
               router.replace('/login');
             } catch (error: any) {
-              console.error('[Settings] Failed to delete account:', error);
-              Alert.alert('Deletion Failed', error.message || 'Failed to delete account. Please try again.');
-            } finally {
-              setIsSubmitting(false);
+              Alert.alert('Error', error.message || 'Failed to delete account.');
             }
           },
         },
@@ -150,61 +102,41 @@ export default function Settings() {
     );
   };
 
-  const isLoading = loading || isSubmitting;
-
   return (
-    <StyledContainer>
-      <Stack.Screen
-        options={{
-          title: 'Settings',
-          headerShown: true,
-        }}
-      />
+    <>
+      <StatusBar barStyle="dark-content" />
+      <Container>
+        <Stack.Screen options={{ title: 'Settings' }} />
 
-      <SectionView>
-        <SectionTitleText>Notifications</SectionTitleText>
-        <NotificationRowView>
-          <SettingLabelText>Enable Notifications</SettingLabelText>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={notificationsEnabled ? "#f5dd4b" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={handleToggleNotifications}
-            value={notificationsEnabled}
-            disabled={isLoading}
-          />
-        </NotificationRowView>
-      </SectionView>
+        <SettingsCard>
+          <CardHeader>Notifications</CardHeader>
+          <NotificationRow>
+            <NotificationLabel>Enable Notifications</NotificationLabel>
+            <Switch
+              trackColor={{ false: colors.primary, true: colors.status.recycled }}
+              thumbColor={colors.white}
+              ios_backgroundColor={colors.primary}
+              onValueChange={handleToggleNotifications}
+              value={notificationsEnabled}
+              disabled={isSubmitting}
+            />
+          </NotificationRow>
+        </SettingsCard>
 
-      <SectionView>
-        <SectionTitleText>Account</SectionTitleText>
-        <SettingItemTouchable
-          onPress={() => router.push('/profile')}
-        >
-          <SettingLabelText>Edit Profile</SettingLabelText>
-        </SettingItemTouchable>
-        <SettingItemTouchable
-          onPress={() => router.push('/reports')}
-        >
-          <SettingLabelText>View Report History</SettingLabelText>
-        </SettingItemTouchable>
-        <SettingItemTouchable
-          isDangerItem
-          onPress={handleDeleteAccount}
-        >
-          <SettingLabelText isDangerText>Delete Account</SettingLabelText>
-        </SettingItemTouchable>
-      </SectionView>
-
-      <SectionView>
-        <LogoutButtonTouchable
-          isDisabled={isLoading}
-          onPress={handleLogout}
-          disabled={isLoading}
-        >
-          {isLoading ? <ActivityIndicator color="#fff" /> : <LogoutButtonText>Log Out</LogoutButtonText>}
-        </LogoutButtonTouchable>
-      </SectionView>
-    </StyledContainer>
+        <SettingsCard>
+          <CardHeader>Account</CardHeader>
+          <ActionButton onPress={logOut} disabled={loading}>
+            {loading && !isSubmitting ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <ButtonText>Logout</ButtonText>
+            )}
+          </ActionButton>
+          <ActionButton onPress={handleDeleteAccount} isDelete>
+            <ButtonText>Delete Account :(</ButtonText>
+          </ActionButton>
+        </SettingsCard>
+      </Container>
+    </>
   );
 } 

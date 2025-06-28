@@ -95,6 +95,29 @@ const ReportButtonLabel = styled.Text({
   fontWeight: 'bold',
 });
 
+const MyReportsButton = styled.TouchableOpacity({
+  position: 'absolute',
+  top: 16,
+  left: 16,
+  right: 16,
+  zIndex: 3,
+  backgroundColor: '#FFFFFF',
+  padding: 16,
+  borderRadius: 16,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.23,
+  shadowRadius: 2.62,
+  elevation: 4,
+});
+
+const MyReportsButtonText = styled.Text`
+  color: #656565;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+`;
+
 const MapSection = styled.View<{ isWeb?: boolean }>((props: { isWeb?: boolean }) => ({
   flex: 1,
   borderRadius: 24,
@@ -435,12 +458,9 @@ export default function Home() {
         </ReportButtonTouchable>
 
         <MapSection isWeb={isWeb}>
-          <MapTitleTouchable
-            onPress={() => router.push('/my-reports')}
-            activeOpacity={0.7}
-          >
-            <MapTitleText>YOUR REPORTS</MapTitleText>
-          </MapTitleTouchable>
+          <MyReportsButton onPress={() => router.push('/my-reports')}>
+            <MyReportsButtonText>MY REPORTS</MyReportsButtonText>
+          </MyReportsButton>
           <MapWrapperView>
             {renderMap()}
             <InsetShadowGradientView
