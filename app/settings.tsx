@@ -57,6 +57,14 @@ export default function Settings() {
   const { profile, updateUserProfile, logOut, deleteAccount, loading } = useAuth();
   const router = useRouter();
 
+  const handleLogout = async () => {
+    try {
+      await logOut(router);
+    } catch (error: any) {
+      Alert.alert('Logout Error', error.message || 'Failed to log out.');
+    }
+  };
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -125,7 +133,7 @@ export default function Settings() {
 
         <SettingsCard>
           <CardHeader>Account</CardHeader>
-                    <ActionButton onPress={() => logOut(router)} disabled={loading}>
+                              <ActionButton onPress={handleLogout} disabled={loading}>
             {loading && !isSubmitting ? (
               <ActivityIndicator color={colors.white} />
             ) : (

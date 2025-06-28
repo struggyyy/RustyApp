@@ -40,7 +40,7 @@ interface AuthContextType {
   loading: boolean;
   initialLoading: boolean; // Tracks initial auth state check
   error: string | null;
-  signUp: (email: string, password: string) => Promise<User | null>; // Return user or null
+  signUp: (email: string, password: string, nickname: string) => Promise<User | null>; // Return user or null
   logIn: (email: string, password: string) => Promise<void>;
   logOut: (router: any) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -122,13 +122,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []); // Dependency array is empty, runs once on mount
 
   // Function to create initial profile (ensure this exists)
-  const createInitialProfile = async (userToCreateFor: User) => {
+  const createInitialProfile = async (userToCreateFor: User, nickname?: string) => {
     console.log(`[AuthContext] Creating initial profile for: ${userToCreateFor.uid}`);
     const userDocRef = doc(db, 'users', userToCreateFor.uid);
     const initialProfileData: UserProfile = {
       id: userToCreateFor.uid,
       email: userToCreateFor.email || 'Unknown Email',
-      displayName: userToCreateFor.displayName,
+      displayName: nickname || userToCreateFor.displayName || 'Nickname',
       createdAt: serverTimestamp(),
       notificationPreferences: { email: true, push: true },
       language: 'en',
@@ -146,7 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // --- Auth Actions ---
 
-  const signUp = async (email: string, password: string): Promise<User | null> => {
+  const signUp = async (email: string, password: string, nickname: string): Promise<User | null> => {
     setLoading(true);
     setError(null);
     try {
@@ -156,7 +156,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('[AuthContext] Sign up successful, user created:', newUser.uid);
 
       // Create initial profile immediately
-      await createInitialProfile(newUser);
+      await createInitialProfile(newUser, nickname);
 
       // Send verification email
       try {

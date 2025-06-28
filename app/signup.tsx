@@ -80,6 +80,7 @@ const ErrorText = styled.Text({
 export default function SignupScreen() {
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(params.email as string || '');
+  const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,7 +99,7 @@ export default function SignupScreen() {
 
     setIsSubmitting(true);
     try {
-      const newUser = await signUp(email, password);
+      const newUser = await signUp(email, password, nickname);
       
       if (newUser) {
         console.log('Signup successful, navigating to verification screen.');
@@ -135,6 +136,14 @@ export default function SignupScreen() {
         </SubtitleText>
 
         {error && <ErrorText>{error}</ErrorText>}
+
+        <StyledInput
+          placeholder="Nickname"
+          value={nickname}
+          onChangeText={setNickname}
+          autoCapitalize="words"
+          editable={!isLoading}
+        />
 
         <StyledInput
           placeholder="Email"

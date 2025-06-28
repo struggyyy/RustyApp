@@ -155,7 +155,7 @@ const LoadingContainer = styled.View`
 
 // --- COMPONENT ---
 export default function Profile() {
-  const { user, profile, logOut, uploadProfileImage, loading: authLoading, initialLoading } = useAuth();
+  const { user, profile, uploadProfileImage, loading: authLoading, initialLoading } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
@@ -169,13 +169,6 @@ export default function Profile() {
     }
   }, [initialLoading, user, router]);
 
-  const handleLogout = async () => {
-    try {
-      await logOut(router);
-    } catch (error: any) {
-      Alert.alert('Logout Error', error.message || 'Failed to log out.');
-    }
-  };
 
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
