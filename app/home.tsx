@@ -23,68 +23,15 @@ const LoadingIndicatorContainer = styled.View({
   backgroundColor: '#FFFFFF',
 });
 
-const HeaderView = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingHorizontal: 24,
-  paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 44,
-  paddingBottom: 8,
-  backgroundColor: '#FFFFFF',
-  borderBottomWidth: 1,
-  borderBottomColor: '#D9D9D9',
-});
-
-const HeaderTitleText = styled.Text({
-  fontSize: 20,
-  fontWeight: 'bold',
-  color: '#656565',
-});
-
-const HeaderPressable = styled.Pressable<{ pressed?: boolean }>((props: { pressed?: boolean }) => ({
-  padding: 8,
-  borderRadius: 20,
-  ...(props.pressed && {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  }),
-}));
-
-const ProfileButtonView = styled.View({
-  width: 32,
-  height: 32,
-  justifyContent: 'center',
-  alignItems: 'center',
-  overflow: 'hidden',
-  borderRadius: 16,
-});
-
-const ProfileUserImage = styled.Image({
-  width: '100%',
-  height: '100%',
-});
-
-const ProfileImagePlaceholder = styled.View({
-  width: '100%',
-  height: '100%',
-  borderRadius: 16,
-  backgroundColor: '#D9D9D9',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const ProfileImagePlaceholderText = styled.Text({
-  color: '#656565',
-  fontSize: 14,
-  fontWeight: 'bold',
-});
-
 const ContentView = styled.View({
   flex: 1,
   padding: 24,
 });
 
 const ScoreSection = styled.View({
-  alignItems: 'flex-start',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
   marginBottom: 16,
 });
 
@@ -270,6 +217,38 @@ const InsetShadowGradientView = styled(LinearGradient)({
   // borderRadius: 16, // Applied to MapWrapperView now for the effect
 });
 
+const ProfileButtonView = styled.View({
+  width: 48,
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: '#D9D9D9',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const ProfileUserImage = styled.Image({
+  width: '100%',
+  height: '100%',
+  borderRadius: 24,
+});
+
+const ProfileImagePlaceholder = styled.View({
+  width: '100%',
+  height: '100%',
+  borderRadius: 24,
+  backgroundColor: '#D9D9D9',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const ProfileImagePlaceholderText = styled.Text({
+  color: '#656565',
+  fontSize: 20,
+  fontWeight: 'bold',
+});
+
+
+
 const getFallbackLocation = () => ({
   coords: {
     latitude: 40.7128,
@@ -419,39 +398,26 @@ export default function Home() {
       <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
-          headerShown: true,
-          header: () => (
-            <HeaderView>
-              <HeaderTitleText>Rusty</HeaderTitleText>
-              <HeaderPressable
-                onPress={() => {
-                  console.log('Profile button pressed');
-                  router.push('/profile');
-                }}
-                disabled={!user}
-              >
-                <ProfileButtonView>
-                  {profile?.profileImage || user?.photoURL ? (
-                    <ProfileUserImage
-                      source={{ uri: profile?.profileImage || user?.photoURL || undefined}}
-                    />
-                  ) : (
-                    <ProfileImagePlaceholder>
-                      <ProfileImagePlaceholderText>
-                        {user?.email?.[0]?.toUpperCase() || '?'}
-                      </ProfileImagePlaceholderText>
-                    </ProfileImagePlaceholder>
-                  )}
-                </ProfileButtonView>
-              </HeaderPressable>
-            </HeaderView>
-          ),
+          title: 'Rusty',
         }}
       />
       <ContentView>
         <ScoreSection>
-          <ScoreLabelText>COMMUNITY SCORE</ScoreLabelText>
-          <ScoreValueText>1100</ScoreValueText>
+          <View>
+            <ScoreLabelText>COMMUNITY SCORE</ScoreLabelText>
+            <ScoreValueText>1100</ScoreValueText>
+          </View>
+          <TouchableOpacity onPress={() => router.push('/profile')} disabled={!user}>
+            <ProfileButtonView>
+              {profile?.profileImage || user?.photoURL ? (
+                <ProfileUserImage source={{ uri: profile?.profileImage || user?.photoURL || undefined }} />
+              ) : (
+                <ProfileImagePlaceholder>
+                  <ProfileImagePlaceholderText>{user?.email?.[0]?.toUpperCase() || '?'}</ProfileImagePlaceholderText>
+                </ProfileImagePlaceholder>
+              )}
+            </ProfileButtonView>
+          </TouchableOpacity>
         </ScoreSection>
 
         <CarImageCard isWeb={isWeb}>

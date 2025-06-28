@@ -1,183 +1,167 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Pressable, StatusBar, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Image, StatusBar, RefreshControl } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
-import { ScrollView } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
+import colors from '../src/theme/colors';
+import ReportCard, { Report } from '../src/components/ReportCard';
 
-// Styled Components
-const StyledScrollView = styled(ScrollView)({
-  flex: 1,
-  backgroundColor: '#FFFFFF',
-});
+// --- MOCK DATA ---
+const reports: Report[] = [
+  {
+    id: '1',
+    date: '01.01.25',
+    status: 'Car successfully removed and recycled',
+    points: '+100p',
+    image: require('../assets/images/CAR.png'),
+  },
+  {
+    id: '2',
+    date: '12.02.25',
+    status: 'Report in the process...',
+    points: '...',
+    image: require('../assets/images/CAR.png'),
+  },
+];
 
-const BaseContainer = styled.View({
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-});
-
-const HeaderView = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingHorizontal: 16,
-  paddingTop: StatusBar.currentHeight || 0,
-  paddingBottom: 8,
-  backgroundColor: '#FFFFFF',
-  borderBottomWidth: 1,
-  borderBottomColor: '#D9D9D9',
-});
-
-const HeaderTitle = styled.Text({
-  fontSize: 20,
-  fontWeight: 'bold',
-  color: '#656565',
-});
-
-const HeaderPressable = styled.Pressable<{ pressed?: boolean }>((props: { pressed?: boolean }) => ({
-  padding: 8,
-  borderRadius: 20,
-  ...(props.pressed && { backgroundColor: 'rgba(0, 0, 0, 0.05)' }),
-}));
-
-const SettingsButtonContainer = styled.View({
-  width: 32,
-  height: 32,
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const SettingsIconText = styled.Text({
-  fontSize: 20,
-});
-
-// For ScrollView's contentContainerStyle, we define an object, not a styled component
-const contentContainerStyleObject = {
-  alignItems: 'center',
-  paddingVertical: 30,
-  paddingHorizontal: 20,
+const getStatusColor = (status: string) => {
+  if (status.includes('recycled')) return colors.status.recycled;
+  if (status.includes('in process')) return colors.status.inProcess;
+  return colors.text.primary;
 };
 
-const ProfileHeaderView = styled.View({
-  alignItems: 'center',
-  marginBottom: 30,
-});
+// --- STYLED COMPONENTS ---
+const Container = styled.ScrollView`
+  flex: 1;
+  background-color: ${colors.white};
+  padding: 20px;
+`;
 
-const AvatarTouchable = styled.TouchableOpacity({}); // No specific styles for the touchable itself, props will handle disabled state
+const ProfileCard = styled.View`
+  background-color: ${colors.componentBackground};
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 15px;
+`;
 
-const AvatarWrapper = styled.View({
-  width: 120,
-  height: 120,
-  borderRadius: 60,
-  backgroundColor: '#eee',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: 15,
-  position: 'relative',
-  borderWidth: 3,
-  borderColor: '#BD5151',
-});
+const ProfileCardHeader = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
 
-const AvatarImage = styled.Image({
-  width: '100%',
-  height: '100%',
-  borderRadius: 60,
-});
+const UserInfo = styled.View`
+  flex: 1;
+`;
 
-const AvatarPlaceholderView = styled.View({
-  width: '100%',
-  height: '100%',
-  borderRadius: 60,
-  backgroundColor: '#ccc',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
+const Nickname = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
+  color: ${colors.primary};
+  margin-bottom: 4px;
+`;
 
-const AvatarPlaceholderText = styled.Text({
-  fontSize: 40,
-  color: '#fff',
-  fontWeight: 'bold',
-});
+const Email = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
+  margin-bottom: 12px;
+`;
 
-const UploadIndicator = styled(ActivityIndicator)({
-  position: 'absolute',
-});
+const CommunityScore = styled.Text`
+  font-size: 16px;
+  font-weight: 500;
+  color: ${colors.text.primary};
+`;
 
-const UserNameText = styled.Text({
-  fontSize: 22,
-  fontWeight: 'bold',
-  color: '#333',
-  marginBottom: 5,
-});
+const AvatarTouchable = styled.TouchableOpacity``;
 
-const UserEmailText = styled.Text({
-  fontSize: 16,
-  color: '#666',
-  marginBottom: 30,
-});
+const AvatarWrapper = styled.View`
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  background-color: #eee;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid ${colors.primary};
+  position: relative;
+`;
 
-const InfoContainerView = styled.View({
-  width: '100%',
-  marginBottom: 30,
-});
+const AvatarImage = styled.Image`
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+`;
 
-const LabelText = styled.Text({
-  fontSize: 14,
-  color: '#656565',
-  marginBottom: 4,
-});
+const AvatarPlaceholder = styled.View`
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+  background-color: #ccc;
+  justify-content: center;
+  align-items: center;
+`;
 
-const ValueText = styled.Text({
-  fontSize: 16,
-  color: '#000000',
-  marginBottom: 16,
-});
+const AvatarPlaceholderText = styled.Text`
+  font-size: 30px;
+  color: #fff;
+  font-weight: bold;
+`;
 
-interface StyledButtonProps {
-  isLogoutButton?: boolean;
+const UploadIndicator = styled(ActivityIndicator)`
+  position: absolute;
+`;
+
+interface ButtonProps {
+  isLogout?: boolean;
 }
-const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
-  backgroundColor: props.isLogoutButton ? '#6c757d' : '#BD5151',
-  paddingVertical: 12,
-  paddingHorizontal: 30,
-  borderRadius: 25,
-  alignItems: 'center',
-  marginBottom: 15,
-  width: '80%',
-  ...(props.isLogoutButton && { marginTop: 20 }),
-}));
 
-const ButtonText = styled.Text({
-  color: '#fff',
-  fontSize: 16,
-  fontWeight: 'bold',
-});
+const StyledButton = styled.TouchableOpacity<ButtonProps>`
+  background-color: ${(props: ButtonProps) => (props.isLogout ? colors.text.secondary : colors.primary)};
+  padding: 12px;
+  border-radius: 15px;
+  align-items: center;
+  margin-bottom: 15px;
+`;
 
-const LoadingIndicatorView = styled(ActivityIndicator)({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-});
+const ButtonText = styled.Text`
+  color: ${colors.white};
+  font-size: 16px;
+  font-weight: bold;
+`;
 
+const ReportsCard = styled.View`
+  background-color: ${colors.componentBackground};
+  border-radius: 24px;
+  padding: 20px 20px 5px;
+  margin-bottom: 40px;
+`;
+
+const ReportsTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+  margin-bottom: 15px;
+  text-align: center;
+  text-transform: uppercase;
+`;
+
+const LoadingContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+// --- COMPONENT ---
 export default function Profile() {
   const { user, profile, logOut, uploadProfileImage, loading: authLoading, initialLoading } = useAuth();
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   const isLoading = authLoading || initialLoading || uploading || refreshing;
-
   const profileImageUrl = profile?.profileImage || user?.photoURL;
-
-  useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName || '');
-      setEmail(user.email || '');
-    }
-  }, [user]);
 
   useEffect(() => {
     if (!initialLoading && !user) {
@@ -195,30 +179,26 @@ export default function Profile() {
   };
 
   const handleChoosePhoto = async () => {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
       Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
-        return;
-      }
+      return;
+    }
 
     let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
       quality: 0.7,
-      });
+    });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const source = result.assets[0];
       setUploading(true);
       try {
         if (!user?.uid) throw new Error('User not found for upload');
-        const uploadedUrl = await uploadProfileImage(user.uid, source.uri);
-        if (uploadedUrl) {
-          Alert.alert('Success', 'Profile picture updated!');
-        } else {
-          throw new Error('Upload completed but no URL was returned.');
-      }
+        await uploadProfileImage(user.uid, source.uri);
+        Alert.alert('Success', 'Profile picture updated!');
       } catch (error: any) {
         console.error('Upload error:', error);
         Alert.alert('Upload Error', error.message || 'Failed to upload image.');
@@ -229,101 +209,64 @@ export default function Profile() {
   };
 
   const onRefresh = useCallback(() => {
-    console.log('Refreshing profile...');
     setRefreshing(true);
+    // Simulate a network request
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
   if (initialLoading) {
-    return <LoadingIndicatorView size="large" />;
+    return <LoadingContainer><ActivityIndicator size="large" color={colors.primary} /></LoadingContainer>;
   }
 
   if (!user) {
-    // Using BaseContainer here which has flex: 1 and backgroundColor
-    return <BaseContainer><Text>Please log in.</Text></BaseContainer>; 
-    }
+    return <LoadingContainer><Text>Please log in.</Text></LoadingContainer>;
+  }
 
   return (
-    <StyledScrollView
-      contentContainerStyle={contentContainerStyleObject} // Use the style object here
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <Stack.Screen
-        options={{
-          title: 'Your Profile',
-          headerShown: true,
-          header: () => (
-            <HeaderView>
-              <HeaderTitle>Your Profile</HeaderTitle>
-              <HeaderPressable
-                onPress={() => {
-                  console.log('Settings button pressed');
-                  router.push('/settings');
-                }}
-              >
-                <SettingsButtonContainer>
-                  <SettingsIconText>⚙️</SettingsIconText>
-                </SettingsButtonContainer>
-              </HeaderPressable>
-            </HeaderView>
-          ),
-        }}
-      />
+    <>
+      <StatusBar barStyle="dark-content" />
+      <Stack.Screen options={{ title: 'Your Profile' }} />
+      <Container
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <ProfileCard>
+          <ProfileCardHeader>
+            <UserInfo>
+              <Nickname>{profile?.displayName || user?.displayName || 'Nickname'}</Nickname>
+              <Email>{user?.email}</Email>
+            </UserInfo>
+            <AvatarTouchable onPress={handleChoosePhoto} disabled={isLoading}>
+              <AvatarWrapper>
+                {uploading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : profileImageUrl ? (
+                  <AvatarImage source={{ uri: profileImageUrl }} />
+                ) : (
+                  <AvatarPlaceholder>
+                    <AvatarPlaceholderText>{user?.email?.[0]?.toUpperCase() || '?'}</AvatarPlaceholderText>
+                  </AvatarPlaceholder>
+                )}
+              </AvatarWrapper>
+            </AvatarTouchable>
+          </ProfileCardHeader>
+                    <StyledButton onPress={() => { /* TODO: Navigate to Edit Profile screen */ }} isLogout style={{ marginBottom: 0 }}>
+            <ButtonText>Edit Profile</ButtonText>
+          </StyledButton>
+        </ProfileCard>
 
-      <ProfileHeaderView>
-        <AvatarTouchable onPress={handleChoosePhoto} disabled={isLoading}>
-          <AvatarWrapper>
-            {profileImageUrl ? (
-            <AvatarImage
-                source={{ uri: profileImageUrl }}
-            />
-          ) : (
-              <AvatarPlaceholderView>
-                <AvatarPlaceholderText>
-                  {user?.email?.[0]?.toUpperCase() || 'P'}
-              </AvatarPlaceholderText>
-            </AvatarPlaceholderView>
-          )}
-            {uploading && (
-              <UploadIndicator size="small" color="#fff" />
-            )}
-          </AvatarWrapper>
-        </AvatarTouchable>
-        <UserNameText>{profile?.displayName || user?.displayName || 'Username'}</UserNameText>
-        <UserEmailText>{user?.email}</UserEmailText>
-      </ProfileHeaderView>
-
-        <InfoContainerView>
-          <LabelText>Display Name</LabelText>
-        <ValueText>{user?.displayName || 'Not set'}</ValueText>
-          
-          <LabelText>Email</LabelText>
-          <ValueText>{user?.email}</ValueText>
-        </InfoContainerView>
-
-        <StyledButton
-        onPress={() => router.push('/reports')}
-        disabled={isLoading}
-        >
-        <ButtonText>View My Reports</ButtonText>
+        <StyledButton onPress={() => router.push('/settings')}>
+          <ButtonText>Settings</ButtonText>
         </StyledButton>
 
-        <StyledButton 
-        onPress={() => router.push('/settings')}
-        disabled={isLoading}
-        >
-        <ButtonText>Settings</ButtonText>
-        </StyledButton>
-
-        <StyledButton 
-        isLogoutButton // This prop will apply the logout button specific styles
-        onPress={handleLogout}
-        disabled={isLoading}
-        >
-        <ButtonText>Logout</ButtonText>
-        </StyledButton>
-    </StyledScrollView>
+        <ReportsCard>
+          <TouchableOpacity onPress={() => router.push('/my-reports')}>
+            <ReportsTitle>View my reports</ReportsTitle>
+          </TouchableOpacity>
+          {reports.slice(0, 2).map((report) => (
+            <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
+          ))}
+        </ReportsCard>
+      </Container>
+    </>
   );
 } 
