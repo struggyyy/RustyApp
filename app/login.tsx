@@ -1,68 +1,79 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
+import theme from '../src/theme';
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
   flex: 1,
-  backgroundColor: '#FFFFFF',
+  backgroundColor: theme.colors.background.primary,
 });
 
-const FormContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  padding: 20,
-});
+const FormContainer = styled.ScrollView.attrs(() => ({
+  contentContainerStyle: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.layout.screenPadding,
+    paddingVertical: 24,
+  },
+  keyboardShouldPersistTaps: 'handled',
+}))`
+  flex: 1;
+`;
 
 const TitleText = styled.Text({
-  fontSize: 28,
+  fontSize: theme.typography.fontSize.h1,
   fontWeight: 'bold',
-  marginBottom: 10,
+  marginBottom: theme.spacing.sm,
   textAlign: 'center',
-  color: '#656565',
+  color: theme.colors.text.primary,
 });
 
 const SubtitleText = styled.Text({
-  fontSize: 16,
-  marginBottom: 30,
+  fontSize: theme.typography.fontSize.body1,
+  marginBottom: theme.spacing.xl,
   textAlign: 'center',
-  color: '#656565',
+  color: theme.colors.text.secondary,
 });
 
 interface StyledInputProps {
   hasError?: boolean;
 }
-const StyledInput = styled.TextInput<StyledInputProps>((props: StyledInputProps) => ({
-  backgroundColor: '#FFFFFF',
-  borderRadius: 8,
-  padding: 15,
-  marginBottom: 15,
+const StyledInput = styled.TextInput.attrs({
+  placeholderTextColor: theme.colors.text.tertiary,
+})<StyledInputProps>((props: StyledInputProps) => ({
+  backgroundColor: theme.colors.background.primary,
+  borderRadius: theme.spacing.md, // Updated radius
+  padding: theme.spacing.md,
+  marginBottom: theme.spacing.md,
   borderWidth: 1,
-  borderColor: props.hasError ? '#D32F2F' : '#D9D9D9',
-  color: '#656565',
+  borderColor: props.hasError ? theme.colors.error.main : theme.colors.border.medium,
+  color: theme.colors.text.primary,
+  fontSize: theme.typography.fontSize.input,
 }));
 
 interface StyledButtonProps {
   isDisabled?: boolean;
 }
 const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
-  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
-  borderRadius: 8,
-  padding: 15,
+  backgroundColor: props.isDisabled ? theme.colors.secondaryLight : theme.colors.primary,
+  borderRadius: theme.spacing.md, // Updated radius
+  padding: theme.spacing.md,
   alignItems: 'center',
-  marginTop: 10,
+  marginTop: theme.spacing.sm,
 }));
 
 const ButtonText = styled.Text({
-  color: '#FFFFFF',
+  color: theme.colors.text.light,
   fontWeight: 'bold',
-  fontSize: 16,
+  fontSize: theme.typography.fontSize.button,
 });
 
 const SwitchButton = styled.TouchableOpacity({
-  marginTop: 20,
+  marginTop: theme.spacing.lg,
   alignItems: 'center',
 });
 
@@ -70,24 +81,26 @@ interface SwitchTextProps {
   isDisabled?: boolean;
 }
 const SwitchText = styled.Text<SwitchTextProps>((props: SwitchTextProps) => ({
-  color: props.isDisabled ? '#999999' : '#BD5151',
-  fontSize: 16,
+  color: props.isDisabled ? theme.colors.text.disabled : theme.colors.primary,
+  fontSize: theme.typography.fontSize.body2,
+  fontWeight: 'bold',
 }));
 
 const ForgotPasswordButton = styled.TouchableOpacity({
   alignSelf: 'flex-end',
-  marginBottom: 15,
+  marginBottom: theme.spacing.md,
 });
 
 const ForgotPasswordText = styled.Text({
-  color: '#BD5151',
-  fontSize: 14,
+  color: theme.colors.primary,
+  fontSize: theme.typography.fontSize.body2, // Updated font size
 });
 
 const ErrorText = styled.Text({
-  color: '#F44336',
-  marginBottom: 15,
+  color: theme.colors.error.main,
+  marginBottom: theme.spacing.md,
   textAlign: 'center',
+  fontSize: theme.typography.fontSize.body1,
 });
 
 export default function Login() {
@@ -99,6 +112,7 @@ export default function Login() {
   const { logIn, loading: authLoading, user, initialLoading } = useAuth();
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
+  const headerHeight = useHeaderHeight();
 
   useEffect(() => {
     if (localError) {
@@ -184,7 +198,7 @@ export default function Login() {
   return (
     <StyledKeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={100}
+      keyboardVerticalOffset={headerHeight}
     >
       <Stack.Screen
         options={{
@@ -200,64 +214,45 @@ export default function Login() {
           Log in to your Rusty account
         </SubtitleText>
 
-        {localError && <ErrorText>{localError}</ErrorText>}
-
         <StyledInput
-          hasError={!!localError}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none"
           keyboardType="email-address"
-          editable={!isLoading}
-          onSubmitEditing={() => passwordInputRef.current?.focus()}
-          blurOnSubmit={false}
+          autoCapitalize="none"
           returnKeyType="next"
+          onSubmitEditing={() => passwordInputRef.current?.focus()}
+          hasError={!!localError}
         />
-
         <StyledInput
           ref={passwordInputRef}
-          hasError={!!localError}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          autoCapitalize="none"
-          editable={!isLoading}
-          onSubmitEditing={handleLogin}
           returnKeyType="go"
+          onSubmitEditing={handleLogin}
+          hasError={!!localError}
         />
-
-        <ForgotPasswordButton
-          onPress={goToForgotPassword}
-          disabled={isLoading}
-        >
+        
+        <ForgotPasswordButton onPress={goToForgotPassword} disabled={isLoading}>
           <ForgotPasswordText>Forgot Password?</ForgotPasswordText>
         </ForgotPasswordButton>
 
-        <StyledButton
-          isDisabled={isLoading}
-          onPress={handleLogin}
-          disabled={isLoading}
-        >
-          {isSubmitting || authLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
+        {localError && <ErrorText>{localError}</ErrorText>}
+
+        <StyledButton onPress={handleLogin} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator color={theme.colors.text.light} />
           ) : (
-            <ButtonText>
-              Log In
-            </ButtonText>
+            <ButtonText>Log In</ButtonText>
           )}
         </StyledButton>
 
-        <SwitchButton 
-          onPress={goToSignUp} 
-          disabled={isLoading}
-        >
-          <SwitchText isDisabled={isLoading}>
-            Don't have an account? Sign Up
-          </SwitchText>
+        <SwitchButton onPress={goToSignUp} disabled={isLoading}>
+          <SwitchText isDisabled={isLoading}>Don't have an account? Sign Up!</SwitchText>
         </SwitchButton>
       </FormContainer>
     </StyledKeyboardAvoidingView>
   );
-} 
+}

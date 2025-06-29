@@ -1,65 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
+import theme from '../src/theme';
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
   flex: 1,
-  backgroundColor: '#FFFFFF',
+  backgroundColor: theme.colors.background.primary,
 });
 
-const FormContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  padding: 20,
-});
+const FormContainer = styled.ScrollView.attrs(() => ({
+  contentContainerStyle: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.layout.screenPadding,
+    paddingVertical: 24,
+  },
+  keyboardShouldPersistTaps: 'handled',
+}))`
+  flex: 1;
+`;
 
 const TitleText = styled.Text({
-  fontSize: 28,
+  fontSize: theme.typography.fontSize.h1,
   fontWeight: 'bold',
-  marginBottom: 10,
+  marginBottom: theme.spacing.sm,
   textAlign: 'center',
-  color: '#656565',
+  color: theme.colors.text.primary,
 });
 
 const SubtitleText = styled.Text({
-  fontSize: 16,
-  marginBottom: 30,
+  fontSize: theme.typography.fontSize.body1,
+  marginBottom: theme.spacing.lg,
   textAlign: 'center',
-  color: '#656565',
+  color: theme.colors.text.secondary,
 });
 
-const StyledInput = styled.TextInput({
-  backgroundColor: '#FFFFFF',
-  borderRadius: 8,
-  padding: 15,
-  marginBottom: 15,
+const StyledInput = styled.TextInput.attrs({
+  placeholderTextColor: theme.colors.text.tertiary,
+})({
+  backgroundColor: theme.colors.background.primary,
+  borderRadius: theme.spacing.md, // 16px
+  padding: theme.spacing.md,
+  marginBottom: theme.spacing.md,
   borderWidth: 1,
-  borderColor: '#D9D9D9',
-  color: '#656565',
+  borderColor: theme.colors.border.medium,
+  color: theme.colors.text.primary,
+  fontSize: theme.typography.fontSize.input,
 });
 
 interface StyledButtonProps {
   isDisabled?: boolean;
 }
 const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
-  backgroundColor: props.isDisabled ? '#cccccc' : '#BD5151',
-  borderRadius: 8,
-  padding: 15,
+  backgroundColor: props.isDisabled ? theme.colors.secondaryLight : theme.colors.primary,
+  borderRadius: theme.spacing.md, // 16px
+  padding: theme.spacing.md,
   alignItems: 'center',
-  marginTop: 10,
+  marginTop: theme.spacing.sm,
 }));
 
 const ButtonText = styled.Text({
-  color: '#FFFFFF',
+  color: theme.colors.text.light,
   fontWeight: 'bold',
-  fontSize: 16,
+  fontSize: theme.typography.fontSize.button,
 });
 
 const BackButtonTouchable = styled.TouchableOpacity({
-  marginTop: 20,
+  marginTop: theme.spacing.lg,
   alignItems: 'center',
 });
 
@@ -67,13 +78,14 @@ interface BackButtonTextProps {
   isDisabled?: boolean;
 }
 const BackButtonText = styled.Text<BackButtonTextProps>((props: BackButtonTextProps) => ({
-  color: props.isDisabled ? '#999999' : '#BD5151',
-  fontSize: 16,
+  color: props.isDisabled ? theme.colors.text.disabled : theme.colors.primary,
+  fontSize: theme.typography.fontSize.body2,
+  fontWeight: 'bold',
 }));
 
 const ErrorText = styled.Text({
-  color: '#F44336',
-  marginBottom: 15,
+  color: theme.colors.error.main,
+  marginBottom: theme.spacing.md,
   textAlign: 'center',
 });
 
@@ -86,6 +98,7 @@ export default function SignupScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signUp, loading: authLoading, error } = useAuth();
   const router = useRouter();
+  const headerHeight = useHeaderHeight();
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -120,7 +133,7 @@ export default function SignupScreen() {
   return (
     <StyledKeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={100}
+      keyboardVerticalOffset={headerHeight}
     >
       <Stack.Screen
         options={{
@@ -178,7 +191,7 @@ export default function SignupScreen() {
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={theme.colors.text.light} />
           ) : (
             <ButtonText>Sign Up</ButtonText>
           )}

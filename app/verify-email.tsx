@@ -3,78 +3,83 @@ import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-na
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
+import theme from '../src/theme';
 
 // Styled Components
 const StyledContainer = styled.View({
   flex: 1,
   justifyContent: 'center',
   alignItems: 'center',
-  padding: 20,
-  backgroundColor: '#FFFFFF',
+  padding: theme.spacing.layout.screenPadding,
+  backgroundColor: theme.colors.background.primary,
 });
 
 const TitleText = styled.Text({
-  fontSize: 24,
+  fontSize: theme.typography.fontSize.h1,
   fontWeight: 'bold',
-  marginBottom: 15,
+  marginBottom: theme.spacing.sm,
   textAlign: 'center',
-  color: '#656565',
+  color: theme.colors.text.primary,
 });
 
 const SubtitleText = styled.Text({
-  fontSize: 16,
+  fontSize: theme.typography.fontSize.body1,
   textAlign: 'center',
-  marginBottom: 10,
-  color: '#656565',
+  marginBottom: theme.spacing.lg,
+  color: theme.colors.text.secondary,
 });
 
 const EmailHighlightText = styled.Text({
   fontWeight: 'bold',
-  color: '#BD5151',
+  color: theme.colors.primary,
 });
 
 const InstructionsText = styled.Text({
-  fontSize: 14,
+  fontSize: theme.typography.fontSize.body2,
   textAlign: 'center',
-  marginBottom: 30,
-  color: '#656565',
-  lineHeight: 20,
+  marginBottom: theme.spacing.xl,
+  color: theme.colors.text.secondary,
+  lineHeight: 22,
 });
 
 interface StyledButtonProps {
-  isLoginButton?: boolean;
+  variant: 'primary' | 'secondary';
   isDisabled?: boolean;
 }
+
 const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
-  backgroundColor: props.isDisabled ? '#cccccc' : (props.isLoginButton ? '#6c757d' : '#BD5151'),
-  borderRadius: 8,
-  paddingVertical: 15,
-  paddingHorizontal: 30,
+  backgroundColor: props.isDisabled
+    ? theme.colors.secondaryLight
+    : props.variant === 'primary'
+    ? theme.colors.primary
+    : theme.colors.text.primary,
+  borderRadius: theme.spacing.md,
+  padding: theme.spacing.md,
   alignItems: 'center',
-  marginBottom: 15,
-  width: '90%',
+  marginBottom: theme.spacing.md,
+  width: '100%',
 }));
 
 const ButtonText = styled.Text({
-  color: '#FFFFFF',
+  color: theme.colors.text.light,
   fontWeight: 'bold',
-  fontSize: 16,
+  fontSize: theme.typography.fontSize.button,
 });
 
 interface FeedbackTextProps {
   isError?: boolean;
 }
 const FeedbackText = styled.Text<FeedbackTextProps>((props: FeedbackTextProps) => ({
-  color: props.isError ? 'red' : 'green',
-  marginBottom: 15,
+  color: props.isError ? theme.colors.error.main : theme.colors.primary,
+  marginBottom: theme.spacing.md,
   textAlign: 'center',
-  fontWeight: props.isError ? 'normal' : 'bold',
+  fontWeight: 'bold',
 }));
 
 const InfoText = styled.Text({
-  fontSize: 12,
-  color: '#888',
-  marginTop: 20,
+  fontSize: theme.typography.fontSize.caption,
+  color: theme.colors.text.tertiary,
+  marginTop: theme.spacing.md,
   textAlign: 'center',
 });
 
@@ -86,17 +91,15 @@ export default function VerifyEmailScreen() {
   const [resendMessage, setResendMessage] = useState('');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Get email from params passed from signup or from logged-in user
   const emailToVerify = params.email as string || user?.email;
 
   const handleResendVerification = async () => {
     setIsResending(true);
-    setResendMessage(''); 
+    setResendMessage('');
     try {
       await sendVerificationEmail();
       setResendMessage('New verification email sent successfully!');
     } catch (err: any) {
-      // Error state is likely set in context, display that or a generic message
       setResendMessage(error || 'Failed to resend email. Please try again later.');
       console.error("Resend Error:", err);
     } finally {
@@ -105,25 +108,24 @@ export default function VerifyEmailScreen() {
   };
 
   const goToLogin = async () => {
-      console.log('[VerifyEmail] Logging out before navigating to login...');
-      setIsLoggingOut(true);
-      try {
-          await logOut(router);
-          console.log('[VerifyEmail] Logout successful. Navigating to login screen...');
-          router.replace('/login');
-      } catch (err: any) {
-          console.error('[VerifyEmail] Logout failed:', err);
-          Alert.alert("Logout Failed", err.message || "Could not log out. Please try again.");
-      } finally {
-          setIsLoggingOut(false);
-      }
+    console.log('[VerifyEmail] Logging out before navigating to login...');
+    setIsLoggingOut(true);
+    try {
+      await logOut(router);
+      console.log('[VerifyEmail] Logout successful. Navigating to login screen...');
+      router.replace('/login');
+    } catch (err: any) {
+      console.error('[VerifyEmail] Logout failed:', err);
+      Alert.alert("Logout Failed", err.message || "Could not log out. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
   }
 
   const isLoading = loading || isResending || isLoggingOut;
 
   return (
     <StyledContainer>
-      {/* Add Stack.Screen options to hide the header */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <TitleText>Check Your Email</TitleText>
@@ -135,42 +137,40 @@ export default function VerifyEmailScreen() {
         Please click the link in that email to activate your account. You may need to check your spam folder.
       </InstructionsText>
 
-       {/* Display general context errors or resend feedback */} 
-       {(error && !resendMessage) && <FeedbackText isError>{error}</FeedbackText>}
-       {resendMessage && 
-         <FeedbackText isError={!!error}>
-           {resendMessage}
-         </FeedbackText>
-       }
+      {(error && !resendMessage) && <FeedbackText isError>{error}</FeedbackText>}
+      {resendMessage && 
+        <FeedbackText isError={!!error}>
+          {resendMessage}
+        </FeedbackText>
+      }
 
       <StyledButton
-        isDisabled={isLoading}
+        variant="secondary"
         onPress={handleResendVerification}
         disabled={isLoading}
       >
         {isResending ? (
-          <ActivityIndicator color="#FFFFFF" />
+          <ActivityIndicator color={theme.colors.text.light} />
         ) : (
           <ButtonText>Resend Verification Email</ButtonText>
         )}
       </StyledButton>
 
       <StyledButton
-        isLoginButton
-        isDisabled={isLoading}
+        variant="primary"
         onPress={goToLogin}
         disabled={isLoading}
       >
         {isLoggingOut ? (
-            <ActivityIndicator color="#FFFFFF" /> 
+          <ActivityIndicator color={theme.colors.text.light} />
         ) : (
-            <ButtonText>Go to Login</ButtonText>
+          <ButtonText>Go to Login</ButtonText>
         )}
       </StyledButton>
 
-       <InfoText>
-           (After verifying, please use the Login button).
-       </InfoText>
+      <InfoText>
+        (After verifying, please use the Login button).
+      </InfoText>
     </StyledContainer>
   );
-} 
+}
