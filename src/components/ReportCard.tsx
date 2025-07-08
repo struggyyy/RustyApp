@@ -1,17 +1,9 @@
 import React from 'react';
-import { ImageSourcePropType } from 'react-native';
 import styled from 'styled-components/native';
 import colors from '../theme/colors';
+import { Report } from '../types/reports';
 
 // --- TYPES ---
-export interface Report {
-  id: string;
-  date: string;
-  status: string;
-  points: string;
-  image: ImageSourcePropType;
-}
-
 interface ReportCardProps {
   report: Report;
   getStatusColor: (status: string) => string;
@@ -83,20 +75,24 @@ const PointsText = styled.Text<StatusTextProps>`
 
 // --- COMPONENT ---
 const ReportCard: React.FC<ReportCardProps> = ({ report, getStatusColor }) => {
-  const statusColor = getStatusColor(report.status);
+  const reportStatus = report.status || 'Report submitted';
+  const reportPoints = report.points || '...';
+  const reportDate = report.createdAt.toDate().toLocaleDateString();
+
+  const statusColor = getStatusColor(reportStatus);
 
   return (
     <CardContainer>
       <ReportInfo>
-        <ReportDate color={statusColor}>{report.date}</ReportDate>
-        <ReportStatus>{report.status}</ReportStatus>
+        <ReportDate color={statusColor}>{reportDate}</ReportDate>
+        <ReportStatus>{reportStatus}</ReportStatus>
         <DetailsButton>
           <DetailsButtonText>See the details</DetailsButtonText>
         </DetailsButton>
       </ReportInfo>
       <CarImageContainer>
-        <CarImage source={report.image} />
-        <PointsText color={statusColor}>{report.points}</PointsText>
+        <CarImage source={{ uri: report.imageUrl }} />
+        <PointsText color={statusColor}>{reportPoints}</PointsText>
       </CarImageContainer>
     </CardContainer>
   );

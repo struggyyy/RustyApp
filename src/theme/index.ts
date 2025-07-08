@@ -16,4 +16,4 @@ const theme = {
   spacing,
 };
 
-export default theme; 
+export default theme;

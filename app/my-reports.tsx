@@ -1,19 +1,22 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar, RefreshControl } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { StatusBar, RefreshControl, ActivityIndicator } from 'react-native';
+import { Stack, useFocusEffect } from 'expo-router';
 import styled from 'styled-components/native';
-import colors from '../src/theme/colors';
-import ReportCard, { Report } from '../src/components/ReportCard';
+import { useAuth } from '../src/context/AuthContext';
+import { getReportsByUserId } from '../src/lib/firebase/reports';
+import { Report } from '../src/types/reports';
+import ReportCard from '../src/components/ReportCard';
+import theme from '../src/theme';
 
 // Styled Components
 const Container = styled.View`
   flex: 1;
-  background-color: ${colors.white};
+  background-color: ${theme.colors.white};
 `;
 
 const HistoryContainer = styled.View`
   flex: 1;
-  background-color: ${colors.componentBackground};
+  background-color: ${theme.colors.componentBackground};
   width: 95%;
   align-self: center;
   margin-top: 20px;
@@ -24,95 +27,120 @@ const HistoryContainer = styled.View`
 const HistoryTitle = styled.Text`
   font-size: 20px;
   font-weight: bold;
-  color: ${colors.text.primary};
+  color: ${theme.colors.text.primary};
   margin-bottom: 20px;
   text-align: center;
 `;
 
 const ReportsScrollView = styled.ScrollView``;
 
-const NoReportsContainer = styled.View`
-    flex: 1;
-    justify-content: center;
-    align-items: center;
+const CenteredContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
 `;
 
-const NoReportsText = styled.Text`
-    font-size: 18px;
-    color: ${colors.text.tertiary};
+const InfoText = styled.Text`
+  font-size: 18px;
+  color: ${theme.colors.text.tertiary};
+  margin-top: 10px;
 `;
-
-
-const reports: Report[] = [
-  {
-    id: '1',
-    date: '01.01.25',
-    status: 'Car successfully removed and recycled',
-    points: '+100p',
-    image: require('../assets/images/CAR.png'), // Placeholder image
-  },
-  {
-    id: '2',
-    date: '12.02.25',
-    status: 'Report in the process...',
-    points: '...',
-    image: require('../assets/images/CAR.png'), // Placeholder image
-  },
-];
 
 const getStatusColor = (status: string) => {
-    if (status.includes('recycled')) {
-      return colors.status.recycled;
-    }
-    if (status.includes('in process')) {
-      return colors.status.inProcess;
-    }
-    return colors.text.primary;
-  };
+  if (status.includes('recycled')) {
+    return theme.colors.status.recycled;
+  }
+  if (status.includes('in process') || status.includes('submitted')) {
+    return theme.colors.status.inProcess;
+  }
+  return theme.colors.text.primary;
+};
 
 export default function MyReportsScreen() {
-  const router = useRouter();
-  const hasReports = reports.length > 0;
-  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const fetchReports = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      setRefreshing(false);
+      setError('You must be logged in to view your reports.');
+      return;
+    }
+
+    try {
+      setError(null);
+      const userReports = await getReportsByUserId(user.uid);
+      setReports(userReports);
+    } catch (err) {
+      setError('Failed to fetch reports. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchReports();
+    }, [fetchReports])
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // In a real app, you would fetch reports from a server.
-    // Here, we'll just simulate a network delay.
-    setTimeout(() => {
-      // You could update the reports list here.
-      setRefreshing(false);
-    }, 1500);
-  }, []);
+    fetchReports();
+  }, [fetchReports]);
+
+  const renderContent = () => {
+    if (loading && !refreshing) {
+      return (
+        <CenteredContainer>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <InfoText>Loading your reports...</InfoText>
+        </CenteredContainer>
+      );
+    }
+
+    if (error) {
+      return (
+        <CenteredContainer>
+          <InfoText>{error}</InfoText>
+        </CenteredContainer>
+      );
+    }
+
+    if (reports.length === 0) {
+      return (
+        <CenteredContainer>
+          <InfoText>You have no reports yet.</InfoText>
+        </CenteredContainer>
+      );
+    }
+
+    return reports.map((report) => (
+      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
+    ));
+  };
 
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <Container>
-        <Stack.Screen
-          options={{
-            title: 'My Reports',
-          }}
-        />
+        <Stack.Screen options={{ title: 'My Reports' }} />
         <HistoryContainer>
           <HistoryTitle>HISTORY OF REPORTS</HistoryTitle>
-          {/* TODO: Add blinking "We are processing your report..." text here when isLoading is true */}
           <ReportsScrollView
             contentContainerStyle={{ flexGrow: 1 }}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} tintColor={theme.colors.primary} />
             }
           >
-            {hasReports ? (
-              reports.map((report) => (
-                <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
-              ))
-            ) : (
-              <NoReportsContainer>
-                  <NoReportsText>You have no reports yet.</NoReportsText>
-              </NoReportsContainer>
-            )}
+            {renderContent()}
           </ReportsScrollView>
         </HistoryContainer>
       </Container>

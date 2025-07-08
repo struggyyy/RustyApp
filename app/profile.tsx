@@ -1,29 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Image, StatusBar, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Image,
+  StatusBar,
+  RefreshControl,
+} from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import styled from 'styled-components/native';
 import colors from '../src/theme/colors';
-import ReportCard, { Report } from '../src/components/ReportCard';
-
-// --- MOCK DATA ---
-const reports: Report[] = [
-  {
-    id: '1',
-    date: '01.01.25',
-    status: 'Car successfully removed and recycled',
-    points: '+100p',
-    image: require('../assets/images/CAR.png'),
-  },
-  {
-    id: '2',
-    date: '12.02.25',
-    status: 'Report in the process...',
-    points: '...',
-    image: require('../assets/images/CAR.png'),
-  },
-];
+import ReportCard from '../src/components/ReportCard';
+import { Report } from '../src/types/reports';
+import { getReportsByUserId } from '../src/lib/firebase/reports';
 
 const getStatusColor = (status: string) => {
   if (status.includes('recycled')) return colors.status.recycled;
@@ -153,22 +146,53 @@ const LoadingContainer = styled.View`
   align-items: center;
 `;
 
+const ReportsContentContainer = styled.View`
+  min-height: 100px;
+  justify-content: center;
+`;
+
+const NoReportsText = styled.Text`
+  text-align: center;
+  color: ${colors.text.secondary};
+  font-size: 16px;
+`;
+
 // --- COMPONENT ---
 export default function Profile() {
   const { user, profile, uploadProfileImage, loading: authLoading, initialLoading } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState<string | null>(null);
   const router = useRouter();
 
-  const isLoading = authLoading || initialLoading || uploading || refreshing;
+  const isLoading = authLoading || initialLoading || uploading;
   const profileImageUrl = profile?.profileImage || user?.photoURL;
+
+  const fetchReports = useCallback(async () => {
+    if (!user) return;
+    setReportsLoading(true);
+    setReportsError(null);
+    try {
+      const userReports = await getReportsByUserId(user.uid);
+      setReports(userReports);
+    } catch (error) {
+      console.error('Failed to fetch reports:', error);
+      setReportsError('Failed to load reports.');
+    } finally {
+      setReportsLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!initialLoading && !user) {
       router.replace('/login');
     }
-  }, [initialLoading, user, router]);
-
+    if (user) {
+      fetchReports();
+    }
+  }, [initialLoading, user, router, fetchReports]);
 
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -200,11 +224,11 @@ export default function Profile() {
     }
   };
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    // Simulate a network request
-    setTimeout(() => setRefreshing(false), 1000);
-  }, []);
+    await fetchReports();
+    setRefreshing(false);
+  }, [fetchReports]);
 
   if (initialLoading) {
     return <LoadingContainer><ActivityIndicator size="large" color={colors.primary} /></LoadingContainer>;
@@ -213,6 +237,21 @@ export default function Profile() {
   if (!user) {
     return <LoadingContainer><Text>Please log in.</Text></LoadingContainer>;
   }
+
+  const renderReportsContent = () => {
+    if (reportsLoading) {
+      return <ActivityIndicator size="small" color={colors.primary} />;
+    }
+    if (reportsError) {
+      return <NoReportsText>{reportsError}</NoReportsText>;
+    }
+    if (reports.length === 0) {
+      return <NoReportsText>You haven't reported any cars yet.</NoReportsText>;
+    }
+    return reports.slice(0, 2).map((report) => (
+      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
+    ));
+  };
 
   return (
     <>
@@ -241,7 +280,7 @@ export default function Profile() {
               </AvatarWrapper>
             </AvatarTouchable>
           </ProfileCardHeader>
-                    <StyledButton onPress={() => { /* TODO: Navigate to Edit Profile screen */ }} isLogout style={{ marginBottom: 0 }}>
+          <StyledButton onPress={() => { /* TODO: Navigate to Edit Profile screen */ }} style={{ marginBottom: 0 }}>
             <ButtonText>Edit Profile</ButtonText>
           </StyledButton>
         </ProfileCard>
@@ -254,9 +293,9 @@ export default function Profile() {
           <TouchableOpacity onPress={() => router.push('/my-reports')}>
             <ReportsTitle>View all my reports</ReportsTitle>
           </TouchableOpacity>
-          {reports.slice(0, 2).map((report) => (
-            <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
-          ))}
+          <ReportsContentContainer>
+            {renderReportsContent()}
+          </ReportsContentContainer>
         </ReportsCard>
       </Container>
     </>

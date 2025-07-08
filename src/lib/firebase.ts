@@ -11,7 +11,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAlF3Lp-5CO8ekOCvnJNNLx7d-Exz9eQYY",
   authDomain: "rusty-7faf0.firebaseapp.com",
   projectId: "rusty-7faf0",
-  storageBucket: "rusty-7faf0.appspot.com",
+  storageBucket: 'rusty-7faf0.firebasestorage.app',
   messagingSenderId: "310839285582",
   appId: "1:310839285582:web:af6adf9d9690cc276eb01f",
   measurementId: "G-Y28NYTD1LY"
