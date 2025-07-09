@@ -3,7 +3,7 @@ import { StatusBar, RefreshControl, ActivityIndicator } from 'react-native';
 import { Stack, useFocusEffect } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
-import { getReportsByUserId } from '../src/lib/firebase/reports';
+import { getReportsByUserId } from '../src/services/firebase/reports';
 import { Report } from '../src/types/reports';
 import ReportCard from '../src/components/ReportCard';
 import theme from '../src/theme';

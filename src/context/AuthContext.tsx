@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo } from 'react';
-import { auth, db, storage } from '../lib/firebase'; // Import Firebase services
+import { auth, db, storage } from '../services/firebase'; // Import Firebase services
 import {
   User, // Firebase User type
   onAuthStateChanged,

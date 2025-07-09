@@ -16,7 +16,7 @@ import styled from 'styled-components/native';
 import colors from '../src/theme/colors';
 import ReportCard from '../src/components/ReportCard';
 import { Report } from '../src/types/reports';
-import { getReportsByUserId } from '../src/lib/firebase/reports';
+import { getReportsByUserId } from '../src/services/firebase/reports';
 
 const getStatusColor = (status: string) => {
   if (status.includes('recycled')) return colors.status.recycled;

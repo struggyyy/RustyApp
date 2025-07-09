@@ -21,7 +21,7 @@ import MapView, { Marker, Region, MarkerDragStartEndEvent } from 'react-native-m
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
-import { createReport, uploadReportImage } from '../src/lib/firebase/reports';
+import { createReport, uploadReportImage } from '../src/services/firebase/reports';
 import theme from '../src/theme';
 
 // Styled Components

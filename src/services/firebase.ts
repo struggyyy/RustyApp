@@ -3,32 +3,43 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from "firebase/analytics";
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Your web app's Firebase configuration (from user input)
+// Your web app's Firebase configuration, now loaded from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAlF3Lp-5CO8ekOCvnJNNLx7d-Exz9eQYY",
-  authDomain: "rusty-7faf0.firebaseapp.com",
-  projectId: "rusty-7faf0",
-  storageBucket: 'rusty-7faf0.firebasestorage.app',
-  messagingSenderId: "310839285582",
-  appId: "1:310839285582:web:af6adf9d9690cc276eb01f",
-  measurementId: "G-Y28NYTD1LY"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate that all required environment variables are present
+if (
+  !firebaseConfig.apiKey ||
+  !firebaseConfig.authDomain ||
+  !firebaseConfig.projectId ||
+  !firebaseConfig.storageBucket ||
+  !firebaseConfig.messagingSenderId ||
+  !firebaseConfig.appId
+) {
+  throw new Error('Firebase configuration is missing. Make sure you have a .env file with all the required EXPO_PUBLIC_FIREBASE_ variables.');
+}
+
 
 // Initialize Firebase
 let app: FirebaseApp;
 if (!getApps().length) {
   console.log('[Firebase] Initializing Firebase app...');
   app = initializeApp(firebaseConfig);
-  console.log('[Firebase] App initialized. getAuth will attempt implicit persistence.');
+  console.log('[Firebase] App initialized.');
 } else {
   console.log('[Firebase] Using existing Firebase app instance.');
   app = getApp();
 }
 
-// getAuth should attempt to configure persistence automatically if AsyncStorage is available
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -50,4 +61,4 @@ if (Platform.OS === 'web') {
 
 console.log('[Firebase] Firebase services obtained (Auth, Firestore, Storage).');
 
-export { app, auth, db, storage, analytics }; 
+export { app, auth, db, storage, analytics };
