@@ -17,8 +17,9 @@ import {
   UserCredential,
   // Add other Firebase Auth methods as needed (e.g., GoogleAuthProvider, signInWithCredential)
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp, FirestoreError, deleteDoc } from 'firebase/firestore'; // Firestore for user profiles and deleteDoc
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage for uploads
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp, FirestoreError, deleteDoc, writeBatch } from 'firebase/firestore'; // Firestore for user profiles and deleteDoc
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // Firebase Storage for uploads
+import { getReportsByUserId } from '../services/firebase/reports';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define the shape of the user profile data stored in Firestore
@@ -456,39 +457,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log(`[AuthContext] Starting account deletion for user: ${currentUser.uid}`);
 
     try {
-      // 1. Delete Firestore document
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      try {
-        await deleteDoc(userDocRef);
-        console.log(`[AuthContext] Firestore document deleted for user: ${currentUser.uid}`);
-      } catch (firestoreError: any) {
-        console.error(`[AuthContext] Failed to delete Firestore document for user ${currentUser.uid}:`, firestoreError);
-        // Decide if we should proceed with Auth deletion even if Firestore fails
-        // For now, we'll throw to stop the process
-        throw new Error('Failed to delete user data. Please try again.');
+      // 1. Get all user reports
+      const reports = await getReportsByUserId(currentUser.uid);
+      console.log(`[AuthContext] Found ${reports.length} reports to delete.`);
+
+      // 2. Delete all report images from Storage
+      const imageDeletionPromises: Promise<void>[] = [];
+      reports.forEach(report => {
+        if (report.imageUrl) {
+          const imageRef = ref(storage, report.imageUrl);
+          imageDeletionPromises.push(deleteObject(imageRef));
+        }
+      });
+
+      // 3. Delete user's profile picture from Storage
+      if (profile?.profileImage) {
+        console.log(`[AuthContext] Deleting profile image: ${profile.profileImage}`);
+        const profileImageRef = ref(storage, profile.profileImage);
+        imageDeletionPromises.push(deleteObject(profileImageRef));
       }
 
-      // 2. Delete Firebase Auth user
-      try {
-        await deleteUser(currentUser);
-        console.log(`[AuthContext] Firebase Auth user deleted successfully: ${currentUser.uid}`);
-        // State will update via onAuthStateChanged listener
-      } catch (authError: any) {
-        console.error(`[AuthContext] Failed to delete Firebase Auth user ${currentUser.uid}:`, authError.code, authError.message);
-        if (authError.code === 'auth/requires-recent-login') {
-          setError('This operation requires recent login. Please log out and log back in before deleting your account.');
-          throw new Error('Please log out and log back in to delete your account.');
-        } else {
-          setError(authError.message || 'Failed to delete account.');
-          throw authError; // Re-throw other auth errors
-        }
-      }
+      // Wait for all images to be deleted
+      await Promise.all(imageDeletionPromises).catch(err => {
+        // Log errors but don't block deletion process
+        console.error('[AuthContext] Error deleting one or more images from Storage:', err);
+      });
+      console.log('[AuthContext] All associated images have been deleted from Storage.');
+
+      // 4. Use a batch write to delete all Firestore documents (reports + user profile)
+      const batch = writeBatch(db);
+      reports.forEach(report => {
+        const reportDocRef = doc(db, 'reports', report.id);
+        batch.delete(reportDocRef);
+      });
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      batch.delete(userDocRef);
+
+      await batch.commit();
+      console.log('[AuthContext] All Firestore documents (reports and user profile) deleted.');
+
+      // 5. Delete Firebase Auth user
+      await deleteUser(currentUser);
+      console.log(`[AuthContext] Firebase Auth user deleted successfully: ${currentUser.uid}`);
+
     } catch (e: any) {
-      // Catch errors from Firestore delete or re-thrown Auth errors
       console.error('[AuthContext] Account deletion process failed:', e);
-      if (!error) { // Only set error if not already set by specific handlers
-        setError(e.message || 'An unexpected error occurred during account deletion.');
+      if (e.code === 'auth/requires-recent-login') {
+        const message = 'This is a sensitive operation and requires recent authentication. Please log in again before retrying this request.';
+        setError(message);
+        throw new Error(message);
       }
+      setError(e.message || 'An unexpected error occurred during account deletion.');
       throw e; // Re-throw the final error
     } finally {
       setLoading(false);

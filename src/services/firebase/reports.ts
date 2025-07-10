@@ -8,8 +8,10 @@ import {
   where,
   getDocs,
   orderBy,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
 import { Report } from "../../types/reports";
 
@@ -154,5 +156,51 @@ export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
   } catch (error) {
     console.error("Error fetching user reports:", error);
     throw new Error("Could not fetch reports.");
+  }
+};
+
+/**
+ * Deletes a single image from Firebase Storage.
+ * @param imageUrl The full URL of the image to delete.
+ */
+export const deleteReportImage = async (imageUrl: string) => {
+  if (!imageUrl) return; // Do nothing if the URL is not provided
+
+  try {
+    const imageRef = ref(storage, imageUrl);
+    await deleteObject(imageRef);
+  } catch (error: any) {
+    // If the image doesn't exist, we don't need to throw an error.
+    if (error.code === 'storage/object-not-found') {
+      console.warn(`Image at ${imageUrl} not found, but proceeding.`);
+    } else {
+      console.error(`Failed to delete image at ${imageUrl}:`, error);
+      throw error; // Re-throw other errors
+    }
+  }
+};
+
+/**
+ * Deletes a report document from Firestore and its associated image from Storage.
+ * @param reportId The ID of the report to delete.
+ * @param imageUrl The URL of the image associated with the report.
+ */
+export const deleteReport = async (reportId: string, imageUrl: string) => {
+  if (!reportId) {
+    throw new Error('Report ID is required to delete a report.');
+  }
+
+  try {
+    // Delete the image from Storage first
+    await deleteReportImage(imageUrl);
+
+    // Then delete the report document from Firestore
+    const reportDocRef = doc(db, 'reports', reportId);
+    await deleteDoc(reportDocRef);
+
+    console.log(`Report ${reportId} and associated image deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting report:', error);
+    throw new Error('Failed to delete report. Please check logs for details.');
   }
 };

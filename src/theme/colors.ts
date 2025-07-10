@@ -61,6 +61,8 @@ const palette = {
 };
 
 const colors = {
+  danger: palette.error.dark, // Add danger color for delete buttons
+
   // Theme colors mapping
   primary: palette.brand[500],
   primaryLight: palette.brand[300],

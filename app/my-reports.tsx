@@ -96,6 +96,10 @@ export default function MyReportsScreen() {
     fetchReports();
   }, [fetchReports]);
 
+  const handleReportDelete = (deletedReportId: string) => {
+    setReports(prevReports => prevReports.filter(report => report.id !== deletedReportId));
+  };
+
   const renderContent = () => {
     if (loading && !refreshing) {
       return (
@@ -123,7 +127,7 @@ export default function MyReportsScreen() {
     }
 
     return reports.map((report) => (
-      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
+      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} onDelete={handleReportDelete} />
     ));
   };
 

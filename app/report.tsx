@@ -267,7 +267,7 @@ export default function ReportScreen() {
       });
 
       Alert.alert('Success', 'Report submitted successfully!', [
-        { text: 'OK', onPress: () => router.push('/my-reports') },
+        { text: 'OK', onPress: () => router.replace('/my-reports') },
       ]);
     } catch (error) {
       console.error('Report submission error:', error);

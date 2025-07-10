@@ -113,7 +113,7 @@ export default function VerifyEmailScreen() {
     try {
       await logOut(router);
       console.log('[VerifyEmail] Logout successful. Navigating to login screen...');
-      router.replace('/login');
+      router.replace({ pathname: '/login', params: { email: emailToVerify } });
     } catch (err: any) {
       console.error('[VerifyEmail] Logout failed:', err);
       Alert.alert("Logout Failed", err.message || "Could not log out. Please try again.");

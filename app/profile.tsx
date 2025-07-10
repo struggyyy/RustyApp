@@ -170,6 +170,21 @@ export default function Profile() {
   const isLoading = authLoading || initialLoading || uploading;
   const profileImageUrl = profile?.profileImage || user?.photoURL;
 
+  useEffect(() => {
+    if (user?.uid) {
+      getReportsByUserId(user.uid)
+        .then(setReports)
+        .catch((err) => {
+          console.error(err);
+          // Optionally set an error state here
+        });
+    }
+  }, [user]);
+
+  const handleReportDelete = (deletedReportId: string) => {
+    setReports(prevReports => prevReports.filter(report => report.id !== deletedReportId));
+  };
+
   const fetchReports = useCallback(async () => {
     if (!user) return;
     setReportsLoading(true);
@@ -249,7 +264,7 @@ export default function Profile() {
       return <NoReportsText>You haven't reported any cars yet.</NoReportsText>;
     }
     return reports.slice(0, 2).map((report) => (
-      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} />
+      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} onDelete={handleReportDelete} />
     ));
   };
 
