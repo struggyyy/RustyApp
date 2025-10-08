@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -17,14 +13,14 @@ import {
 import { Stack, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import MapView, { Marker, Region, MarkerDragStartEndEvent, PROVIDER_GOOGLE } from 'react-native-maps';
-import { Ionicons } from '@expo/vector-icons';
+import MapView, { Region, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { createReport, uploadReportImage } from '../src/services/firebase/reports';
 import theme from '../src/theme';
+import StyledButton from '../src/components/common/StyledButton';
 
-// Styled Components
 const Container = styled(KeyboardAvoidingView)`
   flex: 1;
   background-color: ${theme.colors.background.primary};
@@ -34,12 +30,15 @@ const InnerScrollView = styled(ScrollView).attrs({
   contentContainerStyle: {
     flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    justifyContent: 'flex-start',
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 10, // Increased padding to enhance bounce effect
   },
+  keyboardShouldPersistTaps: 'handled',
+  alwaysBounceVertical: true,
 })`
-  flex: 1;
+  width: 100%;
 `;
 
 const TopContent = styled.View`
@@ -63,18 +62,9 @@ const Subtitle = styled.Text`
   line-height: 20px;
 `;
 
-const TakePictureButton = styled.TouchableOpacity`
-  background-color: ${theme.colors.primary};
-  padding: 16px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  width: 90%;
-  align-items: center;
-`;
-
 const ImagePreviewContainer = styled.View`
-  width: 90%;
-  height: 200px;
+  width: 100%;
+  aspect-ratio: 1.3;
   margin-bottom: 20px;
   border-radius: 16px;
   background-color: ${theme.colors.background.secondary};
@@ -88,51 +78,33 @@ const ImagePreview = styled.Image`
   height: 100%;
 `;
 
-const ButtonText = styled.Text`
-  color: ${theme.colors.white};
-  font-size: 16px;
-  font-weight: bold;
-`;
-
-const MainCard = styled.View<{ isKeyboardVisible?: boolean }>`
-  flex: ${(props: { isKeyboardVisible?: boolean }) => (props.isKeyboardVisible ? 0 : 1)};
+const MainCard = styled.View`
   width: 100%;
   background-color: ${theme.colors.background.secondary};
   border-radius: 24px;
   overflow: hidden;
   margin-bottom: 20px;
-  min-height: ${(props: { isKeyboardVisible?: boolean }) => (props.isKeyboardVisible ? 0 : 250)};
 `;
 
 const DescriptionInput = styled.TextInput`
   padding: 15px;
   font-size: 16px;
   color: ${theme.colors.text.primary};
-  min-height: 60px; /* Initial height */
+  text-align-vertical: top;
 `;
 
 const MapContainer = styled.View`
-  flex: 1;
-  position: relative;
+  height: 250px; /* Increased height */
   justify-content: center;
   align-items: center;
   background-color: #e0e0e0; /* Placeholder color */
-  min-height: ${Dimensions.get('window').height * 0.35}px;
+  border-top-left-radius: 24px; /* Rounded top corners */
+  border-top-right-radius: 24px;
+  overflow: hidden; /* Clip the map to the rounded corners */
 `;
 
 const StyledMapView = styled(MapView)`
   ${StyleSheet.absoluteFillObject}
-`;
-
-const MapOverlayButton = styled.TouchableOpacity`
-  position: absolute;
-  top: 15px;
-  align-self: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding-vertical: 10px;
-  padding-horizontal: 20px;
-  border-radius: 20px;
-  z-index: 1;
 `;
 
 const MapErrorText = styled.Text`
@@ -142,6 +114,22 @@ const MapErrorText = styled.Text`
 const BottomContent = styled.View`
   align-items: center;
   width: 100%;
+  margin-top: auto;
+`;
+
+const MyLocationButtonTouchable = styled.TouchableOpacity`
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 30px;
+  shadow-color: #000;
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.22;
+  shadow-radius: 2.22px;
+  elevation: 3;
+  z-index: 3;
 `;
 
 const IconBar = styled.View`
@@ -155,20 +143,6 @@ const IconButton = styled.TouchableOpacity`
   background-color: ${theme.colors.background.secondary};
   padding: 12px;
   border-radius: 30px; /* Make it circular */
-`;
-
-const SubmitButton = styled.TouchableOpacity<{ isDisabled: boolean }>`
-  background-color: ${(props: { isDisabled: boolean }) => (props.isDisabled ? theme.colors.secondaryLight : theme.colors.primary)};
-  width: 90%;
-  padding: 16px;
-  border-radius: 16px;
-  align-items: center;
-`;
-
-const SubmitButtonText = styled.Text`
-  color: ${theme.colors.white};
-  font-size: 18px;
-  font-weight: bold;
 `;
 
 export default function ReportScreen() {
@@ -215,8 +189,8 @@ export default function ReportScreen() {
         setLocation(coords);
         setMapRegion({
           ...coords,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.005,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
         });
       }
     } catch (error: any) {
@@ -251,7 +225,7 @@ export default function ReportScreen() {
 
   const handleSubmit = async () => {
     if (!user || !imageUri || !location || !description) {
-      Alert.alert('Incomplete Form', 'Please fill all fields, take a picture, and mark the location.');
+      Alert.alert('Incomplete Form', 'Please fill all fields, take a picture, and ensure location is set.');
       return;
     }
     setIsSubmitting(true);
@@ -277,19 +251,14 @@ export default function ReportScreen() {
     }
   };
 
-  const handleMarkerDragEnd = (event: MarkerDragStartEndEvent) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setLocation({ latitude, longitude });
-  };
-
   const handleCenterMap = () => {
     if (location && mapRef.current) {
       mapRef.current.animateToRegion(
         {
           latitude: location.latitude,
           longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.005,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.01,
         },
         500
       );
@@ -303,11 +272,15 @@ export default function ReportScreen() {
     if (locationErrorMsg) {
       return <MapErrorText>{locationErrorMsg}</MapErrorText>;
     }
-    if (mapRegion && location) {
+    if (mapRegion) {
       return (
-        <StyledMapView ref={mapRef} provider={PROVIDER_GOOGLE} initialRegion={mapRegion} showsUserLocation showsMyLocationButton>
-          <Marker coordinate={location} draggable onDragEnd={handleMarkerDragEnd} />
-        </StyledMapView>
+        <StyledMapView 
+          ref={mapRef} 
+          provider={PROVIDER_GOOGLE} 
+          initialRegion={mapRegion} 
+          showsUserLocation 
+          showsMyLocationButton={false} 
+        />
       );
     }
     return <MapErrorText>Initializing map...</MapErrorText>;
@@ -319,8 +292,6 @@ export default function ReportScreen() {
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Stack.Screen options={{ title: 'Report a Car' }} />
       <InnerScrollView
-        keyboardShouldPersistTaps="handled"
-        alwaysBounceVertical={true}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} tintColor={theme.colors.primary} />}
       >
         <TopContent>
@@ -329,58 +300,50 @@ export default function ReportScreen() {
             By pointing out abandoned cars in your neighbourhood, you contribute to cleaner and safer surroundings.
           </Subtitle>
           {imageUri ? (
+            !isKeyboardVisible && (
             <ImagePreviewContainer>
               <ImagePreview source={{ uri: imageUri }} />
             </ImagePreviewContainer>
+          )
           ) : (
-            <TakePictureButton onPress={() => pickImage(true)}>
-              <ButtonText>TAKE A PICTURE</ButtonText>
-            </TakePictureButton>
+            <StyledButton title="TAKE A PICTURE" onPress={() => pickImage(true)} />
           )}
         </TopContent>
 
-        <MainCard isKeyboardVisible={isKeyboardVisible}>
+        <MainCard>
           <DescriptionInput
             placeholder="Description..."
             placeholderTextColor={theme.colors.text.secondary}
             value={description}
             onChangeText={setDescription}
             multiline
-            textAlignVertical="top"
           />
-          {!isKeyboardVisible && (
-            <MapContainer>
-              {renderMapContent()}
-              <MapOverlayButton onPress={handleCenterMap}>
-                <ButtonText>CENTER ON LOCATION</ButtonText>
-              </MapOverlayButton>
-            </MapContainer>
-          )}
+          <MapContainer>
+            {renderMapContent()}
+            <MyLocationButtonTouchable onPress={handleCenterMap}>
+              <MaterialIcons name="my-location" size={24} color={theme.colors.primary} />
+            </MyLocationButtonTouchable>
+          </MapContainer>
         </MainCard>
 
         <BottomContent>
-          {!isKeyboardVisible && (
-            <IconBar>
-              <IconButton onPress={() => pickImage(true)}>
-                <Ionicons name="camera-outline" size={24} color={theme.colors.text.secondary} />
-              </IconButton>
-              <IconButton onPress={handleCenterMap}>
-                <Ionicons name="location-outline" size={24} color={theme.colors.text.secondary} />
-              </IconButton>
-              <IconButton onPress={() => pickImage(false)}>
-                <Ionicons name="images-outline" size={24} color={theme.colors.text.secondary} />
-              </IconButton>
-            </IconBar>
-          )}
-          {!isKeyboardVisible && (
-            <SubmitButton onPress={handleSubmit} isDisabled={!isFormReady || isSubmitting}>
-              {isSubmitting ? (
-                <ActivityIndicator color={theme.colors.white} />
-              ) : (
-                <SubmitButtonText>SUBMIT</SubmitButtonText>
-              )}
-            </SubmitButton>
-          )}
+          <IconBar>
+            <IconButton onPress={() => pickImage(true)}>
+              <Ionicons name="camera-outline" size={24} color={theme.colors.text.secondary} />
+            </IconButton>
+            <IconButton onPress={handleCenterMap}>
+              <Ionicons name="location-outline" size={24} color={theme.colors.text.secondary} />
+            </IconButton>
+            <IconButton onPress={() => pickImage(false)}>
+              <Ionicons name="images-outline" size={24} color={theme.colors.text.secondary} />
+            </IconButton>
+          </IconBar>
+          <StyledButton 
+            title="SUBMIT"
+            onPress={handleSubmit} 
+            disabled={!isFormReady || isSubmitting} 
+            loading={isSubmitting} 
+          />
         </BottomContent>
       </InnerScrollView>
     </Container>

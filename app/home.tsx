@@ -7,6 +7,10 @@ import MapView, { Marker, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import colors from '../src/theme/colors';
 import styled from 'styled-components/native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { getReportsByUserId } from '../src/services/firebase/reports';
+import { Report } from '../src/types/reports';
+import StyledButton from '../src/components/common/StyledButton';
 
 const { width, height } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -75,29 +79,6 @@ const CarDisplayImage = styled.Image({
   height: '100%',
 });
 
-const ReportButtonTouchable = styled.TouchableOpacity<{ isWeb?: boolean }>((props: { isWeb?: boolean }) => ({
-  backgroundColor: '#BD5151',
-  borderRadius: 16,
-  padding: 16,
-  alignItems: 'center',
-  marginBottom: 24,
-  // shadowDefault
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.23,
-  shadowRadius: 2.62,
-  elevation: 4,
-  ...(props.isWeb && { // webReportButton
-    maxWidth: 600,
-    alignSelf: 'center',
-  }),
-}));
-
-const ReportButtonLabel = styled.Text({
-  color: '#FFFFFF',
-  fontSize: 18,
-  fontWeight: 'bold',
-});
 
 const MyReportsButton = styled.TouchableOpacity({
   position: 'absolute',
@@ -307,6 +288,7 @@ function HomeScreenComponent() {
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const mapRef = useRef<MapView>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [reports, setReports] = useState<Report[]>([]);
 
   const fetchLocation = useCallback(async () => {
     setIsLocationLoading(true);
@@ -338,7 +320,12 @@ function HomeScreenComponent() {
 
   useEffect(() => {
     fetchLocation();
-  }, [fetchLocation]);
+    if (user) {
+      getReportsByUserId(user.uid)
+        .then(setReports)
+        .catch(err => console.error("Failed to fetch reports:", err));
+    }
+  }, [fetchLocation, user]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -409,15 +396,19 @@ function HomeScreenComponent() {
         }}
         showsUserLocation={true}
         showsMyLocationButton={false}
-      >
-        <Marker
-          coordinate={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          }}
-          title="Your Location"
-          pinColor="#BD5151"
-        />
+              >
+        {reports.map(report => (
+          <Marker
+            key={report.id}
+            coordinate={{
+              latitude: report.location.latitude,
+              longitude: report.location.longitude,
+            }}
+            title="Reported Car"
+            description={report.description}
+            pinColor={colors.primary}
+          />
+        ))}
       </StyledMapView>
     );
   };
@@ -474,12 +465,10 @@ function HomeScreenComponent() {
           />
         </CarImageCard>
 
-        <ReportButtonTouchable
-          isWeb={isWeb}
-          onPress={() => router.push('/report')}
-        >
-          <ReportButtonLabel>REPORT A CAR</ReportButtonLabel>
-        </ReportButtonTouchable>
+        <StyledButton 
+          title="REPORT A CAR" 
+          onPress={() => router.push('/report')} 
+        />
 
         <MapSection isWeb={isWeb}>
           <MyReportsButton onPress={() => router.push('/my-reports')}>
@@ -495,7 +484,7 @@ function HomeScreenComponent() {
                  <MyLocationButtonTouchable
                     onPress={goToMyLocation}
                 >
-                    <MyLocationButtonLabel>🎯</MyLocationButtonLabel>
+                    <MaterialIcons name="my-location" size={24} color={colors.primary} />
                 </MyLocationButtonTouchable>
             )}
           </MapWrapperView>
