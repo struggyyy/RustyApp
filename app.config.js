@@ -1,4 +1,6 @@
-{
+require('dotenv').config();
+
+export default {
   "expo": {
     "name": "Rusty",
     "slug": "Rusty",
@@ -20,7 +22,10 @@
       "bundleIdentifier": "com.anonymous.rusty",
       "associatedDomains": [
         "applinks:rusty-7faf0.firebaseapp.com"
-      ]
+      ],
+      "config": {
+        "googleMapsApiKey": process.env.GOOGLE_MAPS_API_KEY
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +33,11 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.rusty",
+      "config": {
+        "googleMaps": {
+          "apiKey": process.env.GOOGLE_MAPS_API_KEY
+        }
+      },
       "intentFilters": [
         {
           "action": "VIEW",
@@ -49,6 +59,12 @@
     "web": {
       "bundler": "metro"
     },
+    "extra": {
+      "eas": {
+        "projectId": "4efc6c8c-f689-49a0-844d-846ef14a0e67"
+      }
+    },
+    "newArchEnabled": true,
     "plugins": [
       [
         "expo-location",

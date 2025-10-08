@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, Pressable, StatusBar, Dimensions, 
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as Location from 'expo-location';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Marker, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import colors from '../src/theme/colors';
 import styled from 'styled-components/native';
@@ -399,6 +399,7 @@ function HomeScreenComponent() {
 
     return (
       <StyledMapView
+        provider={PROVIDER_GOOGLE}
         ref={mapRef}
         initialRegion={{
           latitude: location.coords.latitude,

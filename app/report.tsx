@@ -17,7 +17,7 @@ import {
 import { Stack, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import MapView, { Marker, Region, MarkerDragStartEndEvent } from 'react-native-maps';
+import MapView, { Marker, Region, MarkerDragStartEndEvent, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
@@ -305,7 +305,7 @@ export default function ReportScreen() {
     }
     if (mapRegion && location) {
       return (
-        <StyledMapView ref={mapRef} initialRegion={mapRegion} showsUserLocation showsMyLocationButton>
+        <StyledMapView ref={mapRef} provider={PROVIDER_GOOGLE} initialRegion={mapRegion} showsUserLocation showsMyLocationButton>
           <Marker coordinate={location} draggable onDragEnd={handleMarkerDragEnd} />
         </StyledMapView>
       );
