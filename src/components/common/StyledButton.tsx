@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, Platform, StyleProp, ViewStyle } from 'react-native';
 import styled from 'styled-components/native';
 import theme from '../../theme';
 
@@ -9,13 +9,20 @@ interface StyledButtonProps {
   disabled?: boolean;
   loading?: boolean;
   isWeb?: boolean;
+  variant?: 'primary' | 'secondary';
+  style?: StyleProp<ViewStyle>;
 }
 
 const ButtonTouchable = styled.TouchableOpacity<{
   isDisabled: boolean;
   isWeb?: boolean;
-}>((props: { isDisabled: boolean; isWeb?: boolean }) => ({
-  backgroundColor: props.isDisabled ? theme.colors.secondaryLight : theme.colors.primary,
+  variant: 'primary' | 'secondary';
+}>((props: { isDisabled: boolean; isWeb?: boolean; variant: 'primary' | 'secondary' }) => ({
+    backgroundColor: props.variant === 'secondary'
+      ? theme.colors.text.secondary
+      : props.isDisabled
+      ? theme.colors.secondaryLight
+      : theme.colors.primary,
   borderRadius: 16,
   padding: 16,
   alignItems: 'center',
@@ -38,11 +45,11 @@ const ButtonLabel = styled.Text`
   font-weight: bold;
 `;
 
-const StyledButton: React.FC<StyledButtonProps> = ({ onPress, title, disabled = false, loading = false }) => {
+const StyledButton: React.FC<StyledButtonProps> = ({ onPress, title, disabled = false, loading = false, variant = 'primary', style }) => {
   const isWeb = Platform.OS === 'web';
 
   return (
-    <ButtonTouchable onPress={onPress} disabled={disabled || loading} isDisabled={disabled || loading} isWeb={isWeb}>
+            <ButtonTouchable onPress={onPress} disabled={disabled || loading} isDisabled={disabled || loading} isWeb={isWeb} variant={variant} style={style}>
       {loading ? <ActivityIndicator color={theme.colors.white} /> : <ButtonLabel>{title}</ButtonLabel>}
     </ButtonTouchable>
   );

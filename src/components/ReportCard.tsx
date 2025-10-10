@@ -50,9 +50,10 @@ const ReportStatus = styled.Text`
 
 const ButtonContainer = styled.View`
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   margin-top: 16px;
+  gap: 10px;
 `;
 
 const DetailsButton = styled.TouchableOpacity`
@@ -60,7 +61,8 @@ const DetailsButton = styled.TouchableOpacity`
   padding-vertical: 10px;
   padding-horizontal: 20px;
   border-radius: 20px;
-  align-self: flex-start; /* Fixes button width issue */
+  flex: 1;
+  align-items: center;
 `;
 
 const DeleteButton = styled(DetailsButton)`
@@ -176,10 +178,10 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, getStatusColor, onDelet
           </DetailsContainer>
           <ButtonContainer>
             <DetailsButton onPress={() => setIsExpanded(false)}>
-              <DetailsButtonText>Hide details</DetailsButtonText>
+              <DetailsButtonText>Close</DetailsButtonText>
             </DetailsButton>
             <DeleteButton onPress={handleDelete} disabled={isDeleting}>
-              <DetailsButtonText>{isDeleting ? 'Deleting...' : 'Delete Report'}</DetailsButtonText>
+              <DetailsButtonText>{isDeleting ? 'Deleting...' : 'Delete'}</DetailsButtonText>
             </DeleteButton>
           </ButtonContainer>
         </>

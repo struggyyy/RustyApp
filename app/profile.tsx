@@ -14,6 +14,7 @@ import { useAuth } from '../src/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import styled from 'styled-components/native';
 import colors from '../src/theme/colors';
+import StyledButton from '../src/components/common/StyledButton';
 import ReportCard from '../src/components/ReportCard';
 import { Report } from '../src/types/reports';
 import { getReportsByUserId } from '../src/services/firebase/reports';
@@ -28,7 +29,7 @@ const getStatusColor = (status: string) => {
 const Container = styled.ScrollView`
   flex: 1;
   background-color: ${colors.white};
-  padding: 20px;
+  padding: 24px 12px;
 `;
 
 const ProfileCard = styled.View`
@@ -106,28 +107,10 @@ const UploadIndicator = styled(ActivityIndicator)`
   position: absolute;
 `;
 
-interface ButtonProps {
-  isLogout?: boolean;
-}
-
-const StyledButton = styled.TouchableOpacity<ButtonProps>`
-  background-color: ${(props: ButtonProps) => (props.isLogout ? colors.text.secondary : colors.primary)};
-  padding: 12px;
-  border-radius: 15px;
-  align-items: center;
-  margin-bottom: 15px;
-`;
-
-const ButtonText = styled.Text`
-  color: ${colors.white};
-  font-size: 16px;
-  font-weight: bold;
-`;
-
 const ReportsCard = styled.View`
   background-color: ${colors.componentBackground};
   border-radius: 24px;
-  padding: 20px 20px 5px;
+  padding: 20px;
   margin-bottom: 40px;
 `;
 
@@ -261,7 +244,7 @@ export default function Profile() {
       return <NoReportsText>{reportsError}</NoReportsText>;
     }
     if (reports.length === 0) {
-      return <NoReportsText>You haven't reported any cars yet.</NoReportsText>;
+      return <NoReportsText>You have no reports yet.</NoReportsText>;
     }
     return reports.slice(0, 2).map((report) => (
       <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} onDelete={handleReportDelete} />
@@ -295,14 +278,10 @@ export default function Profile() {
               </AvatarWrapper>
             </AvatarTouchable>
           </ProfileCardHeader>
-          <StyledButton onPress={() => { /* TODO: Navigate to Edit Profile screen */ }} style={{ marginBottom: 0 }}>
-            <ButtonText>Edit Profile</ButtonText>
-          </StyledButton>
+          <StyledButton title="Edit Profile" onPress={() => { /* TODO: Navigate to Edit Profile screen */ }} variant="secondary" style={{ marginBottom: 0 }} />
         </ProfileCard>
 
-        <StyledButton onPress={() => router.push('/settings')}>
-          <ButtonText>Settings</ButtonText>
-        </StyledButton>
+        <StyledButton title="Settings" onPress={() => router.push('/settings')} />
 
         <ReportsCard>
           <TouchableOpacity onPress={() => router.push('/my-reports')}>

@@ -12,16 +12,15 @@ import theme from '../src/theme';
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.white};
+  padding: 24px 12px;
 `;
 
 const HistoryContainer = styled.View`
   flex: 1;
   background-color: ${theme.colors.componentBackground};
-  width: 95%;
-  align-self: center;
-  margin-top: 20px;
   border-radius: 24px;
-  padding: 15px;
+  padding: 20px;
+  overflow: hidden; /* Ensures scroll view respects border radius */
 `;
 
 const HistoryTitle = styled.Text`
@@ -139,7 +138,6 @@ export default function MyReportsScreen() {
         <HistoryContainer>
           <HistoryTitle>HISTORY OF REPORTS</HistoryTitle>
           <ReportsScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} tintColor={theme.colors.primary} />
             }

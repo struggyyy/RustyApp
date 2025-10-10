@@ -15,6 +15,7 @@ import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import MapView, { Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { createReport, uploadReportImage } from '../src/services/firebase/reports';
@@ -78,6 +79,21 @@ const ImagePreview = styled.Image`
   height: 100%;
 `;
 
+const ImageOverlayActions = styled.View`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  flex-direction: row;
+  z-index: 10;
+`;
+
+const ImageActionButton = styled.TouchableOpacity`
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  padding: 8px;
+  margin-left: 10px;
+`;
+
 const MainCard = styled.View`
   width: 100%;
   background-color: ${theme.colors.background.secondary};
@@ -92,6 +108,16 @@ const DescriptionInput = styled.TextInput`
   color: ${theme.colors.text.primary};
   text-align-vertical: top;
 `;
+
+const InsetShadowGradientView = styled(LinearGradient)({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  height: 15,
+  zIndex: 2,
+  // borderRadius: 16, // Applied to MapWrapperView now for the effect
+});
 
 const MapContainer = styled.View`
   height: 250px; /* Increased height */
@@ -189,8 +215,8 @@ export default function ReportScreen() {
         setLocation(coords);
         setMapRegion({
           ...coords,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.01,
         });
       }
     } catch (error: any) {
@@ -208,6 +234,10 @@ export default function ReportScreen() {
     await getCurrentLocation();
     setIsRefreshing(false);
   }, [getCurrentLocation]);
+
+    const handleCancelImage = () => {
+    setImageUri(null);
+  };
 
   const pickImage = async (useCamera: boolean) => {
     const action = useCamera ? ImagePicker.launchCameraAsync : ImagePicker.launchImageLibraryAsync;
@@ -303,6 +333,15 @@ export default function ReportScreen() {
             !isKeyboardVisible && (
             <ImagePreviewContainer>
               <ImagePreview source={{ uri: imageUri }} />
+              <ImageOverlayActions>
+                {/* Select other image from the phone (currently disabled)
+                <ImageActionButton onPress={() => pickImage(false)}>
+                  <Ionicons name="create-outline" size={24} color="white" />
+                </ImageActionButton> */} 
+                <ImageActionButton onPress={handleCancelImage}>
+                  <Ionicons name="close" size={24} color="white" />
+                </ImageActionButton>
+              </ImageOverlayActions>
             </ImagePreviewContainer>
           )
           ) : (
@@ -311,13 +350,19 @@ export default function ReportScreen() {
         </TopContent>
 
         <MainCard>
-          <DescriptionInput
-            placeholder="Description..."
-            placeholderTextColor={theme.colors.text.secondary}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
+          
+            <InsetShadowGradientView
+                            colors={['rgba(0,0,0,0.15)', 'transparent']}
+                            pointerEvents="none"
+                        />
+            <DescriptionInput
+              placeholder="Description..."
+              placeholderTextColor={theme.colors.text.secondary}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+            />
+          
           <MapContainer>
             {renderMapContent()}
             <MyLocationButtonTouchable onPress={handleCenterMap}>
@@ -343,6 +388,7 @@ export default function ReportScreen() {
             onPress={handleSubmit} 
             disabled={!isFormReady || isSubmitting} 
             loading={isSubmitting} 
+            variant="secondary"
           />
         </BottomContent>
       </InnerScrollView>

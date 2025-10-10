@@ -4,12 +4,13 @@ import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import colors from '../src/theme/colors';
+import StyledButton from '../src/components/common/StyledButton';
 
 // --- STYLED COMPONENTS ---
-const Container = styled.View`
+const Container = styled.ScrollView`
   flex: 1;
   background-color: ${colors.white};
-  padding: 20px;
+  padding: 24px 12px;
 `;
 
 const SettingsCard = styled.View`
@@ -38,19 +39,6 @@ const NotificationLabel = styled.Text`
   color: ${colors.text.secondary};
 `;
 
-const ActionButton = styled.TouchableOpacity<{ isDelete?: boolean }>`
-  background-color: ${(props: { isDelete?: boolean }) => (props.isDelete ? colors.text.secondary : colors.primary)};
-  padding: 15px;
-  border-radius: 15px;
-  align-items: center;
-  margin-top: 10px;
-`;
-
-const ButtonText = styled.Text`
-  color: ${colors.white};
-  font-size: 16px;
-  font-weight: bold;
-`;
 
 // --- COMPONENT ---
 export default function Settings() {
@@ -133,16 +121,17 @@ export default function Settings() {
 
         <SettingsCard>
           <CardHeader>Account</CardHeader>
-                              <ActionButton onPress={handleLogout} disabled={loading}>
-            {loading && !isSubmitting ? (
-              <ActivityIndicator color={colors.white} />
-            ) : (
-              <ButtonText>Logout</ButtonText>
-            )}
-          </ActionButton>
-          <ActionButton onPress={handleDeleteAccount} isDelete>
-            <ButtonText>Delete Account :(</ButtonText>
-          </ActionButton>
+          <StyledButton
+            title="Logout"
+            onPress={handleLogout}
+            disabled={loading}
+            loading={loading && !isSubmitting}
+          />
+          <StyledButton
+            title="Delete Account :("
+            onPress={handleDeleteAccount}
+            variant="secondary"
+          />
         </SettingsCard>
       </Container>
     </>
