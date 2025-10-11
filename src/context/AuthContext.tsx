@@ -31,6 +31,7 @@ interface UserProfile {
   profileImage?: string | null; // URL to the image in Firebase Storage
   createdAt: any; // Use Firestore ServerTimestamp
   updatedAt?: any; // Use Firestore ServerTimestamp
+  role?: 'user' | 'admin'; // Add role field
   // Add other profile fields as needed based on CONTEXT.md
   notificationPreferences?: {
     email: boolean;
@@ -46,6 +47,7 @@ interface AuthContextType {
   loading: boolean;
   initialLoading: boolean; // Tracks initial auth state check
   error: string | null;
+  isAdmin: boolean; // <-- Add isAdmin state
   signUp: (email: string, password: string, nickname: string) => Promise<User | null>; // Return user or null
   logIn: (email: string, password: string) => Promise<void>;
   logOut: (router: any) => Promise<void>;
@@ -71,6 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false); // <-- Add isAdmin state
 
   useEffect(() => {
     console.log('[AuthContext] Setting up auth state listener...');
@@ -96,7 +99,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
             console.log('[AuthContext] Direct fetch: Profile found.');
-            if (isMounted) setProfile(docSnap.data() as UserProfile);
+            const userProfile = docSnap.data() as UserProfile;
+            if (isMounted) {
+                setProfile(userProfile);
+                // Check for admin role
+                if (userProfile.role === 'admin') {
+                    console.log('[AuthContext] User is an admin.');
+                    setIsAdmin(true);
+                } else {
+                    setIsAdmin(false);
+                }
+            }
           } else {
             console.warn(`[AuthContext] Direct fetch: No profile found. Creating initial.`);
             if (isMounted) await createInitialProfile(firebaseUser); // Ensure createInitialProfile exists
@@ -111,8 +124,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (isMounted) setLoading(false);
         }
       } else {
-        // No user, clear profile
-        if (isMounted) setProfile(null);
+        // No user, clear profile and admin status
+        if (isMounted) {
+            setProfile(null);
+            setIsAdmin(false);
+        }
       }
 
       // *** Crucially, set initialLoading to false AFTER the first check completes ***
@@ -140,6 +156,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       createdAt: serverTimestamp(),
       notificationPreferences: { email: true, push: true },
       language: 'en',
+      role: 'user', // <-- Set default role for new users
     };
     try {
       await setDoc(userDocRef, initialProfileData);
@@ -521,6 +538,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     initialLoading,
     error,
+    isAdmin,
     signUp,
     logIn,
     logOut,
@@ -532,7 +550,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUserAuth,
     uploadProfileImage,
     deleteAccount,
-  }), [user, profile, loading, initialLoading, error]);
+  }), [user, profile, loading, initialLoading, error, isAdmin]);
 
   return (
     <AuthContext.Provider value={value}>
