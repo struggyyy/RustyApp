@@ -1,10 +1,10 @@
 import 'react-native-url-polyfill/auto';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
-import { Platform } from 'react-native';
+import { Platform, View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import * as Linking from 'expo-linking';
 import styled from 'styled-components/native';
@@ -18,59 +18,44 @@ function AuthenticatedStack() {
   const { user, initialLoading, handleSignInWithLink, isAdmin } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     if (initialLoading) {
-      console.log('[AuthenticatedStack Effect] Waiting for initial auth load...');
-      return;
+      return; // Still loading, do nothing.
     }
+
+    setIsReady(true); // Auth state is now known.
 
     const isAuthRoute = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'forgot-password' || segments[0] === 'reset-password';
     const isVerifyEmailRoute = segments[0] === 'verify-email';
 
-    console.log(`[AuthenticatedStack Effect] Auth loaded. User: ${!!user}, Verified: ${user?.emailVerified}, IsAuthRoute: ${isAuthRoute}, IsVerify: ${isVerifyEmailRoute}, Segments: ${segments.join('/')}`);
-
+    // Case 1: Not logged in, and not on an auth/verify route -> redirect to login.
     if (!user && !isAuthRoute && !isVerifyEmailRoute) {
-      console.log('[AuthenticatedStack Effect] No user, redirecting to login...');
         router.replace('/login');
+    // Case 2: Logged in but email not verified, and not on the verify screen -> redirect to verify.
     } else if (user && !user.emailVerified && !isVerifyEmailRoute) {
-      console.log('[AuthenticatedStack Effect] User exists but not verified, redirecting to verify-email...');
       router.replace('/verify-email');
+    // Case 3: Logged in and verified, but currently on an auth/verify route -> redirect to correct home screen.
     } else if (user && user.emailVerified && (isAuthRoute || isVerifyEmailRoute)) {
       if (isAdmin) {
-        console.log('[AuthenticatedStack Effect] Admin user verified, redirecting to admin dashboard...');
         router.replace('/admin');
       } else {
-        console.log('[AuthenticatedStack Effect] User verified, redirecting from auth/verify route to home...');
         router.replace('/home');
       }
-    } else if (user && !user.emailVerified && isVerifyEmailRoute) {
-      console.log('[AuthenticatedStack Effect] User not verified, correctly on verify screen.');
-    } else if (user && user.emailVerified && !isAuthRoute && !isVerifyEmailRoute) {
-      // This is a logged-in, verified user on a protected route.
-      // Check if they are an admin and redirect if they are not on the admin page.
-      if (isAdmin && segments[0] !== 'admin') {
-        console.log('[AuthenticatedStack Effect] Admin user is on a non-admin page, redirecting to admin dashboard...');
-        router.replace('/admin');
-      } else {
-        console.log('[AuthenticatedStack Effect] User verified, correctly on protected route.');
-      }
-    } else if (!user && (isAuthRoute || isVerifyEmailRoute)) {
-      console.log('[AuthenticatedStack Effect] No user, correctly on public auth/verify route.');
+    // Case 4: Logged in, verified, and on a protected route, but is an admin not on the admin page -> redirect to admin.
+    } else if (user && user.emailVerified && isAdmin && segments[0] !== 'admin') {
+      router.replace('/admin');
     }
   }, [user, initialLoading, segments, router, isAdmin]);
 
   useEffect(() => {
     const handleDeepLink = (event: { url: string }) => {
-      console.log('Deep link detected:', event.url);
       if (event.url.includes('__/auth/action')) {
-        console.log('Email action link detected');
         handleSignInWithLink(event.url);
       } else if (event.url.includes('type=recovery') || event.url.includes('reset-password')) {
-        console.log('Password reset link detected');
         const token = event.url.split('token=')[1]?.split('&')[0] || '';
         if (token) {
-          console.log('Token found, redirecting to reset password screen');
           router.navigate(`/reset-password?token=${token}`);
         }
       }
@@ -86,6 +71,16 @@ function AuthenticatedStack() {
       };
     }
   }, [handleSignInWithLink, router]);
+
+  // Show a loading screen while the app is determining the correct route,
+  // especially for admins who might otherwise see a flash of the user home screen.
+  if (!isReady || (isAdmin && segments[0] !== 'admin' && segments.length > 0)) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#BD5151" />
+      </View>
+    );
+  }
 
   return (
     <Stack>

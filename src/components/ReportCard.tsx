@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View, ActivityIndicator } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../theme/colors';
-import { Report } from '../types/reports';
-import { deleteReport } from '../services/firebase/reports';
+import { Report, ReportStatus, reportStatuses } from '../types/reports';
+import { deleteReport, updateReportStatus } from '../services/firebase/reports';
 
 // --- TYPES ---
 interface ReportCardProps {
   report: Report;
-  getStatusColor: (status: string) => string;
-  onDelete: (reportId: string) => void; // Callback to refresh list
+  onDelete: (reportId: string) => void;
+  onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
+  isAdmin: boolean;
 }
 
 interface CardContainerProps {
   isExpanded: boolean;
 }
 
-// --- STYLED COMPONENTS ---
+// --- STYLED COMPONENTS (Shared) ---
 const CardContainer = styled.View<CardContainerProps>`
   background-color: ${colors.white};
   border-radius: 15px;
@@ -42,31 +44,17 @@ const ReportDate = styled.Text<StatusTextProps>`
   margin-bottom: 8px;
 `;
 
-const ReportStatus = styled.Text`
+const ReportStatusText = styled.Text`
   font-size: 16px;
   color: ${colors.text.secondary};
   margin-bottom: 16px;
 `;
 
-const ButtonContainer = styled.View`
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  margin-top: 16px;
-  gap: 10px;
-`;
-
 const DetailsButton = styled.TouchableOpacity`
   background-color: ${colors.text.secondary};
-  padding-vertical: 10px;
-  padding-horizontal: 20px;
+  padding: 10px 20px;
   border-radius: 20px;
-  flex: 1;
   align-items: center;
-`;
-
-const DeleteButton = styled(DetailsButton)`
-  background-color: ${colors.primary}; /* Use primary brand color */
 `;
 
 const DetailsButtonText = styled.Text`
@@ -101,103 +89,231 @@ const PointsText = styled.Text<StatusTextProps>`
   margin-top: 8px;
 `;
 
-const DetailsContainer = styled.View`
+const StatusIndicatorText = styled.Text<StatusTextProps>`
+  font-size: 24px;
+  font-weight: bold;
+  color: ${(props: StatusTextProps) => props.color};
   margin-top: 8px;
 `;
 
 const DetailText = styled.Text`
   font-size: 16px;
   color: ${colors.text.primary};
-  margin-bottom: 8px;
+  /* No margin-bottom here, handled by container */
 `;
 
 const DetailLabel = styled.Text`
   font-weight: bold;
+  color: ${colors.text.primary};
+  font-size: 16px;
+`;
+
+// --- ADMIN-SPECIFIC STYLED COMPONENTS ---
+
+const StatusButtonText = styled.Text<{ active: boolean }>`
+  color: ${(props: { active: boolean }) => (props.active ? colors.white : colors.text.primary)};
+  font-weight: bold;
+  font-size: 12px;
+`;
+
+const StatusGrid = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Distribute space between columns */
+  gap: 10px; /* Vertical gap between rows */
+  margin-top: 16px;
+  margin-bottom: 16px;
+`;
+
+const StatusButton = styled.TouchableOpacity<{ active: boolean; activeColor: string }>`
+  background-color: ${(props: { active: boolean; activeColor: string }) => (props.active ? props.activeColor : colors.componentBackground)};
+  padding: 18px 8px; /* Increase vertical padding for a more square look */
+  border-radius: 12px; /* More rounded corners */
+  align-items: center;
+  justify-content: center; /* Center text vertically */
+  width: 48%; /* Creates a two-column layout */
 `;
 
 // --- HELPERS ---
 const formatDate = (date: Date): string => {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day}.${month}.${year}`;
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
 };
 
-// --- COMPONENT ---
-const ReportCard: React.FC<ReportCardProps> = ({ report, getStatusColor, onDelete }) => {
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const getStatusColor = (status: ReportStatus | undefined) => {
+  const safeStatus = status || 'Report submitted';
+
+  switch (safeStatus) {
+    case 'Report submitted':
+      return '#1976D2'; // Blue
+    case 'Report accepted':
+      return '#00796B'; // Teal
+    case 'Report completed':
+      return '#2E7D32'; // Green
+    case 'Report canceled':
+      return '#757575'; // Gray
+    default:
+      return colors.text.primary;
+  }
+};
+
+// --- SUB-COMPONENTS ---
+interface ViewProps {
+  report: Report;
+  statusColor: string;
+  onClose: () => void;
+  onDelete?: () => void;
+  onStatusUpdate?: (newStatus: ReportStatus) => void;
+}
+
+const UserExpandedView = ({ report, statusColor, onClose, onDelete }: ViewProps) => (
+  <>
+    <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
+    <ExpandedCarImage source={{ uri: report.imageUrl }} />
+
+    <View style={{ marginBottom: 16 }}>
+      <DetailLabel>Description:</DetailLabel>
+      <DetailText>{report.description}</DetailText>
+    </View>
+
+    <View style={{ marginBottom: 16 }}>
+      <DetailText><DetailLabel>Status: </DetailLabel>{report.status}</DetailText>
+    </View>
+
+    <View style={{ marginBottom: 16 }}>
+      <DetailText><DetailLabel>Points: </DetailLabel>{report.points}</DetailText>
+    </View>
+
+    <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+      <DetailsButton onPress={onClose} style={{ flex: 1 }}><DetailsButtonText>Close</DetailsButtonText></DetailsButton>
+      {onDelete && (
+        <DetailsButton onPress={onDelete} style={{ flex: 1, backgroundColor: colors.primary }}>
+          <DetailsButtonText>Delete</DetailsButtonText>
+        </DetailsButton>
+      )}
+    </View>
+  </>
+);
+
+const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDelete }: ViewProps) => (
+  <>
+    <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
+    <ExpandedCarImage source={{ uri: report.imageUrl }} />
+
+    <View style={{ marginBottom: 16 }}>
+      <DetailLabel>Description:</DetailLabel>
+      <DetailText>{report.description}</DetailText>
+    </View>
+
+    <View style={{ marginBottom: 16 }}>
+      <DetailLabel>User:</DetailLabel>
+      <DetailText>{report.userEmail || report.userId}</DetailText>
+    </View>
+    
+    <DetailLabel>Report Status:</DetailLabel>
+    <StatusGrid>
+      {reportStatuses.map((status) => (
+        <StatusButton 
+          key={status} 
+          active={report.status === status} 
+          activeColor={getStatusColor(status)} // Use the status color for the active background
+          onPress={() => onStatusUpdate && onStatusUpdate(status)} 
+          disabled={report.status === status}
+        >
+          <StatusButtonText active={report.status === status}>{capitalize(status.replace('Report ', ''))}</StatusButtonText>
+        </StatusButton>
+      ))}
+    </StatusGrid>
+
+    <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+      <DetailsButton onPress={onClose} style={{ flex: 1 }}><DetailsButtonText>Close</DetailsButtonText></DetailsButton>
+      {report.status === 'Report canceled' && onDelete && (
+        <DetailsButton onPress={onDelete} style={{ flex: 1, backgroundColor: colors.primary }}>
+          <DetailsButtonText>Delete</DetailsButtonText>
+        </DetailsButton>
+      )}
+    </View>
+  </>
+);
+
+// --- MAIN COMPONENT ---
+const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const reportStatus = report.status || 'Report submitted';
-  const reportPoints = report.points || '...';
-  const reportDate = formatDate(report.createdAt.toDate());
+  const statusColor = getStatusColor(report.status);
 
-  const statusColor = getStatusColor(reportStatus);
-
-  const handleDelete = async () => {
-    Alert.alert(
-      'Delete Report',
-      'Are you sure you want to delete this report? This action cannot be undone.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          onPress: async () => {
-            setIsDeleting(true);
-            try {
-              await deleteReport(report.id, report.imageUrl);
-              Alert.alert('Success', 'Report has been deleted.');
-              onDelete(report.id); // Refresh the list in the parent component
-            } catch (error) {
-              console.error('Failed to delete report:', error);
-              Alert.alert('Error', 'Failed to delete the report. Please try again.');
-            } finally {
-              setIsDeleting(false);
-            }
-          },
-          style: 'destructive',
-        },
-      ]
-    );
+  const handleDelete = () => {
+    Alert.alert('Delete Report', 'Are you sure you want to delete this report?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+          setIsProcessing(true);
+          try {
+            await deleteReport(report.id, report.imageUrl);
+            Alert.alert('Success', 'Report has been deleted.');
+            onDelete(report.id);
+          } catch (error) {
+            Alert.alert('Error', 'Failed to delete the report.');
+          } finally {
+            setIsProcessing(false);
+          }
+        }},
+    ]);
   };
+
+    const handleStatusUpdate = async (newStatus: ReportStatus) => {
+    setIsProcessing(true);
+    try {
+      await updateReportStatus(report.id, report.userId, report.status, newStatus);
+      onStatusChange(report.id, newStatus);
+      Alert.alert('Success', `Report status updated to "${newStatus}".`);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update status.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (isProcessing) {
+    return (
+      <CardContainer isExpanded={false}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </CardContainer>
+    );
+  }
 
   return (
     <CardContainer isExpanded={isExpanded}>
       {isExpanded ? (
-        // --- EXPANDED VIEW ---
-        <>
-          <ReportDate color={statusColor}>{reportDate}</ReportDate>
-          <ExpandedCarImage source={{ uri: report.imageUrl }} />
-          <DetailsContainer>
-            <DetailText><DetailLabel>Description:</DetailLabel> {report.description}</DetailText>
-            <DetailText><DetailLabel>Status:</DetailLabel> {reportStatus}</DetailText>
-            <DetailText><DetailLabel>Points:</DetailLabel> {reportPoints}</DetailText>
-          </DetailsContainer>
-          <ButtonContainer>
-            <DetailsButton onPress={() => setIsExpanded(false)}>
-              <DetailsButtonText>Close</DetailsButtonText>
-            </DetailsButton>
-            <DeleteButton onPress={handleDelete} disabled={isDeleting}>
-              <DetailsButtonText>{isDeleting ? 'Deleting...' : 'Delete'}</DetailsButtonText>
-            </DeleteButton>
-          </ButtonContainer>
-        </>
+        isAdmin ? (
+          <AdminExpandedView report={report} statusColor={statusColor} onClose={() => setIsExpanded(false)} onStatusUpdate={handleStatusUpdate} onDelete={handleDelete} />
+        ) : (
+          <UserExpandedView report={report} statusColor={statusColor} onClose={() => setIsExpanded(false)} onDelete={handleDelete} />
+        )
       ) : (
-        // --- COLLAPSED VIEW ---
         <>
           <ReportInfo>
-            <ReportDate color={statusColor}>{reportDate}</ReportDate>
-            <ReportStatus>{reportStatus}</ReportStatus>
+            <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
+            <ReportStatusText>{report.status}</ReportStatusText>
             <DetailsButton onPress={() => setIsExpanded(true)}>
               <DetailsButtonText>See the details</DetailsButtonText>
             </DetailsButton>
           </ReportInfo>
           <CarImageContainer>
             <CollapsedCarImage source={{ uri: report.imageUrl }} />
-            <PointsText color={statusColor}>{reportPoints}</PointsText>
+                        {!isAdmin && (
+              (() => {
+                switch (report.status) {
+                  case 'Report submitted':
+                    return <StatusIndicatorText color={statusColor}>...</StatusIndicatorText>;
+                  case 'Report canceled':
+                    return <FontAwesome name="times-circle" size={24} color={statusColor} style={{ marginTop: 8 }} />;
+                  default:
+                    return <PointsText color={statusColor}>{`${report.points}p`}</PointsText>;
+                }
+              })()
+            )}
           </CarImageContainer>
         </>
       )}

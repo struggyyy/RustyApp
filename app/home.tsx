@@ -329,9 +329,12 @@ function HomeScreenComponent() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchLocation();
+    await Promise.all([
+      fetchLocation(),
+      user ? getReportsByUserId(user.uid).then(setReports) : Promise.resolve(),
+    ]);
     setRefreshing(false);
-  }, [fetchLocation]);
+  }, [fetchLocation, user]);
 
   const goToMyLocation = () => {
     if (location && mapRef.current) {
@@ -442,8 +445,8 @@ function HomeScreenComponent() {
     >
         <ScoreSection>
           <View>
-            <ScoreLabelText>COMMUNITY SCORE</ScoreLabelText>
-            <ScoreValueText>1100</ScoreValueText>
+            <ScoreLabelText>YOUR SCORE</ScoreLabelText>
+            <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
           </View>
           <TouchableOpacity onPress={() => router.push('/profile')} disabled={!user}>
             <ProfileButtonView>

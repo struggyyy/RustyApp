@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, RefreshControl, ActivityIndicator, View, Text } from 'react-native';
 import styled from 'styled-components/native';
 import ReportCard from './ReportCard';
-import { Report } from '../types/reports';
+import { Report, ReportStatus } from '../types/reports';
 import theme from '../theme';
 
 const CenteredContainer = styled.View`
@@ -17,23 +17,16 @@ const InfoText = styled.Text`
   margin-top: 10px;
 `;
 
-const getStatusColor = (status: string) => {
-  if (status.includes('recycled')) {
-    return theme.colors.status.recycled;
-  }
-  if (status.includes('in process') || status.includes('submitted')) {
-    return theme.colors.status.inProcess;
-  }
-  return theme.colors.text.primary;
-};
 
 interface ReportListProps {
   reports: Report[];
   loading: boolean;
   error: string | null;
   refreshing: boolean;
+  isAdmin: boolean;
   onRefresh: () => void;
   onDelete: (reportId: string) => void;
+  onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
   loadingText?: string;
   emptyText?: string;
 }
@@ -43,8 +36,10 @@ const ReportList: React.FC<ReportListProps> = ({
   loading,
   error,
   refreshing,
+  isAdmin,
   onRefresh,
   onDelete,
+  onStatusChange,
   loadingText = 'Loading reports...',
   emptyText = 'No reports found.',
 }) => {
@@ -80,7 +75,7 @@ const ReportList: React.FC<ReportListProps> = ({
       }
     >
       {reports.map((report) => (
-        <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} onDelete={onDelete} />
+        <ReportCard key={report.id} report={report} onDelete={onDelete} onStatusChange={onStatusChange} isAdmin={isAdmin} />
       ))}
     </ScrollView>
   );

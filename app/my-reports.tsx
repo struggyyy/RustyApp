@@ -4,7 +4,7 @@ import { Stack, useFocusEffect } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { getReportsByUserId } from '../src/services/firebase/reports';
-import { Report } from '../src/types/reports';
+import { Report, ReportStatus } from '../src/types/reports';
 import ReportList from '../src/components/ReportList';
 import theme from '../src/theme';
 
@@ -87,8 +87,10 @@ export default function MyReportsScreen() {
             loading={loading}
             error={error}
             refreshing={refreshing}
+            isAdmin={false}
             onRefresh={onRefresh}
             onDelete={handleReportDelete}
+            onStatusChange={() => {}} // No-op for users
             loadingText="Loading your reports..."
             emptyText="You have no reports yet."
           />

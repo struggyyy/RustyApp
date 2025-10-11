@@ -10,10 +10,14 @@ import {
   orderBy,
   doc,
   deleteDoc,
+  updateDoc,
+  increment,
+  writeBatch,
+  getDoc,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
-import { Report } from "../../types/reports";
+import { Report, ReportStatus } from "../../types/reports";
 
 /**
  * Uploads an image to Firebase Storage for a specific report.
@@ -111,12 +115,15 @@ export const createReport = async (reportData: {
       ),
       imageUrl: reportData.imageUrl,
       createdAt: serverTimestamp(),
+      status: 'Report submitted',
+      points: 0,
     });
 
     console.log("Report created with ID: ", docRef.id);
 
     // The returned object conforms to the Report type, assuming serverTimestamp() will be resolved.
-    return {
+    // The returned object conforms to the Report type, assuming serverTimestamp() will be resolved.
+    const newReport: Report = {
       ...reportData,
       id: docRef.id,
       createdAt: Timestamp.now(), // Use a client-side timestamp for immediate feedback
@@ -124,7 +131,10 @@ export const createReport = async (reportData: {
         reportData.location.latitude,
         reportData.location.longitude
       ),
-    } as Report;
+      status: 'Report submitted',
+      points: 0,
+    };
+    return newReport;
   } catch (error) {
     console.error("Error creating report:", error);
     throw new Error("Report could not be created.");
@@ -190,18 +200,73 @@ export const deleteReportImage = async (imageUrl: string) => {
  * Intended for admin use.
  * @returns A promise that resolves to an array of all reports.
  */
+export const updateReportStatus = async (
+  reportId: string,
+  userId: string,
+  currentStatus: ReportStatus,
+  newStatus: ReportStatus
+): Promise<void> => {
+  if (currentStatus === newStatus) return; // No change, do nothing
+
+  const reportDocRef = doc(db, 'reports', reportId);
+  const userDocRef = doc(db, 'users', userId);
+
+  const pointsMap: Record<ReportStatus, number> = {
+    'Report submitted': 0,
+    'Report accepted': 10,
+    'Report completed': 100,
+    'Report canceled': 0,
+  };
+
+  const pointsForCurrentStatus = pointsMap[currentStatus] || 0;
+  const pointsForNewStatus = pointsMap[newStatus] || 0;
+
+  const pointsDifference = pointsForNewStatus - pointsForCurrentStatus;
+
+  try {
+    const batch = writeBatch(db);
+
+    // Update the report's status and points
+    batch.update(reportDocRef, {
+      status: newStatus,
+      points: pointsForNewStatus,
+    });
+
+    // Update the user's total points
+    if (pointsDifference !== 0) {
+      batch.update(userDocRef, { points: increment(pointsDifference) });
+    }
+
+    await batch.commit();
+    console.log(`Report ${reportId} status updated to ${newStatus}. User ${userId} points adjusted by ${pointsDifference}.`);
+  } catch (error) {
+    console.error('Error updating report status:', error);
+    throw new Error('Failed to update report status.');
+  }
+};
+
 export const getAllReports = async (): Promise<Report[]> => {
   try {
     const reportsRef = collection(db, "reports");
     const q = query(reportsRef, orderBy("createdAt", "desc"));
-
     const querySnapshot = await getDocs(q);
     const reports: Report[] = [];
 
-    querySnapshot.forEach((doc) => {
-      reports.push({ id: doc.id, ...doc.data() } as Report);
-    });
+    for (const reportDoc of querySnapshot.docs) {
+      const reportData = reportDoc.data();
+      const userDocRef = doc(db, 'users', reportData.userId);
+      const userDoc = await getDoc(userDocRef);
+      const userEmail = userDoc.exists() ? userDoc.data().email : 'Unknown User';
 
+      // Create a new object without the original 'id' to avoid conflict
+      const { id, ...dataWithoutId } = reportData;
+
+      reports.push({
+        id: reportDoc.id, // Use the document's actual ID
+        ...dataWithoutId,
+        userEmail,
+      } as Report);
+    }
     return reports;
   } catch (error) {
     console.error("Error fetching all reports:", error);

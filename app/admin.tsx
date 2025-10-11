@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { getAllReports } from '../src/services/firebase/reports';
-import { Report } from '../src/types/reports';
+import { Report, ReportStatus } from '../src/types/reports';
 import ReportList from '../src/components/ReportList';
 import theme from '../src/theme';
 
@@ -65,6 +65,14 @@ const AdminDashboard = () => {
     setReports(prevReports => prevReports.filter(report => report.id !== deletedReportId));
   };
 
+  const handleStatusChange = (reportId: string, newStatus: ReportStatus) => {
+    setReports(prevReports =>
+      prevReports.map(report =>
+        report.id === reportId ? { ...report, status: newStatus } : report
+      )
+    );
+  };
+
   const handleLogout = async () => {
     try {
       await logOut(router);
@@ -81,8 +89,10 @@ const AdminDashboard = () => {
           loading={loading}
           error={error}
           refreshing={refreshing}
+          isAdmin={true}
           onRefresh={onRefresh}
           onDelete={handleReportDelete}
+          onStatusChange={handleStatusChange}
           loadingText="Loading all reports..."
           emptyText="There are no reports in the system."
         />

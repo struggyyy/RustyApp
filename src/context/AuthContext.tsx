@@ -38,6 +38,7 @@ interface UserProfile {
     push: boolean;
   };
   language?: string;
+  points?: number;
 }
 
 // Define the shape of the Auth Context state
@@ -157,6 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       notificationPreferences: { email: true, push: true },
       language: 'en',
       role: 'user', // <-- Set default role for new users
+      points: 0,
     };
     try {
       await setDoc(userDocRef, initialProfileData);

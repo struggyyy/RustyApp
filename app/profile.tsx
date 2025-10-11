@@ -13,17 +13,12 @@ import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import styled from 'styled-components/native';
-import colors from '../src/theme/colors';
 import StyledButton from '../src/components/common/StyledButton';
 import ReportCard from '../src/components/ReportCard';
 import { Report } from '../src/types/reports';
 import { getReportsByUserId } from '../src/services/firebase/reports';
+import colors from '../src/theme/colors';
 
-const getStatusColor = (status: string) => {
-  if (status.includes('recycled')) return colors.status.recycled;
-  if (status.includes('in process')) return colors.status.inProcess;
-  return colors.text.primary;
-};
 
 // --- STYLED COMPONENTS ---
 const Container = styled.ScrollView`
@@ -246,8 +241,8 @@ export default function Profile() {
     if (reports.length === 0) {
       return <NoReportsText>You have no reports yet.</NoReportsText>;
     }
-    return reports.slice(0, 2).map((report) => (
-      <ReportCard key={report.id} report={report} getStatusColor={getStatusColor} onDelete={handleReportDelete} />
+        return reports.slice(0, 2).map((report) => (
+      <ReportCard key={report.id} report={report} onDelete={handleReportDelete} onStatusChange={() => {}} isAdmin={false} />
     ));
   };
 
