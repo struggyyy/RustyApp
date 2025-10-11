@@ -185,6 +185,30 @@ export const deleteReportImage = async (imageUrl: string) => {
  * @param reportId The ID of the report to delete.
  * @param imageUrl The URL of the image associated with the report.
  */
+/**
+ * Fetches all reports from the database, ordered by creation date.
+ * Intended for admin use.
+ * @returns A promise that resolves to an array of all reports.
+ */
+export const getAllReports = async (): Promise<Report[]> => {
+  try {
+    const reportsRef = collection(db, "reports");
+    const q = query(reportsRef, orderBy("createdAt", "desc"));
+
+    const querySnapshot = await getDocs(q);
+    const reports: Report[] = [];
+
+    querySnapshot.forEach((doc) => {
+      reports.push({ id: doc.id, ...doc.data() } as Report);
+    });
+
+    return reports;
+  } catch (error) {
+    console.error("Error fetching all reports:", error);
+    throw new Error("Could not fetch all reports.");
+  }
+};
+
 export const deleteReport = async (reportId: string, imageUrl: string) => {
   if (!reportId) {
     throw new Error('Report ID is required to delete a report.');

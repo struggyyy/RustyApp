@@ -32,7 +32,7 @@ function AuthenticatedStack() {
 
     if (!user && !isAuthRoute && !isVerifyEmailRoute) {
       console.log('[AuthenticatedStack Effect] No user, redirecting to login...');
-      router.replace('/login');
+        router.replace('/login');
     } else if (user && !user.emailVerified && !isVerifyEmailRoute) {
       console.log('[AuthenticatedStack Effect] User exists but not verified, redirecting to verify-email...');
       router.replace('/verify-email');
@@ -87,7 +87,11 @@ function AuthenticatedStack() {
     }
   }, [handleSignInWithLink, router]);
 
-  return <Stack />;
+  return (
+    <Stack>
+      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
