@@ -182,6 +182,7 @@ export default function ReportScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const isSubmittingRef = useRef(false);
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -254,11 +255,16 @@ export default function ReportScreen() {
   };
 
   const handleSubmit = async () => {
+    if (isSubmittingRef.current) return;
+
     if (!user || !imageUri || !location || !description) {
       Alert.alert('Incomplete Form', 'Please fill all fields, take a picture, and ensure location is set.');
       return;
     }
+
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
+
     try {
       const reportId = `report_${Date.now()}`;
       const imageUrl = await uploadReportImage(imageUri, user.uid, reportId);
@@ -276,7 +282,8 @@ export default function ReportScreen() {
     } catch (error) {
       console.error('Report submission error:', error);
       Alert.alert('Error', 'Failed to submit report. Please try again.');
-    } finally {
+      // On failure, release the lock and reset the button to allow another attempt.
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -386,7 +393,7 @@ export default function ReportScreen() {
           <StyledButton 
             title="SUBMIT"
             onPress={handleSubmit} 
-            disabled={!isFormReady || isSubmitting} 
+            disabled={!isFormReady || isSubmitting}
             loading={isSubmitting} 
             variant="secondary"
           />
