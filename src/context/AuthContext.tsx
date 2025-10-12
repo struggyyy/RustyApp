@@ -377,10 +377,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await fetch(fileUri);
       const blob = await response.blob();
 
-      // Define storage path
+      // Define storage path - matches Firebase Storage rules: profileImages/{userId}/{imageId}
       const fileExtension = fileUri.split('.').pop();
-      const fileName = `${userId}_${Date.now()}.${fileExtension}`;
-      const storageRef = ref(storage, `profile_images/${fileName}`);
+      const imageId = `${Date.now()}.${fileExtension}`;
+      const storageRef = ref(storage, `profileImages/${userId}/${imageId}`);
 
       console.log(`[AuthContext] Uploading to storage path: ${storageRef.fullPath}`);
       // Upload file
