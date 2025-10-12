@@ -40,3 +40,7 @@ yarn-error.*
 .env.*
 
 app-example
+
+# Firebase Rules
+firestore.rules
+storage.rules
