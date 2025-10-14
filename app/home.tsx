@@ -418,28 +418,18 @@ function HomeScreenComponent() {
 
   if (initialLoading) {
     return (
-        <LoadingIndicatorContainer>
-            <ActivityIndicator size="large" color="#BD5151" />
-        </LoadingIndicatorContainer>
-    );
-  }
-
-  if (!user) {
-    return (
-        <LoadingIndicatorContainer>
-            <Text>Redirecting...</Text>
-        </LoadingIndicatorContainer>
+        <>
+          <Stack.Screen options={{ title: 'Rusty' }} />
+          <LoadingIndicatorContainer>
+              <ActivityIndicator size="large" color="#BD5151" />
+          </LoadingIndicatorContainer>
+        </>
     );
   }
 
   return (
     <StyledContainer>
       <StatusBar barStyle="dark-content" />
-      <Stack.Screen
-        options={{
-          title: 'Rusty',
-        }}
-      />
       <ContentView
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
     >

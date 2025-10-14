@@ -358,11 +358,14 @@ export default function Profile() {
   }, [fetchReports]);
 
   if (initialLoading) {
-    return <LoadingContainer><ActivityIndicator size="large" color={colors.primary} /></LoadingContainer>;
-  }
-
-  if (!user) {
-    return <LoadingContainer><Text>Please log in.</Text></LoadingContainer>;
+    return (
+      <>
+        <Stack.Screen options={{ title: 'Your Profile' }} />
+        <LoadingContainer>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </LoadingContainer>
+      </>
+    );
   }
 
   const renderReportsContent = () => {
