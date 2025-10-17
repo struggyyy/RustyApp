@@ -33,8 +33,8 @@ function AuthenticatedStack() {
     // Case 1: Not logged in, and not on an auth/verify route -> redirect to login.
     if (!user && !isAuthRoute && !isVerifyEmailRoute) {
         router.replace('/login');
-    // Case 2: Logged in but email not verified, and not on the verify screen -> redirect to verify.
-    } else if (user && !user.emailVerified && !isVerifyEmailRoute) {
+    // Case 2: Logged in but email not verified, and not on the verify screen or an auth route -> redirect to verify.
+    } else if (user && !user.emailVerified && !isAuthRoute && !isVerifyEmailRoute) {
       router.replace('/verify-email');
     // Case 3: Logged in and verified, but currently on an auth/verify route -> redirect to correct home screen.
     } else if (user && user.emailVerified && (isAuthRoute || isVerifyEmailRoute)) {

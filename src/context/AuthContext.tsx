@@ -134,6 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setProfile(null);
             setIsAdmin(false);
             setProfileLoaded(false); // <-- Set profileLoaded to false
+            setLoading(false); // <-- Reset loading state
         }
       }
 
