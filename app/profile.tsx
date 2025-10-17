@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,17 +10,19 @@ import {
   RefreshControl,
   TextInput,
   Modal,
-} from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { useAuth } from '../src/context/AuthContext';
-import * as ImagePicker from 'expo-image-picker';
-import styled from 'styled-components/native';
-import StyledButton from '../src/components/common/StyledButton';
-import ReportCard from '../src/components/ReportCard';
-import { Report } from '../src/types/reports';
-import { getReportsByUserId } from '../src/services/firebase/reports';
-import colors from '../src/theme/colors';
-
+} from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { useAuth } from "../src/context/AuthContext";
+import * as ImagePicker from "expo-image-picker";
+import styled from "styled-components/native";
+import StyledButton from "../src/components/common/StyledButton";
+import { Feather } from "@expo/vector-icons";
+import ReportCard from "../src/components/ReportCard";
+import { Report } from "../src/types/reports";
+import { getReportsByUserId } from "../src/services/firebase/reports";
+import colors from "../src/theme/colors";
+import { ref, deleteObject } from "firebase/storage";
+import { storage } from "../src/services/firebase";
 
 // --- STYLED COMPONENTS ---
 const Container = styled.ScrollView`
@@ -40,7 +42,7 @@ const ProfileCardHeader = styled.View`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `;
 
 const EditInput = styled.TextInput`
@@ -49,7 +51,7 @@ const EditInput = styled.TextInput`
   padding: 12px 16px;
   font-size: 16px;
   color: ${colors.text.primary};
-  margin-bottom: 16px;
+  margin-bottom: 4px;
   border: 1px solid ${colors.componentBackground};
 `;
 
@@ -82,9 +84,9 @@ const ExpandedAvatarWrapper = styled.View`
   background-color: #eee;
   justify-content: center;
   align-items: center;
-  border: 3px solid ${colors.primary};
+  border: 5px solid ${colors.primary};
   align-self: center;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 `;
 
 const ExpandedAvatarImage = styled.Image`
@@ -108,20 +110,6 @@ const ExpandedAvatarPlaceholderText = styled.Text`
   font-weight: bold;
 `;
 
-const ChangePhotoButton = styled.TouchableOpacity`
-  background-color: ${colors.primary};
-  padding: 8px 16px;
-  border-radius: 12px;
-  align-self: center;
-  margin-bottom: 16px;
-`;
-
-const ChangePhotoButtonText = styled.Text`
-  color: ${colors.white};
-  font-weight: bold;
-  font-size: 12px;
-`;
-
 const FullScreenModalContainer = styled.View`
   flex: 1;
   background-color: rgba(0, 0, 0, 0.9);
@@ -136,11 +124,28 @@ const FullScreenImage = styled.Image`
 
 const CloseModalButton = styled.TouchableOpacity`
   position: absolute;
-  top: 40px;
+  top: 160px;
   right: 20px;
-  background-color: rgba(255, 255, 255, 0.3);
-  padding: 10px;
+  background-color: ${colors.text.secondary};
+  width: 40px;
+  height: 40px;
   border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+`;
+
+const EditIconButton = styled.TouchableOpacity`
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: ${colors.white};
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
 `;
 
 const UserInfo = styled.View`
@@ -154,16 +159,20 @@ const Nickname = styled.Text`
   margin-bottom: 4px;
 `;
 
-const Email = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
+const EmailContainer = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
   margin-bottom: 12px;
 `;
 
-const CommunityScore = styled.Text`
+const EmailLocal = styled.Text`
   font-size: 16px;
-  font-weight: 500;
-  color: ${colors.text.primary};
+  color: ${colors.text.secondary};
+`;
+
+const EmailDomain = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
 `;
 
 const AvatarTouchable = styled.TouchableOpacity``;
@@ -198,10 +207,6 @@ const AvatarPlaceholderText = styled.Text`
   font-size: 30px;
   color: #fff;
   font-weight: bold;
-`;
-
-const UploadIndicator = styled(ActivityIndicator)`
-  position: absolute;
 `;
 
 const ReportsCard = styled.View`
@@ -239,14 +244,21 @@ const NoReportsText = styled.Text`
 
 // --- COMPONENT ---
 export default function Profile() {
-  const { user, profile, uploadProfileImage, updateUserProfile, loading: authLoading, initialLoading } = useAuth();
+  const {
+    user,
+    profile,
+    uploadProfileImage,
+    updateUserProfile,
+    loading: authLoading,
+    initialLoading,
+  } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [reportsLoading, setReportsLoading] = useState(true);
   const [reportsError, setReportsError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editedNickname, setEditedNickname] = useState('');
+  const [editedNickname, setEditedNickname] = useState("");
   const [tempImageUri, setTempImageUri] = useState<string | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
   const router = useRouter();
@@ -266,7 +278,9 @@ export default function Profile() {
   }, [user]);
 
   const handleReportDelete = (deletedReportId: string) => {
-    setReports(prevReports => prevReports.filter(report => report.id !== deletedReportId));
+    setReports((prevReports) =>
+      prevReports.filter((report) => report.id !== deletedReportId)
+    );
   };
 
   const fetchReports = useCallback(async () => {
@@ -277,8 +291,8 @@ export default function Profile() {
       const userReports = await getReportsByUserId(user.uid);
       setReports(userReports);
     } catch (error) {
-      console.error('Failed to fetch reports:', error);
-      setReportsError('Failed to load reports.');
+      console.error("Failed to fetch reports:", error);
+      setReportsError("Failed to load reports.");
     } finally {
       setReportsLoading(false);
     }
@@ -286,7 +300,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!initialLoading && !user) {
-      router.replace('/login');
+      router.replace("/login");
     }
     if (user) {
       fetchReports();
@@ -295,8 +309,11 @@ export default function Profile() {
 
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "Sorry, we need camera roll permissions to make this work!"
+      );
       return;
     }
 
@@ -316,7 +333,22 @@ export default function Profile() {
   const handleSaveProfile = async () => {
     setUploading(true);
     try {
-      if (!user?.uid) throw new Error('User not found');
+      if (!user?.uid) throw new Error("User not found");
+
+      // Delete old profile image if it exists
+      const oldImageUrl = profile?.profileImage || user?.photoURL;
+      if (oldImageUrl && tempImageUri) {
+        try {
+          const url = new URL(oldImageUrl);
+          const path = decodeURIComponent(url.pathname.split("/o/")[1]);
+          const imageRef = ref(storage, path);
+          await deleteObject(imageRef);
+          console.log("Old profile image deleted successfully");
+        } catch (deleteError) {
+          console.error("Failed to delete old profile image:", deleteError);
+          // Don't block the save process if delete fails
+        }
+      }
 
       // Upload new profile picture if changed
       if (tempImageUri) {
@@ -324,16 +356,19 @@ export default function Profile() {
       }
 
       // Update display name if changed
-      if (editedNickname && editedNickname !== (profile?.displayName || user?.displayName)) {
+      if (
+        editedNickname &&
+        editedNickname !== (profile?.displayName || user?.displayName)
+      ) {
         await updateUserProfile({ displayName: editedNickname });
       }
 
-      Alert.alert('Success', 'Profile updated successfully!');
+      Alert.alert("Success", "Profile updated successfully!");
       setIsEditMode(false);
       setTempImageUri(null);
     } catch (error: any) {
-      console.error('Update error:', error);
-      Alert.alert('Error', error.message || 'Failed to update profile.');
+      console.error("Update error:", error);
+      Alert.alert("Error", error.message || "Failed to update profile.");
     } finally {
       setUploading(false);
     }
@@ -342,7 +377,7 @@ export default function Profile() {
   const handleCancelEdit = () => {
     setIsEditMode(false);
     setTempImageUri(null);
-    setEditedNickname(profile?.displayName || user?.displayName || '');
+    setEditedNickname(profile?.displayName || user?.displayName || "");
   };
 
   const handleAvatarPress = () => {
@@ -360,7 +395,7 @@ export default function Profile() {
   if (initialLoading) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Your Profile' }} />
+        <Stack.Screen options={{ title: "Your Profile" }} />
         <LoadingContainer>
           <ActivityIndicator size="large" color={colors.primary} />
         </LoadingContainer>
@@ -378,23 +413,38 @@ export default function Profile() {
     if (reports.length === 0) {
       return <NoReportsText>You have no reports yet.</NoReportsText>;
     }
-        return reports.slice(0, 2).map((report) => (
-      <ReportCard key={report.id} report={report} onDelete={handleReportDelete} onStatusChange={() => {}} isAdmin={false} />
-    ));
+    return reports
+      .slice(0, 2)
+      .map((report) => (
+        <ReportCard
+          key={report.id}
+          report={report}
+          onDelete={handleReportDelete}
+          onStatusChange={() => {}}
+          isAdmin={false}
+        />
+      ));
   };
 
   useEffect(() => {
     if (isEditMode) {
-      setEditedNickname(profile?.displayName || user?.displayName || '');
+      setEditedNickname(profile?.displayName || user?.displayName || "");
     }
   }, [isEditMode, profile?.displayName, user?.displayName]);
 
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <Stack.Screen options={{ title: 'Your Profile' }} />
+      <Stack.Screen options={{ title: "Your Profile" }} />
       <Container
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
       >
         <ProfileCard>
           {isEditMode ? (
@@ -411,16 +461,20 @@ export default function Profile() {
                     <ExpandedAvatarImage source={{ uri: profileImageUrl }} />
                   ) : (
                     <ExpandedAvatarPlaceholder>
-                      <ExpandedAvatarPlaceholderText>{user?.email?.[0]?.toUpperCase() || '?'}</ExpandedAvatarPlaceholderText>
+                      <ExpandedAvatarPlaceholderText>
+                        {user?.email?.[0]?.toUpperCase() || "?"}
+                      </ExpandedAvatarPlaceholderText>
                     </ExpandedAvatarPlaceholder>
                   )}
+                  <EditIconButton
+                    onPress={handleChoosePhoto}
+                    disabled={uploading}
+                  >
+                    <Feather name="edit-2" size={20} color={colors.primary} />
+                  </EditIconButton>
                 </ExpandedAvatarWrapper>
               </AvatarTouchable>
-              <ChangePhotoButton onPress={handleChoosePhoto} disabled={uploading}>
-                <ChangePhotoButtonText>Change Photo</ChangePhotoButtonText>
-              </ChangePhotoButton>
-
-              <EditLabel>Display Name</EditLabel>
+              <EditLabel>Nickname</EditLabel>
               <EditInput
                 value={editedNickname}
                 onChangeText={setEditedNickname}
@@ -428,19 +482,37 @@ export default function Profile() {
                 placeholderTextColor={colors.text.secondary}
               />
 
-              <EditLabel>Email</EditLabel>
+              <EditLabel>
+                Email{" "}
+                <Text style={{ fontSize: 12, color: colors.text.secondary }}>
+                  (Cannot be changed)
+                </Text>
+              </EditLabel>
               <EditInput
-                value={user?.email || ''}
+                value={user?.email || ""}
                 editable={false}
-                style={{ color: colors.text.secondary }}
+                style={{
+                  color: colors.text.secondary,
+                  backgroundColor: colors.componentBackground,
+                  borderWidth: 0,
+                }}
               />
 
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-                <ActionButton onPress={handleCancelEdit} style={{ backgroundColor: colors.text.secondary }}>
+              <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+                <ActionButton
+                  onPress={handleCancelEdit}
+                  style={{ backgroundColor: colors.text.secondary }}
+                >
                   <ActionButtonText>Close</ActionButtonText>
                 </ActionButton>
-                <ActionButton onPress={handleSaveProfile} style={{ backgroundColor: colors.primary }} disabled={uploading}>
-                  <ActionButtonText>{uploading ? 'Saving...' : 'Save'}</ActionButtonText>
+                <ActionButton
+                  onPress={handleSaveProfile}
+                  style={{ backgroundColor: colors.primary }}
+                  disabled={uploading}
+                >
+                  <ActionButtonText>
+                    {uploading ? "Saving..." : "Save"}
+                  </ActionButtonText>
                 </ActionButton>
               </View>
             </>
@@ -449,10 +521,20 @@ export default function Profile() {
             <>
               <ProfileCardHeader>
                 <UserInfo>
-                  <Nickname>{profile?.displayName || user?.displayName || 'Nickname'}</Nickname>
-                  <Email>{user?.email}</Email>
+                  <Nickname>
+                    {profile?.displayName || user?.displayName || "Nickname"}
+                  </Nickname>
+                  <EmailContainer>
+                    <EmailLocal>{user?.email?.split("@")[0] || ""}</EmailLocal>
+                    <EmailDomain>
+                      {"@" + (user?.email?.split("@")[1] || "")}
+                    </EmailDomain>
+                  </EmailContainer>
                 </UserInfo>
-                <AvatarTouchable onPress={handleAvatarPress} disabled={isLoading}>
+                <AvatarTouchable
+                  onPress={handleAvatarPress}
+                  disabled={isLoading}
+                >
                   <AvatarWrapper>
                     {uploading ? (
                       <ActivityIndicator size="small" color="#fff" />
@@ -460,13 +542,20 @@ export default function Profile() {
                       <AvatarImage source={{ uri: profileImageUrl }} />
                     ) : (
                       <AvatarPlaceholder>
-                        <AvatarPlaceholderText>{user?.email?.[0]?.toUpperCase() || '?'}</AvatarPlaceholderText>
+                        <AvatarPlaceholderText>
+                          {user?.email?.[0]?.toUpperCase() || "?"}
+                        </AvatarPlaceholderText>
                       </AvatarPlaceholder>
                     )}
                   </AvatarWrapper>
                 </AvatarTouchable>
               </ProfileCardHeader>
-              <StyledButton title="Edit Profile" onPress={() => setIsEditMode(true)} variant="secondary" style={{ marginBottom: 0 }} />
+              <StyledButton
+                title="Edit Profile"
+                onPress={() => setIsEditMode(true)}
+                variant="secondary"
+                style={{ marginBottom: 0 }}
+              />
             </>
           )}
         </ProfileCard>
@@ -474,18 +563,33 @@ export default function Profile() {
         <Modal visible={showImageModal} transparent={true} animationType="fade">
           <FullScreenModalContainer>
             <CloseModalButton onPress={() => setShowImageModal(false)}>
-              <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>✕</Text>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
+                ✕
+              </Text>
             </CloseModalButton>
             {profileImageUrl && (
-              <FullScreenImage source={{ uri: profileImageUrl }} resizeMode="contain" />
+              <FullScreenImage
+                source={{ uri: profileImageUrl }}
+                resizeMode="contain"
+              />
             )}
           </FullScreenModalContainer>
         </Modal>
 
-        <StyledButton title="Settings" onPress={() => router.push('/settings')} />
+        <StyledButton
+          title="Settings"
+          onPress={() => router.push("/settings")}
+        />
 
         <ReportsCard>
-          <TouchableOpacity onPress={() => router.push('/my-reports')}>
+          <TouchableOpacity onPress={() => router.push("/my-reports")}>
             <ReportsTitle>View all my reports</ReportsTitle>
           </TouchableOpacity>
           <ReportsContentContainer>
@@ -495,4 +599,4 @@ export default function Profile() {
       </Container>
     </>
   );
-} 
+}
