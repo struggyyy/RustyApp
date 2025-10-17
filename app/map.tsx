@@ -3,13 +3,9 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
-  Pressable,
-  StatusBar,
-  Dimensions,
   Platform,
   ActivityIndicator,
-  RefreshControl,
+  Dimensions,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -21,7 +17,6 @@ import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
-import StyledButton from "../src/components/common/StyledButton";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
@@ -30,98 +25,12 @@ const isWeb = Platform.OS === "web";
 const StyledContainer = styled.View({
   flex: 1,
   backgroundColor: "#FFFFFF",
+  padding: 24,
 });
-
-const LoadingIndicatorContainer = styled.View({
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "#FFFFFF",
-});
-
-const ContentView = styled.ScrollView.attrs({
-  contentContainerStyle: {
-    paddingTop: 24,
-    paddingHorizontal: 24,
-    paddingBottom: 20, // Adjust the bottom padding to modify the ammount of "bounce effect" on the bottom of the screen
-  },
-  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
-})({
-  flex: 1,
-});
-
-const ScoreSection = styled.View({
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 16,
-});
-
-const ScoreLabelText = styled.Text({
-  fontSize: 12,
-  color: "#656565",
-  fontWeight: "500",
-});
-
-const ScoreValueText = styled.Text({
-  fontSize: 24,
-  fontWeight: "bold",
-  color: "#BD5151",
-});
-
-const CarImageCard = styled.View<{ isWeb?: boolean }>(
-  (props: { isWeb?: boolean }) => ({
-    width: "100%",
-    aspectRatio: 1.3,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 24,
-    marginBottom: 24,
-    overflow: "hidden",
-    // shadowMuted
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.18,
-    shadowRadius: 1.0,
-    elevation: 1,
-    ...(props.isWeb && {
-      // webCarCard
-      maxWidth: 600,
-      alignSelf: "center",
-    }),
-  })
-);
-
-const CarDisplayImage = styled.Image({
-  width: "100%",
-  height: "100%",
-});
-
-const MyReportsButton = styled.TouchableOpacity({
-  position: "absolute",
-  top: 16,
-  left: 16,
-  right: 16,
-  zIndex: 3,
-  backgroundColor: "#FFFFFF",
-  padding: 16,
-  borderRadius: 16,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.23,
-  shadowRadius: 2.62,
-  elevation: 4,
-});
-
-const MyReportsButtonText = styled.Text`
-  color: #656565;
-  font-weight: bold;
-  font-size: 18px;
-  text-align: center;
-`;
 
 const MapSection = styled.View<{ isWeb?: boolean }>(
   (props: { isWeb?: boolean }) => ({
-    height: height * 0.33,
+    flex: 1,
     borderRadius: 24,
     overflow: "hidden",
     backgroundColor: "#F5F5F5",
@@ -206,21 +115,6 @@ const MyLocationButtonTouchable = styled.TouchableOpacity({
   zIndex: 3,
 });
 
-const ExpandButtonTouchable = styled.TouchableOpacity({
-  position: "absolute",
-  bottom: 20,
-  left: 20,
-  backgroundColor: "rgba(255, 255, 255, 0.9)",
-  padding: 10,
-  borderRadius: 30,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.22,
-  shadowRadius: 2.22,
-  elevation: 3,
-  zIndex: 3,
-});
-
 const InsetShadowGradientView = styled(LinearGradient)({
   position: "absolute",
   left: 0,
@@ -229,38 +123,6 @@ const InsetShadowGradientView = styled(LinearGradient)({
   height: 15,
   zIndex: 2,
   // borderRadius: 16, // Applied to MapWrapperView now for the effect
-});
-
-const ProfileButtonView = styled.View({
-  width: 56,
-  height: 56,
-  borderRadius: 28,
-  backgroundColor: "#D9D9D9",
-  justifyContent: "center",
-  alignItems: "center",
-  borderWidth: 4,
-  borderColor: colors.primary,
-});
-
-const ProfileUserImage = styled.Image({
-  width: "100%",
-  height: "100%",
-  borderRadius: 28,
-});
-
-const ProfileImagePlaceholder = styled.View({
-  width: "100%",
-  height: "100%",
-  borderRadius: 28,
-  backgroundColor: "#D9D9D9",
-  justifyContent: "center",
-  alignItems: "center",
-});
-
-const ProfileImagePlaceholderText = styled.Text({
-  color: "#656565",
-  fontSize: 20,
-  fontWeight: "bold",
 });
 
 const getFallbackLocation = () => ({
@@ -276,17 +138,17 @@ const getFallbackLocation = () => ({
   timestamp: Date.now(),
 });
 
-export default function HomeScreen() {
+export default function MapScreen() {
   return (
     <>
-      <Stack.Screen options={{ headerBackVisible: false }} />
-      <HomeScreenComponent />
+      <Stack.Screen options={{ title: "All My Reports" }} />
+      <MapScreenComponent />
     </>
   );
 }
 
-function HomeScreenComponent() {
-  const { user, profile, initialLoading } = useAuth();
+function MapScreenComponent() {
+  const { user } = useAuth();
   const router = useRouter();
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
@@ -295,7 +157,6 @@ function HomeScreenComponent() {
   const [isLocationLoading, setIsLocationLoading] = useState(true);
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const mapRef = useRef<MapView>(null);
-  const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
 
   const fetchLocation = useCallback(async () => {
@@ -335,15 +196,6 @@ function HomeScreenComponent() {
         .then(setReports)
         .catch((err) => console.error("Failed to fetch reports:", err));
     }
-  }, [fetchLocation, user]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await Promise.all([
-      fetchLocation(),
-      user ? getReportsByUserId(user.uid).then(setReports) : Promise.resolve(),
-    ]);
-    setRefreshing(false);
   }, [fetchLocation, user]);
 
   const goToMyLocation = () => {
@@ -427,101 +279,26 @@ function HomeScreenComponent() {
     );
   };
 
-  if (initialLoading) {
-    return (
-      <>
-        <Stack.Screen options={{ title: "Rusty" }} />
-        <LoadingIndicatorContainer>
-          <ActivityIndicator size="large" color="#BD5151" />
-        </LoadingIndicatorContainer>
-      </>
-    );
-  }
-
   return (
     <StyledContainer>
-      <StatusBar barStyle="dark-content" />
-      <Stack.Screen options={{ title: "Home" }} />
-      <ContentView
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
+      <MapSection isWeb={isWeb}>
+        <MapWrapperView>
+          {renderMap()}
+          <InsetShadowGradientView
+            colors={["rgba(0,0,0,0.15)", "transparent"]}
+            pointerEvents="none"
           />
-        }
-      >
-        <ScoreSection>
-          <View>
-            <ScoreLabelText>YOUR SCORE</ScoreLabelText>
-            <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
-          </View>
-          <TouchableOpacity
-            onPress={() => router.push("/profile")}
-            disabled={!user}
-          >
-            <ProfileButtonView>
-              {profile?.profileImage || user?.photoURL ? (
-                <ProfileUserImage
-                  source={{
-                    uri: profile?.profileImage || user?.photoURL || undefined,
-                  }}
-                />
-              ) : (
-                <ProfileImagePlaceholder>
-                  <ProfileImagePlaceholderText>
-                    {user?.email?.[0]?.toUpperCase() || "?"}
-                  </ProfileImagePlaceholderText>
-                </ProfileImagePlaceholder>
-              )}
-            </ProfileButtonView>
-          </TouchableOpacity>
-        </ScoreSection>
-
-        <CarImageCard isWeb={isWeb}>
-          <CarDisplayImage
-            source={require("../assets/images/car-image.png")}
-            resizeMode="cover"
-          />
-        </CarImageCard>
-
-        <StyledButton
-          title="REPORT A CAR"
-          onPress={() => router.push("/report")}
-        />
-
-        <MapSection isWeb={isWeb}>
-          <MyReportsButton onPress={() => router.push("/my-reports")}>
-            <MyReportsButtonText>MY REPORTS</MyReportsButtonText>
-          </MyReportsButton>
-          <MapWrapperView>
-            {renderMap()}
-            <InsetShadowGradientView
-              colors={["rgba(0,0,0,0.15)", "transparent"]}
-              pointerEvents="none"
-            />
-            {!isWeb && location && (
-              <>
-                <MyLocationButtonTouchable onPress={goToMyLocation}>
-                  <MaterialIcons
-                    name="my-location"
-                    size={24}
-                    color={colors.primary}
-                  />
-                </MyLocationButtonTouchable>
-                <ExpandButtonTouchable onPress={() => router.push("/map")}>
-                  <MaterialIcons
-                    name="fullscreen"
-                    size={24}
-                    color={colors.primary}
-                  />
-                </ExpandButtonTouchable>
-              </>
-            )}
-          </MapWrapperView>
-        </MapSection>
-      </ContentView>
+          {!isWeb && location && (
+            <MyLocationButtonTouchable onPress={goToMyLocation}>
+              <MaterialIcons
+                name="my-location"
+                size={24}
+                color={colors.primary}
+              />
+            </MyLocationButtonTouchable>
+          )}
+        </MapWrapperView>
+      </MapSection>
     </StyledContainer>
   );
 }
