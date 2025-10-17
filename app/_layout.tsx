@@ -15,7 +15,7 @@ const StyledSafeAreaProvider = styled(SafeAreaProvider)`
 `;
 
 function AuthenticatedStack() {
-  const { user, initialLoading, handleSignInWithLink, isAdmin } = useAuth();
+  const { user, initialLoading, handleSignInWithLink, isAdmin, profileLoaded } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
@@ -43,10 +43,10 @@ function AuthenticatedStack() {
       } else {
         router.replace('/home');
       }
-    // Case 4: Logged in, verified, and on a protected route, but is an admin not on the admin page -> redirect to admin.
     } else if (user && user.emailVerified && isAdmin && segments[0] !== 'admin') {
       router.replace('/admin');
     }
+
   }, [user, initialLoading, segments, router, isAdmin]);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ function AuthenticatedStack() {
 
   // Show a loading screen while the app is determining the correct route,
   // especially for admins who might otherwise see a flash of the user home screen.
-  if (!isReady || (isAdmin && segments[0] !== 'admin' && segments.length > 0)) {
+  if (!isReady || (user && !profileLoaded) || (isAdmin && segments[0] !== 'admin' && segments.length > 0)) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#BD5151" />

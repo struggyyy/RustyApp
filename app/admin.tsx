@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Button } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import styled from 'styled-components/native';
@@ -28,12 +28,18 @@ const LogoutButtonContainer = styled.View`
 `;
 
 const AdminDashboard = () => {
-  const { logOut } = useAuth();
+  const { logOut, isAdmin } = useAuth();
   const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      router.replace('/home');
+    }
+  }, [isAdmin, router]);
 
   const fetchAllReports = useCallback(async () => {
     try {

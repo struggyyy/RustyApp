@@ -49,6 +49,7 @@ interface AuthContextType {
   initialLoading: boolean; // Tracks initial auth state check
   error: string | null;
   isAdmin: boolean; // <-- Add isAdmin state
+  profileLoaded: boolean; // <-- Add profileLoaded state
   signUp: (email: string, password: string, nickname: string) => Promise<User | null>; // Return user or null
   logIn: (email: string, password: string) => Promise<void>;
   logOut: (router: any) => Promise<void>;
@@ -75,6 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false); // <-- Add isAdmin state
+  const [profileLoaded, setProfileLoaded] = useState<boolean>(false); // <-- Add profileLoaded state
 
   useEffect(() => {
     console.log('[AuthContext] Setting up auth state listener...');
@@ -103,6 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const userProfile = docSnap.data() as UserProfile;
             if (isMounted) {
                 setProfile(userProfile);
+                setProfileLoaded(true); // <-- Set profileLoaded to true
                 // Check for admin role
                 if (userProfile.role === 'admin') {
                     console.log('[AuthContext] User is an admin.');
@@ -120,6 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (isMounted) {
             setError(fetchError.message || 'Failed to load profile data.');
             setProfile(null);
+            setProfileLoaded(false); // <-- Set profileLoaded to false
           }
         } finally {
           if (isMounted) setLoading(false);
@@ -129,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (isMounted) {
             setProfile(null);
             setIsAdmin(false);
+            setProfileLoaded(false); // <-- Set profileLoaded to false
         }
       }
 
@@ -164,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await setDoc(userDocRef, initialProfileData);
       console.log('[AuthContext] Initial user profile created in Firestore.');
       setProfile(initialProfileData); // Set the newly created profile
+      setProfileLoaded(true); // <-- Set profileLoaded to true
     } catch (creationError: any) {
       console.error("[AuthContext] Failed to create initial profile:", creationError);
       // Don't set global error maybe, just log it?
@@ -528,8 +534,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       setError(e.message || 'An unexpected error occurred during account deletion.');
       throw e; // Re-throw the final error
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -541,6 +545,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initialLoading,
     error,
     isAdmin,
+    profileLoaded,
     signUp,
     logIn,
     logOut,
@@ -552,7 +557,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUserAuth,
     uploadProfileImage,
     deleteAccount,
-  }), [user, profile, loading, initialLoading, error, isAdmin]);
+  }), [user, profile, loading, initialLoading, error, isAdmin, profileLoaded]);
 
   return (
     <AuthContext.Provider value={value}>
