@@ -410,6 +410,7 @@ function HomeScreenComponent() {
         }}
         showsUserLocation={true}
         showsMyLocationButton={false}
+        toolbarEnabled={false}
       >
         {reports.map((report) => (
           <Marker
@@ -418,8 +419,6 @@ function HomeScreenComponent() {
               latitude: report.location.latitude,
               longitude: report.location.longitude,
             }}
-            title="Reported Car"
-            description={report.description}
             pinColor={colors.primary}
           />
         ))}
@@ -454,7 +453,7 @@ function HomeScreenComponent() {
       >
         <ScoreSection>
           <View>
-            <ScoreLabelText>YOUR SCORE</ScoreLabelText>
+            <ScoreLabelText>YOUR COMMUNITY SCORE</ScoreLabelText>
             <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
           </View>
           <TouchableOpacity

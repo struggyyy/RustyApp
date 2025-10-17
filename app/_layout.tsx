@@ -100,7 +100,7 @@ function AuthenticatedStack() {
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <StyledSafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AuthProvider>
           <ExpoStatusBar style="dark" translucent={false} backgroundColor="#FFFFFF" />

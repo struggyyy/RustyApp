@@ -17,6 +17,7 @@ import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
+import * as Linking from "expo-linking";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
@@ -115,6 +116,21 @@ const MyLocationButtonTouchable = styled.TouchableOpacity({
   zIndex: 3,
 });
 
+const NavigationButtonTouchable = styled.TouchableOpacity({
+  position: "absolute",
+  bottom: 80,
+  right: 20,
+  backgroundColor: "rgba(255, 255, 255, 0.9)",
+  padding: 10,
+  borderRadius: 30,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.22,
+  shadowRadius: 2.22,
+  elevation: 3,
+  zIndex: 3,
+});
+
 const InsetShadowGradientView = styled(LinearGradient)({
   position: "absolute",
   left: 0,
@@ -158,6 +174,7 @@ function MapScreenComponent() {
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const mapRef = useRef<MapView>(null);
   const [reports, setReports] = useState<Report[]>([]);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
   const fetchLocation = useCallback(async () => {
     setIsLocationLoading(true);
@@ -207,6 +224,14 @@ function MapScreenComponent() {
         longitudeDelta: 0.01,
       };
       mapRef.current.animateToRegion(region, 1000);
+    }
+  };
+
+  const openNavigation = () => {
+    if (selectedReport) {
+      const { latitude, longitude } = selectedReport.location;
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+      Linking.openURL(url);
     }
   };
 
@@ -262,6 +287,7 @@ function MapScreenComponent() {
         }}
         showsUserLocation={true}
         showsMyLocationButton={false}
+        toolbarEnabled={false}
       >
         {reports.map((report) => (
           <Marker
@@ -273,6 +299,7 @@ function MapScreenComponent() {
             title="Reported Car"
             description={report.description}
             pinColor={colors.primary}
+            onPress={() => setSelectedReport(report)}
           />
         ))}
       </StyledMapView>
@@ -289,13 +316,24 @@ function MapScreenComponent() {
             pointerEvents="none"
           />
           {!isWeb && location && (
-            <MyLocationButtonTouchable onPress={goToMyLocation}>
-              <MaterialIcons
-                name="my-location"
-                size={24}
-                color={colors.primary}
-              />
-            </MyLocationButtonTouchable>
+            <>
+              {selectedReport && (
+                <NavigationButtonTouchable onPress={openNavigation}>
+                  <MaterialIcons
+                    name="navigation"
+                    size={24}
+                    color="#1565C0"
+                  />
+                </NavigationButtonTouchable>
+              )}
+              <MyLocationButtonTouchable onPress={goToMyLocation}>
+                <MaterialIcons
+                  name="my-location"
+                  size={24}
+                  color={colors.primary}
+                />
+              </MyLocationButtonTouchable>
+            </>
           )}
         </MapWrapperView>
       </MapSection>
