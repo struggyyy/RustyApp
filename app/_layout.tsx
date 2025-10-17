@@ -2,7 +2,7 @@ import 'react-native-url-polyfill/auto';
 import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { Platform, View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
@@ -83,20 +83,27 @@ function AuthenticatedStack() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Stack>
-        <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
-      </Stack>
-    </SafeAreaView>
+    <Stack
+      screenOptions={{
+        statusBarStyle: 'dark',
+        statusBarBackgroundColor: '#FFFFFF',
+        statusBarTranslucent: false,
+        headerStyle: { backgroundColor: '#FFFFFF' },
+        headerTransparent: false,
+        contentStyle: { backgroundColor: '#FFFFFF' },
+      }}
+    >
+      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+    </Stack>
   );
 }
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <StyledSafeAreaProvider>
+      <StyledSafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AuthProvider>
-          <ExpoStatusBar style="dark" />
+          <ExpoStatusBar style="dark" translucent={false} backgroundColor="#FFFFFF" />
           <AuthenticatedStack />
         </AuthProvider>
       </StyledSafeAreaProvider>
