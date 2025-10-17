@@ -46,6 +46,7 @@ const colors = {
     primary: palette.gray[650],
     secondary: palette.gray[600],
     tertiary: palette.gray[500],
+    disabled: palette.gray[500],
     light: palette.white,
   },
   

@@ -2,7 +2,7 @@ import 'react-native-url-polyfill/auto';
 import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { Platform, View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
@@ -83,9 +83,11 @@ function AuthenticatedStack() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
-    </Stack>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Stack>
+        <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+      </Stack>
+    </SafeAreaView>
   );
 }
 
