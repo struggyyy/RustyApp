@@ -15,11 +15,13 @@ const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
 const FormContainer = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     paddingHorizontal: theme.spacing.layout.screenPadding,
-    paddingVertical: 24,
+    paddingTop: 90,
+    paddingBottom: 24,
   },
   keyboardShouldPersistTaps: 'handled',
+  showsVerticalScrollIndicator: false,
 }))`
   flex: 1;
 `;
@@ -133,7 +135,7 @@ export default function SignupScreen() {
   return (
     <StyledKeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={headerHeight}
+      keyboardVerticalOffset={0}
     >
       <Stack.Screen
         options={{
