@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   ScrollView,
   KeyboardAvoidingView,
@@ -9,18 +9,21 @@ import {
   RefreshControl,
   Dimensions,
   Keyboard,
-} from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import * as Location from 'expo-location';
-import * as ImagePicker from 'expo-image-picker';
-import MapView, { Region, PROVIDER_GOOGLE } from 'react-native-maps';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import styled from 'styled-components/native';
-import { useAuth } from '../src/context/AuthContext';
-import { createReport, uploadReportImage } from '../src/services/firebase/reports';
-import theme from '../src/theme';
-import StyledButton from '../src/components/common/StyledButton';
+} from "react-native";
+import { Stack, useRouter } from "expo-router";
+import * as Location from "expo-location";
+import * as ImagePicker from "expo-image-picker";
+import MapView, { Region, PROVIDER_GOOGLE } from "react-native-maps";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import styled from "styled-components/native";
+import { useAuth } from "../src/context/AuthContext";
+import {
+  createReport,
+  uploadReportImage,
+} from "../src/services/firebase/reports";
+import theme from "../src/theme";
+import StyledButton from "../src/components/common/StyledButton";
 
 const Container = styled(KeyboardAvoidingView)`
   flex: 1;
@@ -30,14 +33,15 @@ const Container = styled(KeyboardAvoidingView)`
 const InnerScrollView = styled(ScrollView).attrs({
   contentContainerStyle: {
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    alignItems: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 24,
     paddingTop: 24,
-    paddingBottom: 10, // Increased padding to enhance bounce effect
+    paddingBottom: 30, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
   },
-  keyboardShouldPersistTaps: 'handled',
+  keyboardShouldPersistTaps: "handled",
   alwaysBounceVertical: true,
+  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
 })`
   width: 100%;
 `;
@@ -99,7 +103,6 @@ const MainCard = styled.View`
   background-color: ${theme.colors.background.secondary};
   border-radius: 24px;
   overflow: hidden;
-  margin-bottom: 20px;
 `;
 
 const DescriptionInput = styled.TextInput`
@@ -110,7 +113,7 @@ const DescriptionInput = styled.TextInput`
 `;
 
 const InsetShadowGradientView = styled(LinearGradient)({
-  position: 'absolute',
+  position: "absolute",
   left: 0,
   right: 0,
   top: 0,
@@ -120,7 +123,7 @@ const InsetShadowGradientView = styled(LinearGradient)({
 });
 
 const MapContainer = styled.View`
-  height: 250px; /* Increased height */
+  height: 300px; /* Adjusted height to fit screen */
   justify-content: center;
   align-items: center;
   background-color: #e0e0e0; /* Placeholder color */
@@ -140,7 +143,7 @@ const MapErrorText = styled.Text`
 const BottomContent = styled.View`
   align-items: center;
   width: 100%;
-  margin-top: auto;
+  margin-top: 20px;
 `;
 
 const MyLocationButtonTouchable = styled.TouchableOpacity`
@@ -165,17 +168,39 @@ const IconBar = styled.View`
   margin-bottom: 20px;
 `;
 
-const IconButton = styled.TouchableOpacity`
-  background-color: ${theme.colors.background.secondary};
-  padding: 12px;
-  border-radius: 30px; /* Make it circular */
+const SelectImageButton = styled.TouchableOpacity(() => ({
+  backgroundColor: theme.colors.secondaryLight,
+  width: 60,
+  height: 60,
+  borderRadius: 30,
+  alignItems: "center",
+  justifyContent: "center",
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.23,
+  shadowRadius: 2.62,
+  elevation: 4,
+}));
+
+const ButtonRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
 `;
 
 export default function ReportScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
   const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -186,12 +211,18 @@ export default function ReportScreen() {
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
 
     return () => {
       keyboardDidHideListener.remove();
@@ -203,16 +234,21 @@ export default function ReportScreen() {
     setLocationErrorMsg(null);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        throw new Error('Permission to access location was denied');
+      if (status !== "granted") {
+        throw new Error("Permission to access location was denied");
       }
       let currentLocation = await Location.getLastKnownPositionAsync({});
       if (!currentLocation) {
-        currentLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        currentLocation = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
       }
 
       if (currentLocation) {
-        const coords = { latitude: currentLocation.coords.latitude, longitude: currentLocation.coords.longitude };
+        const coords = {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        };
         setLocation(coords);
         setMapRegion({
           ...coords,
@@ -221,8 +257,12 @@ export default function ReportScreen() {
         });
       }
     } catch (error: any) {
-      setLocationErrorMsg(error.message || 'Failed to get location');
-      Alert.alert('Location Error', error.message || 'Could not fetch location. Please ensure location services are enabled.');
+      setLocationErrorMsg(error.message || "Failed to get location");
+      Alert.alert(
+        "Location Error",
+        error.message ||
+          "Could not fetch location. Please ensure location services are enabled."
+      );
     }
   }, []);
 
@@ -236,12 +276,14 @@ export default function ReportScreen() {
     setIsRefreshing(false);
   }, [getCurrentLocation]);
 
-    const handleCancelImage = () => {
+  const handleCancelImage = () => {
     setImageUri(null);
   };
 
   const pickImage = async (useCamera: boolean) => {
-    const action = useCamera ? ImagePicker.launchCameraAsync : ImagePicker.launchImageLibraryAsync;
+    const action = useCamera
+      ? ImagePicker.launchCameraAsync
+      : ImagePicker.launchImageLibraryAsync;
     const result = await action({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -257,8 +299,17 @@ export default function ReportScreen() {
   const handleSubmit = async () => {
     if (isSubmittingRef.current) return;
 
-    if (!user || !imageUri || !location || !description) {
-      Alert.alert('Incomplete Form', 'Please fill all fields, take a picture, and ensure location is set.');
+    if (
+      !user ||
+      !imageUri ||
+      !location ||
+      !description.trim() ||
+      description.trim().length > 150
+    ) {
+      Alert.alert(
+        "Incomplete Form",
+        "Please fill all fields, take a picture, and ensure location is set. Description must be 150 characters or less."
+      );
       return;
     }
 
@@ -276,12 +327,12 @@ export default function ReportScreen() {
         location,
       });
 
-      Alert.alert('Success', 'Report submitted successfully!', [
-        { text: 'OK', onPress: () => router.replace('/my-reports') },
+      Alert.alert("Success", "Report submitted successfully!", [
+        { text: "OK", onPress: () => router.replace("/my-reports") },
       ]);
     } catch (error) {
-      console.error('Report submission error:', error);
-      Alert.alert('Error', 'Failed to submit report. Please try again.');
+      console.error("Report submission error:", error);
+      Alert.alert("Error", "Failed to submit report. Please try again.");
       // On failure, release the lock and reset the button to allow another attempt.
       isSubmittingRef.current = false;
       setIsSubmitting(false);
@@ -294,8 +345,8 @@ export default function ReportScreen() {
         {
           latitude: location.latitude,
           longitude: location.longitude,
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.005,
         },
         500
       );
@@ -311,91 +362,110 @@ export default function ReportScreen() {
     }
     if (mapRegion) {
       return (
-        <StyledMapView 
-          ref={mapRef} 
-          provider={PROVIDER_GOOGLE} 
-          initialRegion={mapRegion} 
-          showsUserLocation 
-          showsMyLocationButton={false} 
+        <StyledMapView
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
+          initialRegion={mapRegion}
+          showsUserLocation
+          showsMyLocationButton={false}
         />
       );
     }
     return <MapErrorText>Initializing map...</MapErrorText>;
   };
 
-  const isFormReady = !!imageUri && !!description.trim() && !!location;
+  const isFormReady =
+    !!imageUri &&
+    !!description.trim() &&
+    description.trim().length <= 150 &&
+    !!location;
 
   return (
-    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Stack.Screen options={{ title: 'Report a Car' }} />
+    <Container behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <Stack.Screen options={{ title: "Report a Car" }} />
       <InnerScrollView
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} tintColor={theme.colors.primary} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+          />
+        }
       >
         <TopContent>
           <Title>SAVE THE ENVIRONMENT</Title>
           <Subtitle>
-            By pointing out abandoned cars in your neighbourhood, you contribute to cleaner and safer surroundings.
+            By pointing out abandoned cars in your neighbourhood, you contribute
+            to cleaner and safer surroundings.
           </Subtitle>
           {imageUri ? (
             !isKeyboardVisible && (
-            <ImagePreviewContainer>
-              <ImagePreview source={{ uri: imageUri }} />
-              <ImageOverlayActions>
-                {/* Select other image from the phone (currently disabled)
+              <ImagePreviewContainer>
+                <ImagePreview source={{ uri: imageUri }} />
+                <ImageOverlayActions>
+                  {/* Select other image from the phone (currently disabled)
                 <ImageActionButton onPress={() => pickImage(false)}>
                   <Ionicons name="create-outline" size={24} color="white" />
-                </ImageActionButton> */} 
-                <ImageActionButton onPress={handleCancelImage}>
-                  <Ionicons name="close" size={24} color="white" />
-                </ImageActionButton>
-              </ImageOverlayActions>
-            </ImagePreviewContainer>
-          )
+                </ImageActionButton> */}
+                  <ImageActionButton onPress={handleCancelImage}>
+                    <Ionicons name="close" size={24} color="white" />
+                  </ImageActionButton>
+                </ImageOverlayActions>
+              </ImagePreviewContainer>
+            )
           ) : (
-            <StyledButton title="TAKE A PICTURE" onPress={() => pickImage(true)} />
+            <ButtonRow>
+              <StyledButton
+                title="TAKE A PICTURE"
+                onPress={() => pickImage(true)}
+                variant="secondary"
+                style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
+              />
+              <SelectImageButton onPress={() => pickImage(false)}>
+                <Ionicons
+                  name="image-outline"
+                  size={24}
+                  color={theme.colors.text.primary}
+                />
+              </SelectImageButton>
+            </ButtonRow>
           )}
         </TopContent>
 
         <MainCard>
-          
-            <InsetShadowGradientView
-                            colors={['rgba(0,0,0,0.15)', 'transparent']}
-                            pointerEvents="none"
-                        />
-            <DescriptionInput
-              placeholder="Description..."
-              placeholderTextColor={theme.colors.text.secondary}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-            />
-          
+          <InsetShadowGradientView
+            colors={["rgba(0,0,0,0.15)", "transparent"]}
+            pointerEvents="none"
+          />
+          <DescriptionInput
+            placeholder="Description..."
+            placeholderTextColor={theme.colors.text.secondary}
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            maxLength={150}
+          />
+
           <MapContainer>
             {renderMapContent()}
             <MyLocationButtonTouchable onPress={handleCenterMap}>
-              <MaterialIcons name="my-location" size={24} color={theme.colors.primary} />
+              <MaterialIcons
+                name="my-location"
+                size={24}
+                color={theme.colors.primary}
+              />
             </MyLocationButtonTouchable>
           </MapContainer>
         </MainCard>
 
         <BottomContent>
-          <IconBar>
-            <IconButton onPress={() => pickImage(true)}>
-              <Ionicons name="camera-outline" size={24} color={theme.colors.text.secondary} />
-            </IconButton>
-            <IconButton onPress={handleCenterMap}>
-              <Ionicons name="location-outline" size={24} color={theme.colors.text.secondary} />
-            </IconButton>
-            <IconButton onPress={() => pickImage(false)}>
-              <Ionicons name="images-outline" size={24} color={theme.colors.text.secondary} />
-            </IconButton>
-          </IconBar>
-          <StyledButton 
+          <StyledButton
             title="SUBMIT"
-            onPress={handleSubmit} 
+            onPress={handleSubmit}
             disabled={!isFormReady || isSubmitting}
-            loading={isSubmitting} 
-            variant="secondary"
+            loading={isSubmitting}
+            variant="primary"
           />
         </BottomContent>
       </InnerScrollView>

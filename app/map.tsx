@@ -24,17 +24,22 @@ const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
 
 // Helper function to calculate distance between two coordinates in meters
-const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+const getDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
   const R = 6371e3; // Earth's radius in meters
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c;
 };
@@ -225,8 +230,8 @@ function MapScreenComponent() {
       const region: Region = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.005,
       };
       mapRef.current.animateToRegion(region, 1000);
     }
@@ -234,7 +239,8 @@ function MapScreenComponent() {
 
   const openNavigation = () => {
     if (selectedReports[currentReportIndex]) {
-      const { latitude, longitude } = selectedReports[currentReportIndex].location;
+      const { latitude, longitude } =
+        selectedReports[currentReportIndex].location;
       const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
       Linking.openURL(url);
     }
@@ -243,16 +249,22 @@ function MapScreenComponent() {
   const viewReport = () => {
     if (selectedReports[currentReportIndex]) {
       setModalVisible(false);
-      router.push(`/my-reports?reportId=${selectedReports[currentReportIndex].id}`);
+      router.push(
+        `/my-reports?reportId=${selectedReports[currentReportIndex].id}`
+      );
     }
   };
 
   const goToPrev = () => {
-    setCurrentReportIndex(prev => prev > 0 ? prev - 1 : selectedReports.length - 1);
+    setCurrentReportIndex((prev) =>
+      prev > 0 ? prev - 1 : selectedReports.length - 1
+    );
   };
 
   const goToNext = () => {
-    setCurrentReportIndex(prev => prev < selectedReports.length - 1 ? prev + 1 : 0);
+    setCurrentReportIndex((prev) =>
+      prev < selectedReports.length - 1 ? prev + 1 : 0
+    );
   };
 
   const renderMap = () => {
@@ -318,7 +330,15 @@ function MapScreenComponent() {
             }}
             pinColor={colors.primary}
             onPress={() => {
-              const reportsAtLocation = reports.filter(r => getDistance(r.location.latitude, r.location.longitude, report.location.latitude, report.location.longitude) <= 50);
+              const reportsAtLocation = reports.filter(
+                (r) =>
+                  getDistance(
+                    r.location.latitude,
+                    r.location.longitude,
+                    report.location.latitude,
+                    report.location.longitude
+                  ) <= 50
+              );
               setSelectedReports(reportsAtLocation);
               setCurrentReportIndex(reportsAtLocation.indexOf(report));
               setModalVisible(true);

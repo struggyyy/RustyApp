@@ -351,8 +351,8 @@ function HomeScreenComponent() {
       const region: Region = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.005,
       };
       mapRef.current.animateToRegion(region, 1000);
     }
