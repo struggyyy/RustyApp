@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { FlatList, ActivityIndicator, View, Text } from 'react-native';
+import { FlatList, ActivityIndicator, View, Text, RefreshControl } from 'react-native';
 import styled from 'styled-components/native';
 import ReportCard from './ReportCard';
 import { Report, ReportStatus } from '../types/reports';
@@ -96,8 +96,16 @@ const ReportList: React.FC<ReportListProps> = ({
           expandedReportId={expandedReportId}
         />
       )}
-      refreshing={refreshing}
-      onRefresh={onRefresh}
+      contentContainerStyle={{ paddingTop: 13 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[theme.colors.primary]}
+          tintColor={theme.colors.primary}
+        />
+      }
+      fadingEdgeLength={15}
       showsVerticalScrollIndicator={false}
       getItemLayout={(data, index) => {
         if (!data) return { length: 150, offset: 150 * index, index };

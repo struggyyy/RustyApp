@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, View, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../theme/colors';
 import { Report, ReportStatus, reportStatuses } from '../types/reports';
@@ -116,6 +117,34 @@ const DetailLabel = styled.Text`
   font-size: 16px;
 `;
 
+// --- CARD HEADER COMPONENTS ---
+const CardHeader = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const CardTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+`;
+
+const HeaderActions = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CloseButton = styled.TouchableOpacity`
+  padding: 8px;
+`;
+
+const DeleteButton = styled.TouchableOpacity`
+  padding: 8px;
+`;
+
 // --- ADMIN-SPECIFIC STYLED COMPONENTS ---
 
 const StatusButtonText = styled.Text<{ active: boolean }>`
@@ -195,6 +224,20 @@ interface ViewProps {
 
 const UserExpandedView = ({ report, statusColor, onClose, onDelete }: ViewProps) => (
   <>
+    <CardHeader>
+      <CardTitle>Report Details</CardTitle>
+      <HeaderActions>
+        {onDelete && (
+          <DeleteButton onPress={onDelete}>
+            <MaterialIcons name="delete" size={24} color={colors.primary} />
+          </DeleteButton>
+        )}
+        <CloseButton onPress={onClose}>
+          <MaterialIcons name="close" size={24} color={colors.text.primary} />
+        </CloseButton>
+      </HeaderActions>
+    </CardHeader>
+
     <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
     <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
@@ -211,20 +254,25 @@ const UserExpandedView = ({ report, statusColor, onClose, onDelete }: ViewProps)
     <View style={{ marginBottom: 8 }}>
       <DetailText><DetailLabel>Points </DetailLabel>{report.points}</DetailText>
     </View>
-
-    <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-      <DetailsButton onPress={onClose} style={{ flex: 1 }}><DetailsButtonText>Close</DetailsButtonText></DetailsButton>
-      {onDelete && (
-        <DetailsButton onPress={onDelete} style={{ flex: 1, backgroundColor: colors.primary }}>
-          <DetailsButtonText>Delete</DetailsButtonText>
-        </DetailsButton>
-      )}
-    </View>
   </>
 );
 
 const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDelete }: ViewProps) => (
   <>
+    <CardHeader>
+      <CardTitle>Report Details</CardTitle>
+      <HeaderActions>
+        {report.status === 'Report canceled' && onDelete && (
+          <DeleteButton onPress={onDelete}>
+            <MaterialIcons name="delete" size={24} color={colors.primary} />
+          </DeleteButton>
+        )}
+        <CloseButton onPress={onClose}>
+          <MaterialIcons name="close" size={24} color={colors.text.primary} />
+        </CloseButton>
+      </HeaderActions>
+    </CardHeader>
+
     <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
     <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
@@ -252,17 +300,6 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
         </StatusButton>
       ))}
     </StatusGrid>
-
-    <StatusNote>{getStatusNote(report.status)}</StatusNote>
-
-    <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-      <DetailsButton onPress={onClose} style={{ flex: 1 }}><DetailsButtonText>Close</DetailsButtonText></DetailsButton>
-      {report.status === 'Report canceled' && onDelete && (
-        <DetailsButton onPress={onDelete} style={{ flex: 1, backgroundColor: colors.primary }}>
-          <DetailsButtonText>Delete</DetailsButtonText>
-        </DetailsButton>
-      )}
-    </View>
   </>
 );
 

@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import * as Location from "expo-location";
 import MapView, { Marker, Region, PROVIDER_GOOGLE } from "react-native-maps";
@@ -216,14 +216,26 @@ function MapScreenComponent() {
     }
   }, []);
 
+  const fetchReports = useCallback(async () => {
+    if (user) {
+      try {
+        const userReports = await getReportsByUserId(user.uid);
+        setReports(userReports);
+      } catch (err) {
+        console.error("Failed to fetch reports:", err);
+      }
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchLocation();
-    if (user) {
-      getReportsByUserId(user.uid)
-        .then(setReports)
-        .catch((err) => console.error("Failed to fetch reports:", err));
-    }
-  }, [fetchLocation, user]);
+  }, [fetchLocation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchReports();
+    }, [fetchReports])
+  );
 
   const goToMyLocation = () => {
     if (location && mapRef.current) {

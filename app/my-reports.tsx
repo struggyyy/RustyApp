@@ -12,14 +12,14 @@ import theme from '../src/theme';
 const Container = styled.View`
   flex: 1;
   background-color: ${theme.colors.white};
-  padding: 24px 12px;
+  padding: 12px 12px;
 `;
 
 const HistoryContainer = styled.View`
   flex: 1;
   background-color: ${theme.colors.componentBackground};
   border-radius: 24px;
-  padding: 20px;
+  padding: 16px;
   overflow: hidden;
 `;
 
@@ -27,8 +27,8 @@ const HistoryTitle = styled.Text`
   font-size: 20px;
   font-weight: bold;
   color: ${theme.colors.text.primary};
-  margin-bottom: 15px;
   text-align: center;
+  margin-top: -10px;
 `;
 
 export default function MyReportsScreen() {
