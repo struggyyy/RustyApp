@@ -26,6 +26,9 @@ const palette = {
   info: {
     dark: '#1565C0',
   },
+  navigation: {
+    blue: '#1976D2', // Darker Google navigation blue
+  },
   
   // Base colors
   white: '#FFFFFF',
@@ -66,6 +69,7 @@ const colors = {
   },
   
   white: palette.white,
+  navigation: palette.navigation.blue,
 };
 
 export default colors; 

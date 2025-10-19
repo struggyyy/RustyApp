@@ -18,9 +18,26 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
 import * as Linking from "expo-linking";
+import ReportModal from "../src/components/common/ReportModal";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
+
+// Helper function to calculate distance between two coordinates in meters
+const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+};
 
 // Styled Components Definitions
 const StyledContainer = styled.View({
@@ -116,21 +133,6 @@ const MyLocationButtonTouchable = styled.TouchableOpacity({
   zIndex: 3,
 });
 
-const NavigationButtonTouchable = styled.TouchableOpacity({
-  position: "absolute",
-  bottom: 80,
-  right: 20,
-  backgroundColor: "rgba(255, 255, 255, 0.9)",
-  padding: 10,
-  borderRadius: 30,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.22,
-  shadowRadius: 2.22,
-  elevation: 3,
-  zIndex: 3,
-});
-
 const InsetShadowGradientView = styled(LinearGradient)({
   position: "absolute",
   left: 0,
@@ -175,6 +177,9 @@ function MapScreenComponent() {
   const mapRef = useRef<MapView>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedReports, setSelectedReports] = useState<Report[]>([]);
+  const [currentReportIndex, setCurrentReportIndex] = useState(0);
 
   const fetchLocation = useCallback(async () => {
     setIsLocationLoading(true);
@@ -228,11 +233,26 @@ function MapScreenComponent() {
   };
 
   const openNavigation = () => {
-    if (selectedReport) {
-      const { latitude, longitude } = selectedReport.location;
+    if (selectedReports[currentReportIndex]) {
+      const { latitude, longitude } = selectedReports[currentReportIndex].location;
       const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
       Linking.openURL(url);
     }
+  };
+
+  const viewReport = () => {
+    if (selectedReports[currentReportIndex]) {
+      setModalVisible(false);
+      router.push(`/my-reports?reportId=${selectedReports[currentReportIndex].id}`);
+    }
+  };
+
+  const goToPrev = () => {
+    setCurrentReportIndex(prev => prev > 0 ? prev - 1 : selectedReports.length - 1);
+  };
+
+  const goToNext = () => {
+    setCurrentReportIndex(prev => prev < selectedReports.length - 1 ? prev + 1 : 0);
   };
 
   const renderMap = () => {
@@ -296,10 +316,13 @@ function MapScreenComponent() {
               latitude: report.location.latitude,
               longitude: report.location.longitude,
             }}
-            title="Reported Car"
-            description={report.description}
             pinColor={colors.primary}
-            onPress={() => setSelectedReport(report)}
+            onPress={() => {
+              const reportsAtLocation = reports.filter(r => getDistance(r.location.latitude, r.location.longitude, report.location.latitude, report.location.longitude) <= 50);
+              setSelectedReports(reportsAtLocation);
+              setCurrentReportIndex(reportsAtLocation.indexOf(report));
+              setModalVisible(true);
+            }}
           />
         ))}
       </StyledMapView>
@@ -316,27 +339,26 @@ function MapScreenComponent() {
             pointerEvents="none"
           />
           {!isWeb && location && (
-            <>
-              {selectedReport && (
-                <NavigationButtonTouchable onPress={openNavigation}>
-                  <MaterialIcons
-                    name="navigation"
-                    size={24}
-                    color="#1565C0"
-                  />
-                </NavigationButtonTouchable>
-              )}
-              <MyLocationButtonTouchable onPress={goToMyLocation}>
-                <MaterialIcons
-                  name="my-location"
-                  size={24}
-                  color={colors.primary}
-                />
-              </MyLocationButtonTouchable>
-            </>
+            <MyLocationButtonTouchable onPress={goToMyLocation}>
+              <MaterialIcons
+                name="my-location"
+                size={24}
+                color={colors.primary}
+              />
+            </MyLocationButtonTouchable>
           )}
         </MapWrapperView>
       </MapSection>
+      <ReportModal
+        visible={modalVisible}
+        report={selectedReports[currentReportIndex] || null}
+        onClose={() => setModalVisible(false)}
+        onNavigate={openNavigation}
+        onViewReport={viewReport}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        hasMultiple={selectedReports.length > 1}
+      />
     </StyledContainer>
   );
 }

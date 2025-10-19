@@ -65,7 +65,7 @@ const Subtitle = styled.Text`
 
 const ImagePreviewContainer = styled.View`
   width: 100%;
-  aspect-ratio: 1.3;
+  aspect-ratio: 1.34;
   margin-bottom: 20px;
   border-radius: 16px;
   background-color: ${theme.colors.background.secondary};

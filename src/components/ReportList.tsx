@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, RefreshControl, ActivityIndicator, View, Text } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { FlatList, ActivityIndicator, View, Text } from 'react-native';
 import styled from 'styled-components/native';
 import ReportCard from './ReportCard';
 import { Report, ReportStatus } from '../types/reports';
@@ -29,6 +29,7 @@ interface ReportListProps {
   onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
   loadingText?: string;
   emptyText?: string;
+  expandedReportId?: string;
 }
 
 const ReportList: React.FC<ReportListProps> = ({
@@ -42,7 +43,19 @@ const ReportList: React.FC<ReportListProps> = ({
   onStatusChange,
   loadingText = 'Loading reports...',
   emptyText = 'No reports found.',
+  expandedReportId,
 }) => {
+  const flatListRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    if (expandedReportId && flatListRef.current) {
+      const index = reports.findIndex(report => report.id === expandedReportId);
+      if (index !== -1) {
+        flatListRef.current.scrollToIndex({ index, animated: true });
+      }
+    }
+  }, [expandedReportId, reports]);
+
   if (loading && !refreshing) {
     return (
       <CenteredContainer>
@@ -69,15 +82,36 @@ const ReportList: React.FC<ReportListProps> = ({
   }
 
   return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} tintColor={theme.colors.primary} />
-      }
-    >
-      {reports.map((report) => (
-        <ReportCard key={report.id} report={report} onDelete={onDelete} onStatusChange={onStatusChange} isAdmin={isAdmin} />
-      ))}
-    </ScrollView>
+    <FlatList
+      ref={flatListRef}
+      data={reports}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <ReportCard
+          key={item.id}
+          report={item}
+          onDelete={onDelete}
+          onStatusChange={onStatusChange}
+          isAdmin={isAdmin}
+          expandedReportId={expandedReportId}
+        />
+      )}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      getItemLayout={(data, index) => {
+        if (!data) return { length: 150, offset: 150 * index, index };
+        const item = data[index];
+        const isExpanded = item.id === expandedReportId;
+        const length = isExpanded ? 400 : 150;
+        let offset = 0;
+        for (let i = 0; i < index; i++) {
+          const curr = data[i];
+          const currExpanded = curr.id === expandedReportId;
+          offset += currExpanded ? 400 : 150;
+        }
+        return { length, offset, index };
+      }}
+    />
   );
 };
 

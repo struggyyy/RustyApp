@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { StatusBar } from 'react-native';
-import { Stack, useFocusEffect } from 'expo-router';
+import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { getReportsByUserId } from '../src/services/firebase/reports';
@@ -33,6 +33,7 @@ const HistoryTitle = styled.Text`
 
 export default function MyReportsScreen() {
   const { user } = useAuth();
+  const { reportId } = useLocalSearchParams();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +94,7 @@ export default function MyReportsScreen() {
             onStatusChange={() => {}} // No-op for users
             loadingText="Loading your reports..."
             emptyText="You have no reports yet."
+            expandedReportId={reportId as string}
           />
         </HistoryContainer>
       </Container>

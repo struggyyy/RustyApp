@@ -12,6 +12,7 @@ interface ReportCardProps {
   onDelete: (reportId: string) => void;
   onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
   isAdmin: boolean;
+  expandedReportId?: string;
 }
 
 interface CardContainerProps {
@@ -76,7 +77,7 @@ const CollapsedCarImage = styled.Image`
 
 const ExpandedCarImage = styled.Image`
   width: 100%;
-  height: 200px;
+  height: 180px;
   border-radius: 10px;
   margin-top: 8px;
   margin-bottom: 16px;
@@ -152,7 +153,7 @@ const getStatusColor = (status: ReportStatus | undefined) => {
     case 'Report completed':
       return '#2E7D32'; // Green
     case 'Report canceled':
-      return '#757575'; // Gray
+      return '#C62828'; // Distinctive red
     default:
       return colors.text.primary;
   }
@@ -238,8 +239,8 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
 );
 
 // --- MAIN COMPONENT ---
-const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin, expandedReportId }) => {
+  const [isExpanded, setIsExpanded] = useState(expandedReportId === report.id);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const statusColor = getStatusColor(report.status);
