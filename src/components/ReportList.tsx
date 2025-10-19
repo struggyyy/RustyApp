@@ -98,6 +98,7 @@ const ReportList: React.FC<ReportListProps> = ({
       )}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      showsVerticalScrollIndicator={false}
       getItemLayout={(data, index) => {
         if (!data) return { length: 150, offset: 150 * index, index };
         const item = data[index];

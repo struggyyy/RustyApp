@@ -27,7 +27,7 @@ const HistoryTitle = styled.Text`
   font-size: 20px;
   font-weight: bold;
   color: ${theme.colors.text.primary};
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   text-align: center;
 `;
 

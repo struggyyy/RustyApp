@@ -45,10 +45,17 @@ const ReportDate = styled.Text<StatusTextProps>`
   margin-bottom: 8px;
 `;
 
-const ReportStatusText = styled.Text`
+const ReportStatusText = styled.Text<StatusTextProps>`
   font-size: 16px;
+  color: ${(props: StatusTextProps) => props.color};
+  margin-bottom: 8px;
+`;
+
+const StatusNote = styled.Text`
+  font-size: 14px;
   color: ${colors.text.secondary};
   margin-bottom: 16px;
+  font-style: italic;
 `;
 
 const DetailsButton = styled.TouchableOpacity`
@@ -97,9 +104,9 @@ const StatusIndicatorText = styled.Text<StatusTextProps>`
   margin-top: 8px;
 `;
 
-const DetailText = styled.Text`
+const DetailText = styled.Text<{ color?: string }>`
   font-size: 16px;
-  color: ${colors.text.primary};
+  color: ${(props: { color?: string }) => props.color || colors.text.primary};
   /* No margin-bottom here, handled by container */
 `;
 
@@ -159,6 +166,24 @@ const getStatusColor = (status: ReportStatus | undefined) => {
   }
 };
 
+const getStatusNote = (status: ReportStatus | undefined): string => {
+  const safeStatus = status || 'Report submitted';
+
+  switch (safeStatus) {
+    case 'Report submitted':
+  return 'Your report has been received and is now being verified. We’ll notify you once its status changes.';
+case 'Report accepted':
+  return 'Your report has been accepted. Our team is now processing it, which may take some time as we contact the vehicle owner and complete the necessary paperwork.';
+case 'Report completed':
+  return 'The reported vehicle has been removed from the street and is now being recycled, donated, or prepared for a city auction.';
+case 'Report canceled':
+  return 'We were unable to verify your report due to insufficient information or potential inaccuracies. Please feel free to submit a new report if you believe this was an error.';
+
+    default:
+      return '';
+  }
+};
+
 // --- SUB-COMPONENTS ---
 interface ViewProps {
   report: Report;
@@ -174,16 +199,17 @@ const UserExpandedView = ({ report, statusColor, onClose, onDelete }: ViewProps)
     <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
     <View style={{ marginBottom: 16 }}>
-      <DetailLabel>Description:</DetailLabel>
+      <DetailLabel>Description</DetailLabel>
       <DetailText>{report.description}</DetailText>
     </View>
 
     <View style={{ marginBottom: 16 }}>
-      <DetailText><DetailLabel>Status: </DetailLabel>{report.status}</DetailText>
+      <DetailText color={statusColor} style={{ fontWeight: 'bold' }}>{report.status}</DetailText>
+      <StatusNote style={{ marginTop: 2, marginBottom: 0 }}>{getStatusNote(report.status)}</StatusNote>
     </View>
 
-    <View style={{ marginBottom: 16 }}>
-      <DetailText><DetailLabel>Points: </DetailLabel>{report.points}</DetailText>
+    <View style={{ marginBottom: 8 }}>
+      <DetailText><DetailLabel>Points </DetailLabel>{report.points}</DetailText>
     </View>
 
     <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
@@ -226,6 +252,8 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
         </StatusButton>
       ))}
     </StatusGrid>
+
+    <StatusNote>{getStatusNote(report.status)}</StatusNote>
 
     <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
       <DetailsButton onPress={onClose} style={{ flex: 1 }}><DetailsButtonText>Close</DetailsButtonText></DetailsButton>
@@ -296,7 +324,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
         <>
           <ReportInfo>
             <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
-            <ReportStatusText>{report.status}</ReportStatusText>
+            <ReportStatusText color={statusColor}>{report.status}</ReportStatusText>
             <DetailsButton onPress={() => setIsExpanded(true)}>
               <DetailsButtonText>See the details</DetailsButtonText>
             </DetailsButton>
