@@ -86,8 +86,6 @@ function AuthenticatedStack() {
     <Stack
       screenOptions={{
         statusBarStyle: 'dark',
-        statusBarBackgroundColor: '#FFFFFF',
-        statusBarTranslucent: false,
         headerStyle: { backgroundColor: '#FFFFFF' },
         headerTransparent: false,
         contentStyle: { backgroundColor: '#FFFFFF' },
