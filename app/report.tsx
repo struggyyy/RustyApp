@@ -25,10 +25,28 @@ import {
 import theme from "../src/theme";
 import StyledButton from "../src/components/common/StyledButton";
 
-const Container = styled(KeyboardAvoidingView)`
-  flex: 1;
-  background-color: ${theme.colors.background.primary};
-`;
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  shadowSmall: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+  },
+  shadowMedium: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+});
+
+const Container = styled(KeyboardAvoidingView)({
+  flex: 1,
+  backgroundColor: theme.colors.background.primary,
+});
 
 const InnerScrollView = styled(ScrollView).attrs({
   contentContainerStyle: {
@@ -37,80 +55,80 @@ const InnerScrollView = styled(ScrollView).attrs({
     justifyContent: "flex-start",
     paddingHorizontal: 24,
     paddingTop: 24,
-    paddingBottom: 30, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
+    paddingBottom: 30,
   },
   keyboardShouldPersistTaps: "handled",
   alwaysBounceVertical: true,
-  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
-})`
-  width: 100%;
-`;
+  showsVerticalScrollIndicator: false,
+})({
+  width: '100%',
+});
 
-const TopContent = styled.View`
-  align-items: center;
-  width: 100%;
-`;
+const TopContent = styled.View({
+  alignItems: 'center',
+  width: '100%',
+});
 
-const Title = styled.Text`
-  font-size: 22px;
-  font-weight: bold;
-  color: ${theme.colors.text.primary};
-  text-align: center;
-  margin-bottom: 8px;
-`;
+const Title = styled.Text({
+  fontSize: 22,
+  fontWeight: 'bold',
+  color: theme.colors.text.primary,
+  textAlign: 'center',
+  marginBottom: 8,
+});
 
-const Subtitle = styled.Text`
-  font-size: 14px;
-  color: ${theme.colors.text.secondary};
-  text-align: center;
-  margin-bottom: 20px;
-  line-height: 20px;
-`;
+const Subtitle = styled.Text({
+  fontSize: 14,
+  color: theme.colors.text.secondary,
+  textAlign: 'center',
+  marginBottom: 20,
+  lineHeight: '20px',
+});
 
-const ImagePreviewContainer = styled.View`
-  width: 100%;
-  aspect-ratio: 1.34;
-  margin-bottom: 20px;
-  border-radius: 16px;
-  background-color: ${theme.colors.background.secondary};
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-`;
+const ImagePreviewContainer = styled.View({
+  width: '100%',
+  aspectRatio: 1.34,
+  marginBottom: 20,
+  borderRadius: 16,
+  backgroundColor: theme.colors.background.secondary,
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflow: 'hidden',
+});
 
-const ImagePreview = styled.Image`
-  width: 100%;
-  height: 100%;
-`;
+const ImagePreview = styled.Image({
+  width: '100%',
+  height: '100%',
+});
 
-const ImageOverlayActions = styled.View`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  flex-direction: row;
-  z-index: 10;
-`;
+const ImageOverlayActions = styled.View({
+  position: 'absolute',
+  top: 10,
+  right: 10,
+  flexDirection: 'row',
+  zIndex: 10,
+});
 
-const ImageActionButton = styled.TouchableOpacity`
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 20px;
-  padding: 8px;
-  margin-left: 10px;
-`;
+const ImageActionButton = styled.TouchableOpacity({
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  borderRadius: 20,
+  padding: 8,
+  marginLeft: 10,
+});
 
-const MainCard = styled.View`
-  width: 100%;
-  background-color: ${theme.colors.background.secondary};
-  border-radius: 24px;
-  overflow: hidden;
-`;
+const MainCard = styled.View({
+  width: '100%',
+  backgroundColor: theme.colors.background.secondary,
+  borderRadius: 24,
+  overflow: 'hidden',
+});
 
-const DescriptionInput = styled.TextInput`
-  padding: 15px;
-  font-size: 16px;
-  color: ${theme.colors.text.primary};
-  text-align-vertical: top;
-`;
+const DescriptionInput = styled.TextInput({
+  padding: 15,
+  fontSize: 16,
+  color: theme.colors.text.primary,
+  textAlignVertical: 'top',
+});
 
 const InsetShadowGradientView = styled(LinearGradient)({
   position: "absolute",
@@ -122,76 +140,61 @@ const InsetShadowGradientView = styled(LinearGradient)({
   // borderRadius: 16, // Applied to MapWrapperView now for the effect
 });
 
-const MapContainer = styled.View`
-  height: 300px; /* Adjusted height to fit screen */
-  justify-content: center;
-  align-items: center;
-  background-color: #e0e0e0; /* Placeholder color */
-  border-top-left-radius: 24px; /* Rounded top corners */
-  border-top-right-radius: 24px;
-  overflow: hidden; /* Clip the map to the rounded corners */
-`;
+const MapContainer = styled.View({
+  height: 300,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#e0e0e0',
+  borderTopLeftRadius: 24,
+  borderTopRightRadius: 24,
+  overflow: 'hidden',
+});
 
-const StyledMapView = styled(MapView)`
-  ${StyleSheet.absoluteFillObject}
-`;
+const StyledMapView = styled(MapView)(StyleSheet.absoluteFillObject);
 
-const MapErrorText = styled.Text`
-  color: ${theme.colors.error.main};
-`;
+const MapErrorText = styled.Text({
+  color: theme.colors.error.main,
+});
 
-const BottomContent = styled.View`
-  align-items: center;
-  width: 100%;
-  margin-top: 20px;
-`;
+const BottomContent = styled.View({
+  alignItems: 'center',
+  width: '100%',
+  marginTop: 20,
+});
 
-const MyLocationButtonTouchable = styled.TouchableOpacity`
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 10px;
-  border-radius: 30px;
-  shadow-color: #000;
-  shadow-offset: 0px 1px;
-  shadow-opacity: 0.22;
-  shadow-radius: 2.22px;
-  elevation: 3;
-  z-index: 3;
-`;
+const MyLocationButtonTouchable = styled.TouchableOpacity({
+  position: "absolute",
+  bottom: 20,
+  right: 20,
+  backgroundColor: "rgba(255, 255, 255, 0.9)",
+  padding: 10,
+  borderRadius: 30,
+  zIndex: 3,
+});
 
-const IconBar = styled.View`
-  flex-direction: row;
-  justify-content: space-around;
-  width: 60%;
-  margin-bottom: 20px;
-`;
+const IconBar = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+  width: '60%',
+  marginBottom: 20,
+});
 
-const SelectImageButton = styled.TouchableOpacity(() => ({
+const SelectImageButton = styled.TouchableOpacity({
   backgroundColor: theme.colors.secondaryLight,
   width: 60,
   height: 60,
   borderRadius: 30,
   alignItems: "center",
   justifyContent: "center",
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 2,
-  },
-  shadowOpacity: 0.23,
-  shadowRadius: 2.62,
-  elevation: 4,
-}));
+});
 
-const ButtonRow = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
-`;
+const ButtonRow = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+  marginBottom: 20,
+});
 
 export default function ReportScreen() {
   const { user } = useAuth();
@@ -422,7 +425,7 @@ export default function ReportScreen() {
                 variant="secondary"
                 style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
               />
-              <SelectImageButton onPress={() => pickImage(false)}>
+              <SelectImageButton style={shadowStyles.shadowMedium} onPress={() => pickImage(false)}>
                 <Ionicons
                   name="image-outline"
                   size={24}

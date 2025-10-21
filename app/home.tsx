@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
+  StyleSheet,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -25,6 +26,31 @@ import StyledButton from "../src/components/common/StyledButton";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  shadowMuted: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.18,
+    shadowRadius: 1.0,
+    elevation: 1,
+  },
+  shadowSmall: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  shadowMedium: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+  },
+});
 
 // Styled Components Definitions
 const StyledContainer = styled.View({
@@ -69,27 +95,14 @@ const ScoreValueText = styled.Text({
   color: "#BD5151",
 });
 
-const CarImageCard = styled.View<{ isWeb?: boolean }>(
-  (props: { isWeb?: boolean }) => ({
-    width: "100%",
-    aspectRatio: 1.3,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 24,
-    marginBottom: 24,
-    overflow: "hidden",
-    // shadowMuted
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.18,
-    shadowRadius: 1.0,
-    elevation: 1,
-    ...(props.isWeb && {
-      // webCarCard
-      maxWidth: 600,
-      alignSelf: "center",
-    }),
-  })
-);
+const CarImageCard = styled.View({
+  width: "100%",
+  aspectRatio: 1.3,
+  backgroundColor: "#F5F5F5",
+  borderRadius: 24,
+  marginBottom: 24,
+  overflow: "hidden",
+});
 
 const CarDisplayImage = styled.Image({
   width: "100%",
@@ -105,34 +118,22 @@ const MyReportsButton = styled.TouchableOpacity({
   backgroundColor: "#FFFFFF",
   padding: 16,
   borderRadius: 16,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.23,
-  shadowRadius: 2.62,
-  elevation: 4,
 });
 
-const MyReportsButtonText = styled.Text`
-  color: #656565;
-  font-weight: bold;
-  font-size: 18px;
-  text-align: center;
-`;
+const MyReportsButtonText = styled.Text({
+  color: "#656565",
+  fontWeight: "bold",
+  fontSize: 18,
+  textAlign: "center",
+});
 
-const MapSection = styled.View<{ isWeb?: boolean }>(
-  (props: { isWeb?: boolean }) => ({
-    height: height * 0.33,
-    borderRadius: 24,
-    overflow: "hidden",
-    backgroundColor: "#F5F5F5",
-    position: "relative",
-    ...(props.isWeb && {
-      // webMapContainer
-      maxWidth: 1200, // Example max width, adjust as needed
-      alignSelf: "center",
-    }),
-  })
-);
+const MapSection = styled.View({
+  height: height * 0.33,
+  borderRadius: 24,
+  overflow: "hidden",
+  backgroundColor: "#F5F5F5",
+  position: "relative",
+});
 
 const MapWrapperView = styled.View({
   flex: 1,
@@ -198,11 +199,6 @@ const MyLocationButtonTouchable = styled.TouchableOpacity({
   backgroundColor: "rgba(255, 255, 255, 0.9)",
   padding: 10,
   borderRadius: 30,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.22,
-  shadowRadius: 2.22,
-  elevation: 3,
   zIndex: 3,
 });
 
@@ -213,11 +209,6 @@ const ExpandButtonTouchable = styled.TouchableOpacity({
   backgroundColor: "rgba(255, 255, 255, 0.9)",
   padding: 10,
   borderRadius: 30,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.22,
-  shadowRadius: 2.22,
-  elevation: 3,
   zIndex: 3,
 });
 
@@ -478,7 +469,7 @@ function HomeScreenComponent() {
           </TouchableOpacity>
         </ScoreSection>
 
-        <CarImageCard isWeb={isWeb}>
+        <CarImageCard style={shadowStyles.shadowMuted}>
           <CarDisplayImage
             source={require("../assets/images/car-image.png")}
             resizeMode="cover"
@@ -490,8 +481,8 @@ function HomeScreenComponent() {
           onPress={() => router.push("/report")}
         />
 
-        <MapSection isWeb={isWeb}>
-          <MyReportsButton onPress={() => router.push("/my-reports")}>
+        <MapSection>
+          <MyReportsButton style={shadowStyles.shadowSmall} onPress={() => router.push("/my-reports")}>
             <MyReportsButtonText>MY REPORTS</MyReportsButtonText>
           </MyReportsButton>
           <MapWrapperView>
@@ -502,14 +493,14 @@ function HomeScreenComponent() {
             />
             {!isWeb && location && (
               <>
-                <MyLocationButtonTouchable onPress={goToMyLocation}>
+                <MyLocationButtonTouchable style={shadowStyles.shadowMedium} onPress={goToMyLocation}>
                   <MaterialIcons
                     name="my-location"
                     size={24}
                     color={colors.primary}
                   />
                 </MyLocationButtonTouchable>
-                <ExpandButtonTouchable onPress={() => router.push("/map")}>
+                <ExpandButtonTouchable style={shadowStyles.shadowMedium} onPress={() => router.push("/map")}>
                   <MaterialIcons
                     name="fullscreen"
                     size={24}

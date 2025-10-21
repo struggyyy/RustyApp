@@ -6,6 +6,7 @@ import {
   Platform,
   ActivityIndicator,
   Dimensions,
+  StyleSheet,
 } from "react-native";
 import { Stack, useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -22,6 +23,17 @@ import ReportModal from "../src/components/common/ReportModal";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  shadowMedium: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+  },
+});
 
 // Helper function to calculate distance between two coordinates in meters
 const getDistance = (
@@ -51,20 +63,13 @@ const StyledContainer = styled.View({
   padding: 24,
 });
 
-const MapSection = styled.View<{ isWeb?: boolean }>(
-  (props: { isWeb?: boolean }) => ({
-    flex: 1,
-    borderRadius: 24,
-    overflow: "hidden",
-    backgroundColor: "#F5F5F5",
-    position: "relative",
-    ...(props.isWeb && {
-      // webMapContainer
-      maxWidth: 1200, // Example max width, adjust as needed
-      alignSelf: "center",
-    }),
-  })
-);
+const MapSection = styled.View({
+  flex: 1,
+  borderRadius: 24,
+  overflow: "hidden",
+  backgroundColor: "#F5F5F5",
+  position: "relative",
+});
 
 const MapWrapperView = styled.View({
   flex: 1,
@@ -130,11 +135,6 @@ const MyLocationButtonTouchable = styled.TouchableOpacity({
   backgroundColor: "rgba(255, 255, 255, 0.9)",
   padding: 10,
   borderRadius: 30,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.22,
-  shadowRadius: 2.22,
-  elevation: 3,
   zIndex: 3,
 });
 
@@ -371,7 +371,7 @@ function MapScreenComponent() {
             pointerEvents="none"
           />
           {!isWeb && location && (
-            <MyLocationButtonTouchable onPress={goToMyLocation}>
+            <MyLocationButtonTouchable style={shadowStyles.shadowMedium} onPress={goToMyLocation}>
               <MaterialIcons
                 name="my-location"
                 size={24}

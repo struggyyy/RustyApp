@@ -11,6 +11,17 @@ import {
 import styled from "styled-components/native";
 import theme from "../../theme";
 
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  buttonShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+});
+
 interface StyledButtonProps {
   onPress: () => void;
   title: string;
@@ -23,12 +34,10 @@ interface StyledButtonProps {
 
 const ButtonTouchable = styled.TouchableOpacity<{
   isDisabled: boolean;
-  isWeb?: boolean;
   variant: "primary" | "secondary";
 }>(
   (props: {
     isDisabled: boolean;
-    isWeb?: boolean;
     variant: "primary" | "secondary";
   }) => ({
     backgroundColor:
@@ -41,24 +50,15 @@ const ButtonTouchable = styled.TouchableOpacity<{
     padding: 16,
     alignItems: "center",
     marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
     width: "100%",
-    ...(props.isWeb && {
-      maxWidth: 600,
-      alignSelf: "center",
-    }),
   })
 );
 
-const ButtonLabel = styled.Text`
-  color: ${theme.colors.white};
-  font-size: 18px;
-  font-weight: bold;
-`;
+const ButtonLabel = styled.Text({
+  color: theme.colors.white,
+  fontSize: 18,
+  fontWeight: "bold",
+});
 
 const StyledButton: React.FC<StyledButtonProps> = ({
   onPress,
@@ -68,16 +68,13 @@ const StyledButton: React.FC<StyledButtonProps> = ({
   variant = "primary",
   style,
 }) => {
-  const isWeb = Platform.OS === "web";
-
   return (
     <ButtonTouchable
       onPress={onPress}
       disabled={disabled || loading}
       isDisabled={disabled || loading}
-      isWeb={isWeb}
       variant={variant}
-      style={style}
+      style={[shadowStyles.buttonShadow, style]}
     >
       {loading ? (
         <ActivityIndicator color={theme.colors.white} />

@@ -1,9 +1,20 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, Image } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../../theme/colors';
 import { Report } from '../../types/reports';
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  modalShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+});
 
 interface ReportModalProps {
   visible: boolean;
@@ -31,11 +42,6 @@ const ModalContent = styled.View({
   padding: 24,
   width: '90%',
   maxWidth: 400,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.25,
-  shadowRadius: 10,
-  elevation: 5,
 });
 
 const ModalHeader = styled.View({
@@ -156,7 +162,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
       onRequestClose={onClose}
     >
       <ModalOverlay>
-        <ModalContent>
+        <ModalContent style={shadowStyles.modalShadow}>
           <ModalHeader>
             <ModalTitle>Reported Car</ModalTitle>
             <CloseButton onPress={onClose}>

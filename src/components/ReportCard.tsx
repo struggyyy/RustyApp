@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
-import { Alert, View, ActivityIndicator } from 'react-native';
+import { Alert, View, ActivityIndicator, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../theme/colors';
 import { Report, ReportStatus, reportStatuses } from '../types/reports';
 import { deleteReport, updateReportStatus } from '../services/firebase/reports';
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  cardShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+});
 
 // --- TYPES ---
 interface ReportCardProps {
@@ -21,155 +32,171 @@ interface CardContainerProps {
 }
 
 // --- STYLED COMPONENTS (Shared) ---
-const CardContainer = styled.View<CardContainerProps>`
-  background-color: ${colors.white};
-  border-radius: 15px;
-  padding: 16px;
-  margin-bottom: 16px;
-  flex-direction: ${(props: CardContainerProps) => (props.isExpanded ? 'column' : 'row')};
-  align-items: ${(props: CardContainerProps) => (props.isExpanded ? 'stretch' : 'center')};
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-`;
+const CardContainer = styled.View<CardContainerProps>(
+  (props: CardContainerProps) => ({
+    backgroundColor: colors.white,
+    borderRadius: 15,
+    padding: 16,
+    marginBottom: 16,
+    flexDirection: props.isExpanded ? 'column' : 'row',
+    alignItems: props.isExpanded ? 'stretch' : 'center',
+  })
+);
 
-const ReportInfo = styled.View`
-  flex: 1;
-`;
+const ReportInfo = styled.View({
+  flex: 1,
+});
 
 interface StatusTextProps {
   color: string;
 }
 
-const ReportDate = styled.Text<StatusTextProps>`
-  font-size: 18px;
-  font-weight: bold;
-  color: ${(props: StatusTextProps) => props.color};
-  margin-bottom: 8px;
-`;
+const ReportDate = styled.Text<StatusTextProps>(
+  (props: StatusTextProps) => ({
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: props.color,
+    marginBottom: 8,
+  })
+);
 
-const ReportStatusText = styled.Text<StatusTextProps>`
-  font-size: 16px;
-  color: ${(props: StatusTextProps) => props.color};
-  margin-bottom: 8px;
-`;
+const ReportStatusText = styled.Text<StatusTextProps>(
+  (props: StatusTextProps) => ({
+    fontSize: 16,
+    color: props.color,
+    marginBottom: 8,
+  })
+);
 
-const StatusNote = styled.Text`
-  font-size: 14px;
-  color: ${colors.text.secondary};
-  margin-bottom: 16px;
-  font-style: italic;
-`;
+const StatusNote = styled.Text({
+  fontSize: 14,
+  color: colors.text.secondary,
+  marginBottom: 16,
+  fontStyle: 'italic',
+});
 
-const DetailsButton = styled.TouchableOpacity`
-  background-color: ${colors.text.secondary};
-  padding: 10px 20px;
-  border-radius: 20px;
-  align-items: center;
-`;
+const DetailsButton = styled.TouchableOpacity({
+  backgroundColor: colors.text.secondary,
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  borderRadius: 20,
+  alignItems: 'center',
+});
 
-const DetailsButtonText = styled.Text`
-  color: ${colors.text.light};
-  font-weight: bold;
-  font-size: 14px;
-`;
+const DetailsButtonText = styled.Text({
+  color: colors.text.light,
+  fontWeight: 'bold',
+  fontSize: 14,
+});
 
-const CarImageContainer = styled.View`
-  margin-left: 16px;
-  align-items: center;
-`;
+const CarImageContainer = styled.View({
+  marginLeft: 16,
+  alignItems: 'center',
+});
 
-const CollapsedCarImage = styled.Image`
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
-`;
+const CollapsedCarImage = styled.Image({
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+});
 
-const ExpandedCarImage = styled.Image`
-  width: 100%;
-  height: 180px;
-  border-radius: 10px;
-  margin-top: 8px;
-  margin-bottom: 16px;
-`;
+const ExpandedCarImage = styled.Image({
+  width: '100%',
+  height: 180,
+  borderRadius: 10,
+  marginTop: 8,
+  marginBottom: 16,
+});
 
-const PointsText = styled.Text<StatusTextProps>`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${(props: StatusTextProps) => props.color};
-  margin-top: 8px;
-`;
+const PointsText = styled.Text<StatusTextProps>(
+  (props: StatusTextProps) => ({
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: props.color,
+    marginTop: 8,
+  })
+);
 
-const StatusIndicatorText = styled.Text<StatusTextProps>`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${(props: StatusTextProps) => props.color};
-  margin-top: 8px;
-`;
+const StatusIndicatorText = styled.Text<StatusTextProps>(
+  (props: StatusTextProps) => ({
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: props.color,
+    marginTop: 8,
+  })
+);
 
-const DetailText = styled.Text<{ color?: string }>`
-  font-size: 16px;
-  color: ${(props: { color?: string }) => props.color || colors.text.primary};
-  /* No margin-bottom here, handled by container */
-`;
+const DetailText = styled.Text<{ color?: string }>(
+  (props: { color?: string }) => ({
+    fontSize: 16,
+    color: props.color || colors.text.primary,
+  })
+);
 
-const DetailLabel = styled.Text`
-  font-weight: bold;
-  color: ${colors.text.primary};
-  font-size: 16px;
-`;
+const DetailLabel = styled.Text({
+  fontWeight: 'bold',
+  color: colors.text.primary,
+  fontSize: 16,
+});
 
 // --- CARD HEADER COMPONENTS ---
-const CardHeader = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-`;
+const CardHeader = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+});
 
-const CardTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
+const CardTitle = styled.Text({
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: colors.text.primary,
+});
 
-const HeaderActions = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-`;
+const HeaderActions = styled.View({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+});
 
-const CloseButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
+const CloseButton = styled.TouchableOpacity({
+  padding: 8,
+});
 
-const DeleteButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
+const DeleteButton = styled.TouchableOpacity({
+  padding: 8,
+});
 
 // --- ADMIN-SPECIFIC STYLED COMPONENTS ---
 
-const StatusButtonText = styled.Text<{ active: boolean }>`
-  color: ${(props: { active: boolean }) => (props.active ? colors.white : colors.text.primary)};
-  font-weight: bold;
-  font-size: 12px;
-`;
+const StatusButtonText = styled.Text<{ active: boolean }>(
+  (props: { active: boolean }) => ({
+    color: props.active ? colors.white : colors.text.primary,
+    fontWeight: 'bold',
+    fontSize: 12,
+  })
+);
 
-const StatusGrid = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between; /* Distribute space between columns */
-  gap: 10px; /* Vertical gap between rows */
-  margin-top: 16px;
-  margin-bottom: 16px;
-`;
+const StatusGrid = styled.View({
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  gap: 10,
+  marginTop: 16,
+  marginBottom: 16,
+});
 
-const StatusButton = styled.TouchableOpacity<{ active: boolean; activeColor: string }>`
-  background-color: ${(props: { active: boolean; activeColor: string }) => (props.active ? props.activeColor : colors.componentBackground)};
-  padding: 18px 8px; /* Increase vertical padding for a more square look */
-  border-radius: 12px; /* More rounded corners */
-  align-items: center;
-  justify-content: center; /* Center text vertically */
-  width: 48%; /* Creates a two-column layout */
-`;
+const StatusButton = styled.TouchableOpacity<{ active: boolean; activeColor: string }>(
+  (props: { active: boolean; activeColor: string }) => ({
+    backgroundColor: props.active ? props.activeColor : colors.componentBackground,
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '48%',
+  })
+);
 
 // --- HELPERS ---
 const formatDate = (date: Date): string => {
@@ -343,14 +370,14 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
 
   if (isProcessing) {
     return (
-      <CardContainer isExpanded={false}>
+      <CardContainer style={shadowStyles.cardShadow} isExpanded={false}>
         <ActivityIndicator size="large" color={colors.primary} />
       </CardContainer>
     );
   }
 
   return (
-    <CardContainer isExpanded={isExpanded}>
+    <CardContainer style={shadowStyles.cardShadow} isExpanded={isExpanded}>
       {isExpanded ? (
         isAdmin ? (
           <AdminExpandedView report={report} statusColor={statusColor} onClose={() => setIsExpanded(false)} onStatusUpdate={handleStatusUpdate} onDelete={handleDelete} />

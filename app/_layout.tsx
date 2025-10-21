@@ -25,10 +25,9 @@ function AuthenticatedStack() {
       return; // Still loading, do nothing.
     }
 
-    setIsReady(true); // Auth state is now known.
-
     const isAuthRoute = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'forgot-password' || segments[0] === 'reset-password';
     const isVerifyEmailRoute = segments[0] === 'verify-email';
+    const isAdminRoute = segments[0] === 'admin';
 
     // Case 1: Not logged in, and not on an auth/verify route -> redirect to login.
     if (!user && !isAuthRoute && !isVerifyEmailRoute) {
@@ -43,9 +42,15 @@ function AuthenticatedStack() {
       } else {
         router.replace('/home');
       }
-    } else if (user && user.emailVerified && isAdmin && segments[0] !== 'admin') {
+    // Case 4: Non-admin user trying to access admin route -> redirect to home.
+    } else if (user && user.emailVerified && !isAdmin && isAdminRoute) {
+      router.replace('/home');
+    // Case 5: Admin user not on admin route -> redirect to admin.
+    } else if (user && user.emailVerified && isAdmin && !isAdminRoute) {
       router.replace('/admin');
     }
+
+    setIsReady(true); // Auth state is now known.
 
   }, [user, initialLoading, segments, router, isAdmin]);
 
@@ -72,9 +77,19 @@ function AuthenticatedStack() {
     }
   }, [handleSignInWithLink, router]);
 
-  // Show a loading screen while the app is determining the correct route,
-  // especially for admins who might otherwise see a flash of the user home screen.
-  if (!isReady || (user && !profileLoaded) || (isAdmin && segments[0] !== 'admin' && segments.length > 0)) {
+  // Show a loading screen while the app is determining the correct route.
+  // This prevents flashing of wrong screens during redirects.
+  if (!isReady || (user && !profileLoaded)) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#BD5151" />
+      </View>
+    );
+  }
+
+  // Additional safety: prevent non-admin users from seeing admin screen
+  if (user && !isAdmin && segments[0] === 'admin') {
+    router.replace('/home');
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#BD5151" />
@@ -91,7 +106,11 @@ function AuthenticatedStack() {
         contentStyle: { backgroundColor: '#FFFFFF' },
       }}
     >
-      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+      {isAdmin ? (
+        <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+      ) : (
+        <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false }} />
+      )}
     </Stack>
   );
 }

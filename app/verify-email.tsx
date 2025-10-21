@@ -39,7 +39,7 @@ const InstructionsText = styled.Text({
   textAlign: 'center',
   marginBottom: theme.spacing.xl,
   color: theme.colors.text.secondary,
-  lineHeight: 22,
+  lineHeight: '22px',
 });
 
 interface StyledButtonProps {

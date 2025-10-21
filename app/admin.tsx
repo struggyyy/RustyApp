@@ -5,25 +5,27 @@ import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { getAllReports } from '../src/services/firebase/reports';
+import { Stack } from 'expo-router';
 import { Report, ReportStatus } from '../src/types/reports';
 import ReportList from '../src/components/ReportList';
 import FilterPanel from '../src/components/admin/FilterPanel';
 import * as Location from 'expo-location';
 import theme from '../src/theme';
 
-const Container = styled.View`
-  flex: 1;
-  background-color: ${theme.colors.white};
-  padding: 24px 12px;
-`;
+const Container = styled.View({
+  flex: 1,
+  backgroundColor: theme.colors.white,
+  paddingHorizontal: 12,
+  paddingVertical: 24,
+});
 
-const DashboardContainer = styled.View`
-  flex: 1;
-  background-color: ${theme.colors.componentBackground};
-  border-radius: 24px;
-  padding: 20px;
-  overflow: hidden;
-`;
+const DashboardContainer = styled.View({
+  flex: 1,
+  backgroundColor: theme.colors.componentBackground,
+  borderRadius: 24,
+  padding: 20,
+  overflow: 'hidden',
+});
 
 
 const AdminDashboard = () => {
@@ -102,6 +104,11 @@ const AdminDashboard = () => {
   }, [reports, selectedStatus, maxDistance, userLocation]);
 
   const fetchAllReports = useCallback(async () => {
+    if (!isAdmin) {
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
     try {
       setError(null);
       const allReports = await getAllReports();
@@ -113,19 +120,23 @@ const AdminDashboard = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
-      fetchAllReports();
-    }, [fetchAllReports])
+      if (isAdmin) {
+        setLoading(true);
+        fetchAllReports();
+      }
+    }, [fetchAllReports, isAdmin])
   );
 
   const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchAllReports();
-  }, [fetchAllReports]);
+    if (isAdmin) {
+      setRefreshing(true);
+      fetchAllReports();
+    }
+  }, [fetchAllReports, isAdmin]);
 
   const handleReportDelete = (deletedReportId: string) => {
     setReports(prevReports => prevReports.filter(report => report.id !== deletedReportId));
@@ -147,8 +158,14 @@ const AdminDashboard = () => {
     }
   };
 
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
-    <Container>
+    <>
+      <Stack.Screen options={{ title: 'Admin' }} />
+      <Container>
       <FilterPanel
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
@@ -170,7 +187,8 @@ const AdminDashboard = () => {
           emptyText="No reports match the current filters."
         />
       </DashboardContainer>
-    </Container>
+      </Container>
+    </>
   );
 };
 

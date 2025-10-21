@@ -5,17 +5,17 @@ import ReportCard from './ReportCard';
 import { Report, ReportStatus } from '../types/reports';
 import theme from '../theme';
 
-const CenteredContainer = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`;
+const CenteredContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
 
-const InfoText = styled.Text`
-  font-size: 18px;
-  color: ${theme.colors.text.tertiary};
-  margin-top: 10px;
-`;
+const InfoText = styled.Text({
+  fontSize: 18,
+  color: theme.colors.text.tertiary,
+  marginTop: 10,
+});
 
 
 interface ReportListProps {
