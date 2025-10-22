@@ -24,6 +24,7 @@ import {
 } from "../src/services/firebase/reports";
 import theme from "../src/theme";
 import StyledButton from "../src/components/common/StyledButton";
+import CustomAlert from "../src/components/common/CustomAlert";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -212,6 +213,21 @@ export default function ReportScreen() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const isSubmittingRef = useRef(false);
   const mapRef = useRef<MapView>(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message?: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', buttons: [] });
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+    setAlertConfig({ title, message, buttons });
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -261,7 +277,7 @@ export default function ReportScreen() {
       }
     } catch (error: any) {
       setLocationErrorMsg(error.message || "Failed to get location");
-      Alert.alert(
+      showAlert(
         "Location Error",
         error.message ||
           "Could not fetch location. Please ensure location services are enabled."
@@ -288,7 +304,6 @@ export default function ReportScreen() {
       ? ImagePicker.launchCameraAsync
       : ImagePicker.launchImageLibraryAsync;
     const result = await action({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
@@ -309,7 +324,7 @@ export default function ReportScreen() {
       !description.trim() ||
       description.trim().length > 150
     ) {
-      Alert.alert(
+      showAlert(
         "Incomplete Form",
         "Please fill all fields, take a picture, and ensure location is set. Description must be 150 characters or less."
       );
@@ -330,12 +345,12 @@ export default function ReportScreen() {
         location,
       });
 
-      Alert.alert("Success", "Report submitted successfully!", [
+      showAlert("Success", "Report submitted successfully!", [
         { text: "OK", onPress: () => router.replace("/my-reports") },
       ]);
     } catch (error) {
       console.error("Report submission error:", error);
-      Alert.alert("Error", "Failed to submit report. Please try again.");
+      showAlert("Error", "Failed to submit report. Please try again.");
       // On failure, release the lock and reset the button to allow another attempt.
       isSubmittingRef.current = false;
       setIsSubmitting(false);
@@ -384,94 +399,104 @@ export default function ReportScreen() {
     !!location;
 
   return (
-    <Container behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <Stack.Screen options={{ title: "Report a Car" }} />
-      <InnerScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            colors={[theme.colors.primary]}
-            tintColor={theme.colors.primary}
-          />
-        }
-      >
-        <TopContent>
-          <Title>SAVE THE ENVIRONMENT</Title>
-          <Subtitle>
-            By pointing out abandoned cars in your neighbourhood, you contribute
-            to cleaner and safer surroundings.
-          </Subtitle>
-          {imageUri ? (
-            !isKeyboardVisible && (
-              <ImagePreviewContainer>
-                <ImagePreview source={{ uri: imageUri }} />
-                <ImageOverlayActions>
-                  {/* Select other image from the phone (currently disabled)
+    <>
+      <Container behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <Stack.Screen options={{ title: "Report a Car" }} />
+        <InnerScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
+            />
+          }
+        >
+          <TopContent>
+            <Title>SAVE THE ENVIRONMENT</Title>
+            <Subtitle>
+              By pointing out abandoned cars in your neighbourhood, you contribute
+              to cleaner and safer surroundings.
+            </Subtitle>
+            {imageUri ? (
+              !isKeyboardVisible && (
+                <ImagePreviewContainer>
+                  <ImagePreview source={{ uri: imageUri }} />
+                  <ImageOverlayActions>
+                    {/* Select other image from the phone (currently disabled)
                 <ImageActionButton onPress={() => pickImage(false)}>
                   <Ionicons name="create-outline" size={24} color="white" />
                 </ImageActionButton> */}
-                  <ImageActionButton onPress={handleCancelImage}>
-                    <Ionicons name="close" size={24} color="white" />
-                  </ImageActionButton>
-                </ImageOverlayActions>
-              </ImagePreviewContainer>
-            )
-          ) : (
-            <ButtonRow>
-              <StyledButton
-                title="TAKE A PICTURE"
-                onPress={() => pickImage(true)}
-                variant="secondary"
-                style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
-              />
-              <SelectImageButton style={shadowStyles.shadowMedium} onPress={() => pickImage(false)}>
-                <Ionicons
-                  name="image-outline"
-                  size={24}
-                  color={theme.colors.text.primary}
+                    <ImageActionButton onPress={handleCancelImage}>
+                      <Ionicons name="close" size={24} color="white" />
+                    </ImageActionButton>
+                  </ImageOverlayActions>
+                </ImagePreviewContainer>
+              )
+            ) : (
+              <ButtonRow>
+                <StyledButton
+                  title="TAKE A PICTURE"
+                  onPress={() => pickImage(true)}
+                  variant="secondary"
+                  style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
                 />
-              </SelectImageButton>
-            </ButtonRow>
-          )}
-        </TopContent>
+                <SelectImageButton style={shadowStyles.shadowMedium} onPress={() => pickImage(false)}>
+                  <Ionicons
+                    name="image-outline"
+                    size={24}
+                    color={theme.colors.text.primary}
+                  />
+                </SelectImageButton>
+              </ButtonRow>
+            )}
+          </TopContent>
 
-        <MainCard>
-          <InsetShadowGradientView
-            colors={["rgba(0,0,0,0.15)", "transparent"]}
-            pointerEvents="none"
-          />
-          <DescriptionInput
-            placeholder="Description..."
-            placeholderTextColor={theme.colors.text.secondary}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            maxLength={150}
-          />
+          <MainCard>
+            <InsetShadowGradientView
+              colors={["rgba(0,0,0,0.15)", "transparent"]}
+              pointerEvents="none"
+            />
+            <DescriptionInput
+              placeholder="Description..."
+              placeholderTextColor={theme.colors.text.secondary}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              maxLength={150}
+            />
 
-          <MapContainer>
-            {renderMapContent()}
-            <MyLocationButtonTouchable onPress={handleCenterMap}>
-              <MaterialIcons
-                name="my-location"
-                size={24}
-                color={theme.colors.primary}
-              />
-            </MyLocationButtonTouchable>
-          </MapContainer>
-        </MainCard>
+            <MapContainer>
+              {renderMapContent()}
+              <MyLocationButtonTouchable onPress={handleCenterMap}>
+                <MaterialIcons
+                  name="my-location"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+              </MyLocationButtonTouchable>
+            </MapContainer>
+          </MainCard>
 
-        <BottomContent>
-          <StyledButton
-            title="SUBMIT"
-            onPress={handleSubmit}
-            disabled={!isFormReady || isSubmitting}
-            loading={isSubmitting}
-            variant="primary"
-          />
-        </BottomContent>
-      </InnerScrollView>
-    </Container>
+          <BottomContent>
+            <StyledButton
+              title="SUBMIT"
+              onPress={handleSubmit}
+              disabled={!isFormReady || isSubmitting}
+              loading={isSubmitting}
+              variant="primary"
+            />
+          </BottomContent>
+        </InnerScrollView>
+      </Container>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onRequestClose={hideAlert}
+      />
+    </>
   );
 }

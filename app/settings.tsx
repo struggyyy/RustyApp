@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, Alert, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, Switch, ActivityIndicator, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import colors from '../src/theme/colors';
 import StyledButton from '../src/components/common/StyledButton';
+import CustomAlert from '../src/components/common/CustomAlert';
 
 // --- STYLED COMPONENTS ---
 const Container = styled.ScrollView`
@@ -45,16 +46,31 @@ export default function Settings() {
   const { profile, updateUserProfile, logOut, deleteAccount, loading } = useAuth();
   const router = useRouter();
 
+  const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message?: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', buttons: [] });
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+    setAlertConfig({ title, message, buttons });
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
+
   const handleLogout = async () => {
     try {
       await logOut(router);
     } catch (error: any) {
-      Alert.alert('Logout Error', error.message || 'Failed to log out.');
+      showAlert('Logout Error', error.message || 'Failed to log out.');
     }
   };
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleToggleNotifications = async (value: boolean) => {
     setIsSubmitting(true);
@@ -66,9 +82,9 @@ export default function Settings() {
           email: profile?.notificationPreferences?.email ?? true, // Keep email preference as is
         },
       });
-      Alert.alert('Success', 'Notification settings updated.');
+      showAlert('Success', 'Notification settings updated.');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update settings.');
+      showAlert('Error', error.message || 'Failed to update settings.');
       setNotificationsEnabled(!value); // Revert on error
     } finally {
       setIsSubmitting(false);
@@ -76,7 +92,7 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    showAlert(
       'Delete Account',
       'Are you sure you want to delete your account? This action is irreversible.',
       [
@@ -87,10 +103,11 @@ export default function Settings() {
           onPress: async () => {
             try {
               await deleteAccount();
-              Alert.alert('Success', 'Your account has been deleted.');
-              router.replace('/login');
+              showAlert('Success', 'Your account has been deleted.', [
+                { text: 'OK', onPress: () => router.replace('/login') }
+              ]);
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to delete account.');
+              showAlert('Error', error.message || 'Failed to delete account.');
             }
           },
         },
@@ -134,6 +151,14 @@ export default function Settings() {
           />
         </SettingsCard>
       </Container>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onRequestClose={hideAlert}
+      />
     </>
   );
 } 

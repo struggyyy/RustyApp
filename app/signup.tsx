@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
+import CustomAlert from '../src/components/common/CustomAlert';
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
@@ -101,14 +102,29 @@ export default function SignupScreen() {
   const { signUp, loading: authLoading, error } = useAuth();
   const router = useRouter();
   const headerHeight = useHeaderHeight();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message?: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', buttons: [] });
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+    setAlertConfig({ title, message, buttons });
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
+      showAlert('Error', 'Passwords do not match.');
       return;
     }
     if (!email.includes('@')) {
-        Alert.alert('Error', 'Please enter a valid email address.');
+        showAlert('Error', 'Please enter a valid email address.');
         return;
     }
 
@@ -124,7 +140,7 @@ export default function SignupScreen() {
       }
     } catch (err: any) {
       console.error('Signup handler error:', err);
-      Alert.alert('Error', err.message || 'An unexpected error occurred during sign up.');
+      showAlert('Error', err.message || 'An unexpected error occurred during sign up.');
     } finally {
       setIsSubmitting(false);
     }
@@ -133,82 +149,92 @@ export default function SignupScreen() {
   const isLoading = isSubmitting || authLoading;
 
   return (
-    <StyledKeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
-      <Stack.Screen
-        options={{
-          title: 'Sign Up',
-          headerShown: true,
-        }}
-      />
-      
-      <FormContainer>
-        <TitleText>Create Account</TitleText>
-        <SubtitleText>
-          Sign up to start reporting abandoned vehicles
-        </SubtitleText>
-
-        {error && <ErrorText>{error}</ErrorText>}
-
-        <StyledInput
-          placeholder="Nickname"
-          value={nickname}
-          onChangeText={setNickname}
-          autoCapitalize="words"
-          editable={!isLoading}
-        />
-
-        <StyledInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          editable={!isLoading}
-        />
-
-        <StyledInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          editable={!isLoading}
-        />
-
-        <StyledInput
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          editable={!isLoading}
-        />
-
-        <StyledButton 
-          isDisabled={isLoading}
-          onPress={handleSignup}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={theme.colors.text.light} />
-          ) : (
-            <ButtonText>Sign Up</ButtonText>
-          )}
-        </StyledButton>
-
-        <BackButtonTouchable 
-          onPress={() => {
-            Keyboard.dismiss();
-            router.replace('/login');
+    <>
+      <StyledKeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
+        <Stack.Screen
+          options={{
+            title: 'Sign Up',
+            headerShown: true,
           }}
-          disabled={isLoading}
-        >
-          <BackButtonText isDisabled={isLoading}>Already have an account? Log In</BackButtonText>
-        </BackButtonTouchable>
-      </FormContainer>
-    </StyledKeyboardAvoidingView>
+        />
+        
+        <FormContainer>
+          <TitleText>Create Account</TitleText>
+          <SubtitleText>
+            Sign up to start reporting abandoned vehicles
+          </SubtitleText>
+
+          {error && <ErrorText>{error}</ErrorText>}
+
+          <StyledInput
+            placeholder="Nickname"
+            value={nickname}
+            onChangeText={setNickname}
+            autoCapitalize="words"
+            editable={!isLoading}
+          />
+
+          <StyledInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            editable={!isLoading}
+          />
+
+          <StyledInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            editable={!isLoading}
+          />
+
+          <StyledInput
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            editable={!isLoading}
+          />
+
+          <StyledButton 
+            isDisabled={isLoading}
+            onPress={handleSignup}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={theme.colors.text.light} />
+            ) : (
+              <ButtonText>Sign Up</ButtonText>
+            )}
+          </StyledButton>
+
+          <BackButtonTouchable 
+            onPress={() => {
+              Keyboard.dismiss();
+              router.replace('/login');
+            }}
+            disabled={isLoading}
+          >
+            <BackButtonText isDisabled={isLoading}>Already have an account? Log In</BackButtonText>
+          </BackButtonTouchable>
+        </FormContainer>
+      </StyledKeyboardAvoidingView>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onRequestClose={hideAlert}
+      />
+    </>
   );
 } 

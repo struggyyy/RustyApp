@@ -11,8 +11,10 @@ import {
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
+  AppState,
+  AppStateStatus,
 } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import * as Location from "expo-location";
 import MapView, { Marker, Region, PROVIDER_GOOGLE } from "react-native-maps";
@@ -285,57 +287,98 @@ function HomeScreenComponent() {
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
   const [fallbackUsed, setFallbackUsed] = useState(false);
+  const [waitingForPermissions, setWaitingForPermissions] = useState(false);
   const mapRef = useRef<MapView>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
 
-  const fetchLocation = useCallback(async () => {
+  const fetchLocation = useCallback(async (forceRetry = false) => {
+    // If we're not forcing a retry and already have location, don't refetch
+    if (!forceRetry && location && !locationErrorMsg) {
+      return;
+    }
+
     setIsLocationLoading(true);
     setLocationErrorMsg(null);
     setFallbackUsed(false);
+    setWaitingForPermissions(false);
+
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        throw new Error("Permission to access location was denied");
+        setWaitingForPermissions(true);
+        setLocationErrorMsg("Location permission is required to show your location on the map. Please enable location services and pull to refresh.");
+        return;
       }
+
       let currentLocation = await Location.getLastKnownPositionAsync({});
       if (!currentLocation) {
         currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
         });
       }
+
       setLocation(currentLocation);
+      setWaitingForPermissions(false);
     } catch (error: any) {
       console.error("Location Error:", error.message);
       if (isWeb) {
         setLocation(getFallbackLocation());
         setFallbackUsed(true);
       } else {
-        setLocation(null);
+        setWaitingForPermissions(true);
+        setLocationErrorMsg("Current location is unavailable. Make sure that location services are enabled.");
       }
-      setLocationErrorMsg(error.message || "Failed to get location");
     } finally {
       setIsLocationLoading(false);
     }
-  }, []);
+  }, [location, locationErrorMsg, isWeb]);
+
+  const fetchReports = useCallback(async () => {
+    if (user) {
+      try {
+        const userReports = await getReportsByUserId(user.uid);
+        setReports(userReports);
+      } catch (err) {
+        console.error("Failed to fetch reports:", err);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchLocation();
-    if (user) {
-      getReportsByUserId(user.uid)
-        .then(setReports)
-        .catch((err) => console.error("Failed to fetch reports:", err));
-    }
-  }, [fetchLocation, user]);
+  }, [fetchLocation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchReports();
+    }, [fetchReports])
+  );
+
+  // Add AppState listener to retry location when app becomes active
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active' && waitingForPermissions) {
+        // App became active and we were waiting for permissions, retry location
+        fetchLocation(true);
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [waitingForPermissions, fetchLocation]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([
-      fetchLocation(),
-      user ? getReportsByUserId(user.uid).then(setReports) : Promise.resolve(),
+      fetchLocation(true), // Force retry location
+      fetchReports(),
     ]);
     setRefreshing(false);
-  }, [fetchLocation, user]);
+  }, [fetchLocation, fetchReports]);
 
   const goToMyLocation = () => {
     if (location && mapRef.current) {
@@ -362,6 +405,14 @@ function HomeScreenComponent() {
       return (
         <MapPlaceholderView>
           <MapErrorText>{locationErrorMsg}</MapErrorText>
+          {waitingForPermissions && (
+            <TouchableOpacity
+              onPress={() => fetchLocation(true)}
+              style={{ marginTop: 10, padding: 10, backgroundColor: colors.primary, borderRadius: 8 }}
+            >
+              <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Try Again</Text>
+            </TouchableOpacity>
+          )}
         </MapPlaceholderView>
       );
     }

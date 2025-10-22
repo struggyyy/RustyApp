@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
+import CustomAlert from '../src/components/common/CustomAlert';
 
 // Styled Components
 const StyledContainer = styled.View({
@@ -90,6 +91,21 @@ export default function VerifyEmailScreen() {
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message?: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', buttons: [] });
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+    setAlertConfig({ title, message, buttons });
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
 
   const emailToVerify = params.email as string || user?.email;
 
@@ -116,7 +132,7 @@ export default function VerifyEmailScreen() {
       router.replace({ pathname: '/login', params: { email: emailToVerify } });
     } catch (err: any) {
       console.error('[VerifyEmail] Logout failed:', err);
-      Alert.alert("Logout Failed", err.message || "Could not log out. Please try again.");
+      showAlert("Logout Failed", err.message || "Could not log out. Please try again.");
     } finally {
       setIsLoggingOut(false);
     }
@@ -125,52 +141,62 @@ export default function VerifyEmailScreen() {
   const isLoading = loading || isResending || isLoggingOut;
 
   return (
-    <StyledContainer>
-      <Stack.Screen options={{ headerShown: false }} />
+    <>
+      <StyledContainer>
+        <Stack.Screen options={{ headerShown: false }} />
 
-      <TitleText>Check Your Email</TitleText>
-      <SubtitleText>
-        We've sent a verification link to 
-        <EmailHighlightText> {emailToVerify || 'your email address'}</EmailHighlightText>.
-      </SubtitleText>
-      <InstructionsText>
-        Please click the link in that email to activate your account. You may need to check your spam folder.
-      </InstructionsText>
+        <TitleText>Check Your Email</TitleText>
+        <SubtitleText>
+          We've sent a verification link to 
+          <EmailHighlightText> {emailToVerify || 'your email address'}</EmailHighlightText>.
+        </SubtitleText>
+        <InstructionsText>
+          Please click the link in that email to activate your account. You may need to check your spam folder.
+        </InstructionsText>
 
-      {(error && !resendMessage) && <FeedbackText isError>{error}</FeedbackText>}
-      {resendMessage && 
-        <FeedbackText isError={!!error}>
-          {resendMessage}
-        </FeedbackText>
-      }
+        {(error && !resendMessage) && <FeedbackText isError>{error}</FeedbackText>}
+        {resendMessage && 
+          <FeedbackText isError={!!error}>
+            {resendMessage}
+          </FeedbackText>
+        }
 
-      <StyledButton
-        variant="secondary"
-        onPress={handleResendVerification}
-        disabled={isLoading}
-      >
-        {isResending ? (
-          <ActivityIndicator color={theme.colors.text.light} />
-        ) : (
-          <ButtonText>Resend Verification Email</ButtonText>
-        )}
-      </StyledButton>
+        <StyledButton
+          variant="secondary"
+          onPress={handleResendVerification}
+          disabled={isLoading}
+        >
+          {isResending ? (
+            <ActivityIndicator color={theme.colors.text.light} />
+          ) : (
+            <ButtonText>Resend Verification Email</ButtonText>
+          )}
+        </StyledButton>
 
-      <StyledButton
-        variant="primary"
-        onPress={goToLogin}
-        disabled={isLoading}
-      >
-        {isLoggingOut ? (
-          <ActivityIndicator color={theme.colors.text.light} />
-        ) : (
-          <ButtonText>Go to Login</ButtonText>
-        )}
-      </StyledButton>
+        <StyledButton
+          variant="primary"
+          onPress={goToLogin}
+          disabled={isLoading}
+        >
+          {isLoggingOut ? (
+            <ActivityIndicator color={theme.colors.text.light} />
+          ) : (
+            <ButtonText>Go to Login</ButtonText>
+          )}
+        </StyledButton>
 
-      <InfoText>
-        (After verifying, please use the Login button).
-      </InfoText>
-    </StyledContainer>
+        <InfoText>
+          (After verifying, please use the Login button).
+        </InfoText>
+      </StyledContainer>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onRequestClose={hideAlert}
+      />
+    </>
   );
 }

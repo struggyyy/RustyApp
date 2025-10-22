@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
+import CustomAlert from '../src/components/common/CustomAlert';
 
 // Styled Components (re-using styles from login for consistency)
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
@@ -102,6 +103,21 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const { resetPassword, error } = useAuth();
   const headerHeight = useHeaderHeight();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message?: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', buttons: [] });
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+    setAlertConfig({ title, message, buttons });
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
 
   const handleBackToLogin = () => {
     Keyboard.dismiss();
@@ -113,7 +129,7 @@ export default function ForgotPassword() {
 
   const handleResetPassword = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
+      showAlert('Error', 'Please enter your email address');
       return;
     }
 
@@ -121,67 +137,77 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       await resetPassword(email);
-      Alert.alert(
+      showAlert(
         'Password Reset Email Sent',
         'Please check your email for instructions to reset your password.',
         [{ text: 'OK', onPress: () => router.replace({ pathname: '/login', params: { email }}) }]
       );
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to send password reset email');
+      showAlert('Error', err.message || 'Failed to send password reset email');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <StyledKeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
-      <Stack.Screen
-        options={{
-          title: 'Reset Password',
-          headerShown: true,
-        }}
-      />
-      
-      <FormContainer>
-        <TitleText>Reset Your Password</TitleText>
-        <SubtitleText>
-          Enter your email and we'll send you instructions to reset your password.
-        </SubtitleText>
-
-        {error && <ErrorText>{error}</ErrorText>}
-
-        <StyledInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          returnKeyType="go"
-          onSubmitEditing={handleResetPassword}
-          editable={!loading}
+    <>
+      <StyledKeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
+        <Stack.Screen
+          options={{
+            title: 'Reset Password',
+            headerShown: true,
+          }}
         />
+        
+        <FormContainer>
+          <TitleText>Reset Your Password</TitleText>
+          <SubtitleText>
+            Enter your email and we'll send you instructions to reset your password.
+          </SubtitleText>
 
-        <StyledButton 
-          onPress={handleResetPassword}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={theme.colors.text.light} />
-          ) : (
-            <ButtonText>Send Reset Instructions</ButtonText>
-          )}
-        </StyledButton>
+          {error && <ErrorText>{error}</ErrorText>}
 
-        <BackButton 
-          onPress={handleBackToLogin}
-          disabled={loading}
-        >
-          <BackButtonText isDisabled={loading}>Back to Login</BackButtonText>
-        </BackButton>
-      </FormContainer>
-    </StyledKeyboardAvoidingView>
+          <StyledInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            returnKeyType="go"
+            onSubmitEditing={handleResetPassword}
+            editable={!loading}
+          />
+
+          <StyledButton 
+            onPress={handleResetPassword}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={theme.colors.text.light} />
+            ) : (
+              <ButtonText>Send Reset Instructions</ButtonText>
+            )}
+          </StyledButton>
+
+          <BackButton 
+            onPress={handleBackToLogin}
+            disabled={loading}
+          >
+            <BackButtonText isDisabled={loading}>Back to Login</BackButtonText>
+          </BackButton>
+        </FormContainer>
+      </StyledKeyboardAvoidingView>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onRequestClose={hideAlert}
+      />
+    </>
   );
 }

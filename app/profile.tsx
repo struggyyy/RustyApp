@@ -10,6 +10,7 @@ import {
   RefreshControl,
   TextInput,
   Modal,
+  StyleSheet,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -23,6 +24,18 @@ import { getReportsByUserId } from "../src/services/firebase/reports";
 import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
+import CustomAlert from "../src/components/common/CustomAlert";
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  modalShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+});
 
 // --- STYLED COMPONENTS ---
 const Container = styled.ScrollView`
@@ -110,30 +123,45 @@ const ExpandedAvatarPlaceholderText = styled.Text`
   font-weight: bold;
 `;
 
-const FullScreenModalContainer = styled.View`
-  flex: 1;
-  background-color: rgba(0, 0, 0, 0.9);
-  justify-content: center;
-  align-items: center;
-`;
+const ModalOverlay = styled.View({
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+});
 
-const FullScreenImage = styled.Image`
-  width: 90%;
-  height: 90%;
-`;
+const ModalContent = styled.View({
+  backgroundColor: colors.white,
+  borderRadius: 24,
+  padding: 24,
+  width: '90%',
+  maxWidth: 400,
+});
 
-const CloseModalButton = styled.TouchableOpacity`
-  position: absolute;
-  top: 160px;
-  right: 20px;
-  background-color: ${colors.text.secondary};
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-`;
+const ModalHeader = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 16,
+});
+
+const ModalTitle = styled.Text({
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: colors.text.primary,
+});
+
+const ModalCloseButton = styled.TouchableOpacity({
+  padding: 8,
+});
+
+const ModalImage = styled.Image({
+  width: '100%',
+  height: 300,
+  borderRadius: 16,
+  marginBottom: 16,
+});
 
 const EditIconButton = styled.TouchableOpacity`
   position: absolute;
@@ -262,6 +290,21 @@ export default function Profile() {
   const [tempImageUri, setTempImageUri] = useState<string | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
   const router = useRouter();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    title: string;
+    message?: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', buttons: [] });
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+    setAlertConfig({ title, message, buttons });
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
 
   const isLoading = authLoading || initialLoading || uploading;
   const profileImageUrl = profile?.profileImage || user?.photoURL;
@@ -310,7 +353,7 @@ export default function Profile() {
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
+      showAlert(
         "Permission Denied",
         "Sorry, we need camera roll permissions to make this work!"
       );
@@ -318,7 +361,6 @@ export default function Profile() {
     }
 
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
@@ -363,12 +405,12 @@ export default function Profile() {
         await updateUserProfile({ displayName: editedNickname });
       }
 
-      Alert.alert("Success", "Profile updated successfully!");
+      showAlert("Success", "Profile updated successfully!");
       setIsEditMode(false);
       setTempImageUri(null);
     } catch (error: any) {
       console.error("Update error:", error);
-      Alert.alert("Error", error.message || "Failed to update profile.");
+      showAlert("Error", error.message || "Failed to update profile.");
     } finally {
       setUploading(false);
     }
@@ -560,27 +602,21 @@ export default function Profile() {
           )}
         </ProfileCard>
 
-        <Modal visible={showImageModal} transparent={true} animationType="fade">
-          <FullScreenModalContainer>
-            <CloseModalButton onPress={() => setShowImageModal(false)}>
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  textAlign: "center",
-                }}
-              >
-                ✕
-              </Text>
-            </CloseModalButton>
-            {profileImageUrl && (
-              <FullScreenImage
+        <Modal visible={showImageModal} transparent animationType="fade">
+          <ModalOverlay>
+            <ModalContent style={shadowStyles.modalShadow}>
+              <ModalHeader>
+                <ModalTitle>Profile Picture</ModalTitle>
+                <ModalCloseButton onPress={() => setShowImageModal(false)}>
+                  <Feather name="x" size={24} color={colors.text.primary} />
+                </ModalCloseButton>
+              </ModalHeader>
+              <ModalImage
                 source={{ uri: profileImageUrl }}
                 resizeMode="contain"
               />
-            )}
-          </FullScreenModalContainer>
+            </ModalContent>
+          </ModalOverlay>
         </Modal>
 
         <StyledButton
@@ -597,6 +633,14 @@ export default function Profile() {
           </ReportsContentContainer>
         </ReportsCard>
       </Container>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onRequestClose={hideAlert}
+      />
     </>
   );
 }
