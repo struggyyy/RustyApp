@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
@@ -7,6 +7,17 @@ import { getReportsByUserId } from '../src/services/firebase/reports';
 import { Report, ReportStatus } from '../src/types/reports';
 import ReportList from '../src/components/ReportList';
 import theme from '../src/theme';
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  modalShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+});
 
 // Styled Components
 const Container = styled.View`
@@ -81,7 +92,7 @@ export default function MyReportsScreen() {
       <StatusBar barStyle="dark-content" />
       <Container>
         <Stack.Screen options={{ title: 'My Reports' }} />
-        <HistoryContainer>
+        <HistoryContainer style={shadowStyles.modalShadow}>
           <HistoryTitle>HISTORY OF REPORTS</HistoryTitle>
           <ReportList
             reports={reports}

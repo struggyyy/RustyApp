@@ -40,30 +40,28 @@ const shadowStyles = StyleSheet.create({
 });
 
 // --- STYLED COMPONENTS ---
-const Container = styled.ScrollView`
-  flex: 1;
-  background-color: ${colors.white};
-  padding: 12px 12px;
-`;
+const Container = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    paddingTop: 12,
+    paddingHorizontal: 12,
+    paddingBottom: 0, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
+  },
+  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
+})({
+  flex: 1,
+  backgroundColor: colors.white,
+});
 
 const ProfileCard = styled.View<{ isExpanded: boolean }>(
   (props: { isExpanded: boolean }) => ({
     backgroundColor: colors.componentBackground,
     borderRadius: 24,
     padding: 20,
-    marginBottom: 15,
+    marginBottom: 20,
     flexDirection: props.isExpanded ? 'column' : 'row',
     alignItems: props.isExpanded ? 'stretch' : 'center',
   })
 );
-
-const ProfileCardHeader = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  flex: 1;
-`;
 
 const CollapsedProfileContent = styled.View`
   flex-direction: column;
@@ -94,6 +92,24 @@ const ExpandedProfileTitle = styled.Text`
 `;
 
 const ExpandedProfileCloseButton = styled.TouchableOpacity`
+  padding: 8px;
+`;
+
+const ExpandedSettingsHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex: 1;
+`;
+
+const ExpandedSettingsTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+`;
+
+const ExpandedSettingsCloseButton = styled.TouchableOpacity`
   padding: 8px;
 `;
 
@@ -185,12 +201,6 @@ const NicknameContainer = styled.View`
   justify-content: center;
 `;
 
-const ActionButtonsContainer = styled.View`
-  flex-direction: row;
-  gap: 12px;
-  margin-top: 16px;
-`;
-
 const ActionButtonFlex = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
   flex: 1,
   backgroundColor: props.variant === 'primary' ? colors.primary : colors.text.secondary,
@@ -210,7 +220,7 @@ const ReportsCard = styled.View`
   background-color: ${colors.componentBackground};
   border-radius: 24px;
   padding: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 `;
 
 const ReportsTitle = styled.Text`
@@ -273,31 +283,11 @@ const AvatarPlaceholderText = styled.Text`
   font-weight: bold;
 `;
 
-const UserInfo = styled.View`
-  flex: 1;
-`;
-
 const Nickname = styled.Text`
   font-size: 24px;
   font-weight: bold;
   color: ${colors.primary};
   margin-bottom: 4px;
-`;
-
-const EmailContainer = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-`;
-
-const EmailLocal = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-`;
-
-const EmailDomain = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
 `;
 
 const ModalOverlay = styled.View({
@@ -348,20 +338,6 @@ const SettingsCard = styled.View`
   margin-bottom: 20px;
 `;
 
-const CardHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-`;
-
-const CardHeaderText = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  text-transform: uppercase;
-`;
-
 const NotificationRow = styled.View`
   flex-direction: row;
   justify-content: space-between;
@@ -373,7 +349,32 @@ const NotificationLabel = styled.Text`
   color: ${colors.text.secondary};
 `;
 
-// --- COMPONENT ---
+const AccountSection = styled.View`
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top-width: 1px;
+  border-top-color: ${colors.componentBackground};
+`;
+
+const AccountTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+  margin-bottom: 16px;
+`;
+
+const DeleteAccountButton = styled.TouchableOpacity`
+  background-color: transparent;
+  padding: 8px 16px;
+  align-items: center;
+`;
+
+const DeleteAccountText = styled.Text`
+  font-size: 16px;
+  font-weight: bold;
+  color: ${colors.text.secondary};
+`;
+
 export default function Profile() {
   const {
     user,
@@ -406,6 +407,7 @@ export default function Profile() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [language, setLanguage] = useState('English');
+  const [settingsExpanded, setSettingsExpanded] = useState(false);
 
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
@@ -795,7 +797,8 @@ export default function Profile() {
                 title="Edit Profile"
                 onPress={() => setIsEditMode(true)}
                 variant="secondary"
-                style={{ marginBottom: 0 }}
+                style={{ marginBottom: 0, backgroundColor: '#FFFFFF' }}
+                textColor="#656565"
               />
             </CollapsedProfileContent>
           )}
@@ -818,49 +821,88 @@ export default function Profile() {
           </ModalOverlay>
         </Modal>
 
-        <SettingsCard>
-          <CardHeader>
-            <MaterialIcons name="settings" size={24} color={colors.text.primary} />
-            <CardHeaderText>Settings</CardHeaderText>
-          </CardHeader>
-          <NotificationRow>
-            <NotificationLabel>Enable Notifications</NotificationLabel>
-            <Switch
-              trackColor={{ false: colors.primary, true: colors.status.recycled }}
-              thumbColor={colors.white}
-              ios_backgroundColor={colors.primary}
-              onValueChange={handleToggleNotifications}
-              value={notificationsEnabled}
-              disabled={isSubmitting}
-            />
-          </NotificationRow>
-          <NotificationRow>
-            <NotificationLabel>Language: {language}</NotificationLabel>
-            <Switch
-              trackColor={{ false: colors.primary, true: colors.status.recycled }}
-              thumbColor={colors.white}
-              ios_backgroundColor={colors.primary}
-              onValueChange={handleToggleLanguage}
-              value={language === 'Polish'}
-              disabled={isSubmitting}
-            />
-          </NotificationRow>
-          <StyledButton
-            title="Delete Account :("
-            onPress={handleDeleteAccount}
-            style={{ backgroundColor: 'transparent', borderWidth: 0, shadowOpacity: 0, elevation: 0, padding: 16 }}
-            textColor={colors.text.secondary}
-          />
-          <StyledButton
-            title="Logout"
-            onPress={handleLogout}
-            disabled={authLoading}
-            loading={authLoading && !isSubmitting}
-          />
+        <SettingsCard style={shadowStyles.modalShadow}>
+          {!settingsExpanded && (
+            <>
+              <NotificationRow>
+                <NotificationLabel>Enable Notifications</NotificationLabel>
+                <Switch
+                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
+                  thumbColor={colors.white}
+                  ios_backgroundColor={colors.primary}
+                  onValueChange={handleToggleNotifications}
+                  value={notificationsEnabled}
+                  disabled={isSubmitting}
+                />
+              </NotificationRow>
+              <NotificationRow>
+                <NotificationLabel>Language: {language}</NotificationLabel>
+                <Switch
+                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
+                  thumbColor={colors.white}
+                  ios_backgroundColor={colors.primary}
+                  onValueChange={handleToggleLanguage}
+                  value={language === 'Polish'}
+                  disabled={isSubmitting}
+                />
+              </NotificationRow>
+              <StyledButton
+                title="More"
+                onPress={() => setSettingsExpanded(true)}
+                variant="secondary"
+                style={{ marginTop: 16, marginBottom: 0 }}
+              />
+            </>
+          )}
+          {settingsExpanded && (
+            <>
+              <ExpandedSettingsHeader>
+                <ExpandedSettingsTitle>Settings</ExpandedSettingsTitle>
+                <ExpandedSettingsCloseButton onPress={() => setSettingsExpanded(false)}>
+                  <MaterialIcons name="close" size={24} color={colors.text.primary} />
+                </ExpandedSettingsCloseButton>
+              </ExpandedSettingsHeader>
+              <NotificationRow>
+                <NotificationLabel>Enable Notifications</NotificationLabel>
+                <Switch
+                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
+                  thumbColor={colors.white}
+                  ios_backgroundColor={colors.primary}
+                  onValueChange={handleToggleNotifications}
+                  value={notificationsEnabled}
+                  disabled={isSubmitting}
+                />
+              </NotificationRow>
+              <NotificationRow>
+                <NotificationLabel>Language: {language}</NotificationLabel>
+                <Switch
+                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
+                  thumbColor={colors.white}
+                  ios_backgroundColor={colors.primary}
+                  onValueChange={handleToggleLanguage}
+                  value={language === 'Polish'}
+                  disabled={isSubmitting}
+                />
+              </NotificationRow>
+              <AccountSection>
+                <AccountTitle>Account</AccountTitle>
+                <StyledButton
+                  title="Logout"
+                  onPress={handleLogout}
+                  disabled={authLoading}
+                  loading={authLoading && !isSubmitting}
+                  style={{ backgroundColor: colors.primary }}
+                />
+                <DeleteAccountButton onPress={handleDeleteAccount}>
+                  <DeleteAccountText>Delete Account :(</DeleteAccountText>
+                </DeleteAccountButton>
+              </AccountSection>
+            </>
+          )}
         </SettingsCard>
 
         {reports.length > 0 && (
-          <ReportsCard>
+          <ReportsCard style={shadowStyles.modalShadow}>
             <TouchableOpacity onPress={() => router.push("/my-reports")}>
               <ReportsTitle>View all my reports</ReportsTitle>
             </TouchableOpacity>
