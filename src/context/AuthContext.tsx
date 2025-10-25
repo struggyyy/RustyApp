@@ -20,6 +20,7 @@ import {
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp, FirestoreError, deleteDoc, writeBatch } from 'firebase/firestore'; // Firestore for user profiles and deleteDoc
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // Firebase Storage for uploads
 import { getReportsByUserId } from '../services/firebase/reports';
+import { requestNotificationPermissions, getPushToken, storePushToken } from '../services/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define the shape of the user profile data stored in Firestore
@@ -37,6 +38,7 @@ interface UserProfile {
     email: boolean;
     push: boolean;
   };
+  pushToken?: string;
   language?: string;
   points?: number;
 }
@@ -78,6 +80,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false); // <-- Add isAdmin state
   const [profileLoaded, setProfileLoaded] = useState<boolean>(false); // <-- Add profileLoaded state
 
+  // Function to register for push notifications
+  const registerForPushNotifications = async (userProfile: UserProfile, userId: string) => {
+    try {
+      console.log('[AuthContext] Starting push notification registration for user:', userId);
+      console.log('[AuthContext] User notification preferences:', userProfile.notificationPreferences);
+
+      // Check if push notifications are enabled
+      if (userProfile.notificationPreferences?.push !== false) { // Default to true if not set
+        console.log('[AuthContext] Push notifications enabled, requesting permissions...');
+        const hasPermission = await requestNotificationPermissions();
+        console.log('[AuthContext] Permission granted:', hasPermission);
+
+        if (hasPermission) {
+          console.log('[AuthContext] Getting push token...');
+          const token = await getPushToken();
+          console.log('[AuthContext] Push token obtained:', token ? token.substring(0, 20) + '...' : 'null');
+
+          if (token && token !== userProfile.pushToken) {
+            console.log('[AuthContext] Storing new push token...');
+            await storePushToken(userId, token);
+            console.log('[AuthContext] Push token stored successfully.');
+          } else if (token === userProfile.pushToken) {
+            console.log('[AuthContext] Push token already up to date.');
+          } else {
+            console.log('[AuthContext] No token to store.');
+          }
+        } else {
+          console.log('[AuthContext] Push notification permission denied.');
+        }
+      } else {
+        console.log('[AuthContext] Push notifications disabled in user preferences.');
+      }
+    } catch (error) {
+      console.error('[AuthContext] Error registering for push notifications:', error);
+    }
+  };
+
   useEffect(() => {
     console.log('[AuthContext] Setting up auth state listener...');
     let isMounted = true;
@@ -113,6 +152,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 } else {
                     setIsAdmin(false);
                 }
+                // Register for push notifications
+                registerForPushNotifications(userProfile, firebaseUser.uid);
             }
           } else {
             console.warn(`[AuthContext] Direct fetch: No profile found. Creating initial.`);

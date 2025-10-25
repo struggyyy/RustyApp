@@ -26,6 +26,7 @@ interface ReportCardProps {
   onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
   isAdmin: boolean;
   expandedReportId?: string;
+  onDetailsPress?: (reportId: string) => void;
 }
 
 interface CardContainerProps {
@@ -332,7 +333,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
 );
 
 // --- MAIN COMPONENT ---
-const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin, expandedReportId }) => {
+const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin, expandedReportId, onDetailsPress }) => {
   const [isExpanded, setIsExpanded] = useState(expandedReportId === report.id);
   const [isProcessing, setIsProcessing] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -406,7 +407,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
             <ReportInfo>
               <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
               <ReportStatusText color={statusColor}>{report.status}</ReportStatusText>
-              <DetailsButton onPress={() => setIsExpanded(true)}>
+              <DetailsButton onPress={() => onDetailsPress ? onDetailsPress(report.id) : setIsExpanded(true)}>
                 <DetailsButtonText>See the details</DetailsButtonText>
               </DetailsButton>
             </ReportInfo>

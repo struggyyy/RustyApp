@@ -30,6 +30,7 @@ interface StyledButtonProps {
   isWeb?: boolean;
   variant?: "primary" | "secondary";
   style?: StyleProp<ViewStyle>;
+  textColor?: string;
 }
 
 const ButtonTouchable = styled.TouchableOpacity<{
@@ -54,11 +55,11 @@ const ButtonTouchable = styled.TouchableOpacity<{
   })
 );
 
-const ButtonLabel = styled.Text({
-  color: theme.colors.white,
-  fontSize: 18,
-  fontWeight: "bold",
-});
+const ButtonLabel = styled.Text<{ textColor?: string }>`
+  color: ${(props: { textColor?: string }) => props.textColor || theme.colors.white};
+  font-size: 18px;
+  font-weight: bold;
+`;
 
 const StyledButton: React.FC<StyledButtonProps> = ({
   onPress,
@@ -67,6 +68,7 @@ const StyledButton: React.FC<StyledButtonProps> = ({
   loading = false,
   variant = "primary",
   style,
+  textColor,
 }) => {
   return (
     <ButtonTouchable
@@ -79,7 +81,7 @@ const StyledButton: React.FC<StyledButtonProps> = ({
       {loading ? (
         <ActivityIndicator color={theme.colors.white} />
       ) : (
-        <ButtonLabel>{title}</ButtonLabel>
+        <ButtonLabel textColor={textColor}>{title}</ButtonLabel>
       )}
     </ButtonTouchable>
   );

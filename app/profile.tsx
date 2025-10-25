@@ -11,6 +11,7 @@ import {
   TextInput,
   Modal,
   StyleSheet,
+  Switch,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -25,6 +26,7 @@ import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/CustomAlert";
+import EditProfileModal from "../src/components/common/EditProfileModal";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -58,38 +60,6 @@ const ProfileCardHeader = styled.View`
   margin-bottom: 10px;
 `;
 
-const EditInput = styled.TextInput`
-  background-color: ${colors.white};
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 16px;
-  color: ${colors.text.primary};
-  margin-bottom: 4px;
-  border: 1px solid ${colors.componentBackground};
-`;
-
-const EditLabel = styled.Text`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  margin-bottom: 8px;
-  margin-top: 8px;
-`;
-
-const ActionButton = styled.TouchableOpacity`
-  background-color: ${colors.text.secondary};
-  padding: 14px 20px;
-  border-radius: 20px;
-  align-items: center;
-  flex: 1;
-`;
-
-const ActionButtonText = styled.Text`
-  color: ${colors.white};
-  font-weight: bold;
-  font-size: 14px;
-`;
-
 const ExpandedAvatarWrapper = styled.View`
   width: 120px;
   height: 120px;
@@ -121,6 +91,100 @@ const ExpandedAvatarPlaceholderText = styled.Text`
   font-size: 40px;
   color: #fff;
   font-weight: bold;
+`;
+
+const ReportsCard = styled.View`
+  background-color: ${colors.componentBackground};
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 40px;
+`;
+
+const ReportsTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+  margin-bottom: 15px;
+  text-align: center;
+  text-transform: uppercase;
+`;
+
+const LoadingContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ReportsContentContainer = styled.View`
+  min-height: 100px;
+  justify-content: center;
+`;
+
+const NoReportsText = styled.Text`
+  text-align: center;
+  color: ${colors.text.secondary};
+  font-size: 16px;
+`;
+
+const AvatarTouchable = styled.TouchableOpacity``;
+
+const AvatarWrapper = styled.View`
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  background-color: #eee;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid ${colors.primary};
+  position: relative;
+`;
+
+const AvatarImage = styled.Image`
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+`;
+
+const AvatarPlaceholder = styled.View`
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+  background-color: #ccc;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AvatarPlaceholderText = styled.Text`
+  font-size: 30px;
+  color: #fff;
+  font-weight: bold;
+`;
+
+const UserInfo = styled.View`
+  flex: 1;
+`;
+
+const Nickname = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
+  color: ${colors.primary};
+  margin-bottom: 4px;
+`;
+
+const EmailContainer = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+`;
+
+const EmailLocal = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
+`;
+
+const EmailDomain = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
 `;
 
 const ModalOverlay = styled.View({
@@ -163,111 +227,31 @@ const ModalImage = styled.Image({
   marginBottom: 16,
 });
 
-const EditIconButton = styled.TouchableOpacity`
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background-color: ${colors.white};
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  z-index: 5;
-`;
-
-const UserInfo = styled.View`
-  flex: 1;
-`;
-
-const Nickname = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${colors.primary};
-  margin-bottom: 4px;
-`;
-
-const EmailContainer = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-`;
-
-const EmailLocal = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-`;
-
-const EmailDomain = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-`;
-
-const AvatarTouchable = styled.TouchableOpacity``;
-
-const AvatarWrapper = styled.View`
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
-  background-color: #eee;
-  justify-content: center;
-  align-items: center;
-  border: 3px solid ${colors.primary};
-  position: relative;
-`;
-
-const AvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-`;
-
-const AvatarPlaceholder = styled.View`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-  background-color: #ccc;
-  justify-content: center;
-  align-items: center;
-`;
-
-const AvatarPlaceholderText = styled.Text`
-  font-size: 30px;
-  color: #fff;
-  font-weight: bold;
-`;
-
-const ReportsCard = styled.View`
+// Settings styled components
+const SettingsCard = styled.View`
   background-color: ${colors.componentBackground};
   border-radius: 24px;
   padding: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 `;
 
-const ReportsTitle = styled.Text`
+const CardHeader = styled.Text`
   font-size: 20px;
   font-weight: bold;
   color: ${colors.text.primary};
-  margin-bottom: 15px;
-  text-align: center;
+  margin-bottom: 20px;
   text-transform: uppercase;
 `;
 
-const LoadingContainer = styled.View`
-  flex: 1;
-  justify-content: center;
+const NotificationRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
 `;
 
-const ReportsContentContainer = styled.View`
-  min-height: 100px;
-  justify-content: center;
-`;
-
-const NoReportsText = styled.Text`
-  text-align: center;
-  color: ${colors.text.secondary};
+const NotificationLabel = styled.Text`
   font-size: 16px;
+  color: ${colors.text.secondary};
 `;
 
 // --- COMPONENT ---
@@ -279,6 +263,8 @@ export default function Profile() {
     updateUserProfile,
     loading: authLoading,
     initialLoading,
+    logOut,
+    deleteAccount,
   } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -297,6 +283,11 @@ export default function Profile() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
+  // Settings related state
+  const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [language, setLanguage] = useState('English');
+
   const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
@@ -304,6 +295,64 @@ export default function Profile() {
 
   const hideAlert = () => {
     setAlertVisible(false);
+  };
+
+  // Settings handlers
+  const handleToggleNotifications = async (value: boolean) => {
+    setIsSubmitting(true);
+    setNotificationsEnabled(value);
+    try {
+      await updateUserProfile({
+        notificationPreferences: {
+          push: value,
+          email: profile?.notificationPreferences?.email ?? true, // Keep email preference as is
+        },
+      });
+      showAlert('Success', 'Notification settings updated.');
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to update settings.');
+      setNotificationsEnabled(!value); // Revert on error
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleLanguage = (value: boolean) => {
+    const newLanguage = value ? 'Polish' : 'English';
+    setLanguage(newLanguage);
+    showAlert('Language Changed', `Language set to ${newLanguage}.`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logOut(router);
+    } catch (error: any) {
+      showAlert('Logout Error', error.message || 'Failed to log out.');
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    showAlert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This action is irreversible.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              showAlert('Success', 'Your account has been deleted.', [
+                { text: 'OK', onPress: () => router.replace('/login') }
+              ]);
+            } catch (error: any) {
+              showAlert('Error', error.message || 'Failed to delete account.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const isLoading = authLoading || initialLoading || uploading;
@@ -456,7 +505,7 @@ export default function Profile() {
       return <NoReportsText>You have no reports yet.</NoReportsText>;
     }
     return reports
-      .slice(0, 2)
+      .slice(0, 1)
       .map((report) => (
         <ReportCard
           key={report.id}
@@ -464,6 +513,7 @@ export default function Profile() {
           onDelete={handleReportDelete}
           onStatusChange={() => {}}
           isAdmin={false}
+          onDetailsPress={(reportId) => router.push(`/my-reports?reportId=${reportId}`)}
         />
       ));
   };
@@ -489,117 +539,43 @@ export default function Profile() {
         }
       >
         <ProfileCard>
-          {isEditMode ? (
-            // Expanded Edit Mode
-            <>
-              <EditLabel>Profile Picture</EditLabel>
-              <AvatarTouchable onPress={handleChoosePhoto} disabled={uploading}>
-                <ExpandedAvatarWrapper>
-                  {uploading ? (
-                    <ActivityIndicator size="large" color="#fff" />
-                  ) : tempImageUri ? (
-                    <ExpandedAvatarImage source={{ uri: tempImageUri }} />
-                  ) : profileImageUrl ? (
-                    <ExpandedAvatarImage source={{ uri: profileImageUrl }} />
-                  ) : (
-                    <ExpandedAvatarPlaceholder>
-                      <ExpandedAvatarPlaceholderText>
-                        {user?.email?.[0]?.toUpperCase() || "?"}
-                      </ExpandedAvatarPlaceholderText>
-                    </ExpandedAvatarPlaceholder>
-                  )}
-                  <EditIconButton
-                    onPress={handleChoosePhoto}
-                    disabled={uploading}
-                  >
-                    <Feather name="edit-2" size={20} color={colors.primary} />
-                  </EditIconButton>
-                </ExpandedAvatarWrapper>
-              </AvatarTouchable>
-              <EditLabel>Nickname</EditLabel>
-              <EditInput
-                value={editedNickname}
-                onChangeText={setEditedNickname}
-                placeholder="Enter your nickname"
-                placeholderTextColor={colors.text.secondary}
-              />
-
-              <EditLabel>
-                Email{" "}
-                <Text style={{ fontSize: 12, color: colors.text.secondary }}>
-                  (Cannot be changed)
-                </Text>
-              </EditLabel>
-              <EditInput
-                value={user?.email || ""}
-                editable={false}
-                style={{
-                  color: colors.text.secondary,
-                  backgroundColor: colors.componentBackground,
-                  borderWidth: 0,
-                }}
-              />
-
-              <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
-                <ActionButton
-                  onPress={handleCancelEdit}
-                  style={{ backgroundColor: colors.text.secondary }}
-                >
-                  <ActionButtonText>Close</ActionButtonText>
-                </ActionButton>
-                <ActionButton
-                  onPress={handleSaveProfile}
-                  style={{ backgroundColor: colors.primary }}
-                  disabled={uploading}
-                >
-                  <ActionButtonText>
-                    {uploading ? "Saving..." : "Save"}
-                  </ActionButtonText>
-                </ActionButton>
-              </View>
-            </>
-          ) : (
-            // Collapsed View
-            <>
-              <ProfileCardHeader>
-                <UserInfo>
-                  <Nickname>
-                    {profile?.displayName || user?.displayName || "Nickname"}
-                  </Nickname>
-                  <EmailContainer>
-                    <EmailLocal>{user?.email?.split("@")[0] || ""}</EmailLocal>
-                    <EmailDomain>
-                      {"@" + (user?.email?.split("@")[1] || "")}
-                    </EmailDomain>
-                  </EmailContainer>
-                </UserInfo>
-                <AvatarTouchable
-                  onPress={handleAvatarPress}
-                  disabled={isLoading}
-                >
-                  <AvatarWrapper>
-                    {uploading ? (
-                      <ActivityIndicator size="small" color="#fff" />
-                    ) : profileImageUrl ? (
-                      <AvatarImage source={{ uri: profileImageUrl }} />
-                    ) : (
-                      <AvatarPlaceholder>
-                        <AvatarPlaceholderText>
-                          {user?.email?.[0]?.toUpperCase() || "?"}
-                        </AvatarPlaceholderText>
-                      </AvatarPlaceholder>
-                    )}
-                  </AvatarWrapper>
-                </AvatarTouchable>
-              </ProfileCardHeader>
-              <StyledButton
-                title="Edit Profile"
-                onPress={() => setIsEditMode(true)}
-                variant="secondary"
-                style={{ marginBottom: 0 }}
-              />
-            </>
-          )}
+          <ProfileCardHeader>
+            <UserInfo>
+              <Nickname>
+                {profile?.displayName || user?.displayName || "Nickname"}
+              </Nickname>
+              <EmailContainer>
+                <EmailLocal>{user?.email?.split("@")[0] || ""}</EmailLocal>
+                <EmailDomain>
+                  {"@" + (user?.email?.split("@")[1] || "")}
+                </EmailDomain>
+              </EmailContainer>
+            </UserInfo>
+            <AvatarTouchable
+              onPress={handleAvatarPress}
+              disabled={isLoading}
+            >
+              <AvatarWrapper>
+                {uploading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : profileImageUrl ? (
+                  <AvatarImage source={{ uri: profileImageUrl }} />
+                ) : (
+                  <AvatarPlaceholder>
+                    <AvatarPlaceholderText>
+                      {user?.email?.[0]?.toUpperCase() || "?"}
+                    </AvatarPlaceholderText>
+                  </AvatarPlaceholder>
+                )}
+              </AvatarWrapper>
+            </AvatarTouchable>
+          </ProfileCardHeader>
+          <StyledButton
+            title="Edit Profile"
+            onPress={() => setIsEditMode(true)}
+            variant="secondary"
+            style={{ marginBottom: 0 }}
+          />
         </ProfileCard>
 
         <Modal visible={showImageModal} transparent animationType="fade">
@@ -619,10 +595,56 @@ export default function Profile() {
           </ModalOverlay>
         </Modal>
 
-        <StyledButton
-          title="Settings"
-          onPress={() => router.push("/settings")}
+        <EditProfileModal
+          visible={isEditMode}
+          onClose={handleCancelEdit}
+          onSave={handleSaveProfile}
+          uploading={uploading}
+          editedNickname={editedNickname}
+          setEditedNickname={setEditedNickname}
+          tempImageUri={tempImageUri}
+          profileImageUrl={profileImageUrl || null}
+          userEmail={user?.email || null}
+          onChoosePhoto={handleChoosePhoto}
         />
+
+        <SettingsCard>
+          <CardHeader>Settings</CardHeader>
+          <NotificationRow>
+            <NotificationLabel>Enable Notifications</NotificationLabel>
+            <Switch
+              trackColor={{ false: colors.primary, true: colors.status.recycled }}
+              thumbColor={colors.white}
+              ios_backgroundColor={colors.primary}
+              onValueChange={handleToggleNotifications}
+              value={notificationsEnabled}
+              disabled={isSubmitting}
+            />
+          </NotificationRow>
+          <NotificationRow>
+            <NotificationLabel>Language: {language}</NotificationLabel>
+            <Switch
+              trackColor={{ false: colors.primary, true: colors.status.recycled }}
+              thumbColor={colors.white}
+              ios_backgroundColor={colors.primary}
+              onValueChange={handleToggleLanguage}
+              value={language === 'Polish'}
+              disabled={isSubmitting}
+            />
+          </NotificationRow>
+          <StyledButton
+            title="Delete Account :("
+            onPress={handleDeleteAccount}
+            style={{ backgroundColor: 'transparent', borderWidth: 0, shadowOpacity: 0, elevation: 0, padding: 16 }}
+            textColor={colors.text.secondary}
+          />
+          <StyledButton
+            title="Logout"
+            onPress={handleLogout}
+            disabled={authLoading}
+            loading={authLoading && !isSubmitting}
+          />
+        </SettingsCard>
 
         <ReportsCard>
           <TouchableOpacity onPress={() => router.push("/my-reports")}>

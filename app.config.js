@@ -71,6 +71,14 @@ export default {
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Rusty to access your location to show nearby abandoned vehicles."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/CAR.png",
+          "color": "#ffffff",
+          "defaultChannel": "default"
+        }
       ]
     ]
   }

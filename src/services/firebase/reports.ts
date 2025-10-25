@@ -18,6 +18,7 @@ import {
 import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
 import { Report, ReportStatus } from "../../types/reports";
+import { sendReportStatusNotification } from "../notifications";
 
 /**
  * Uploads an image to Firebase Storage for a specific report.
@@ -239,6 +240,40 @@ export const updateReportStatus = async (
 
     await batch.commit();
     console.log(`Report ${reportId} status updated to ${newStatus}. User ${userId} points adjusted by ${pointsDifference}.`);
+
+    // Send push notification if enabled
+    try {
+      console.log(`[updateReportStatus] Checking notification settings for user ${userId}...`);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const pushToken = userData.pushToken;
+        const pushEnabled = userData.notificationPreferences?.push !== false;
+        const userRole = userData.role;
+
+        console.log(`[updateReportStatus] User ${userId} push enabled: ${pushEnabled}`);
+        console.log(`[updateReportStatus] User ${userId} has push token: ${!!pushToken}`);
+        console.log(`[updateReportStatus] User ${userId} role: ${userRole}`);
+        console.log(`[updateReportStatus] Push token preview: ${pushToken ? pushToken.substring(0, 20) + '...' : 'null'}`);
+
+        // Only send notifications to regular users, not admins
+        if (pushToken && pushEnabled && userRole !== 'admin') {
+          console.log(`[updateReportStatus] Sending push notification to user ${userId}...`);
+          await sendReportStatusNotification(pushToken, reportId, currentStatus, newStatus);
+          console.log(`[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`);
+        } else {
+          const skipReason = !pushToken ? 'no push token' :
+                           !pushEnabled ? 'push disabled' :
+                           userRole === 'admin' ? 'user is admin' : 'unknown';
+          console.log(`[updateReportStatus] Skipping push notification: ${skipReason}`);
+        }
+      } else {
+        console.log(`[updateReportStatus] User document not found for ${userId}`);
+      }
+    } catch (notificationError) {
+      console.error('[updateReportStatus] Error sending push notification:', notificationError);
+      // Don't throw error for notification failure
+    }
   } catch (error) {
     console.error('Error updating report status:', error);
     throw new Error('Failed to update report status.');
