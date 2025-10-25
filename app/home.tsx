@@ -533,9 +533,11 @@ function HomeScreenComponent() {
         />
 
         <MapSection>
-          <MyReportsButton style={shadowStyles.shadowSmall} onPress={() => router.push("/my-reports")}>
-            <MyReportsButtonText>MY REPORTS</MyReportsButtonText>
-          </MyReportsButton>
+          {reports.length > 0 && (
+            <MyReportsButton style={shadowStyles.shadowSmall} onPress={() => router.push("/my-reports")}>
+              <MyReportsButtonText>MY REPORTS</MyReportsButtonText>
+            </MyReportsButton>
+          )}
           <MapWrapperView>
             {renderMap()}
             <InsetShadowGradientView

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, Animated } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
@@ -109,6 +109,9 @@ export default function SignupScreen() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
+  const shakeAnimation = useRef(new Animated.Value(0)).current;
+  const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
+
   const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
@@ -118,7 +121,42 @@ export default function SignupScreen() {
     setAlertVisible(false);
   };
 
+  const triggerShake = () => {
+    // Prevent triggering if animation is already running
+    if (isShakeAnimationRunning) return;
+
+    setIsShakeAnimationRunning(true);
+    Animated.sequence([
+      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 0, duration: 75, useNativeDriver: true }),
+    ]).start(() => {
+      // Animation completed, allow next trigger
+      setIsShakeAnimationRunning(false);
+    });
+  };
+
+  const handleNicknameChange = (text: string) => {
+    // Allow typing up to 15 characters, but prevent going beyond
+    if (text.length <= 15) {
+      setNickname(text);
+    } else {
+      // Trigger shake animation when trying to exceed limit
+      triggerShake();
+    }
+  };
+
   const handleSignup = async () => {
+    if (nickname.length < 2) {
+      showAlert('Error', 'Nickname must be at least 2 characters long.');
+      return;
+    }
+    if (nickname.length > 15) {
+      showAlert('Error', 'Nickname cannot be longer than 15 characters.');
+      return;
+    }
     if (password !== confirmPassword) {
       showAlert('Error', 'Passwords do not match.');
       return;
@@ -169,13 +207,15 @@ export default function SignupScreen() {
 
           {error && <ErrorText>{error}</ErrorText>}
 
-          <StyledInput
-            placeholder="Nickname"
-            value={nickname}
-            onChangeText={setNickname}
-            autoCapitalize="words"
-            editable={!isLoading}
-          />
+          <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
+            <StyledInput
+              placeholder="Nickname (2-15 characters)"
+              value={nickname}
+              onChangeText={handleNicknameChange}
+              autoCapitalize="words"
+              editable={!isLoading}
+            />
+          </Animated.View>
 
           <StyledInput
             placeholder="Email"

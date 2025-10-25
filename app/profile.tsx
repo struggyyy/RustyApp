@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -12,13 +12,14 @@ import {
   Modal,
   StyleSheet,
   Switch,
+  Animated,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
 import StyledButton from "../src/components/common/StyledButton";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import ReportCard from "../src/components/ReportCard";
 import { Report } from "../src/types/reports";
 import { getReportsByUserId } from "../src/services/firebase/reports";
@@ -26,7 +27,6 @@ import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/CustomAlert";
-import EditProfileModal from "../src/components/common/EditProfileModal";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -43,21 +43,58 @@ const shadowStyles = StyleSheet.create({
 const Container = styled.ScrollView`
   flex: 1;
   background-color: ${colors.white};
-  padding: 24px 12px;
+  padding: 12px 12px;
 `;
 
-const ProfileCard = styled.View`
-  background-color: ${colors.componentBackground};
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 15px;
-`;
+const ProfileCard = styled.View<{ isExpanded: boolean }>(
+  (props: { isExpanded: boolean }) => ({
+    backgroundColor: colors.componentBackground,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 15,
+    flexDirection: props.isExpanded ? 'column' : 'row',
+    alignItems: props.isExpanded ? 'stretch' : 'center',
+  })
+);
 
 const ProfileCardHeader = styled.View`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  flex: 1;
+`;
+
+const CollapsedProfileContent = styled.View`
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex: 1;
+  gap: 12px;
+`;
+
+const CollapsedProfileTop = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+`;
+
+const ExpandedProfileHeader = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
+const ExpandedProfileTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+`;
+
+const ExpandedProfileCloseButton = styled.TouchableOpacity`
+  padding: 8px;
 `;
 
 const ExpandedAvatarWrapper = styled.View`
@@ -92,6 +129,82 @@ const ExpandedAvatarPlaceholderText = styled.Text`
   color: #fff;
   font-weight: bold;
 `;
+
+const EditIconButton = styled.TouchableOpacity`
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: ${colors.white};
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+  border: 4px solid #BD5151;
+`;
+
+const EditLabel = styled.Text`
+  font-size: 14px;
+  font-weight: bold;
+  color: ${colors.text.primary};
+  margin-bottom: 8px;
+  margin-top: 8px;
+`;
+
+const EditInput = styled.TextInput`
+  background-color: ${colors.white};
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px;
+  color: ${colors.text.primary};
+  margin-bottom: 4px;
+  border: 1px solid ${colors.componentBackground};
+`;
+
+const EmailTouchable = styled.TouchableOpacity`
+  margin-top: 12px;
+  margin-bottom: 12px;
+`;
+
+const EmailText = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
+  text-align: center;
+`;
+
+const PointsText = styled.Text`
+  font-size: 14px;
+  font-weight: bold;
+  color: ${colors.text.secondary};
+  margin-top: 2px;
+`;
+
+const NicknameContainer = styled.View`
+  align-items: flex-start;
+  justify-content: center;
+`;
+
+const ActionButtonsContainer = styled.View`
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 16px;
+`;
+
+const ActionButtonFlex = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
+  flex: 1,
+  backgroundColor: props.variant === 'primary' ? colors.primary : colors.text.secondary,
+  padding: 14,
+  borderRadius: 20,
+  alignItems: 'center',
+  minHeight: 50,
+}));
+
+const ActionButtonText = styled.Text<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
+  color: props.variant === 'primary' ? colors.white : colors.white,
+  fontWeight: 'bold',
+  fontSize: 14,
+}));
 
 const ReportsCard = styled.View`
   background-color: ${colors.componentBackground};
@@ -235,11 +348,17 @@ const SettingsCard = styled.View`
   margin-bottom: 20px;
 `;
 
-const CardHeader = styled.Text`
+const CardHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+const CardHeaderText = styled.Text`
   font-size: 20px;
   font-weight: bold;
   color: ${colors.text.primary};
-  margin-bottom: 20px;
   text-transform: uppercase;
 `;
 
@@ -288,6 +407,9 @@ export default function Profile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [language, setLanguage] = useState('English');
 
+  const shakeAnimation = useRef(new Animated.Value(0)).current;
+  const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
+
   const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
@@ -295,6 +417,33 @@ export default function Profile() {
 
   const hideAlert = () => {
     setAlertVisible(false);
+  };
+
+  const triggerShake = () => {
+    // Prevent triggering if animation is already running
+    if (isShakeAnimationRunning) return;
+
+    setIsShakeAnimationRunning(true);
+    Animated.sequence([
+      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 0, duration: 75, useNativeDriver: true }),
+    ]).start(() => {
+      // Animation completed, allow next trigger
+      setIsShakeAnimationRunning(false);
+    });
+  };
+
+  const handleEditedNicknameChange = (text: string) => {
+    // Allow typing up to 15 characters, but prevent going beyond
+    if (text.length <= 15) {
+      setEditedNickname(text);
+    } else {
+      // Trigger shake animation when trying to exceed limit
+      triggerShake();
+    }
   };
 
   // Settings handlers
@@ -422,10 +571,20 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async () => {
+    if (!user?.uid) throw new Error("User not found");
+
+    // Validate nickname length
+    if (editedNickname.length < 2) {
+      showAlert("Error", "Nickname must be at least 2 characters long.");
+      return;
+    }
+    if (editedNickname.length > 15) {
+      showAlert("Error", "Nickname cannot be longer than 15 characters.");
+      return;
+    }
+
     setUploading(true);
     try {
-      if (!user?.uid) throw new Error("User not found");
-
       // Delete old profile image if it exists
       const oldImageUrl = profile?.profileImage || user?.photoURL;
       if (oldImageUrl && tempImageUri) {
@@ -538,44 +697,108 @@ export default function Profile() {
           />
         }
       >
-        <ProfileCard>
-          <ProfileCardHeader>
-            <UserInfo>
-              <Nickname>
-                {profile?.displayName || user?.displayName || "Nickname"}
-              </Nickname>
-              <EmailContainer>
-                <EmailLocal>{user?.email?.split("@")[0] || ""}</EmailLocal>
-                <EmailDomain>
-                  {"@" + (user?.email?.split("@")[1] || "")}
-                </EmailDomain>
-              </EmailContainer>
-            </UserInfo>
-            <AvatarTouchable
-              onPress={handleAvatarPress}
-              disabled={isLoading}
-            >
-              <AvatarWrapper>
-                {uploading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : profileImageUrl ? (
-                  <AvatarImage source={{ uri: profileImageUrl }} />
-                ) : (
-                  <AvatarPlaceholder>
-                    <AvatarPlaceholderText>
-                      {user?.email?.[0]?.toUpperCase() || "?"}
-                    </AvatarPlaceholderText>
-                  </AvatarPlaceholder>
-                )}
-              </AvatarWrapper>
-            </AvatarTouchable>
-          </ProfileCardHeader>
-          <StyledButton
-            title="Edit Profile"
-            onPress={() => setIsEditMode(true)}
-            variant="secondary"
-            style={{ marginBottom: 0 }}
-          />
+        <ProfileCard style={shadowStyles.modalShadow} isExpanded={isEditMode}>
+          {isEditMode ? (
+            <>
+              <ExpandedProfileHeader>
+                <ExpandedProfileTitle>Edit Profile</ExpandedProfileTitle>
+                <ExpandedProfileCloseButton onPress={handleCancelEdit}>
+                  <MaterialIcons name="close" size={24} color={colors.text.primary} />
+                </ExpandedProfileCloseButton>
+              </ExpandedProfileHeader>
+
+              <AvatarTouchable onPress={handleChoosePhoto} disabled={uploading}>
+                <ExpandedAvatarWrapper>
+                  {uploading ? (
+                    <ActivityIndicator size="large" color="#fff" />
+                  ) : tempImageUri ? (
+                    <ExpandedAvatarImage source={{ uri: tempImageUri }} />
+                  ) : profileImageUrl ? (
+                    <ExpandedAvatarImage source={{ uri: profileImageUrl }} />
+                  ) : (
+                    <ExpandedAvatarPlaceholder>
+                      <ExpandedAvatarPlaceholderText>
+                        {user?.email?.[0]?.toUpperCase() || "?"}
+                      </ExpandedAvatarPlaceholderText>
+                    </ExpandedAvatarPlaceholder>
+                  )}
+                  <EditIconButton onPress={handleChoosePhoto} disabled={uploading}>
+                    <MaterialIcons name="edit" size={20} color={colors.primary} />
+                  </EditIconButton>
+                </ExpandedAvatarWrapper>
+              </AvatarTouchable>
+
+              <EditLabel>Nickname</EditLabel>
+              <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
+                <EditInput
+                  value={editedNickname}
+                  onChangeText={handleEditedNicknameChange}
+                  placeholder="Enter your nickname (2-15 characters)"
+                  placeholderTextColor={colors.text.secondary}
+                  editable={!uploading}
+                />
+              </Animated.View>
+
+              <EmailTouchable onPress={() => showAlert('Email Information', 'Your email address cannot be changed as it is used for account verification and security purposes.')}>
+                <EmailText style={{
+                  fontSize: user?.email && user.email.length > 20 ? 14 : 16
+                }}>
+                  {user?.email || ""}
+                </EmailText>
+              </EmailTouchable>
+
+              <ActionButtonFlex variant="primary" onPress={() => {
+                const nicknameChanged = editedNickname !== (profile?.displayName || user?.displayName);
+                const imageChanged = tempImageUri !== null;
+                if (!nicknameChanged && !imageChanged) {
+                  handleCancelEdit();
+                } else {
+                  handleSaveProfile();
+                }
+              }} disabled={uploading} style={{ marginTop: 16 }}>
+                <ActionButtonText variant="primary">
+                  {uploading ? "Saving..." : "Save"}
+                </ActionButtonText>
+              </ActionButtonFlex>
+            </>
+          ) : (
+            <CollapsedProfileContent>
+              <CollapsedProfileTop>
+                <NicknameContainer>
+                  <Nickname style={{ marginBottom: 0 }}>
+                    {profile?.displayName || user?.displayName || "Nickname"}
+                  </Nickname>
+                  {typeof profile?.points === 'number' && profile.points > 0 && (
+                    <PointsText>{profile.points}</PointsText>
+                  )}
+                </NicknameContainer>
+                <AvatarTouchable
+                  onPress={handleAvatarPress}
+                  disabled={isLoading}
+                >
+                  <AvatarWrapper>
+                    {uploading ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : profileImageUrl ? (
+                      <AvatarImage source={{ uri: profileImageUrl }} />
+                    ) : (
+                      <AvatarPlaceholder>
+                        <AvatarPlaceholderText>
+                          {user?.email?.[0]?.toUpperCase() || "?"}
+                        </AvatarPlaceholderText>
+                      </AvatarPlaceholder>
+                    )}
+                  </AvatarWrapper>
+                </AvatarTouchable>
+              </CollapsedProfileTop>
+              <StyledButton
+                title="Edit Profile"
+                onPress={() => setIsEditMode(true)}
+                variant="secondary"
+                style={{ marginBottom: 0 }}
+              />
+            </CollapsedProfileContent>
+          )}
         </ProfileCard>
 
         <Modal visible={showImageModal} transparent animationType="fade">
@@ -595,21 +818,11 @@ export default function Profile() {
           </ModalOverlay>
         </Modal>
 
-        <EditProfileModal
-          visible={isEditMode}
-          onClose={handleCancelEdit}
-          onSave={handleSaveProfile}
-          uploading={uploading}
-          editedNickname={editedNickname}
-          setEditedNickname={setEditedNickname}
-          tempImageUri={tempImageUri}
-          profileImageUrl={profileImageUrl || null}
-          userEmail={user?.email || null}
-          onChoosePhoto={handleChoosePhoto}
-        />
-
         <SettingsCard>
-          <CardHeader>Settings</CardHeader>
+          <CardHeader>
+            <MaterialIcons name="settings" size={24} color={colors.text.primary} />
+            <CardHeaderText>Settings</CardHeaderText>
+          </CardHeader>
           <NotificationRow>
             <NotificationLabel>Enable Notifications</NotificationLabel>
             <Switch
@@ -646,14 +859,16 @@ export default function Profile() {
           />
         </SettingsCard>
 
-        <ReportsCard>
-          <TouchableOpacity onPress={() => router.push("/my-reports")}>
-            <ReportsTitle>View all my reports</ReportsTitle>
-          </TouchableOpacity>
-          <ReportsContentContainer>
-            {renderReportsContent()}
-          </ReportsContentContainer>
-        </ReportsCard>
+        {reports.length > 0 && (
+          <ReportsCard>
+            <TouchableOpacity onPress={() => router.push("/my-reports")}>
+              <ReportsTitle>View all my reports</ReportsTitle>
+            </TouchableOpacity>
+            <ReportsContentContainer>
+              {renderReportsContent()}
+            </ReportsContentContainer>
+          </ReportsCard>
+        )}
       </Container>
 
       <CustomAlert
