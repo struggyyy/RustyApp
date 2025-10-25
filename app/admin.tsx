@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Button } from 'react-native';
+import { View, Button, StyleSheet } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
@@ -11,6 +11,17 @@ import ReportList from '../src/components/ReportList';
 import FilterPanel from '../src/components/admin/FilterPanel';
 import * as Location from 'expo-location';
 import theme from '../src/theme';
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  modalShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+});
 
 const Container = styled.View({
   flex: 1,
@@ -150,12 +161,8 @@ const AdminDashboard = () => {
     );
   };
 
-  const handleLogout = async () => {
-    try {
-      await logOut(router);
-    } catch (error) {
-      console.error('Failed to log out:', error);
-    }
+  const handleLogout = () => {
+    router.push('/admin-profile');
   };
 
   if (!isAdmin) {
@@ -171,9 +178,9 @@ const AdminDashboard = () => {
         onStatusChange={setSelectedStatus}
         maxDistance={maxDistance}
         onDistanceChange={setMaxDistance}
-        onLogout={handleLogout}
+        onProfile={handleLogout}
       />
-      <DashboardContainer>
+      <DashboardContainer style={shadowStyles.modalShadow}>
         <ReportList
           reports={filteredReports}
           loading={loading}

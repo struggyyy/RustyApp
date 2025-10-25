@@ -1,15 +1,27 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { ReportStatus, reportStatuses } from '../../types/reports';
 import theme from '../../theme';
+import { useAuth } from '../../context/AuthContext';
+
+// Shadow styles using StyleSheet to avoid styled-components issues
+const shadowStyles = StyleSheet.create({
+  modalShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+});
 
 interface FilterPanelProps {
   selectedStatus: ReportStatus | 'All';
   onStatusChange: (status: ReportStatus | 'All') => void;
   maxDistance: number | null;
   onDistanceChange: (distance: number | null) => void;
-  onLogout: () => void;
+  onProfile: () => void;
 }
 
 const PanelContainer = styled.View`
@@ -58,22 +70,37 @@ const DistanceRow = styled.View`
   gap: 8px;
 `;
 
-const LogoutButton = styled.TouchableOpacity`
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
-  background-color: ${theme.colors.text.secondary};
-  justify-content: center;
-  align-items: center;
-`;
+const ProfileButtonView = styled.View({
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  backgroundColor: "#D9D9D9",
+  justifyContent: "center",
+  alignItems: "center",
+  borderWidth: 4,
+  borderColor: theme.colors.primary,
+});
 
-const LogoutIcon = styled.Text`
-  font-size: 20px;
-  color: ${theme.colors.white};
-  font-weight: bold;
-  text-align: center;
-  line-height: 24px;
-`;
+const ProfileUserImage = styled.Image({
+  width: "100%",
+  height: "100%",
+  borderRadius: 28,
+});
+
+const ProfileImagePlaceholder = styled.View({
+  width: "100%",
+  height: "100%",
+  borderRadius: 28,
+  backgroundColor: "#D9D9D9",
+  justifyContent: "center",
+  alignItems: "center",
+});
+
+const ProfileImagePlaceholderText = styled.Text({
+  color: "#656565",
+  fontSize: 20,
+  fontWeight: "bold",
+});
 
 const DistanceInput = styled.TextInput`
   background-color: ${theme.colors.white};
@@ -109,8 +136,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onStatusChange,
   maxDistance,
   onDistanceChange,
-  onLogout,
+  onProfile,
 }) => {
+  const { user, profile } = useAuth();
   const [distanceInput, setDistanceInput] = React.useState<string>(
     maxDistance ? maxDistance.toString() : ''
   );
@@ -131,7 +159,46 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   return (
-    <PanelContainer>
+    <PanelContainer style={shadowStyles.modalShadow}>
+      {/* Distance Filter */}
+      <DistanceContainer>
+        <SectionTitle>Filter by Distance Radius</SectionTitle>
+        <DistanceRow>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 }}>
+            <DistanceInput
+              placeholder="Enter max distance"
+              keyboardType="numeric"
+              value={distanceInput}
+              onChangeText={handleDistanceChange}
+              placeholderTextColor={theme.colors.text.tertiary}
+            />
+            <DistanceLabel>km</DistanceLabel>
+            {distanceInput !== '' && (
+              <ClearButton onPress={handleClearDistance}>
+                <ClearButtonText>Clear</ClearButtonText>
+              </ClearButton>
+            )}
+          </View>
+          <TouchableOpacity onPress={onProfile}>
+            <ProfileButtonView>
+              {profile?.profileImage || user?.photoURL ? (
+                <ProfileUserImage
+                  source={{
+                    uri: profile?.profileImage || user?.photoURL || undefined,
+                  }}
+                />
+              ) : (
+                <ProfileImagePlaceholder>
+                  <ProfileImagePlaceholderText>
+                    {user?.email?.[0]?.toUpperCase() || "?"}
+                  </ProfileImagePlaceholderText>
+                </ProfileImagePlaceholder>
+              )}
+            </ProfileButtonView>
+          </TouchableOpacity>
+        </DistanceRow>
+      </DistanceContainer>
+
       {/* Status Filter */}
       <SectionTitle>Filter by Report Status</SectionTitle>
       <ScrollView 
@@ -165,31 +232,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           })}
         </FilterRow>
       </ScrollView>
-
-      {/* Distance Filter */}
-      <DistanceContainer>
-        <SectionTitle>Filter by Distance Radius</SectionTitle>
-        <DistanceRow>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 }}>
-            <DistanceInput
-              placeholder="Enter max distance"
-              keyboardType="numeric"
-              value={distanceInput}
-              onChangeText={handleDistanceChange}
-              placeholderTextColor={theme.colors.text.tertiary}
-            />
-            <DistanceLabel>km</DistanceLabel>
-            {distanceInput !== '' && (
-              <ClearButton onPress={handleClearDistance}>
-                <ClearButtonText>Clear</ClearButtonText>
-              </ClearButton>
-            )}
-          </View>
-          <LogoutButton onPress={onLogout}>
-            <LogoutIcon>→</LogoutIcon>
-          </LogoutButton>
-        </DistanceRow>
-      </DistanceContainer>
     </PanelContainer>
   );
 };

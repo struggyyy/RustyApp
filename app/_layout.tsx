@@ -27,7 +27,7 @@ function AuthenticatedStack() {
 
     const isAuthRoute = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'forgot-password' || segments[0] === 'reset-password';
     const isVerifyEmailRoute = segments[0] === 'verify-email';
-    const isAdminRoute = segments[0] === 'admin';
+    const isAdminRoute = segments[0] === 'admin' || segments[0] === 'admin-profile';
 
     // Case 1: Not logged in, and not on an auth/verify route -> redirect to login.
     if (!user && !isAuthRoute && !isVerifyEmailRoute) {
@@ -88,7 +88,7 @@ function AuthenticatedStack() {
   }
 
   // Additional safety: prevent non-admin users from seeing admin screen
-  if (user && !isAdmin && segments[0] === 'admin') {
+  if (user && !isAdmin && (segments[0] === 'admin' || segments[0] === 'admin-profile')) {
     router.replace('/home');
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -106,11 +106,9 @@ function AuthenticatedStack() {
         contentStyle: { backgroundColor: '#FFFFFF' },
       }}
     >
-      {isAdmin ? (
-        <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
-      ) : (
-        <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false }} />
-      )}
+      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+      <Stack.Screen name="admin-profile" options={{ title: 'Admin Profile' }} />
+      <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false }} />
     </Stack>
   );
 }
