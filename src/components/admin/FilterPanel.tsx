@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import { ReportStatus, reportStatuses } from '../../types/reports';
 import theme from '../../theme';
 import { useAuth } from '../../context/AuthContext';
+import { MaterialIcons } from '@expo/vector-icons';
+import WheelPicker from 'react-native-wheely';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -17,18 +19,19 @@ const shadowStyles = StyleSheet.create({
 });
 
 interface FilterPanelProps {
-  selectedStatus: ReportStatus | 'All';
-  onStatusChange: (status: ReportStatus | 'All') => void;
+  selectedStatuses: ReportStatus[]; // empty array means Show All
+  onStatusesChange: (statuses: ReportStatus[]) => void;
   maxDistance: number | null;
   onDistanceChange: (distance: number | null) => void;
   onProfile: () => void;
 }
 
-const PanelContainer = styled.View`
+const PanelContainer = styled.View<{ isExpanded: boolean }>`
   background-color: ${theme.colors.componentBackground};
   border-radius: 24px;
   padding: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+  min-height: ${(props: { isExpanded: boolean }) => props.isExpanded ? 'auto' : '80px'};
 `;
 
 const SectionTitle = styled.Text`
@@ -45,12 +48,12 @@ const FilterRow = styled.View`
   margin-bottom: 16px;
 `;
 
-const FilterChip = styled.TouchableOpacity<{ isSelected: boolean }>`
-  background-color: ${(props: { isSelected: boolean }) => props.isSelected ? theme.colors.primary : theme.colors.white};
+const FilterChip = styled.TouchableOpacity<{ isSelected: boolean; chipColor?: string }>`
+  background-color: ${(props: { isSelected: boolean; chipColor?: string }) => props.isSelected ? (props.chipColor || theme.colors.primary) : theme.colors.white};
   border-radius: 16px;
   padding: 10px 16px;
   border-width: 1px;
-  border-color: ${(props: { isSelected: boolean }) => props.isSelected ? theme.colors.primary : theme.colors.border.medium};
+  border-color: ${(props: { isSelected: boolean; chipColor?: string }) => props.isSelected ? (props.chipColor || theme.colors.primary) : theme.colors.border.medium};
 `;
 
 const FilterChipText = styled.Text<{ isSelected: boolean }>`
@@ -66,8 +69,50 @@ const DistanceContainer = styled.View`
 const DistanceRow = styled.View`
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
+`;
+
+const PickerContainer = styled.View`
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: ${theme.colors.white};
+  border-radius: 16px;
+  border-width: 1px;
+  border-color: ${theme.colors.border.medium};
+  padding: 12px;
+`;
+
+const PickerWrapper = styled.View`
+  width: 100%;
+  align-items: center;
+  height: 200px;
+  justify-content: center;
+`;
+
+const PickerLabel = styled.Text`
+  font-size: 18px;
+  font-weight: 600;
+  color: ${theme.colors.text.primary};
+  margin-top: 8px;
+`;
+
+const FiltersSplitRow = styled.View`
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+const LeftColumn = styled.View`
+  flex: 1;
+`;
+
+const RightColumn = styled.View`
+  flex: 1;
+  align-items: stretch;
 `;
 
 const ProfileButtonView = styled.View({
@@ -131,107 +176,222 @@ const ClearButtonText = styled.Text`
   font-weight: 500;
 `;
 
+// Collapsed/Minimized view components (similar to Edit Profile card)
+const CollapsedFilterContent = styled.View`
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  min-height: 40px;
+  padding-vertical: 2px;
+`;
+
+const CollapsedFilterTop = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+`;
+
+const StatusInfo = styled.Text`
+  font-size: 14px;
+  color: ${theme.colors.text.secondary};
+  margin-bottom: 2px;
+  font-weight: bold;
+  flex-shrink: 0;
+`;
+
+const DistanceInfo = styled.Text`
+  font-size: 14px;
+  color: ${theme.colors.text.secondary};
+  font-weight: bold;
+  flex-shrink: 0;
+`;
+
+// Expanded view header
+const ExpandedFilterHeader = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
+const ExpandedFilterTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${theme.colors.text.primary};
+`;
+
+const ExpandedFilterCloseButton = styled.TouchableOpacity`
+  padding: 8px;
+`;
+
 const FilterPanel: React.FC<FilterPanelProps> = ({
-  selectedStatus,
-  onStatusChange,
+  selectedStatuses,
+  onStatusesChange,
   maxDistance,
   onDistanceChange,
   onProfile,
 }) => {
   const { user, profile } = useAuth();
-  const [distanceInput, setDistanceInput] = React.useState<string>(
-    maxDistance ? maxDistance.toString() : ''
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [selectedDistanceIndex, setSelectedDistanceIndex] = React.useState((maxDistance || 5) - 1);
+  
+  // Distance options from 1 to 50 km
+  const distanceOptions = Array.from({ length: 50 }, (_, i) => (i + 1).toString());
+
+  // Representative colors per status
+  const statusColors: Record<ReportStatus, string> = {
+    'Report submitted': '#1976D2', // matches ReportCard blue
+    'Report accepted': '#00796B',  // matches ReportCard teal
+    'Report completed': '#2E7D32', // matches ReportCard green
+    'Report canceled': '#C62828',  // matches ReportCard red
+  };
+
+  // Set default values if not already set
+  React.useEffect(() => {
+    if (maxDistance === null) {
+      onDistanceChange(5);
+    }
+  }, []);
+
+  // Update selected index when maxDistance changes
+  React.useEffect(() => {
+    if (maxDistance) {
+      setSelectedDistanceIndex(maxDistance - 1);
+    }
+  }, [maxDistance]);
+
+  const handleDistanceChange = (index: number) => {
+    setSelectedDistanceIndex(index);
+    const distance = parseInt(distanceOptions[index]);
+    onDistanceChange(distance);
+  };
+
+  const getStatusDisplayText = () => {
+    if (!selectedStatuses || selectedStatuses.length === 0) return 'Show All';
+    if (selectedStatuses.length === 1) {
+      return selectedStatuses[0].replace('Report ', '').replace(/^./, (s) => s.toUpperCase());
+    }
+    return `${selectedStatuses.length} selected`;
+  };
+
+  const renderCollapsedView = () => (
+    <TouchableOpacity onPress={() => setIsExpanded(true)} activeOpacity={0.7}>
+      <CollapsedFilterContent>
+        <CollapsedFilterTop>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+              <StatusInfo>Status: {getStatusDisplayText()}</StatusInfo>
+              <DistanceInfo>Distance: {maxDistance || 0} km</DistanceInfo>
+            </View>
+            <View style={{ marginLeft: 12 }}>
+              <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.secondary} />
+            </View>
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity onPress={onProfile}>
+              <ProfileButtonView>
+                {profile?.profileImage || user?.photoURL ? (
+                  <ProfileUserImage
+                    source={{
+                      uri: profile?.profileImage || user?.photoURL || undefined,
+                    }}
+                  />
+                ) : (
+                  <ProfileImagePlaceholder>
+                    <ProfileImagePlaceholderText>
+                      {user?.email?.[0]?.toUpperCase() || "?"}
+                    </ProfileImagePlaceholderText>
+                  </ProfileImagePlaceholder>
+                )}
+              </ProfileButtonView>
+            </TouchableOpacity>
+          </View>
+        </CollapsedFilterTop>
+      </CollapsedFilterContent>
+    </TouchableOpacity>
   );
 
-  const handleDistanceChange = (text: string) => {
-    setDistanceInput(text);
-    const numValue = parseFloat(text);
-    if (!isNaN(numValue) && numValue > 0) {
-      onDistanceChange(numValue);
-    } else if (text === '') {
-      onDistanceChange(null);
-    }
-  };
+  const renderExpandedView = () => (
+    <>
+      <ExpandedFilterHeader>
+        <ExpandedFilterTitle>Filters</ExpandedFilterTitle>
+        <ExpandedFilterCloseButton onPress={() => setIsExpanded(false)}>
+          <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
+        </ExpandedFilterCloseButton>
+      </ExpandedFilterHeader>
 
-  const handleClearDistance = () => {
-    setDistanceInput('');
-    onDistanceChange(null);
-  };
+      <FiltersSplitRow>
+        <LeftColumn>
+          <SectionTitle>Report Status</SectionTitle>
+          <View style={{ gap: 8 }}>
+            <FilterChip
+              isSelected={!selectedStatuses || selectedStatuses.length === 0}
+              onPress={() => onStatusesChange([])}
+            >
+              <FilterChipText isSelected={!selectedStatuses || selectedStatuses.length === 0}>
+                Show All
+              </FilterChipText>
+            </FilterChip>
+            {reportStatuses.map((status) => {
+              const isSelected = selectedStatuses?.includes(status) ?? false;
+              const displayText = status.replace('Report ', '').replace(/^./, str => str.toUpperCase());
+              const handleToggle = () => {
+                if (!selectedStatuses || selectedStatuses.length === 0) {
+                  onStatusesChange([status]);
+                  return;
+                }
+                const exists = selectedStatuses.includes(status);
+                let next = exists
+                  ? selectedStatuses.filter((s) => s !== status)
+                  : [...selectedStatuses, status];
+                // If all statuses are selected, collapse to Show All (empty selection)
+                if (next.length === reportStatuses.length) {
+                  next = [];
+                }
+                onStatusesChange(next);
+              };
+              return (
+                <FilterChip
+                  key={status}
+                  isSelected={isSelected}
+                  chipColor={isSelected ? statusColors[status] : undefined}
+                  onPress={handleToggle}
+                >
+                  <FilterChipText isSelected={isSelected}>
+                    {displayText}
+                  </FilterChipText>
+                </FilterChip>
+              );
+            })}
+          </View>
+        </LeftColumn>
+        <RightColumn>
+          <SectionTitle>Distance Radius</SectionTitle>
+          <PickerContainer>
+            <PickerWrapper>
+              <WheelPicker
+                selectedIndex={selectedDistanceIndex}
+                options={distanceOptions}
+                onChange={handleDistanceChange}
+                itemHeight={40}
+                containerStyle={{ width: 100, height: 200 }}
+                itemTextStyle={{
+                  fontSize: 16,
+                  color: theme.colors.text.secondary,
+                }}
+                selectedIndicatorStyle={{ backgroundColor: 'transparent' }}
+              />
+            </PickerWrapper>
+            <PickerLabel>km</PickerLabel>
+          </PickerContainer>
+        </RightColumn>
+      </FiltersSplitRow>
+    </>
+  );
 
   return (
-    <PanelContainer style={shadowStyles.modalShadow}>
-      {/* Distance Filter */}
-      <DistanceContainer>
-        <SectionTitle>Filter by Distance Radius</SectionTitle>
-        <DistanceRow>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 }}>
-            <DistanceInput
-              placeholder="Enter max distance"
-              keyboardType="numeric"
-              value={distanceInput}
-              onChangeText={handleDistanceChange}
-              placeholderTextColor={theme.colors.text.tertiary}
-            />
-            <DistanceLabel>km</DistanceLabel>
-            {distanceInput !== '' && (
-              <ClearButton onPress={handleClearDistance}>
-                <ClearButtonText>Clear</ClearButtonText>
-              </ClearButton>
-            )}
-          </View>
-          <TouchableOpacity onPress={onProfile}>
-            <ProfileButtonView>
-              {profile?.profileImage || user?.photoURL ? (
-                <ProfileUserImage
-                  source={{
-                    uri: profile?.profileImage || user?.photoURL || undefined,
-                  }}
-                />
-              ) : (
-                <ProfileImagePlaceholder>
-                  <ProfileImagePlaceholderText>
-                    {user?.email?.[0]?.toUpperCase() || "?"}
-                  </ProfileImagePlaceholderText>
-                </ProfileImagePlaceholder>
-              )}
-            </ProfileButtonView>
-          </TouchableOpacity>
-        </DistanceRow>
-      </DistanceContainer>
-
-      {/* Status Filter */}
-      <SectionTitle>Filter by Report Status</SectionTitle>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={{ marginBottom: 16 }}
-      >
-        <FilterRow>
-          <FilterChip
-            isSelected={selectedStatus === 'All'}
-            onPress={() => onStatusChange('All')}
-          >
-            <FilterChipText isSelected={selectedStatus === 'All'}>
-              Show All
-            </FilterChipText>
-          </FilterChip>
-          {reportStatuses.map((status) => {
-            // Remove "Report " prefix and capitalize first letter
-            const displayText = status.replace('Report ', '').replace(/^./, str => str.toUpperCase());
-            return (
-              <FilterChip
-                key={status}
-                isSelected={selectedStatus === status}
-                onPress={() => onStatusChange(status)}
-              >
-                <FilterChipText isSelected={selectedStatus === status}>
-                  {displayText}
-                </FilterChipText>
-              </FilterChip>
-            );
-          })}
-        </FilterRow>
-      </ScrollView>
+    <PanelContainer style={shadowStyles.modalShadow} isExpanded={isExpanded}>
+      {isExpanded ? renderExpandedView() : renderCollapsedView()}
     </PanelContainer>
   );
 };

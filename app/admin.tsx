@@ -27,14 +27,14 @@ const Container = styled.View({
   flex: 1,
   backgroundColor: theme.colors.white,
   paddingHorizontal: 12,
-  paddingVertical: 24,
+  paddingVertical: 12,
 });
 
 const DashboardContainer = styled.View({
   flex: 1,
   backgroundColor: theme.colors.componentBackground,
   borderRadius: 24,
-  padding: 20,
+  padding: 12,
   overflow: 'hidden',
 });
 
@@ -47,8 +47,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<ReportStatus | 'All'>('All');
-  const [maxDistance, setMaxDistance] = useState<number | null>(null);
+  const [selectedStatuses, setSelectedStatuses] = useState<ReportStatus[]>([]);
+  const [maxDistance, setMaxDistance] = useState<number | null>(5);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
@@ -93,9 +93,9 @@ const AdminDashboard = () => {
   useEffect(() => {
     let filtered = [...reports];
 
-    // Filter by status
-    if (selectedStatus !== 'All') {
-      filtered = filtered.filter(report => report.status === selectedStatus);
+    // Filter by status (multi-select). Empty array = Show All
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter(report => selectedStatuses.includes(report.status));
     }
 
     // Filter by distance
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
     }
 
     setFilteredReports(filtered);
-  }, [reports, selectedStatus, maxDistance, userLocation]);
+  }, [reports, selectedStatuses, maxDistance, userLocation]);
 
   const fetchAllReports = useCallback(async () => {
     if (!isAdmin) {
@@ -174,8 +174,8 @@ const AdminDashboard = () => {
       <Stack.Screen options={{ title: 'Admin' }} />
       <Container>
       <FilterPanel
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
+        selectedStatuses={selectedStatuses}
+        onStatusesChange={setSelectedStatuses}
         maxDistance={maxDistance}
         onDistanceChange={setMaxDistance}
         onProfile={handleLogout}
