@@ -5,7 +5,7 @@ import { ReportStatus, reportStatuses } from '../../types/reports';
 import theme from '../../theme';
 import { useAuth } from '../../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons';
-import WheelPicker from 'react-native-wheely';
+import CustomWheelPicker from '../common/CustomWheelPicker';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -369,7 +369,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <SectionTitle>Distance Radius</SectionTitle>
           <PickerContainer>
             <PickerWrapper>
-              <WheelPicker
+              <CustomWheelPicker
                 selectedIndex={selectedDistanceIndex}
                 options={distanceOptions}
                 onChange={handleDistanceChange}
@@ -379,7 +379,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   fontSize: 16,
                   color: theme.colors.text.secondary,
                 }}
-                selectedIndicatorStyle={{ backgroundColor: 'transparent' }}
+                visibleRest={2}
               />
             </PickerWrapper>
             <PickerLabel>km</PickerLabel>
