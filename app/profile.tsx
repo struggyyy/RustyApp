@@ -229,14 +229,7 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
 };
 
 // --- STYLED COMPONENTS ---
-const Container = styled.ScrollView.attrs({
-  contentContainerStyle: {
-    paddingTop: 12,
-    paddingHorizontal: 12,
-    paddingBottom: 0, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
-  },
-  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
-})({
+const Container = styled.ScrollView({
   flex: 1,
   backgroundColor: colors.white,
 });
@@ -244,7 +237,7 @@ const Container = styled.ScrollView.attrs({
 const ReportsCard = styled.View`
   background-color: ${colors.componentBackground};
   border-radius: 24px;
-  padding: 20px;
+  padding: 12px;
   margin-bottom: 20px;
 `;
 
@@ -252,7 +245,7 @@ const ReportsTitle = styled.Text`
   font-size: 20px;
   font-weight: bold;
   color: ${colors.text.primary};
-  margin-bottom: 15px;
+  margin-bottom: 0px;
   text-align: center;
   text-transform: uppercase;
 `;
@@ -261,11 +254,6 @@ const LoadingContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
-`;
-
-const ReportsContentContainer = styled.View`
-  min-height: 100px;
-  justify-content: center;
 `;
 
 const NoReportsText = styled.Text`
@@ -666,30 +654,6 @@ export default function Profile() {
     );
   }
 
-  const renderReportsContent = () => {
-    if (reportsLoading) {
-      return <ActivityIndicator size="small" color={colors.primary} />;
-    }
-    if (reportsError) {
-      return <NoReportsText>{reportsError}</NoReportsText>;
-    }
-    if (reports.length === 0) {
-      return <NoReportsText>You have no reports yet.</NoReportsText>;
-    }
-    return reports
-      .slice(0, 1)
-      .map((report) => (
-        <ReportCard
-          key={report.id}
-          report={report}
-          onDelete={handleReportDelete}
-          onStatusChange={() => {}}
-          isAdmin={false}
-          onDetailsPress={handleDetailsPress}
-        />
-      ));
-  };
-
   useEffect(() => {
     if (isEditMode) {
       setEditedNickname(profile?.displayName || user?.displayName || "");
@@ -701,6 +665,12 @@ export default function Profile() {
       <StatusBar barStyle="dark-content" />
       <Stack.Screen options={{ title: "Your Profile" }} />
       <Container
+        contentContainerStyle={{
+          paddingTop: 12,
+          paddingHorizontal: 12,
+          paddingBottom: reports.length > 0 ? 18 : 91, // Reduced padding when no reports for better scrolling experience
+        }}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -773,9 +743,6 @@ export default function Profile() {
             <TouchableOpacity onPress={() => router.push("/my-reports")}>
               <ReportsTitle>View all my reports</ReportsTitle>
             </TouchableOpacity>
-            <ReportsContentContainer>
-              {renderReportsContent()}
-            </ReportsContentContainer>
           </ReportsCard>
         )}
         <Modal visible={showReportModal} transparent animationType="fade">

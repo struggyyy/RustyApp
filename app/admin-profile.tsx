@@ -41,7 +41,7 @@ const Container = styled.ScrollView.attrs({
   contentContainerStyle: {
     paddingTop: 12,
     paddingHorizontal: 12,
-    paddingBottom: 0, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
+    paddingBottom: 148, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
   },
   showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
 })({

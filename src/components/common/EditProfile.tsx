@@ -48,7 +48,7 @@ const ProfileCard = styled.View<{ isExpanded: boolean }>(
     backgroundColor: colors.componentBackground,
     borderRadius: 24,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 12,
     flexDirection: props.isExpanded ? 'column' : 'row',
     alignItems: props.isExpanded ? 'stretch' : 'center',
   })

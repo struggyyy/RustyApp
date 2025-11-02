@@ -34,7 +34,7 @@ const SettingsCard = styled.View`
   background-color: ${colors.componentBackground};
   border-radius: 24px;
   padding: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 `;
 
 const SettingsHeader = styled.View`
@@ -53,7 +53,7 @@ const SettingsTitle = styled.Text`
 const ExpandArrow = styled.TouchableOpacity`
   align-items: center;
   padding: 8px;
-  margin-top: 8px;
+  margin-top: 16px;
 `;
 
 const ExpandedContent = styled.View`
