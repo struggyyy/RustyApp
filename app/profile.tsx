@@ -29,6 +29,7 @@ import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/CustomAlert";
 import EditProfile from "../src/components/common/EditProfile";
+import SettingsCard from "../src/components/common/SettingsCard";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -361,68 +362,6 @@ const ModalImage = styled.Image({
   marginBottom: 16,
 });
 
-// Settings styled components
-const SettingsCard = styled.View`
-  background-color: ${colors.componentBackground};
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 20px;
-`;
-
-const NotificationRow = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const NotificationLabel = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-`;
-
-const AccountSection = styled.View`
-  margin-top: 6px;
-  padding-top: 12px;
-  border-top-width: 1px;
-  border-top-color: ${colors.componentBackground};
-`;
-
-const AccountTitle = styled.Text`
-  font-size: 18px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  margin-bottom: 16px;
-`;
-
-const DeleteAccountButton = styled.TouchableOpacity`
-  background-color: transparent;
-  padding: 8px 16px;
-  align-items: center;
-`;
-
-const DeleteAccountText = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  color: ${colors.text.secondary};
-`;
-
-const ExpandedSettingsHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex: 1;
-`;
-
-const ExpandedSettingsTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
-
-const ExpandedSettingsCloseButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
 
 export default function Profile() {
   const {
@@ -457,7 +396,6 @@ export default function Profile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [language, setLanguage] = useState('English');
   const [hapticsEnabled, setHapticsEnabled] = useState(profile?.notificationPreferences?.haptics ?? true);
-  const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
@@ -521,8 +459,28 @@ export default function Profile() {
     }
   };
 
-  const handleToggleLanguage = (value: boolean) => {
-    const newLanguage = value ? 'Polish' : 'English';
+  const handleToggleHaptics = async (value: boolean) => {
+    setIsSubmitting(true);
+    setHapticsEnabled(value);
+    try {
+      await updateUserProfile({
+        notificationPreferences: {
+          push: notificationsEnabled,
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: value,
+        },
+      });
+      showAlert('Success', 'Haptics settings updated.');
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to update settings.');
+      setHapticsEnabled(!value); // Revert on error
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleLanguage = () => {
+    const newLanguage = language === 'English' ? 'Polish' : 'English';
     setLanguage(newLanguage);
     showAlert('Language Changed', `Language set to ${newLanguage}.`);
   };
@@ -796,85 +754,19 @@ export default function Profile() {
           </ModalOverlay>
         </Modal>
 
-        <SettingsCard style={shadowStyles.modalShadow}>
-          {!settingsExpanded && (
-            <>
-              <NotificationRow>
-                <NotificationLabel>Enable Notifications</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleNotifications}
-                  value={notificationsEnabled}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <NotificationRow>
-                <NotificationLabel>Language: {language}</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleLanguage}
-                  value={language === 'Polish'}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <StyledButton
-                title="More"
-                onPress={() => setSettingsExpanded(true)}
-                variant="secondary"
-                style={{ marginTop: 16, marginBottom: 0 }}
-              />
-            </>
-          )}
-          {settingsExpanded && (
-            <>
-              <ExpandedSettingsHeader>
-                <ExpandedSettingsTitle>Settings</ExpandedSettingsTitle>
-                <ExpandedSettingsCloseButton onPress={() => setSettingsExpanded(false)}>
-                  <MaterialIcons name="close" size={24} color={colors.text.primary} />
-                </ExpandedSettingsCloseButton>
-              </ExpandedSettingsHeader>
-              <NotificationRow>
-                <NotificationLabel>Enable Notifications</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleNotifications}
-                  value={notificationsEnabled}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <NotificationRow>
-                <NotificationLabel>Language: {language}</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleLanguage}
-                  value={language === 'Polish'}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <AccountSection>
-                <AccountTitle>Account</AccountTitle>
-                <StyledButton
-                  title="Logout"
-                  onPress={handleLogout}
-                  disabled={authLoading}
-                  loading={authLoading && !isSubmitting}
-                  style={{ backgroundColor: colors.primary }}
-                />
-                <DeleteAccountButton onPress={handleDeleteAccount}>
-                  <DeleteAccountText>Delete Account :(</DeleteAccountText>
-                </DeleteAccountButton>
-              </AccountSection>
-            </>
-          )}
-        </SettingsCard>
+        <SettingsCard
+          variant="user"
+          notificationsEnabled={notificationsEnabled}
+          hapticsEnabled={hapticsEnabled}
+          language={language}
+          isSubmitting={isSubmitting}
+          authLoading={authLoading}
+          onToggleNotifications={handleToggleNotifications}
+          onToggleHaptics={handleToggleHaptics}
+          onToggleLanguage={handleToggleLanguage}
+          onLogout={handleLogout}
+          onDeleteAccount={handleDeleteAccount}
+        />
 
         {reports.length > 0 && (
           <ReportsCard style={shadowStyles.modalShadow}>

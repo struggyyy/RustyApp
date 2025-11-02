@@ -23,6 +23,7 @@ import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/CustomAlert";
 import EditProfile from "../src/components/common/EditProfile";
+import SettingsCard from "../src/components/common/SettingsCard";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -52,48 +53,6 @@ const LoadingContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
-`;
-
-// Settings styled components
-const SettingsCard = styled.View`
-  background-color: ${colors.componentBackground};
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 20px;
-`;
-
-const NotificationRow = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const NotificationLabel = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-`;
-
-const LanguageToggle = styled.TouchableOpacity`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid ${colors.componentBackground};
-`;
-
-const LanguageOption = styled.View<{ isSelected: boolean }>`
-  flex: 1;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-`;
-
-const LanguageText = styled.Text<{ isSelected: boolean }>`
-  font-size: 16px;
-  font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
-  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.secondary};
 `;
 
 const ModalOverlay = styled.View({
@@ -135,20 +94,6 @@ const ModalImage = styled.Image({
   borderRadius: 16,
   marginBottom: 16,
 });
-
-const ExpandedSettingsHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex: 1;
-`;
-
-const ExpandedSettingsTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
 
 
 export default function AdminProfile() {
@@ -465,48 +410,18 @@ export default function AdminProfile() {
           </ModalOverlay>
         </Modal>
 
-        <SettingsCard style={shadowStyles.modalShadow}>
-          <ExpandedSettingsHeader>
-            <ExpandedSettingsTitle>Settings</ExpandedSettingsTitle>
-          </ExpandedSettingsHeader>
-          <NotificationRow>
-            <NotificationLabel>Enable Notifications</NotificationLabel>
-            <Switch
-              trackColor={{ false: colors.primary, true: colors.status.recycled }}
-              thumbColor={colors.white}
-              ios_backgroundColor={colors.primary}
-              onValueChange={handleToggleNotifications}
-              value={notificationsEnabled}
-              disabled={isSubmitting}
-            />
-          </NotificationRow>
-          <NotificationRow>
-            <NotificationLabel>Enable Haptics</NotificationLabel>
-            <Switch
-              trackColor={{ false: colors.primary, true: colors.status.recycled }}
-              thumbColor={colors.white}
-              ios_backgroundColor={colors.primary}
-              onValueChange={handleToggleHaptics}
-              value={hapticsEnabled}
-              disabled={isSubmitting}
-            />
-          </NotificationRow>
-          <LanguageToggle onPress={handleToggleLanguage}>
-            <LanguageOption isSelected={language === 'English'}>
-              <LanguageText isSelected={language === 'English'}>🇬🇧 English</LanguageText>
-            </LanguageOption>
-            <LanguageOption isSelected={language === 'Polish'}>
-              <LanguageText isSelected={language === 'Polish'}>🇵🇱 Polski</LanguageText>
-            </LanguageOption>
-          </LanguageToggle>
-          <StyledButton
-            title="Logout"
-            onPress={handleLogout}
-            disabled={authLoading}
-            loading={authLoading && !isSubmitting}
-            style={{ backgroundColor: colors.primary, marginTop: 8, marginBottom: 0 }}
-          />
-        </SettingsCard>
+        <SettingsCard
+          variant="admin"
+          notificationsEnabled={notificationsEnabled}
+          hapticsEnabled={hapticsEnabled}
+          language={language}
+          isSubmitting={isSubmitting}
+          authLoading={authLoading}
+          onToggleNotifications={handleToggleNotifications}
+          onToggleHaptics={handleToggleHaptics}
+          onToggleLanguage={handleToggleLanguage}
+          onLogout={handleLogout}
+        />
       </Container>
 
       <CustomAlert
