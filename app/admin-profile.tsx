@@ -1,14 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
   ActivityIndicator,
-  Alert,
-  Image,
   StatusBar,
   RefreshControl,
-  TextInput,
   Modal,
   StyleSheet,
   Switch,
@@ -20,7 +14,6 @@ import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
 import StyledButton from "../src/components/common/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import ReportCard from "../src/components/ReportCard";
 import { Report } from "../src/types/reports";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import colors from "../src/theme/colors";
@@ -109,9 +102,6 @@ const ExpandedSettingsTitle = styled.Text`
   color: ${colors.text.primary};
 `;
 
-const ExpandedSettingsCloseButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
 
 const ExpandedAvatarWrapper = styled.View`
   width: 120px;
@@ -189,21 +179,6 @@ const EmailText = styled.Text`
   text-align: center;
 `;
 
-const ActionButtonFlex = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
-  flex: 1,
-  backgroundColor: props.variant === 'primary' ? colors.primary : colors.text.secondary,
-  padding: 14,
-  borderRadius: 20,
-  alignItems: 'center',
-  minHeight: 50,
-}));
-
-const ActionButtonText = styled.Text<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
-  color: props.variant === 'primary' ? colors.white : colors.white,
-  fontWeight: 'bold',
-  fontSize: 14,
-}));
-
 const LoadingContainer = styled.View`
   flex: 1;
   justify-content: center;
@@ -219,7 +194,7 @@ const AvatarWrapper = styled.View`
   background-color: #eee;
   justify-content: center;
   align-items: center;
-  border: 3px solid ${colors.primary};
+  border: 5px solid ${colors.primary};
   position: relative;
 `;
 
@@ -310,43 +285,32 @@ const NotificationLabel = styled.Text`
   color: ${colors.text.secondary};
 `;
 
-const AccountSection = styled.View`
-  margin-top: 6px;
-  padding-top: 12px;
-  border-top-width: 1px;
-  border-top-color: ${colors.componentBackground};
-`;
-
-const AccountTitle = styled.Text`
-  font-size: 18px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  margin-bottom: 16px;
-`;
-
-const DeleteAccountButton = styled.TouchableOpacity`
-  background-color: transparent;
-  padding: 8px 16px;
+const LanguageToggle = styled.TouchableOpacity`
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid ${colors.componentBackground};
 `;
 
-const DeleteAccountText = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  color: ${colors.text.secondary};
+const LanguageOption = styled.View<{ isSelected: boolean }>`
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 `;
+
+const LanguageText = styled.Text<{ isSelected: boolean }>`
+  font-size: 16px;
+  font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
+  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.secondary};
+`;
+
 
 export default function AdminProfile() {
-  const {
-    user,
-    profile,
-    uploadProfileImage,
-    updateUserProfile,
-    loading: authLoading,
-    initialLoading,
-    logOut,
-    deleteAccount,
-  } = useAuth();
+  const { user, profile, uploadProfileImage, updateUserProfile, loading: authLoading, initialLoading, logOut } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -368,7 +332,7 @@ export default function AdminProfile() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [language, setLanguage] = useState('English');
-  const [settingsExpanded, setSettingsExpanded] = useState(false);
+  const [hapticsEnabled, setHapticsEnabled] = useState(profile?.notificationPreferences?.haptics ?? true);
 
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
@@ -417,7 +381,8 @@ export default function AdminProfile() {
       await updateUserProfile({
         notificationPreferences: {
           push: value,
-          email: profile?.notificationPreferences?.email ?? true, // Keep email preference as is
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: hapticsEnabled,
         },
       });
       showAlert('Success', 'Notification settings updated.');
@@ -429,8 +394,28 @@ export default function AdminProfile() {
     }
   };
 
-  const handleToggleLanguage = (value: boolean) => {
-    const newLanguage = value ? 'Polish' : 'English';
+  const handleToggleHaptics = async (value: boolean) => {
+    setIsSubmitting(true);
+    setHapticsEnabled(value);
+    try {
+      await updateUserProfile({
+        notificationPreferences: {
+          push: notificationsEnabled,
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: value,
+        },
+      });
+      showAlert('Success', 'Haptics settings updated.');
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to update settings.');
+      setHapticsEnabled(!value); // Revert on error
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleLanguage = () => {
+    const newLanguage = language === 'English' ? 'Polish' : 'English';
     setLanguage(newLanguage);
     showAlert('Language Changed', `Language set to ${newLanguage}.`);
   };
@@ -443,29 +428,6 @@ export default function AdminProfile() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    showAlert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action is irreversible.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteAccount();
-              showAlert('Success', 'Your account has been deleted.', [
-                { text: 'OK', onPress: () => router.replace('/login') }
-              ]);
-            } catch (error: any) {
-              showAlert('Error', error.message || 'Failed to delete account.');
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const isLoading = authLoading || initialLoading || uploading;
   const profileImageUrl = profile?.profileImage || user?.photoURL;
@@ -686,19 +648,21 @@ export default function AdminProfile() {
                 </EmailText>
               </EmailTouchable>
 
-              <ActionButtonFlex variant="primary" onPress={() => {
-                const nicknameChanged = editedNickname !== (profile?.displayName || user?.displayName);
-                const imageChanged = tempImageUri !== null;
-                if (!nicknameChanged && !imageChanged) {
-                  handleCancelEdit();
-                } else {
-                  handleSaveProfile();
-                }
-              }} disabled={uploading} style={{ marginTop: 16 }}>
-                <ActionButtonText variant="primary">
-                  {uploading ? "Saving..." : "Save"}
-                </ActionButtonText>
-              </ActionButtonFlex>
+              <StyledButton
+                title={uploading ? "Saving..." : "Save"}
+                onPress={() => {
+                  const nicknameChanged = editedNickname !== (profile?.displayName || user?.displayName);
+                  const imageChanged = tempImageUri !== null;
+                  if (!nicknameChanged && !imageChanged) {
+                    handleCancelEdit();
+                  } else {
+                    handleSaveProfile();
+                  }
+                }}
+                disabled={uploading}
+                loading={uploading}
+                style={{ marginTop: 8, marginBottom: 0 }}
+              />
             </>
           ) : (
             <CollapsedProfileContent>
@@ -729,8 +693,7 @@ export default function AdminProfile() {
                 title="Edit Profile"
                 onPress={() => setIsEditMode(true)}
                 variant="secondary"
-                style={{ marginBottom: 0, backgroundColor: '#FFFFFF' }}
-                textColor="#656565"
+                style={{ marginBottom: 0 }}
               />
             </CollapsedProfileContent>
           )}
@@ -754,83 +717,46 @@ export default function AdminProfile() {
         </Modal>
 
         <SettingsCard style={shadowStyles.modalShadow}>
-          {!settingsExpanded && (
-            <>
-              <NotificationRow>
-                <NotificationLabel>Enable Notifications</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleNotifications}
-                  value={notificationsEnabled}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <NotificationRow>
-                <NotificationLabel>Language: {language}</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleLanguage}
-                  value={language === 'Polish'}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <StyledButton
-                title="More"
-                onPress={() => setSettingsExpanded(true)}
-                variant="secondary"
-                style={{ marginTop: 16, marginBottom: 0 }}
-              />
-            </>
-          )}
-          {settingsExpanded && (
-            <>
-              <ExpandedSettingsHeader>
-                <ExpandedSettingsTitle>Settings</ExpandedSettingsTitle>
-                <ExpandedSettingsCloseButton onPress={() => setSettingsExpanded(false)}>
-                  <MaterialIcons name="close" size={24} color={colors.text.primary} />
-                </ExpandedSettingsCloseButton>
-              </ExpandedSettingsHeader>
-              <NotificationRow>
-                <NotificationLabel>Enable Notifications</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleNotifications}
-                  value={notificationsEnabled}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <NotificationRow>
-                <NotificationLabel>Language: {language}</NotificationLabel>
-                <Switch
-                  trackColor={{ false: colors.primary, true: colors.status.recycled }}
-                  thumbColor={colors.white}
-                  ios_backgroundColor={colors.primary}
-                  onValueChange={handleToggleLanguage}
-                  value={language === 'Polish'}
-                  disabled={isSubmitting}
-                />
-              </NotificationRow>
-              <AccountSection>
-                <AccountTitle>Account</AccountTitle>
-                <StyledButton
-                  title="Logout"
-                  onPress={handleLogout}
-                  disabled={authLoading}
-                  loading={authLoading && !isSubmitting}
-                  style={{ backgroundColor: colors.primary }}
-                />
-                <DeleteAccountButton onPress={handleDeleteAccount}>
-                  <DeleteAccountText>Delete Account :(</DeleteAccountText>
-                </DeleteAccountButton>
-              </AccountSection>
-            </>
-          )}
+          <ExpandedSettingsHeader>
+            <ExpandedSettingsTitle>Settings</ExpandedSettingsTitle>
+          </ExpandedSettingsHeader>
+          <NotificationRow>
+            <NotificationLabel>Enable Notifications</NotificationLabel>
+            <Switch
+              trackColor={{ false: colors.primary, true: colors.status.recycled }}
+              thumbColor={colors.white}
+              ios_backgroundColor={colors.primary}
+              onValueChange={handleToggleNotifications}
+              value={notificationsEnabled}
+              disabled={isSubmitting}
+            />
+          </NotificationRow>
+          <NotificationRow>
+            <NotificationLabel>Enable Haptics</NotificationLabel>
+            <Switch
+              trackColor={{ false: colors.primary, true: colors.status.recycled }}
+              thumbColor={colors.white}
+              ios_backgroundColor={colors.primary}
+              onValueChange={handleToggleHaptics}
+              value={hapticsEnabled}
+              disabled={isSubmitting}
+            />
+          </NotificationRow>
+          <LanguageToggle onPress={handleToggleLanguage}>
+            <LanguageOption isSelected={language === 'English'}>
+              <LanguageText isSelected={language === 'English'}>🇬🇧 English</LanguageText>
+            </LanguageOption>
+            <LanguageOption isSelected={language === 'Polish'}>
+              <LanguageText isSelected={language === 'Polish'}>🇵🇱 Polski</LanguageText>
+            </LanguageOption>
+          </LanguageToggle>
+          <StyledButton
+            title="Logout"
+            onPress={handleLogout}
+            disabled={authLoading}
+            loading={authLoading && !isSubmitting}
+            style={{ backgroundColor: colors.primary, marginTop: 8, marginBottom: 0 }}
+          />
         </SettingsCard>
       </Container>
 

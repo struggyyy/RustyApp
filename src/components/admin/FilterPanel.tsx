@@ -30,7 +30,7 @@ const PanelContainer = styled.View<{ isExpanded: boolean }>`
   background-color: ${theme.colors.componentBackground};
   border-radius: 24px;
   padding: 20px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   min-height: ${(props: { isExpanded: boolean }) => props.isExpanded ? 'auto' : '80px'};
 `;
 
@@ -39,13 +39,7 @@ const SectionTitle = styled.Text`
   font-weight: 600;
   color: ${theme.colors.text.primary};
   margin-bottom: 12px;
-`;
-
-const FilterRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  text-align: center;
 `;
 
 const FilterChip = styled.TouchableOpacity<{ isSelected: boolean; chipColor?: string }>`
@@ -60,17 +54,7 @@ const FilterChipText = styled.Text<{ isSelected: boolean }>`
   color: ${(props: { isSelected: boolean }) => props.isSelected ? theme.colors.white : theme.colors.text.primary};
   font-size: 14px;
   font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
-`;
-
-const DistanceContainer = styled.View`
-  margin-bottom: 16px;
-`;
-
-const DistanceRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  text-align: center;
 `;
 
 const PickerContainer = styled.View`
@@ -83,6 +67,7 @@ const PickerContainer = styled.View`
   border-width: 1px;
   border-color: ${theme.colors.border.medium};
   padding: 12px;
+  align-self: center;
 `;
 
 const PickerWrapper = styled.View`
@@ -122,7 +107,7 @@ const ProfileButtonView = styled.View({
   backgroundColor: "#D9D9D9",
   justifyContent: "center",
   alignItems: "center",
-  borderWidth: 4,
+  borderWidth: 5,
   borderColor: theme.colors.primary,
 });
 
@@ -146,35 +131,6 @@ const ProfileImagePlaceholderText = styled.Text({
   fontSize: 20,
   fontWeight: "bold",
 });
-
-const DistanceInput = styled.TextInput`
-  background-color: ${theme.colors.white};
-  border-radius: 16px;
-  padding: 10px 16px;
-  border-width: 1px;
-  border-color: ${theme.colors.border.medium};
-  flex: 1;
-  font-size: 14px;
-  color: ${theme.colors.text.primary};
-`;
-
-const DistanceLabel = styled.Text`
-  color: ${theme.colors.text.primary};
-  font-size: 14px;
-  font-weight: 500;
-`;
-
-const ClearButton = styled.TouchableOpacity`
-  background-color: ${theme.colors.text.secondary};
-  border-radius: 16px;
-  padding: 10px 16px;
-`;
-
-const ClearButtonText = styled.Text`
-  color: ${theme.colors.white};
-  font-size: 14px;
-  font-weight: 500;
-`;
 
 // Collapsed/Minimized view components (similar to Edit Profile card)
 const CollapsedFilterContent = styled.View`
@@ -282,7 +238,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
               <StatusInfo>Status: {getStatusDisplayText()}</StatusInfo>
-              <DistanceInfo>Distance: {maxDistance || 0} km</DistanceInfo>
+              <DistanceInfo>Radius: {maxDistance || 0} km</DistanceInfo>
             </View>
             <View style={{ marginLeft: 12 }}>
               <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.secondary} />
@@ -322,7 +278,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
       <FiltersSplitRow>
         <LeftColumn>
-          <SectionTitle>Report Status</SectionTitle>
+          <SectionTitle>Status</SectionTitle>
           <View style={{ gap: 8 }}>
             <FilterChip
               isSelected={!selectedStatuses || selectedStatuses.length === 0}
@@ -366,7 +322,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </View>
         </LeftColumn>
         <RightColumn>
-          <SectionTitle>Distance Radius</SectionTitle>
+          <SectionTitle>Radius</SectionTitle>
           <PickerContainer>
             <PickerWrapper>
               <CustomWheelPicker

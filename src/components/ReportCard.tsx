@@ -25,8 +25,7 @@ interface ReportCardProps {
   onDelete: (reportId: string) => void;
   onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
   isAdmin: boolean;
-  expandedReportId?: string;
-  onDetailsPress?: (reportId: string) => void;
+  onDetailsPress?: (report: Report) => void;
 }
 
 interface CardContainerProps {
@@ -333,8 +332,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
 );
 
 // --- MAIN COMPONENT ---
-const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin, expandedReportId, onDetailsPress }) => {
-  const [isExpanded, setIsExpanded] = useState(expandedReportId === report.id);
+const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin, onDetailsPress }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
@@ -395,39 +393,29 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
 
   return (
     <>
-      <CardContainer style={shadowStyles.cardShadow} isExpanded={isExpanded}>
-        {isExpanded ? (
-          isAdmin ? (
-            <AdminExpandedView report={report} statusColor={statusColor} onClose={() => setIsExpanded(false)} onStatusUpdate={handleStatusUpdate} onDelete={handleDelete} />
-          ) : (
-            <UserExpandedView report={report} statusColor={statusColor} onClose={() => setIsExpanded(false)} onDelete={handleDelete} />
-          )
-        ) : (
-          <>
-            <ReportInfo>
-              <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
-              <ReportStatusText color={statusColor}>{report.status}</ReportStatusText>
-              <DetailsButton onPress={() => onDetailsPress ? onDetailsPress(report.id) : setIsExpanded(true)}>
-                <DetailsButtonText>See the details</DetailsButtonText>
-              </DetailsButton>
-            </ReportInfo>
-            <CarImageContainer>
-              <CollapsedCarImage source={{ uri: report.imageUrl }} />
-                          {!isAdmin && (
-                (() => {
-                  switch (report.status) {
-                    case 'Report submitted':
-                      return <StatusIndicatorText color={statusColor}>...</StatusIndicatorText>;
-                    case 'Report canceled':
-                      return <FontAwesome name="times-circle" size={24} color={statusColor} style={{ marginTop: 8 }} />;
-                    default:
-                      return <PointsText color={statusColor}>{`${report.points}p`}</PointsText>;
-                  }
-                })()
-              )}
-            </CarImageContainer>
-          </>
-        )}
+      <CardContainer style={shadowStyles.cardShadow} isExpanded={false}>
+        <ReportInfo>
+          <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
+          <ReportStatusText color={statusColor}>{report.status}</ReportStatusText>
+          <DetailsButton onPress={() => onDetailsPress?.(report)}>
+            <DetailsButtonText>See the details</DetailsButtonText>
+          </DetailsButton>
+        </ReportInfo>
+        <CarImageContainer>
+          <CollapsedCarImage source={{ uri: report.imageUrl }} />
+                      {!isAdmin && (
+            (() => {
+              switch (report.status) {
+                case 'Report submitted':
+                  return <StatusIndicatorText color={statusColor}>...</StatusIndicatorText>;
+                case 'Report canceled':
+                  return <FontAwesome name="times-circle" size={24} color={statusColor} style={{ marginTop: 8 }} />;
+                default:
+                  return <PointsText color={statusColor}>{`${report.points}p`}</PointsText>;
+              }
+            })()
+          )}
+        </CarImageContainer>
       </CardContainer>
       <CustomAlert
         visible={alertVisible}

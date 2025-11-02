@@ -13,6 +13,7 @@ import {
   StyleSheet,
   Switch,
   Animated,
+  ScrollView,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -21,8 +22,8 @@ import styled from "styled-components/native";
 import StyledButton from "../src/components/common/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import ReportCard from "../src/components/ReportCard";
-import { Report } from "../src/types/reports";
-import { getReportsByUserId } from "../src/services/firebase/reports";
+import { Report, ReportStatus } from "../src/types/reports";
+import { getReportsByUserId, deleteReport } from "../src/services/firebase/reports";
 import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
@@ -38,6 +39,192 @@ const shadowStyles = StyleSheet.create({
     elevation: 5,
   },
 });
+
+// Helper functions
+const formatDate = (date: Date): string => {
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+};
+
+const getStatusColor = (status: ReportStatus | undefined) => {
+  const safeStatus = status || 'Report submitted';
+
+  switch (safeStatus) {
+    case 'Report submitted':
+      return '#1976D2'; // Blue
+    case 'Report accepted':
+      return '#00796B'; // Teal
+    case 'Report completed':
+      return '#2E7D32'; // Green
+    case 'Report canceled':
+      return '#C62828'; // Distinctive red
+    default:
+      return colors.text.primary;
+  }
+};
+
+const getStatusNote = (status: ReportStatus | undefined): string => {
+  const safeStatus = status || 'Report submitted';
+
+  switch (safeStatus) {
+    case 'Report submitted':
+      return 'Your report has been received and is now being verified. We\'ll notify you once its status changes.';
+    case 'Report accepted':
+      return 'Your report has been accepted. Our team is now processing it, which may take some time as we contact the vehicle owner and complete the necessary paperwork.';
+    case 'Report completed':
+      return 'The reported vehicle has been removed from the street and is now being recycled, donated, or prepared for a city auction.';
+    case 'Report canceled':
+      return 'We were unable to verify your report due to insufficient information or potential inaccuracies. Please feel free to submit a new report if you believe this was an error.';
+
+    default:
+      return '';
+  }
+};
+
+// Styled components for modal view
+const ModalCardHeader = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+});
+
+const ModalCardTitle = styled.Text({
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: colors.text.primary,
+});
+
+const ModalHeaderActions = styled.View({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+});
+
+const ModalCloseButtonNew = styled.TouchableOpacity({
+  padding: 8,
+});
+
+const ModalDeleteButton = styled.TouchableOpacity({
+  padding: 8,
+});
+
+const ModalReportDate = styled.Text<{ color: string }>((props: { color: string }) => ({
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: props.color,
+  marginBottom: 8,
+}));
+
+const ModalExpandedCarImage = styled.Image({
+  width: '100%',
+  height: 180,
+  borderRadius: 10,
+  marginTop: 8,
+  marginBottom: 16,
+});
+
+const ModalDetailLabel = styled.Text({
+  fontWeight: 'bold',
+  color: colors.text.primary,
+  fontSize: 16,
+});
+
+const ModalDetailText = styled.Text<{ color?: string }>((props: { color?: string }) => ({
+  fontSize: 16,
+  color: props.color || colors.text.primary,
+}));
+
+const ModalStatusNote = styled.Text({
+  fontSize: 14,
+  color: colors.text.secondary,
+  marginBottom: 16,
+  fontStyle: 'italic',
+});
+
+interface UserReportModalViewProps {
+  report: Report;
+  onClose: () => void;
+  onDelete: (reportId: string) => Promise<void>;
+  showAlert: (title: string, message?: string, buttons?: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>) => void;
+}
+
+const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClose, onDelete, showAlert }) => {
+  const statusColor = getStatusColor(report.status);
+
+  const handleDeletePress = () => {
+    showAlert(
+      'Delete Report',
+      'Are you sure you want to delete this report? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await onDelete(report.id);
+              onClose(); // Close the modal first
+              // Show success message
+              setTimeout(() => {
+                showAlert(
+                  'Success',
+                  'Your report has been successfully deleted.',
+                  [{ text: 'OK' }]
+                );
+              }, 300);
+            } catch (error) {
+              showAlert(
+                'Error',
+                'Failed to delete report. Please try again.',
+                [{ text: 'OK' }]
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  return (
+    <View style={{ maxHeight: '100%' }}>
+      {/* Fixed Header */}
+      <ModalCardHeader>
+        <ModalCardTitle>Report Details</ModalCardTitle>
+        <ModalHeaderActions>
+          <ModalDeleteButton onPress={handleDeletePress}>
+            <MaterialIcons name="delete" size={24} color={colors.primary} />
+          </ModalDeleteButton>
+          <ModalCloseButtonNew onPress={onClose}>
+            <MaterialIcons name="close" size={24} color={colors.text.primary} />
+          </ModalCloseButtonNew>
+        </ModalHeaderActions>
+      </ModalCardHeader>
+
+      {/* Scrollable Content */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ModalReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ModalReportDate>
+        <ModalExpandedCarImage source={{ uri: report.imageUrl }} />
+
+        <View style={{ marginBottom: 16 }}>
+          <ModalDetailLabel>Description</ModalDetailLabel>
+          <ModalDetailText>{report.description}</ModalDetailText>
+        </View>
+
+        <View style={{ marginBottom: 16 }}>
+          <ModalDetailText color={statusColor} style={{ fontWeight: 'bold' }}>{report.status}</ModalDetailText>
+          <ModalStatusNote>{getStatusNote(report.status)}</ModalStatusNote>
+        </View>
+
+        <View style={{ marginBottom: 8 }}>
+          <ModalDetailText><ModalDetailLabel>Points: </ModalDetailLabel>{report.points}</ModalDetailText>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
 
 // --- STYLED COMPONENTS ---
 const Container = styled.ScrollView.attrs({
@@ -407,7 +594,10 @@ export default function Profile() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [language, setLanguage] = useState('English');
+  const [hapticsEnabled, setHapticsEnabled] = useState(profile?.notificationPreferences?.haptics ?? true);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
@@ -456,7 +646,8 @@ export default function Profile() {
       await updateUserProfile({
         notificationPreferences: {
           push: value,
-          email: profile?.notificationPreferences?.email ?? true, // Keep email preference as is
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: hapticsEnabled,
         },
       });
       showAlert('Success', 'Notification settings updated.');
@@ -506,6 +697,16 @@ export default function Profile() {
     );
   };
 
+  const handleModalClose = () => {
+    setShowReportModal(false);
+    setSelectedReport(null);
+  };
+
+  const handleDetailsPress = (report: Report) => {
+    setSelectedReport(report);
+    setShowReportModal(true);
+  };
+
   const isLoading = authLoading || initialLoading || uploading;
   const profileImageUrl = profile?.profileImage || user?.photoURL;
 
@@ -520,10 +721,22 @@ export default function Profile() {
     }
   }, [user]);
 
-  const handleReportDelete = (deletedReportId: string) => {
-    setReports((prevReports) =>
-      prevReports.filter((report) => report.id !== deletedReportId)
-    );
+  const handleReportDelete = async (deletedReportId: string) => {
+    try {
+      // Find the report to get its imageUrl
+      const reportToDelete = reports.find(report => report.id === deletedReportId);
+      if (reportToDelete) {
+        // Delete from Firebase
+        await deleteReport(deletedReportId, reportToDelete.imageUrl);
+      }
+      // Update local state
+      setReports((prevReports) =>
+        prevReports.filter((report) => report.id !== deletedReportId)
+      );
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      showAlert('Error', 'Failed to delete report. Please try again.');
+    }
   };
 
   const fetchReports = useCallback(async () => {
@@ -674,7 +887,7 @@ export default function Profile() {
           onDelete={handleReportDelete}
           onStatusChange={() => {}}
           isAdmin={false}
-          onDetailsPress={(reportId) => router.push(`/my-reports?reportId=${reportId}`)}
+          onDetailsPress={handleDetailsPress}
         />
       ));
   };
@@ -911,6 +1124,20 @@ export default function Profile() {
             </ReportsContentContainer>
           </ReportsCard>
         )}
+        <Modal visible={showReportModal} transparent animationType="fade">
+          <ModalOverlay>
+            <ModalContent style={shadowStyles.modalShadow}>
+              {selectedReport && (
+                <UserReportModalView 
+                  report={selectedReport} 
+                  onClose={handleModalClose}
+                  onDelete={handleReportDelete}
+                  showAlert={showAlert}
+                />
+              )}
+            </ModalContent>
+          </ModalOverlay>
+        </Modal>
       </Container>
 
       <CustomAlert

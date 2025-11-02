@@ -15,6 +15,7 @@ const InfoText = styled.Text({
   fontSize: 18,
   color: theme.colors.text.tertiary,
   marginTop: 10,
+  textAlign: 'center',
 });
 
 
@@ -29,7 +30,8 @@ interface ReportListProps {
   onStatusChange: (reportId: string, newStatus: ReportStatus) => void;
   loadingText?: string;
   emptyText?: string;
-  expandedReportId?: string;
+  onDetailsPress?: (report: Report) => void;
+  scrollToIndex?: number;
 }
 
 const ReportList: React.FC<ReportListProps> = ({
@@ -43,18 +45,21 @@ const ReportList: React.FC<ReportListProps> = ({
   onStatusChange,
   loadingText = 'Loading reports...',
   emptyText = 'No reports found.',
-  expandedReportId,
+  onDetailsPress,
+  scrollToIndex,
 }) => {
   const flatListRef = useRef<FlatList>(null);
 
+  // Scroll to specific index when scrollToIndex changes
   useEffect(() => {
-    if (expandedReportId && flatListRef.current) {
-      const index = reports.findIndex(report => report.id === expandedReportId);
-      if (index !== -1) {
-        flatListRef.current.scrollToIndex({ index, animated: true });
-      }
+    if (scrollToIndex !== undefined && scrollToIndex >= 0 && flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: scrollToIndex,
+        animated: true,
+        viewPosition: 0.5, // Center the item in the view
+      });
     }
-  }, [expandedReportId, reports]);
+  }, [scrollToIndex]);
 
   if (loading && !refreshing) {
     return (
@@ -93,7 +98,7 @@ const ReportList: React.FC<ReportListProps> = ({
           onDelete={onDelete}
           onStatusChange={onStatusChange}
           isAdmin={isAdmin}
-          expandedReportId={expandedReportId}
+          onDetailsPress={onDetailsPress ? () => onDetailsPress(item) : undefined}
         />
       )}
       contentContainerStyle={{ paddingTop: 13 }}
@@ -107,19 +112,11 @@ const ReportList: React.FC<ReportListProps> = ({
       }
       fadingEdgeLength={15}
       showsVerticalScrollIndicator={false}
-      getItemLayout={(data, index) => {
-        if (!data) return { length: 150, offset: 150 * index, index };
-        const item = data[index];
-        const isExpanded = item.id === expandedReportId;
-        const length = isExpanded ? 400 : 150;
-        let offset = 0;
-        for (let i = 0; i < index; i++) {
-          const curr = data[i];
-          const currExpanded = curr.id === expandedReportId;
-          offset += currExpanded ? 400 : 150;
-        }
-        return { length, offset, index };
-      }}
+      getItemLayout={(data, index) => ({
+        length: 150,
+        offset: 150 * index,
+        index,
+      })}
     />
   );
 };

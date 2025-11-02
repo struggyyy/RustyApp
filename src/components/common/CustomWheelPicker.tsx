@@ -21,14 +21,37 @@ const PickerContainer = styled.View`
 const SelectedIndicator = styled.View`
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  height: 40px;
+  left: 50%;
+  margin-left: -20px;
   margin-top: -20px;
-  border-top-width: 3px;
-  border-bottom-width: 3px;
-  border-color: ${theme.colors.primary};
+  width: 40px;
+  height: 40px;
   pointer-events: none;
+`;
+
+const Circle = styled.View`
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border-width: 4px;
+  border-color: ${theme.colors.primary};
+  background-color: transparent;
+`;
+
+const Triangle = styled.View`
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  margin-left: -6px;
+  width: 0;
+  height: 0;
+  border-left-width: 6px;
+  border-right-width: 6px;
+  border-bottom-width: 6px;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: ${theme.colors.white};
+  border-top-width: 0;
 `;
 
 const PickerItem = styled.View<{ isSelected: boolean }>`
@@ -162,7 +185,10 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
 
   return (
     <PickerContainer style={containerStyle}>
-      <SelectedIndicator />
+      <SelectedIndicator>
+        <Circle />
+        <Triangle />
+      </SelectedIndicator>
       <FlatList
         ref={flatListRef}
         data={options}

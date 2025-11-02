@@ -37,6 +37,7 @@ interface UserProfile {
   notificationPreferences?: {
     email: boolean;
     push: boolean;
+    haptics: boolean;
   };
   pushToken?: string;
   language?: string;
@@ -202,7 +203,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       email: userToCreateFor.email || 'Unknown Email',
       displayName: nickname || userToCreateFor.displayName || 'Nickname',
       createdAt: serverTimestamp(),
-      notificationPreferences: { email: true, push: true },
+      notificationPreferences: { email: true, push: true, haptics: true },
       language: 'en',
       role: 'user', // <-- Set default role for new users
       points: 0,
