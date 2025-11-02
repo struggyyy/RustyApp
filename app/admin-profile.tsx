@@ -14,16 +14,16 @@ import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
-import StyledButton from "../src/components/common/StyledButton";
+import StyledButton from "../src/components/common/buttons/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { Report } from "../src/types/reports";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
-import CustomAlert from "../src/components/common/CustomAlert";
-import EditProfile from "../src/components/common/EditProfile";
-import SettingsCard from "../src/components/common/SettingsCard";
+import CustomAlert from "../src/components/common/modals/CustomAlert";
+import EditProfile from "../src/components/features/profile/EditProfile";
+import SettingsCard from "../src/components/features/profile/SettingsCard";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

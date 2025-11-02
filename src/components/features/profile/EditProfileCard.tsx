@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, TextInput, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
-import colors from '../../theme/colors';
-import CustomAlert from './CustomAlert';
+import colors from '../../../theme/colors';
+import CustomAlert from '../../common/modals/CustomAlert';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

@@ -4,7 +4,7 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
-import CustomAlert from '../src/components/common/CustomAlert';
+import CustomAlert from '../src/components/common/modals/CustomAlert';
 
 // Styled Components
 const StyledContainer = styled.View({

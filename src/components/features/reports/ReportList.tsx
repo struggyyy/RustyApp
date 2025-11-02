@@ -2,8 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { FlatList, ActivityIndicator, View, Text, RefreshControl } from 'react-native';
 import styled from 'styled-components/native';
 import ReportCard from './ReportCard';
-import { Report, ReportStatus } from '../types/reports';
-import theme from '../theme';
+import { Report, ReportStatus } from '../../../types/reports';
+import theme from '../../../theme';
 
 const CenteredContainer = styled.View({
   flex: 1,

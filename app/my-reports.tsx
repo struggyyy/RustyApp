@@ -5,13 +5,13 @@ import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { getReportsByUserId, deleteReport } from '../src/services/firebase/reports';
 import { Report, ReportStatus } from '../src/types/reports';
-import ReportList from '../src/components/ReportList';
+import ReportList from '../src/components/features/reports/ReportList';
 import theme from '../src/theme';
-import CustomAlert from '../src/components/common/CustomAlert';
+import CustomAlert from '../src/components/common/modals/CustomAlert';
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import IconButton from '../src/components/common/IconButton';
+import IconButton from '../src/components/common/buttons/IconButton';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

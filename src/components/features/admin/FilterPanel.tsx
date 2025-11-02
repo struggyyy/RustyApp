@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
-import { ReportStatus, reportStatuses } from '../../types/reports';
-import theme from '../../theme';
-import { useAuth } from '../../context/AuthContext';
+import { ReportStatus, reportStatuses } from '../../../types/reports';
+import theme from '../../../theme';
+import { useAuth } from '../../../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons';
-import CustomWheelPicker from '../common/CustomWheelPicker';
+import CustomWheelPicker from './CustomWheelPicker';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

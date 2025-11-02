@@ -9,7 +9,7 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { HapticsProvider } from '../src/context/HapticsContext';
 import * as Linking from 'expo-linking';
 import styled from 'styled-components/native';
-import HeaderBackButton from '../src/components/common/HeaderBackButton';
+import HeaderBackButton from '../src/components/common/buttons/HeaderBackButton';
 import colors from '../src/theme/colors';
 
 const StyledSafeAreaProvider = styled(SafeAreaProvider)`

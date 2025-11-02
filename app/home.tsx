@@ -24,9 +24,9 @@ import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
-import StyledButton from "../src/components/common/StyledButton";
-import TouchableButton from "../src/components/common/TouchableButton";
-import FloatingActionButton from "../src/components/common/FloatingActionButton";
+import StyledButton from "../src/components/common/buttons/StyledButton";
+import TouchableButton from "../src/components/common/buttons/TouchableButton";
+import FloatingActionButton from "../src/components/common/buttons/FloatingActionButton";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";

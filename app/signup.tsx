@@ -5,7 +5,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
-import CustomAlert from '../src/components/common/CustomAlert';
+import CustomAlert from '../src/components/common/modals/CustomAlert';
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({

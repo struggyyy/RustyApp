@@ -9,17 +9,17 @@ import {
   Animated,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import { useAuth } from "../../context/AuthContext";
-import { useHaptics } from "../../context/HapticsContext";
+import { useAuth } from "../../../context/AuthContext";
+import { useHaptics } from "../../../context/HapticsContext";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
 import styled from "styled-components/native";
-import StyledButton from "../common/StyledButton";
+import StyledButton from "../../common/buttons/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import colors from "../../theme/colors";
+import colors from "../../../theme/colors";
 import { ref, deleteObject } from "firebase/storage";
-import { storage } from "../../services/firebase";
-import CustomAlert from "../common/CustomAlert";
+import { storage } from "../../../services/firebase";
+import CustomAlert from "../../common/modals/CustomAlert";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

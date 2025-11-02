@@ -2,8 +2,8 @@ import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import styled from "styled-components/native";
-import colors from "../../theme/colors";
-import TouchableButton from "./TouchableButton";
+import colors from "../../../theme/colors";
+import TouchableButton from "../buttons/TouchableButton";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

@@ -23,10 +23,10 @@ import {
   uploadReportImage,
 } from "../src/services/firebase/reports";
 import theme from "../src/theme";
-import StyledButton from "../src/components/common/StyledButton";
-import CustomAlert from "../src/components/common/CustomAlert";
-import TouchableButton from "../src/components/common/TouchableButton";
-import FloatingActionButton from "../src/components/common/FloatingActionButton";
+import StyledButton from "../src/components/common/buttons/StyledButton";
+import CustomAlert from "../src/components/common/modals/CustomAlert";
+import TouchableButton from "../src/components/common/buttons/TouchableButton";
+import FloatingActionButton from "../src/components/common/buttons/FloatingActionButton";
 import { useHaptics } from "../src/context/HapticsContext";
 import * as Haptics from "expo-haptics";
 

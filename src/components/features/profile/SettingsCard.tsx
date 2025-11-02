@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Switch, Animated, StyleSheet } from "react-native";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import styled from "styled-components/native";
-import StyledButton from "./StyledButton";
-import colors from "../../theme/colors";
-import { useHaptics } from "../../context/HapticsContext";
+import StyledButton from "../../common/buttons/StyledButton";
+import colors from "../../../theme/colors";
+import { useHaptics } from "../../../context/HapticsContext";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

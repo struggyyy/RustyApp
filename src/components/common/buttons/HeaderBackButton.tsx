@@ -1,8 +1,8 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useHaptics } from "../../context/HapticsContext";
-import colors from "../../theme/colors";
+import { useHaptics } from "../../../context/HapticsContext";
+import colors from "../../../theme/colors";
 
 interface HeaderBackButtonProps {
   onPress: () => void;

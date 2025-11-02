@@ -1,8 +1,8 @@
 import React from "react";
 import { StyleProp, ViewStyle, StyleSheet } from "react-native";
 import styled from "styled-components/native";
-import { useHaptics } from "../../context/HapticsContext";
-import colors from "../../theme/colors";
+import { useHaptics } from "../../../context/HapticsContext";
+import colors from "../../../theme/colors";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

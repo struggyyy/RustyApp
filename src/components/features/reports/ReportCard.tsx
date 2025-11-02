@@ -3,12 +3,12 @@ import { Alert, View, ActivityIndicator, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
-import colors from '../theme/colors';
-import { Report, ReportStatus, reportStatuses } from '../types/reports';
-import { deleteReport, updateReportStatus } from '../services/firebase/reports';
-import CustomAlert from './common/CustomAlert';
-import IconButton from './common/IconButton';
-import TouchableButton from './common/TouchableButton';
+import colors from '../../../theme/colors';
+import { Report, ReportStatus, reportStatuses } from '../../../types/reports';
+import { deleteReport, updateReportStatus } from '../../../services/firebase/reports';
+import CustomAlert from '../../common/modals/CustomAlert';
+import IconButton from '../../common/buttons/IconButton';
+import TouchableButton from '../../common/buttons/TouchableButton';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

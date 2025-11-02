@@ -19,19 +19,19 @@ import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
-import StyledButton from "../src/components/common/StyledButton";
+import StyledButton from "../src/components/common/buttons/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import ReportCard from "../src/components/ReportCard";
+import ReportCard from "../src/components/features/reports/ReportCard";
 import { Report, ReportStatus } from "../src/types/reports";
 import { getReportsByUserId, deleteReport } from "../src/services/firebase/reports";
 import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
-import CustomAlert from "../src/components/common/CustomAlert";
-import EditProfile from "../src/components/common/EditProfile";
-import SettingsCard from "../src/components/common/SettingsCard";
-import TouchableButton from "../src/components/common/TouchableButton";
-import IconButton from "../src/components/common/IconButton";
+import CustomAlert from "../src/components/common/modals/CustomAlert";
+import EditProfile from "../src/components/features/profile/EditProfile";
+import SettingsCard from "../src/components/features/profile/SettingsCard";
+import TouchableButton from "../src/components/common/buttons/TouchableButton";
+import IconButton from "../src/components/common/buttons/IconButton";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({

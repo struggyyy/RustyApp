@@ -19,8 +19,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
 import * as Linking from "expo-linking";
-import ReportModal from "../src/components/common/ReportModal";
-import FloatingActionButton from "../src/components/common/FloatingActionButton";
+import ReportModal from "../src/components/common/modals/ReportModal";
+import FloatingActionButton from "../src/components/common/buttons/FloatingActionButton";
 import { useHaptics } from "../src/context/HapticsContext";
 
 const { width, height } = Dimensions.get("window");
