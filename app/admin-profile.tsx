@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Switch,
   Animated,
+  TouchableOpacity,
+  Text,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -20,6 +22,7 @@ import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/CustomAlert";
+import EditProfile from "../src/components/common/EditProfile";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -45,185 +48,52 @@ const Container = styled.ScrollView.attrs({
   backgroundColor: colors.white,
 });
 
-const ProfileCard = styled.View<{ isExpanded: boolean }>(
-  (props: { isExpanded: boolean }) => ({
-    backgroundColor: colors.componentBackground,
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 20,
-    flexDirection: props.isExpanded ? 'column' : 'row',
-    alignItems: props.isExpanded ? 'stretch' : 'center',
-  })
-);
-
-const CollapsedProfileContent = styled.View`
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex: 1;
-  gap: 12px;
-`;
-
-const CollapsedProfileTop = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-`;
-
-const ExpandedProfileHeader = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const ExpandedProfileTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
-
-const ExpandedProfileCloseButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
-
-const ExpandedSettingsHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex: 1;
-`;
-
-const ExpandedSettingsTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
-
-
-const ExpandedAvatarWrapper = styled.View`
-  width: 120px;
-  height: 120px;
-  border-radius: 60px;
-  background-color: #eee;
-  justify-content: center;
-  align-items: center;
-  border: 5px solid ${colors.primary};
-  align-self: center;
-  margin-bottom: 4px;
-`;
-
-const ExpandedAvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-  border-radius: 60px;
-`;
-
-const ExpandedAvatarPlaceholder = styled.View`
-  width: 100%;
-  height: 100%;
-  border-radius: 60px;
-  background-color: #ccc;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ExpandedAvatarPlaceholderText = styled.Text`
-  font-size: 40px;
-  color: #fff;
-  font-weight: bold;
-`;
-
-const EditIconButton = styled.TouchableOpacity`
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: ${colors.white};
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  z-index: 5;
-  border: 4px solid #BD5151;
-`;
-
-const EditLabel = styled.Text`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  margin-bottom: 8px;
-  margin-top: 8px;
-`;
-
-const EditInput = styled.TextInput`
-  background-color: ${colors.white};
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 16px;
-  color: ${colors.text.primary};
-  margin-bottom: 4px;
-  border: 1px solid ${colors.componentBackground};
-`;
-
-const EmailTouchable = styled.TouchableOpacity`
-  margin-top: 12px;
-  margin-bottom: 12px;
-`;
-
-const EmailText = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-  text-align: center;
-`;
-
 const LoadingContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
 
-const AvatarTouchable = styled.TouchableOpacity``;
-
-const AvatarWrapper = styled.View`
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
-  background-color: #eee;
-  justify-content: center;
-  align-items: center;
-  border: 5px solid ${colors.primary};
-  position: relative;
+// Settings styled components
+const SettingsCard = styled.View`
+  background-color: ${colors.componentBackground};
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 20px;
 `;
 
-const AvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-`;
-
-const AvatarPlaceholder = styled.View`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-  background-color: #ccc;
-  justify-content: center;
+const NotificationRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
 `;
 
-const AvatarPlaceholderText = styled.Text`
-  font-size: 30px;
-  color: #fff;
-  font-weight: bold;
+const NotificationLabel = styled.Text`
+  font-size: 16px;
+  color: ${colors.text.secondary};
 `;
 
-const Nickname = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${colors.primary};
-  margin-bottom: 4px;
+const LanguageToggle = styled.TouchableOpacity`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid ${colors.componentBackground};
+`;
+
+const LanguageOption = styled.View<{ isSelected: boolean }>`
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+`;
+
+const LanguageText = styled.Text<{ isSelected: boolean }>`
+  font-size: 16px;
+  font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
+  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.secondary};
 `;
 
 const ModalOverlay = styled.View({
@@ -266,46 +136,18 @@ const ModalImage = styled.Image({
   marginBottom: 16,
 });
 
-// Settings styled components
-const SettingsCard = styled.View`
-  background-color: ${colors.componentBackground};
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 20px;
-`;
-
-const NotificationRow = styled.View`
+const ExpandedSettingsHeader = styled.View`
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-`;
-
-const NotificationLabel = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.secondary};
-`;
-
-const LanguageToggle = styled.TouchableOpacity`
-  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid ${colors.componentBackground};
-`;
-
-const LanguageOption = styled.View<{ isSelected: boolean }>`
+  margin-bottom: 16px;
   flex: 1;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
 `;
 
-const LanguageText = styled.Text<{ isSelected: boolean }>`
-  font-size: 16px;
-  font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
-  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.secondary};
+const ExpandedSettingsTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${colors.text.primary};
 `;
 
 
@@ -473,27 +315,11 @@ export default function AdminProfile() {
     }
   }, [initialLoading, user, router, fetchReports]);
 
-  const handleChoosePhoto = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      showAlert(
-        "Permission Denied",
-        "Sorry, we need camera roll permissions to make this work!"
-      );
-      return;
+  useEffect(() => {
+    if (isEditMode) {
+      setEditedNickname(profile?.displayName || user?.displayName || "");
     }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const source = result.assets[0];
-      setTempImageUri(source.uri);
-    }
-  };
+  }, [isEditMode, profile?.displayName, user?.displayName]);
 
   const handleSaveProfile = async () => {
     if (!user?.uid) throw new Error("User not found");
@@ -538,14 +364,23 @@ export default function AdminProfile() {
         await updateUserProfile({ displayName: editedNickname });
       }
 
+      // Update notification preferences
+      await updateUserProfile({
+        notificationPreferences: {
+          push: notificationsEnabled,
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: hapticsEnabled,
+        },
+      });
+
       showAlert("Success", "Profile updated successfully!");
-      setIsEditMode(false);
-      setTempImageUri(null);
     } catch (error: any) {
       console.error("Update error:", error);
       showAlert("Error", error.message || "Failed to update profile.");
     } finally {
       setUploading(false);
+      setIsEditMode(false);
+      setTempImageUri(null);
     }
   };
 
@@ -553,12 +388,6 @@ export default function AdminProfile() {
     setIsEditMode(false);
     setTempImageUri(null);
     setEditedNickname(profile?.displayName || user?.displayName || "");
-  };
-
-  const handleAvatarPress = () => {
-    if (!isEditMode && profileImageUrl) {
-      setShowImageModal(true);
-    }
   };
 
   const onRefresh = useCallback(async () => {
@@ -578,12 +407,6 @@ export default function AdminProfile() {
     );
   }
 
-  useEffect(() => {
-    if (isEditMode) {
-      setEditedNickname(profile?.displayName || user?.displayName || "");
-    }
-  }, [isEditMode, profile?.displayName, user?.displayName]);
-
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -598,106 +421,32 @@ export default function AdminProfile() {
           />
         }
       >
-        <ProfileCard style={shadowStyles.modalShadow} isExpanded={isEditMode}>
-          {isEditMode ? (
-            <>
-              <ExpandedProfileHeader>
-                <ExpandedProfileTitle>Edit Profile</ExpandedProfileTitle>
-                <ExpandedProfileCloseButton onPress={handleCancelEdit}>
-                  <MaterialIcons name="close" size={24} color={colors.text.primary} />
-                </ExpandedProfileCloseButton>
-              </ExpandedProfileHeader>
-
-              <AvatarTouchable onPress={handleChoosePhoto} disabled={uploading}>
-                <ExpandedAvatarWrapper>
-                  {uploading ? (
-                    <ActivityIndicator size="large" color="#fff" />
-                  ) : tempImageUri ? (
-                    <ExpandedAvatarImage source={{ uri: tempImageUri }} />
-                  ) : profileImageUrl ? (
-                    <ExpandedAvatarImage source={{ uri: profileImageUrl }} />
-                  ) : (
-                    <ExpandedAvatarPlaceholder>
-                      <ExpandedAvatarPlaceholderText>
-                        {user?.email?.[0]?.toUpperCase() || "?"}
-                      </ExpandedAvatarPlaceholderText>
-                    </ExpandedAvatarPlaceholder>
-                  )}
-                  <EditIconButton onPress={handleChoosePhoto} disabled={uploading}>
-                    <MaterialIcons name="edit" size={20} color={colors.primary} />
-                  </EditIconButton>
-                </ExpandedAvatarWrapper>
-              </AvatarTouchable>
-
-              <EditLabel>Nickname</EditLabel>
-              <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-                <EditInput
-                  value={editedNickname}
-                  onChangeText={handleEditedNicknameChange}
-                  placeholder="Enter your nickname (2-15 characters)"
-                  placeholderTextColor={colors.text.secondary}
-                  editable={!uploading}
-                />
-              </Animated.View>
-
-              <EmailTouchable onPress={() => showAlert('Email Information', 'Your email address cannot be changed as it is used for account verification and security purposes.')}>
-                <EmailText style={{
-                  fontSize: user?.email && user.email.length > 20 ? 14 : 16
-                }}>
-                  {user?.email || ""}
-                </EmailText>
-              </EmailTouchable>
-
-              <StyledButton
-                title={uploading ? "Saving..." : "Save"}
-                onPress={() => {
-                  const nicknameChanged = editedNickname !== (profile?.displayName || user?.displayName);
-                  const imageChanged = tempImageUri !== null;
-                  if (!nicknameChanged && !imageChanged) {
-                    handleCancelEdit();
-                  } else {
-                    handleSaveProfile();
-                  }
-                }}
-                disabled={uploading}
-                loading={uploading}
-                style={{ marginTop: 8, marginBottom: 0 }}
-              />
-            </>
-          ) : (
-            <CollapsedProfileContent>
-              <CollapsedProfileTop>
-                <Nickname style={{ marginBottom: 0 }}>
-                  {profile?.displayName || user?.displayName || "Admin"}
-                </Nickname>
-                <AvatarTouchable
-                  onPress={handleAvatarPress}
-                  disabled={isLoading}
-                >
-                  <AvatarWrapper>
-                    {uploading ? (
-                      <ActivityIndicator size="small" color="#fff" />
-                    ) : profileImageUrl ? (
-                      <AvatarImage source={{ uri: profileImageUrl }} />
-                    ) : (
-                      <AvatarPlaceholder>
-                        <AvatarPlaceholderText>
-                          {user?.email?.[0]?.toUpperCase() || "?"}
-                        </AvatarPlaceholderText>
-                      </AvatarPlaceholder>
-                    )}
-                  </AvatarWrapper>
-                </AvatarTouchable>
-              </CollapsedProfileTop>
-              <StyledButton
-                title="Edit Profile"
-                onPress={() => setIsEditMode(true)}
-                variant="secondary"
-                style={{ marginBottom: 0 }}
-              />
-            </CollapsedProfileContent>
-          )}
-        </ProfileCard>
+        <EditProfile
+          variant="admin"
+          isExpanded={isEditMode}
+          onToggleExpanded={() => setIsEditMode(true)}
+          onAvatarPress={() => setShowImageModal(true)}
+          onSave={() => {
+            const nicknameChanged = editedNickname !== (profile?.displayName || user?.displayName);
+            const imageChanged = tempImageUri !== null;
+            if (!nicknameChanged && !imageChanged) {
+              handleCancelEdit();
+            } else {
+              handleSaveProfile();
+            }
+          }}
+          onCancel={handleCancelEdit}
+          onChoosePhoto={(uri) => setTempImageUri(uri)}
+          onEmailPress={() => showAlert('Email Information', 'Your email address cannot be changed as it is used for account verification and security purposes.')}
+          uploading={uploading}
+          tempImageUri={tempImageUri}
+          editedNickname={editedNickname}
+          onNicknameChange={handleEditedNicknameChange}
+          showImageModal={showImageModal}
+          onCloseImageModal={() => setShowImageModal(false)}
+          profileImageUrl={profileImageUrl}
+          shakeAnimation={shakeAnimation}
+        />
 
         <Modal visible={showImageModal} transparent animationType="fade">
           <ModalOverlay>

@@ -231,7 +231,7 @@ const ProfileButtonView = styled.View({
   backgroundColor: "#D9D9D9",
   justifyContent: "center",
   alignItems: "center",
-  borderWidth: 4,
+  borderWidth: 5,
   borderColor: colors.primary,
 });
 
