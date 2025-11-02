@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 import theme from '../../theme';
-import * as Haptics from 'expo-haptics';
+import { useHaptics } from '../../context/HapticsContext';
 
 interface CustomWheelPickerProps {
   options: string[];
@@ -77,6 +77,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
   itemTextStyle,
   visibleRest = 2,
 }) => {
+  const haptics = useHaptics();
   const flatListRef = React.useRef<FlatList>(null);
   const hasInitialized = React.useRef(false);
   const scrollTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -128,7 +129,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
 
     // Provide light haptic feedback when crossing item boundaries
     if (lastHapticIndex.current !== null && lastHapticIndex.current !== currentIndex) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      haptics.light();
     }
     lastHapticIndex.current = currentIndex;
 
@@ -141,7 +142,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
       if (newIndex !== selectedIndexRef.current && newIndex >= 0 && newIndex < options.length) {
         onChangeRef.current(newIndex);
         // Medium haptic feedback when snapping to a new selection
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        haptics.medium();
       } else {
         // Even if selection didn't change, ensure we're snapped to the correct position
         const targetOffset = selectedIndexRef.current * itemHeight;
@@ -151,7 +152,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
             animated: true,
           });
           // Light haptic feedback for position correction
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          haptics.light();
         }
       }
     }, 200); // Wait 200ms after scroll events stop for smoother feel

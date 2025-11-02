@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import styled from "styled-components/native";
 import theme from "../../theme";
+import { useHaptics } from "../../context/HapticsContext";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -70,9 +71,18 @@ const StyledButton: React.FC<StyledButtonProps> = ({
   style,
   textColor,
 }) => {
+  const haptics = useHaptics();
+
+  const handlePress = () => {
+    if (!disabled && !loading) {
+      haptics.light();
+      onPress();
+    }
+  };
+
   return (
     <ButtonTouchable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
       isDisabled={disabled || loading}
       variant={variant}

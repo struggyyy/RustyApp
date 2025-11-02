@@ -4,6 +4,7 @@ import { MaterialIcons, Feather } from "@expo/vector-icons";
 import styled from "styled-components/native";
 import StyledButton from "./StyledButton";
 import colors from "../../theme/colors";
+import { useHaptics } from "../../context/HapticsContext";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -125,6 +126,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
   onDeleteAccount,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const haptics = useHaptics();
 
   if (variant === 'admin') {
     return (
@@ -138,7 +140,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
             trackColor={{ false: colors.primary, true: colors.status.recycled }}
             thumbColor={colors.white}
             ios_backgroundColor={colors.primary}
-            onValueChange={onToggleNotifications}
+            onValueChange={(value) => { haptics.light(); onToggleNotifications(value); }}
             value={notificationsEnabled}
             disabled={isSubmitting}
           />
@@ -149,12 +151,12 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
             trackColor={{ false: colors.primary, true: colors.status.recycled }}
             thumbColor={colors.white}
             ios_backgroundColor={colors.primary}
-            onValueChange={onToggleHaptics}
+            onValueChange={(value) => { haptics.light(); onToggleHaptics(value); }}
             value={hapticsEnabled}
             disabled={isSubmitting}
           />
         </NotificationRow>
-        <LanguageToggle onPress={onToggleLanguage}>
+        <LanguageToggle onPress={() => { haptics.light(); onToggleLanguage(); }}>
           <LanguageOption isSelected={language === 'English'}>
             <LanguageText isSelected={language === 'English'}>🇬🇧 English</LanguageText>
           </LanguageOption>
@@ -185,7 +187,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           trackColor={{ false: colors.primary, true: colors.status.recycled }}
           thumbColor={colors.white}
           ios_backgroundColor={colors.primary}
-          onValueChange={onToggleNotifications}
+          onValueChange={(value) => { haptics.light(); onToggleNotifications(value); }}
           value={notificationsEnabled}
           disabled={isSubmitting}
         />
@@ -196,12 +198,12 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           trackColor={{ false: colors.primary, true: colors.status.recycled }}
           thumbColor={colors.white}
           ios_backgroundColor={colors.primary}
-          onValueChange={onToggleHaptics}
+          onValueChange={(value) => { haptics.light(); onToggleHaptics(value); }}
           value={hapticsEnabled}
           disabled={isSubmitting}
         />
       </NotificationRow>
-      <LanguageToggle onPress={onToggleLanguage}>
+      <LanguageToggle onPress={() => { haptics.light(); onToggleLanguage(); }}>
         <LanguageOption isSelected={language === 'English'}>
           <LanguageText isSelected={language === 'English'}>🇬🇧 English</LanguageText>
         </LanguageOption>
@@ -216,7 +218,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         loading={authLoading && !isSubmitting}
         style={{ backgroundColor: colors.primary, marginTop: 8, marginBottom: 0 }}
       />
-      <ExpandArrow onPress={() => setIsExpanded(!isExpanded)}>
+      <ExpandArrow onPress={() => { haptics.light(); setIsExpanded(!isExpanded); }}>
         <Feather
           name={isExpanded ? "chevron-up" : "chevron-down"}
           size={24}
@@ -224,7 +226,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         />
       </ExpandArrow>
       {isExpanded && onDeleteAccount && (
-        <DeleteAccountButton onPress={onDeleteAccount}>
+        <DeleteAccountButton onPress={() => { haptics.light(); onDeleteAccount(); }}>
           <DeleteAccountText>Delete Account :(</DeleteAccountText>
         </DeleteAccountButton>
       )}

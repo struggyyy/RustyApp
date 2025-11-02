@@ -6,8 +6,11 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { Platform, View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
+import { HapticsProvider } from '../src/context/HapticsContext';
 import * as Linking from 'expo-linking';
 import styled from 'styled-components/native';
+import HeaderBackButton from '../src/components/common/HeaderBackButton';
+import colors from '../src/theme/colors';
 
 const StyledSafeAreaProvider = styled(SafeAreaProvider)`
   flex: 1;
@@ -104,11 +107,15 @@ function AuthenticatedStack() {
         headerStyle: { backgroundColor: '#FFFFFF' },
         headerTransparent: false,
         contentStyle: { backgroundColor: '#FFFFFF' },
+        headerTintColor: colors.text.primary,
+        headerLeft: () => (
+          <HeaderBackButton onPress={() => router.back()} />
+        ),
       }}
     >
       <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
       <Stack.Screen name="admin-profile" options={{ title: 'Admin Profile' }} />
-      <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false }} />
+      <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false, headerLeft: undefined }} />
     </Stack>
   );
 }
@@ -118,8 +125,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <StyledSafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AuthProvider>
-          <ExpoStatusBar style="dark" translucent={false} backgroundColor="#FFFFFF" />
-          <AuthenticatedStack />
+          <HapticsProvider>
+            <ExpoStatusBar style="dark" translucent={false} backgroundColor="#FFFFFF" />
+            <AuthenticatedStack />
+          </HapticsProvider>
         </AuthProvider>
       </StyledSafeAreaProvider>
     </GestureHandlerRootView>

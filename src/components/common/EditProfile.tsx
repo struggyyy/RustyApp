@@ -10,7 +10,9 @@ import {
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
+import { useHaptics } from "../../context/HapticsContext";
 import * as ImagePicker from "expo-image-picker";
+import * as Haptics from "expo-haptics";
 import styled from "styled-components/native";
 import StyledButton from "../common/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
@@ -293,6 +295,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
   shakeAnimation,
 }) => {
   const { user, profile, initialLoading } = useAuth();
+  const haptics = useHaptics();
 
   const shake = shakeAnimation || useRef(new Animated.Value(0)).current;
 
@@ -339,12 +342,12 @@ const EditProfile: React.FC<EditProfileProps> = ({
           <>
             <ExpandedProfileHeader>
               <ExpandedProfileTitle>Edit Profile</ExpandedProfileTitle>
-              <ExpandedProfileCloseButton onPress={handleCancel}>
+              <ExpandedProfileCloseButton onPress={() => { haptics.light(); handleCancel(); }}>
                 <MaterialIcons name="close" size={24} color={colors.text.primary} />
               </ExpandedProfileCloseButton>
             </ExpandedProfileHeader>
 
-            <AvatarTouchable onPress={handleChoosePhoto} disabled={uploading}>
+            <AvatarTouchable onPress={() => { if (!uploading) { haptics.light(); handleChoosePhoto(); } }} disabled={uploading}>
               <ExpandedAvatarWrapper>
                 {uploading ? (
                   <ActivityIndicator size="large" color="#fff" />
@@ -359,7 +362,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                     </ExpandedAvatarPlaceholderText>
                   </ExpandedAvatarPlaceholder>
                 )}
-                <EditIconButton onPress={handleChoosePhoto} disabled={uploading}>
+                <EditIconButton onPress={() => { if (!uploading) { haptics.light(); handleChoosePhoto(); } }} disabled={uploading}>
                   <MaterialIcons name="edit" size={20} color={colors.primary} />
                 </EditIconButton>
               </ExpandedAvatarWrapper>
@@ -376,7 +379,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
               />
             </Animated.View>
 
-            <EmailTouchable onPress={onEmailPress}>
+            <EmailTouchable onPress={() => { haptics.light(); onEmailPress?.(); }}>
               <EmailText style={{
                 fontSize: user?.email && user.email.length > 20 ? 14 : 16
               }}>
@@ -404,7 +407,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 )}
               </NicknameContainer>
               <AvatarTouchable
-                onPress={handleAvatarPress}
+                onPress={() => { if (!uploading) { haptics.light(); handleAvatarPress(); } }}
                 disabled={uploading}
               >
                 <AvatarWrapper>
@@ -437,7 +440,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
           <ModalContent style={shadowStyles.modalShadow}>
             <ModalHeader>
               <ModalTitle>Profile Picture</ModalTitle>
-              <ModalCloseButton onPress={onCloseImageModal}>
+              <ModalCloseButton onPress={() => { haptics.light(); onCloseImageModal?.(); }}>
                 <Feather name="x" size={24} color={colors.text.primary} />
               </ModalCloseButton>
             </ModalHeader>

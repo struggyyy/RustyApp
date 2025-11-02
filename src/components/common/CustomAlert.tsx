@@ -3,6 +3,7 @@ import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import styled from "styled-components/native";
 import colors from "../../theme/colors";
+import TouchableButton from "./TouchableButton";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -145,17 +146,33 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
             {buttons.map((button, index) => {
               const buttonVariant = getButtonVariant(button.style);
               const handlePress = button.onPress || onRequestClose;
+              const buttonStyle = {
+                flex: 1,
+                backgroundColor:
+                  buttonVariant === "primary"
+                    ? colors.primary
+                    : buttonVariant === "destructive"
+                    ? colors.primary
+                    : buttonVariant === "cancel"
+                    ? colors.text.secondary
+                    : colors.componentBackground,
+                padding: 14,
+                borderRadius: 20,
+                alignItems: "center" as const,
+                justifyContent: "center" as const,
+                minWidth: 100,
+              };
               
               return (
-                <AlertButton
+                <TouchableButton
                   key={index}
-                  variant={buttonVariant}
-                  onPress={handlePress}
+                  onPress={handlePress || (() => {})}
+                  style={buttonStyle}
                 >
                   <AlertButtonText variant={buttonVariant}>
                     {button.text}
                   </AlertButtonText>
-                </AlertButton>
+                </TouchableButton>
               );
             })}
           </ButtonContainer>

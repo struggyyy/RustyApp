@@ -4,6 +4,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../../theme/colors';
 import { Report } from '../../types/reports';
+import IconButton from './IconButton';
+import TouchableButton from './TouchableButton';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -165,9 +167,13 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
         <ModalContent style={shadowStyles.modalShadow}>
           <ModalHeader>
             <ModalTitle>Reported Car</ModalTitle>
-            <CloseButton onPress={onClose}>
+            <IconButton
+              onPress={onClose}
+              size={40}
+              backgroundColor="transparent"
+            >
               <MaterialIcons name="close" size={24} color={colors.text.primary} />
-            </CloseButton>
+            </IconButton>
           </ModalHeader>
 
           <DateText style={{ color: getStatusColor(report.status) }}>{formatDate(report.createdAt.toDate())}</DateText>
@@ -176,26 +182,58 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
 
           {hasMultiple && (
             <NavigationView>
-              <NavButton onPress={onPrev}>
+              <IconButton
+                onPress={onPrev || (() => {})}
+                size={40}
+                backgroundColor="transparent"
+              >
                 <MaterialIcons name="chevron-left" size={30} color={colors.text.primary} />
-              </NavButton>
-              <NavButton onPress={onNext}>
+              </IconButton>
+              <IconButton
+                onPress={onNext || (() => {})}
+                size={40}
+                backgroundColor="transparent"
+              >
                 <MaterialIcons name="chevron-right" size={30} color={colors.text.primary} />
-              </NavButton>
+              </IconButton>
             </NavigationView>
           )}
 
           <ActionButtons>
             {onViewReport && (
-              <ActionButton variant="close" onPress={onViewReport}>
+              <TouchableButton
+                onPress={onViewReport}
+                style={{
+                  flex: 1,
+                  backgroundColor: colors.text.secondary,
+                  padding: 14,
+                  borderRadius: 20,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
                 <ActionButtonText variant="close">More</ActionButtonText>
-              </ActionButton>
+              </TouchableButton>
             )}
             {onNavigate && (
-              <ActionButton variant="navigate" onPress={onNavigate}>
+              <TouchableButton
+                onPress={onNavigate}
+                style={{
+                  flex: 1,
+                  backgroundColor: colors.navigation,
+                  padding: 14,
+                  borderRadius: 20,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
                 <MaterialIcons name="navigation" size={20} color={colors.white} />
                 <ActionButtonText variant="navigate">Navigate</ActionButtonText>
-              </ActionButton>
+              </TouchableButton>
             )}
           </ActionButtons>
         </ModalContent>

@@ -25,6 +25,10 @@ import {
 import theme from "../src/theme";
 import StyledButton from "../src/components/common/StyledButton";
 import CustomAlert from "../src/components/common/CustomAlert";
+import TouchableButton from "../src/components/common/TouchableButton";
+import FloatingActionButton from "../src/components/common/FloatingActionButton";
+import { useHaptics } from "../src/context/HapticsContext";
+import * as Haptics from "expo-haptics";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -200,6 +204,7 @@ const ButtonRow = styled.View({
 export default function ReportScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const haptics = useHaptics();
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<{
     latitude: number;
@@ -424,12 +429,28 @@ export default function ReportScreen() {
                   <ImagePreview source={{ uri: imageUri }} />
                   <ImageOverlayActions>
                     {/* Select other image from the phone (currently disabled)
-                <ImageActionButton onPress={() => pickImage(false)}>
+                <TouchableButton
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    borderRadius: 20,
+                    padding: 8,
+                    marginLeft: 10,
+                  }}
+                  onPress={() => pickImage(false)}
+                >
                   <Ionicons name="create-outline" size={24} color="white" />
-                </ImageActionButton> */}
-                    <ImageActionButton onPress={handleCancelImage}>
+                </TouchableButton> */}
+                    <TouchableButton
+                      style={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        borderRadius: 20,
+                        padding: 8,
+                        marginLeft: 10,
+                      }}
+                      onPress={handleCancelImage}
+                    >
                       <Ionicons name="close" size={24} color="white" />
-                    </ImageActionButton>
+                    </TouchableButton>
                   </ImageOverlayActions>
                 </ImagePreviewContainer>
               )
@@ -441,13 +462,24 @@ export default function ReportScreen() {
                   variant="secondary"
                   style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
                 />
-                <SelectImageButton style={shadowStyles.shadowMedium} onPress={() => pickImage(false)}>
+                <TouchableButton
+                  style={{
+                    backgroundColor: theme.colors.secondaryLight,
+                    width: 60,
+                    height: 60,
+                    borderRadius: 30,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    ...shadowStyles.shadowMedium,
+                  }}
+                  onPress={() => pickImage(false)}
+                >
                   <Ionicons
                     name="image-outline"
                     size={24}
                     color={theme.colors.text.primary}
                   />
-                </SelectImageButton>
+                </TouchableButton>
               </ButtonRow>
             )}
           </TopContent>
@@ -462,19 +494,23 @@ export default function ReportScreen() {
               placeholderTextColor={theme.colors.text.secondary}
               value={description}
               onChangeText={setDescription}
+              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
               multiline
               maxLength={150}
             />
 
             <MapContainer>
               {renderMapContent()}
-              <MyLocationButtonTouchable onPress={handleCenterMap}>
+              <FloatingActionButton
+                onPress={handleCenterMap}
+                style={{ position: "absolute", bottom: 20, right: 20 }}
+              >
                 <MaterialIcons
                   name="my-location"
                   size={24}
                   color={theme.colors.primary}
                 />
-              </MyLocationButtonTouchable>
+              </FloatingActionButton>
             </MapContainer>
           </MainCard>
 

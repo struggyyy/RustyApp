@@ -20,6 +20,8 @@ import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
 import * as Linking from "expo-linking";
 import ReportModal from "../src/components/common/ReportModal";
+import FloatingActionButton from "../src/components/common/FloatingActionButton";
+import { useHaptics } from "../src/context/HapticsContext";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
@@ -173,6 +175,7 @@ export default function MapScreen() {
 function MapScreenComponent() {
   const { user } = useAuth();
   const router = useRouter();
+  const haptics = useHaptics();
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
@@ -342,6 +345,7 @@ function MapScreenComponent() {
             }}
             pinColor={colors.primary}
             onPress={() => {
+              haptics.light();
               const reportsAtLocation = reports.filter(
                 (r) =>
                   getDistance(
@@ -371,13 +375,16 @@ function MapScreenComponent() {
             pointerEvents="none"
           />
           {!isWeb && location && (
-            <MyLocationButtonTouchable style={shadowStyles.shadowMedium} onPress={goToMyLocation}>
+            <FloatingActionButton
+              onPress={goToMyLocation}
+              style={{ position: "absolute", bottom: 20, right: 20 }}
+            >
               <MaterialIcons
                 name="my-location"
                 size={24}
                 color={colors.primary}
               />
-            </MyLocationButtonTouchable>
+            </FloatingActionButton>
           )}
         </MapWrapperView>
       </MapSection>

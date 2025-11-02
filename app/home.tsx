@@ -25,6 +25,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/services/firebase/reports";
 import { Report } from "../src/types/reports";
 import StyledButton from "../src/components/common/StyledButton";
+import TouchableButton from "../src/components/common/TouchableButton";
+import FloatingActionButton from "../src/components/common/FloatingActionButton";
 
 const { width, height } = Dimensions.get("window");
 const isWeb = Platform.OS === "web";
@@ -406,12 +408,18 @@ function HomeScreenComponent() {
         <MapPlaceholderView>
           <MapErrorText>{locationErrorMsg}</MapErrorText>
           {waitingForPermissions && (
-            <TouchableOpacity
+            <TouchableButton
               onPress={() => fetchLocation(true)}
-              style={{ marginTop: 10, padding: 10, backgroundColor: colors.primary, borderRadius: 8 }}
+              style={{
+                marginTop: 10,
+                padding: 10,
+                backgroundColor: colors.primary,
+                borderRadius: 8,
+                alignItems: "center"
+              }}
             >
               <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Try Again</Text>
-            </TouchableOpacity>
+            </TouchableButton>
           )}
         </MapPlaceholderView>
       );
@@ -498,9 +506,10 @@ function HomeScreenComponent() {
             <ScoreLabelText>YOUR COMMUNITY SCORE</ScoreLabelText>
             <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
           </View>
-          <TouchableOpacity
+          <TouchableButton
             onPress={() => router.push("/profile")}
             disabled={!user}
+            style={{ alignItems: "center" }}
           >
             <ProfileButtonView>
               {profile?.profileImage || user?.photoURL ? (
@@ -517,7 +526,7 @@ function HomeScreenComponent() {
                 </ProfileImagePlaceholder>
               )}
             </ProfileButtonView>
-          </TouchableOpacity>
+          </TouchableButton>
         </ScoreSection>
 
         <CarImageCard style={shadowStyles.shadowMuted}>
@@ -534,9 +543,22 @@ function HomeScreenComponent() {
 
         <MapSection>
           {reports.length > 0 && (
-            <MyReportsButton style={shadowStyles.shadowSmall} onPress={() => router.push("/my-reports")}>
-              <MyReportsButtonText>MY REPORTS</MyReportsButtonText>
-            </MyReportsButton>
+            <TouchableButton
+              onPress={() => router.push("/my-reports")}
+              style={[shadowStyles.shadowSmall, {
+                position: "absolute",
+                top: 16,
+                left: 16,
+                right: 16,
+                zIndex: 3,
+                backgroundColor: "#FFFFFF",
+                padding: 16,
+                borderRadius: 16,
+                alignItems: "center"
+              }]}
+            >
+              <Text style={{ color: "#656565", fontWeight: "bold", fontSize: 18, textAlign: "center" }}>MY REPORTS</Text>
+            </TouchableButton>
           )}
           <MapWrapperView>
             {renderMap()}
@@ -546,20 +568,26 @@ function HomeScreenComponent() {
             />
             {!isWeb && location && (
               <>
-                <MyLocationButtonTouchable style={shadowStyles.shadowMedium} onPress={goToMyLocation}>
+                <FloatingActionButton
+                  onPress={goToMyLocation}
+                  style={{ position: "absolute", bottom: 20, right: 20 }}
+                >
                   <MaterialIcons
                     name="my-location"
                     size={24}
                     color={colors.primary}
                   />
-                </MyLocationButtonTouchable>
-                <ExpandButtonTouchable style={shadowStyles.shadowMedium} onPress={() => router.push("/map")}>
+                </FloatingActionButton>
+                <FloatingActionButton
+                  onPress={() => router.push("/map")}
+                  style={{ position: "absolute", bottom: 20, left: 20 }}
+                >
                   <MaterialIcons
                     name="fullscreen"
                     size={24}
                     color={colors.primary}
                   />
-                </ExpandButtonTouchable>
+                </FloatingActionButton>
               </>
             )}
           </MapWrapperView>

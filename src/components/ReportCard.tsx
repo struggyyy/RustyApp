@@ -7,6 +7,8 @@ import colors from '../theme/colors';
 import { Report, ReportStatus, reportStatuses } from '../types/reports';
 import { deleteReport, updateReportStatus } from '../services/firebase/reports';
 import CustomAlert from './common/CustomAlert';
+import IconButton from './common/IconButton';
+import TouchableButton from './common/TouchableButton';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -256,13 +258,22 @@ const UserExpandedView = ({ report, statusColor, onClose, onDelete }: ViewProps)
       <CardTitle>Report Details</CardTitle>
       <HeaderActions>
         {onDelete && (
-          <DeleteButton onPress={onDelete}>
+          <IconButton
+            onPress={onDelete}
+            size={40}
+            backgroundColor="transparent"
+            color={colors.primary}
+          >
             <MaterialIcons name="delete" size={24} color={colors.primary} />
-          </DeleteButton>
+          </IconButton>
         )}
-        <CloseButton onPress={onClose}>
+        <IconButton
+          onPress={onClose}
+          size={40}
+          backgroundColor="transparent"
+        >
           <MaterialIcons name="close" size={24} color={colors.text.primary} />
-        </CloseButton>
+        </IconButton>
       </HeaderActions>
     </CardHeader>
 
@@ -291,13 +302,22 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
       <CardTitle>Report Details</CardTitle>
       <HeaderActions>
         {report.status === 'Report canceled' && onDelete && (
-          <DeleteButton onPress={onDelete}>
+          <IconButton
+            onPress={onDelete}
+            size={40}
+            backgroundColor="transparent"
+            color={colors.primary}
+          >
             <MaterialIcons name="delete" size={24} color={colors.primary} />
-          </DeleteButton>
+          </IconButton>
         )}
-        <CloseButton onPress={onClose}>
+        <IconButton
+          onPress={onClose}
+          size={40}
+          backgroundColor="transparent"
+        >
           <MaterialIcons name="close" size={24} color={colors.text.primary} />
-        </CloseButton>
+        </IconButton>
       </HeaderActions>
     </CardHeader>
 
@@ -317,15 +337,22 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
     <DetailLabel>Report Status:</DetailLabel>
     <StatusGrid>
       {reportStatuses.map((status) => (
-        <StatusButton 
-          key={status} 
-          active={report.status === status} 
-          activeColor={getStatusColor(status)} // Use the status color for the active background
-          onPress={() => onStatusUpdate && onStatusUpdate(status)} 
+        <TouchableButton
+          key={status}
+          onPress={() => onStatusUpdate && onStatusUpdate(status)}
           disabled={report.status === status}
+          style={{
+            backgroundColor: report.status === status ? getStatusColor(status) : colors.componentBackground,
+            paddingVertical: 18,
+            paddingHorizontal: 8,
+            borderRadius: 12,
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '48%',
+          }}
         >
           <StatusButtonText active={report.status === status}>{capitalize(status.replace('Report ', ''))}</StatusButtonText>
-        </StatusButton>
+        </TouchableButton>
       ))}
     </StatusGrid>
   </>
@@ -397,9 +424,18 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
         <ReportInfo>
           <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
           <ReportStatusText color={statusColor}>{report.status}</ReportStatusText>
-          <DetailsButton onPress={() => onDetailsPress?.(report)}>
+          <TouchableButton
+            onPress={() => onDetailsPress?.(report)}
+            style={{
+              backgroundColor: colors.text.secondary,
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              borderRadius: 20,
+              alignItems: 'center',
+            }}
+          >
             <DetailsButtonText>See the details</DetailsButtonText>
-          </DetailsButton>
+          </TouchableButton>
         </ReportInfo>
         <CarImageContainer>
           <CollapsedCarImage source={{ uri: report.imageUrl }} />

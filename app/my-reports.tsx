@@ -11,6 +11,7 @@ import CustomAlert from '../src/components/common/CustomAlert';
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import IconButton from '../src/components/common/IconButton';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -177,12 +178,21 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
       <CardHeader>
         <CardTitle>Report Details</CardTitle>
         <HeaderActions>
-          <DeleteButton onPress={handleDeletePress}>
+          <IconButton
+            onPress={handleDeletePress}
+            size={40}
+            backgroundColor="transparent"
+            color={theme.colors.primary}
+          >
             <MaterialIcons name="delete" size={24} color={theme.colors.primary} />
-          </DeleteButton>
-          <CloseButton onPress={onClose}>
+          </IconButton>
+          <IconButton
+            onPress={onClose}
+            size={40}
+            backgroundColor="transparent"
+          >
             <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
-          </CloseButton>
+          </IconButton>
         </HeaderActions>
       </CardHeader>
 

@@ -30,6 +30,8 @@ import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/CustomAlert";
 import EditProfile from "../src/components/common/EditProfile";
 import SettingsCard from "../src/components/common/SettingsCard";
+import TouchableButton from "../src/components/common/TouchableButton";
+import IconButton from "../src/components/common/IconButton";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -196,12 +198,21 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
       <ModalCardHeader>
         <ModalCardTitle>Report Details</ModalCardTitle>
         <ModalHeaderActions>
-          <ModalDeleteButton onPress={handleDeletePress}>
+          <IconButton
+            onPress={handleDeletePress}
+            size={40}
+            backgroundColor="transparent"
+            color={colors.primary}
+          >
             <MaterialIcons name="delete" size={24} color={colors.primary} />
-          </ModalDeleteButton>
-          <ModalCloseButtonNew onPress={onClose}>
+          </IconButton>
+          <IconButton
+            onPress={onClose}
+            size={40}
+            backgroundColor="transparent"
+          >
             <MaterialIcons name="close" size={24} color={colors.text.primary} />
-          </ModalCloseButtonNew>
+          </IconButton>
         </ModalHeaderActions>
       </ModalCardHeader>
 
@@ -712,9 +723,13 @@ export default function Profile() {
             <ModalContent style={shadowStyles.modalShadow}>
               <ModalHeader>
                 <ModalTitle>Profile Picture</ModalTitle>
-                <ModalCloseButton onPress={() => setShowImageModal(false)}>
+                <IconButton
+                  onPress={() => setShowImageModal(false)}
+                  size={40}
+                  backgroundColor="transparent"
+                >
                   <Feather name="x" size={24} color={colors.text.primary} />
-                </ModalCloseButton>
+                </IconButton>
               </ModalHeader>
               <ModalImage
                 source={{ uri: profileImageUrl }}
@@ -740,9 +755,9 @@ export default function Profile() {
 
         {reports.length > 0 && (
           <ReportsCard style={shadowStyles.modalShadow}>
-            <TouchableOpacity onPress={() => router.push("/my-reports")}>
+            <TouchableButton onPress={() => router.push("/my-reports")}>
               <ReportsTitle>View all my reports</ReportsTitle>
-            </TouchableOpacity>
+            </TouchableButton>
           </ReportsCard>
         )}
         <Modal visible={showReportModal} transparent animationType="fade">
