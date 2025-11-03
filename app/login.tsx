@@ -5,6 +5,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
+import * as Haptics from 'expo-haptics';
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
@@ -138,6 +139,7 @@ export default function Login() {
   }, [user, initialLoading]);
 
   const handleLogin = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setLocalError(null);
     Keyboard.dismiss();
 
@@ -174,6 +176,7 @@ export default function Login() {
   };
 
   const goToSignUp = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Keyboard.dismiss();
     setLocalError(null);
     setTimeout(() => {
@@ -185,6 +188,7 @@ export default function Login() {
   };
 
   const goToForgotPassword = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Keyboard.dismiss();
     setLocalError(null);
     setTimeout(() => {
@@ -224,6 +228,7 @@ export default function Login() {
           autoCapitalize="none"
           returnKeyType="next"
           onSubmitEditing={() => passwordInputRef.current?.focus()}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           hasError={!!localError}
         />
         <StyledInput
@@ -234,6 +239,7 @@ export default function Login() {
           secureTextEntry
           returnKeyType="go"
           onSubmitEditing={handleLogin}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           hasError={!!localError}
         />
         

@@ -24,6 +24,7 @@ import { storage } from "../src/services/firebase";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
 import EditProfile from "../src/components/features/profile/EditProfile";
 import SettingsCard from "../src/components/features/profile/SettingsCard";
+import { useHaptics } from "../src/context/HapticsContext";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -98,6 +99,7 @@ const ModalImage = styled.Image({
 
 export default function AdminProfile() {
   const { user, profile, uploadProfileImage, updateUserProfile, loading: authLoading, initialLoading, logOut } = useAuth();
+  const haptics = useHaptics();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -398,7 +400,7 @@ export default function AdminProfile() {
             <ModalContent style={shadowStyles.modalShadow}>
               <ModalHeader>
                 <ModalTitle>Profile Picture</ModalTitle>
-                <ModalCloseButton onPress={() => setShowImageModal(false)}>
+                <ModalCloseButton onPress={() => { haptics.light(); setShowImageModal(false); }}>
                   <Feather name="x" size={24} color={colors.text.primary} />
                 </ModalCloseButton>
               </ModalHeader>

@@ -6,6 +6,7 @@ import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';
+import * as Haptics from 'expo-haptics';
 
 // Styled Components (re-using styles from login for consistency)
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
@@ -120,6 +121,7 @@ export default function ForgotPassword() {
   };
 
   const handleBackToLogin = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Keyboard.dismiss();
     router.replace({ 
       pathname: '/login', 
@@ -128,6 +130,7 @@ export default function ForgotPassword() {
   };
 
   const handleResetPassword = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (!email) {
       showAlert('Error', 'Please enter your email address');
       return;
@@ -178,6 +181,7 @@ export default function ForgotPassword() {
             keyboardType="email-address"
             returnKeyType="go"
             onSubmitEditing={handleResetPassword}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             editable={!loading}
           />
 

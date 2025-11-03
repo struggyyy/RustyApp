@@ -5,6 +5,7 @@ import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';
+import * as Haptics from 'expo-haptics';
 
 // Styled Components
 const StyledContainer = styled.View({
@@ -110,6 +111,7 @@ export default function VerifyEmailScreen() {
   const emailToVerify = params.email as string || user?.email;
 
   const handleResendVerification = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsResending(true);
     setResendMessage('');
     try {
@@ -124,6 +126,7 @@ export default function VerifyEmailScreen() {
   };
 
   const goToLogin = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('[VerifyEmail] Logging out before navigating to login...');
     setIsLoggingOut(true);
     try {

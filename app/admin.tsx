@@ -13,6 +13,7 @@ import ReportCard from '../src/components/features/reports/ReportCard';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import theme from '../src/theme';
+import { useHaptics } from '../src/context/HapticsContext';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -187,18 +188,20 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
   onClose: () => void;
   onStatusUpdate?: (newStatus: ReportStatus) => void;
   onDelete?: () => void;
-}) => (
+}) => {
+  const haptics = useHaptics();
+  return (
   <View style={{ maxHeight: '100%' }}>
     {/* Fixed Header */}
     <CardHeader>
       <CardTitle>Report Details</CardTitle>
       <HeaderActions>
         {report.status === 'Report canceled' && onDelete && (
-          <DeleteButton onPress={onDelete}>
+          <DeleteButton onPress={() => { haptics.light(); onDelete(); }}>
             <MaterialIcons name="delete" size={24} color={theme.colors.primary} />
           </DeleteButton>
         )}
-        <CloseButton onPress={onClose}>
+        <CloseButton onPress={() => { haptics.light(); onClose(); }}>
           <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
         </CloseButton>
       </HeaderActions>
@@ -233,7 +236,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
             key={status}
             active={report.status === status}
             activeColor={getStatusColor(status)}
-            onPress={() => onStatusUpdate && onStatusUpdate(status)}
+            onPress={() => { haptics.light(); onStatusUpdate && onStatusUpdate(status); }}
             disabled={report.status === status}
           >
             <StatusButtonText active={report.status === status}>{capitalize(status.replace('Report ', ''))}</StatusButtonText>
@@ -243,6 +246,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
     </View>
   </View>
 );
+};
 
 const AdminDashboard = () => {
   const { logOut, isAdmin } = useAuth();

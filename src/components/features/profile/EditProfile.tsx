@@ -376,6 +376,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 placeholder="Enter your nickname (2-15 characters)"
                 placeholderTextColor={colors.text.secondary}
                 editable={!uploading}
+                onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
               />
             </Animated.View>
 

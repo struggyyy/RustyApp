@@ -6,6 +6,7 @@ import { useAuth } from '../src/context/AuthContext';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';
+import * as Haptics from 'expo-haptics';
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
@@ -149,6 +150,7 @@ export default function SignupScreen() {
   };
 
   const handleSignup = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (nickname.length < 2) {
       showAlert('Error', 'Nickname must be at least 2 characters long.');
       return;
@@ -214,6 +216,7 @@ export default function SignupScreen() {
               onChangeText={handleNicknameChange}
               autoCapitalize="words"
               editable={!isLoading}
+              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             />
           </Animated.View>
 
@@ -224,6 +227,7 @@ export default function SignupScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
             editable={!isLoading}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           />
 
           <StyledInput
@@ -233,6 +237,7 @@ export default function SignupScreen() {
             secureTextEntry
             autoCapitalize="none"
             editable={!isLoading}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           />
 
           <StyledInput
@@ -242,6 +247,7 @@ export default function SignupScreen() {
             secureTextEntry
             autoCapitalize="none"
             editable={!isLoading}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           />
 
           <StyledButton 
@@ -258,6 +264,7 @@ export default function SignupScreen() {
 
           <BackButtonTouchable 
             onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               Keyboard.dismiss();
               router.replace('/login');
             }}

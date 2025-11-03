@@ -6,6 +6,7 @@ import theme from '../../../theme';
 import { useAuth } from '../../../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomWheelPicker from './CustomWheelPicker';
+import { useHaptics } from '../../../context/HapticsContext';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -189,6 +190,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onProfile,
 }) => {
   const { user, profile } = useAuth();
+  const haptics = useHaptics();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [selectedDistanceIndex, setSelectedDistanceIndex] = React.useState((maxDistance || 5) - 1);
   
@@ -232,7 +234,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   const renderCollapsedView = () => (
-    <TouchableOpacity onPress={() => setIsExpanded(true)} activeOpacity={0.7}>
+    <TouchableOpacity onPress={() => { haptics.light(); setIsExpanded(true); }} activeOpacity={0.7}>
       <CollapsedFilterContent>
         <CollapsedFilterTop>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -244,7 +246,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.secondary} />
             </View>
             <View style={{ flex: 1 }} />
-            <TouchableOpacity onPress={onProfile}>
+            <TouchableOpacity onPress={() => { haptics.light(); onProfile(); }}>
               <ProfileButtonView>
                 {profile?.profileImage || user?.photoURL ? (
                   <ProfileUserImage
@@ -271,7 +273,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     <>
       <ExpandedFilterHeader>
         <ExpandedFilterTitle>Filters</ExpandedFilterTitle>
-        <ExpandedFilterCloseButton onPress={() => setIsExpanded(false)}>
+        <ExpandedFilterCloseButton onPress={() => { haptics.light(); setIsExpanded(false); }}>
           <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
         </ExpandedFilterCloseButton>
       </ExpandedFilterHeader>
@@ -282,7 +284,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <View style={{ gap: 8 }}>
             <FilterChip
               isSelected={!selectedStatuses || selectedStatuses.length === 0}
-              onPress={() => onStatusesChange([])}
+              onPress={() => { haptics.light(); onStatusesChange([]); }}
             >
               <FilterChipText isSelected={!selectedStatuses || selectedStatuses.length === 0}>
                 Show All
@@ -292,6 +294,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               const isSelected = selectedStatuses?.includes(status) ?? false;
               const displayText = status.replace('Report ', '').replace(/^./, str => str.toUpperCase());
               const handleToggle = () => {
+                haptics.light();
                 if (!selectedStatuses || selectedStatuses.length === 0) {
                   onStatusesChange([status]);
                   return;

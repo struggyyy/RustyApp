@@ -113,9 +113,13 @@ function AuthenticatedStack() {
         ),
       }}
     >
-      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false }} />
+      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false, headerLeft: undefined }} />
       <Stack.Screen name="admin-profile" options={{ title: 'Admin Profile' }} />
       <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false, headerLeft: undefined }} />
+      <Stack.Screen name="login" options={{ title: 'Login', headerBackVisible: false, headerLeft: undefined }} />
+      <Stack.Screen name="signup" options={{ title: 'Sign Up' }} />
+      <Stack.Screen name="forgot-password" options={{ title: 'Reset Password' }} />
+      <Stack.Screen name="verify-email" options={{ title: 'Verify Email', headerBackVisible: false }} />
     </Stack>
   );
 }
