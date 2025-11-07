@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvo
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
+import { useTranslation } from '../src/hooks/useTranslation';
+import LanguageSwitcher from '../src/components/common/LanguageSwitcher';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import * as Haptics from 'expo-haptics';
@@ -107,15 +109,21 @@ const ErrorText = styled.Text({
 });
 
 export default function Login() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(params.email as string || '');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [, forceUpdate] = useState({});
   const { logIn, loading: authLoading, user, initialLoading } = useAuth();
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
   const headerHeight = useHeaderHeight();
+
+  const handleLanguageChange = () => {
+    forceUpdate({});
+  };
 
   useEffect(() => {
     if (localError) {
@@ -144,11 +152,11 @@ export default function Login() {
     Keyboard.dismiss();
 
     if (!email) {
-      setLocalError('Please enter your email address');
+      setLocalError(t('auth.emailRequired'));
       return;
     }
     if (!password) {
-      setLocalError('Please enter your password');
+      setLocalError(t('auth.passwordRequired'));
       return;
     }
 
@@ -160,15 +168,15 @@ export default function Login() {
     } catch (err: any) {
       console.error('Login handler error:', err.code, err.message);
       if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        setLocalError('User not found or invalid credentials.');
+        setLocalError(t('auth.userNotFound'));
       } else if (err.code === 'auth/wrong-password') {
-        setLocalError('Incorrect password. Please try again.');
+        setLocalError(t('auth.wrongPassword'));
       } else if (err.code === 'auth/invalid-email') {
-        setLocalError('Please enter a valid email address.');
+        setLocalError(t('auth.invalidEmail'));
       } else if (err.code === 'auth/too-many-requests') {
-        setLocalError('Too many login attempts. Please try again later.');
+        setLocalError(t('auth.tooManyAttempts'));
       } else {
-        setLocalError(err.message || 'Login failed. Please check your connection and try again.');
+        setLocalError(err.message || t('auth.loginFailed'));
       }
     } finally {
       setIsSubmitting(false);
@@ -208,20 +216,22 @@ export default function Login() {
     >
       <Stack.Screen
         options={{
-          title: 'Login',
+          title: t('auth.login'),
           headerShown: true,
           headerBackVisible: false,
         }}
       />
 
+      <LanguageSwitcher onLanguageChange={handleLanguageChange} />
+
       <FormContainer>
-        <TitleText>Welcome Back</TitleText>
+        <TitleText>{t('auth.welcomeBack')}</TitleText>
         <SubtitleText>
-          Log in to your Rusty account
+          {t('auth.loginSubtitle')}
         </SubtitleText>
 
         <StyledInput
-          placeholder="Email"
+          placeholder={t('auth.email')}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -233,7 +243,7 @@ export default function Login() {
         />
         <StyledInput
           ref={passwordInputRef}
-          placeholder="Password"
+          placeholder={t('auth.password')}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -244,7 +254,7 @@ export default function Login() {
         />
         
         <ForgotPasswordButton onPress={goToForgotPassword} disabled={isLoading}>
-          <ForgotPasswordText>Forgot Password?</ForgotPasswordText>
+          <ForgotPasswordText>{t('auth.forgotPassword')}</ForgotPasswordText>
         </ForgotPasswordButton>
 
         {localError && <ErrorText>{localError}</ErrorText>}
@@ -253,12 +263,12 @@ export default function Login() {
           {isLoading ? (
             <ActivityIndicator color={theme.colors.text.light} />
           ) : (
-            <ButtonText>Log In</ButtonText>
+            <ButtonText>{t('auth.login')}</ButtonText>
           )}
         </StyledButton>
 
         <SwitchButton onPress={goToSignUp} disabled={isLoading}>
-          <SwitchText isDisabled={isLoading}>Don't have an account? Sign Up!</SwitchText>
+          <SwitchText isDisabled={isLoading}>{t('auth.dontHaveAccount')}</SwitchText>
         </SwitchButton>
       </FormContainer>
     </StyledKeyboardAvoidingView>

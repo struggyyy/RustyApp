@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
+import { useLanguage } from "../src/context/LanguageContext";
 import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
 import StyledButton from "../src/components/common/buttons/StyledButton";
@@ -32,6 +33,8 @@ import EditProfile from "../src/components/features/profile/EditProfile";
 import SettingsCard from "../src/components/features/profile/SettingsCard";
 import TouchableButton from "../src/components/common/buttons/TouchableButton";
 import IconButton from "../src/components/common/buttons/IconButton";
+import { useTranslation } from "../src/hooks/useTranslation";
+import { getStatusTranslationKey, getStatusNoteTranslationKey, getStatusColor } from "../src/utils/statusTranslation";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -47,41 +50,6 @@ const shadowStyles = StyleSheet.create({
 // Helper functions
 const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-};
-
-const getStatusColor = (status: ReportStatus | undefined) => {
-  const safeStatus = status || 'Report submitted';
-
-  switch (safeStatus) {
-    case 'Report submitted':
-      return '#1976D2'; // Blue
-    case 'Report accepted':
-      return '#00796B'; // Teal
-    case 'Report completed':
-      return '#2E7D32'; // Green
-    case 'Report canceled':
-      return '#C62828'; // Distinctive red
-    default:
-      return colors.text.primary;
-  }
-};
-
-const getStatusNote = (status: ReportStatus | undefined): string => {
-  const safeStatus = status || 'Report submitted';
-
-  switch (safeStatus) {
-    case 'Report submitted':
-      return 'Your report has been received and is now being verified. We\'ll notify you once its status changes.';
-    case 'Report accepted':
-      return 'Your report has been accepted. Our team is now processing it, which may take some time as we contact the vehicle owner and complete the necessary paperwork.';
-    case 'Report completed':
-      return 'The reported vehicle has been removed from the street and is now being recycled, donated, or prepared for a city auction.';
-    case 'Report canceled':
-      return 'We were unable to verify your report due to insufficient information or potential inaccuracies. Please feel free to submit a new report if you believe this was an error.';
-
-    default:
-      return '';
-  }
 };
 
 // Styled components for modal view
@@ -153,6 +121,7 @@ interface UserReportModalViewProps {
 }
 
 const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClose, onDelete, showAlert }) => {
+  const { t } = useTranslation();
   const statusColor = getStatusColor(report.status);
 
   const handleDeletePress = () => {
@@ -196,7 +165,7 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
     <View style={{ maxHeight: '100%' }}>
       {/* Fixed Header */}
       <ModalCardHeader>
-        <ModalCardTitle>Report Details</ModalCardTitle>
+        <ModalCardTitle>{t('reports.reportDetails')}</ModalCardTitle>
         <ModalHeaderActions>
           <IconButton
             onPress={handleDeletePress}
@@ -222,17 +191,17 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
         <ModalExpandedCarImage source={{ uri: report.imageUrl }} />
 
         <View style={{ marginBottom: 16 }}>
-          <ModalDetailLabel>Description</ModalDetailLabel>
+          <ModalDetailLabel>{t('reports.description')}</ModalDetailLabel>
           <ModalDetailText>{report.description}</ModalDetailText>
         </View>
 
         <View style={{ marginBottom: 16 }}>
-          <ModalDetailText color={statusColor} style={{ fontWeight: 'bold' }}>{report.status}</ModalDetailText>
-          <ModalStatusNote>{getStatusNote(report.status)}</ModalStatusNote>
+          <ModalDetailText color={statusColor} style={{ fontWeight: 'bold' }}>{t(getStatusTranslationKey(report.status))}</ModalDetailText>
+          <ModalStatusNote>{t(getStatusNoteTranslationKey(report.status))}</ModalStatusNote>
         </View>
 
         <View style={{ marginBottom: 8 }}>
-          <ModalDetailText><ModalDetailLabel>Points: </ModalDetailLabel>{report.points}</ModalDetailText>
+          <ModalDetailText><ModalDetailLabel>{t('reports.points')}: </ModalDetailLabel>{report.points}</ModalDetailText>
         </View>
       </ScrollView>
     </View>
@@ -373,6 +342,8 @@ export default function Profile() {
     logOut,
     deleteAccount,
   } = useAuth();
+  const { currentLanguage, changeLanguage, isChanging } = useLanguage();
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -393,7 +364,6 @@ export default function Profile() {
   // Settings related state
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [language, setLanguage] = useState('English');
   const [hapticsEnabled, setHapticsEnabled] = useState(profile?.notificationPreferences?.haptics ?? true);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
@@ -449,9 +419,9 @@ export default function Profile() {
           haptics: hapticsEnabled,
         },
       });
-      showAlert('Success', 'Notification settings updated.');
+      showAlert(t('common.success'), t('settings.settingsUpdated'));
     } catch (error: any) {
-      showAlert('Error', error.message || 'Failed to update settings.');
+      showAlert(t('common.error'), error.message || t('settings.settingsError'));
       setNotificationsEnabled(!value); // Revert on error
     } finally {
       setIsSubmitting(false);
@@ -469,46 +439,50 @@ export default function Profile() {
           haptics: value,
         },
       });
-      showAlert('Success', 'Haptics settings updated.');
+      showAlert(t('common.success'), t('settings.settingsUpdated'));
     } catch (error: any) {
-      showAlert('Error', error.message || 'Failed to update settings.');
+      showAlert(t('common.error'), error.message || t('settings.settingsError'));
       setHapticsEnabled(!value); // Revert on error
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleToggleLanguage = () => {
-    const newLanguage = language === 'English' ? 'Polish' : 'English';
-    setLanguage(newLanguage);
-    showAlert('Language Changed', `Language set to ${newLanguage}.`);
+  const handleToggleLanguage = async () => {
+    const newLanguage = currentLanguage === 'en' ? 'pl' : 'en';
+    try {
+      await changeLanguage(newLanguage);
+      showAlert(t('common.success'), t('settings.languageSetTo', { language: newLanguage === 'en' ? t('settings.english') : t('settings.polish') }));
+    } catch (error: any) {
+      showAlert(t('common.error'), error.message || t('settings.settingsError'));
+    }
   };
 
   const handleLogout = async () => {
     try {
       await logOut(router);
     } catch (error: any) {
-      showAlert('Logout Error', error.message || 'Failed to log out.');
+      showAlert(t('auth.logoutError'), error.message || t('auth.logoutError'));
     }
   };
 
   const handleDeleteAccount = () => {
     showAlert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action is irreversible.',
+      t('profile.deleteAccount'),
+      t('profile.deleteAccountConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteAccount();
-              showAlert('Success', 'Your account has been deleted.', [
-                { text: 'OK', onPress: () => router.replace('/login') }
+              showAlert(t('common.success'), t('profile.deleteAccountSuccess'), [
+                { text: t('common.ok'), onPress: () => router.replace('/login') }
               ]);
             } catch (error: any) {
-              showAlert('Error', error.message || 'Failed to delete account.');
+              showAlert(t('common.error'), error.message || t('profile.deleteAccountError'));
             }
           },
         },
@@ -554,7 +528,7 @@ export default function Profile() {
       );
     } catch (error) {
       console.error('Error deleting report:', error);
-      showAlert('Error', 'Failed to delete report. Please try again.');
+      showAlert(t('common.error'), t('reports.deleteReportError'));
     }
   };
 
@@ -593,11 +567,11 @@ export default function Profile() {
 
     // Validate nickname length
     if (editedNickname.length < 2) {
-      showAlert("Error", "Nickname must be at least 2 characters long.");
+      showAlert(t('common.error'), t('validation.nicknameTooShort'));
       return;
     }
     if (editedNickname.length > 15) {
-      showAlert("Error", "Nickname cannot be longer than 15 characters.");
+      showAlert(t('common.error'), t('validation.nicknameTooLong'));
       return;
     }
 
@@ -631,12 +605,12 @@ export default function Profile() {
         await updateUserProfile({ displayName: editedNickname });
       }
 
-      showAlert("Success", "Profile updated successfully!");
+      showAlert(t('common.success'), t('profile.profileUpdated'));
       setIsEditMode(false);
       setTempImageUri(null);
     } catch (error: any) {
       console.error("Update error:", error);
-      showAlert("Error", error.message || "Failed to update profile.");
+      showAlert(t('common.error'), error.message || t('profile.updateError'));
     } finally {
       setUploading(false);
     }
@@ -674,7 +648,7 @@ export default function Profile() {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <Stack.Screen options={{ title: "Your Profile" }} />
+      <Stack.Screen options={{ title: t('profile.title') }} />
       <Container
         contentContainerStyle={{
           paddingTop: 12,
@@ -707,7 +681,7 @@ export default function Profile() {
           }}
           onCancel={handleCancelEdit}
           onChoosePhoto={(uri) => setTempImageUri(uri)}
-          onEmailPress={() => showAlert('Email Information', 'Your email address cannot be changed as it is used for account verification and security purposes.')}
+          onEmailPress={() => showAlert(t('profile.email'), t('profile.emailCannotBeChanged'))}
           uploading={uploading}
           tempImageUri={tempImageUri}
           editedNickname={editedNickname}
@@ -722,7 +696,7 @@ export default function Profile() {
           <ModalOverlay>
             <ModalContent style={shadowStyles.modalShadow}>
               <ModalHeader>
-                <ModalTitle>Profile Picture</ModalTitle>
+                <ModalTitle>{t('profile.profilePicture')}</ModalTitle>
                 <IconButton
                   onPress={() => setShowImageModal(false)}
                   size={40}
@@ -743,8 +717,8 @@ export default function Profile() {
           variant="user"
           notificationsEnabled={notificationsEnabled}
           hapticsEnabled={hapticsEnabled}
-          language={language}
-          isSubmitting={isSubmitting}
+          language={currentLanguage}
+          isSubmitting={isSubmitting || isChanging}
           authLoading={authLoading}
           onToggleNotifications={handleToggleNotifications}
           onToggleHaptics={handleToggleHaptics}
@@ -756,7 +730,7 @@ export default function Profile() {
         {reports.length > 0 && (
           <ReportsCard style={shadowStyles.modalShadow}>
             <TouchableButton onPress={() => router.push("/my-reports")}>
-              <ReportsTitle>View all my reports</ReportsTitle>
+              <ReportsTitle>{t('reports.viewAllReports')}</ReportsTitle>
             </TouchableButton>
           </ReportsCard>
         )}

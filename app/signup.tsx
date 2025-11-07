@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvo
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
+import { useTranslation } from '../src/hooks/useTranslation';
+import LanguageSwitcher from '../src/components/common/LanguageSwitcher';
+import i18n from '../src/i18n/i18n';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';
@@ -94,12 +97,14 @@ const ErrorText = styled.Text({
 });
 
 export default function SignupScreen() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(params.email as string || '');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, forceUpdate] = useState({});
   const { signUp, loading: authLoading, error } = useAuth();
   const router = useRouter();
   const headerHeight = useHeaderHeight();
@@ -113,7 +118,11 @@ export default function SignupScreen() {
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+  const handleLanguageChange = () => {
+    forceUpdate({});
+  };
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -152,25 +161,27 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (nickname.length < 2) {
-      showAlert('Error', 'Nickname must be at least 2 characters long.');
+      showAlert(t('common.error'), t('validation.nicknameTooShort'));
       return;
     }
     if (nickname.length > 15) {
-      showAlert('Error', 'Nickname cannot be longer than 15 characters.');
+      showAlert(t('common.error'), t('validation.nicknameTooLong'));
       return;
     }
     if (password !== confirmPassword) {
-      showAlert('Error', 'Passwords do not match.');
+      showAlert(t('common.error'), t('validation.passwordMismatch'));
       return;
     }
     if (!email.includes('@')) {
-        showAlert('Error', 'Please enter a valid email address.');
+        showAlert(t('common.error'), t('validation.invalidEmail'));
         return;
     }
 
     setIsSubmitting(true);
     try {
-      const newUser = await signUp(email, password, nickname);
+      // Get current language from i18n
+      const currentLanguage = i18n.language as 'en' | 'pl';
+      const newUser = await signUp(email, password, nickname, currentLanguage);
       
       if (newUser) {
         console.log('Signup successful, navigating to verification screen.');
@@ -180,7 +191,7 @@ export default function SignupScreen() {
       }
     } catch (err: any) {
       console.error('Signup handler error:', err);
-      showAlert('Error', err.message || 'An unexpected error occurred during sign up.');
+      showAlert(t('common.error'), err.message || t('validation.unexpectedError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -196,22 +207,24 @@ export default function SignupScreen() {
       >
         <Stack.Screen
           options={{
-            title: 'Sign Up',
+            title: t('auth.signup'),
             headerShown: true,
           }}
         />
+
+        <LanguageSwitcher onLanguageChange={handleLanguageChange} />
         
         <FormContainer>
-          <TitleText>Create Account</TitleText>
+          <TitleText>{t('auth.signupTitle')}</TitleText>
           <SubtitleText>
-            Sign up to start reporting abandoned vehicles
+            {t('auth.signupSubtitle')}
           </SubtitleText>
 
           {error && <ErrorText>{error}</ErrorText>}
 
           <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
             <StyledInput
-              placeholder="Nickname (2-15 characters)"
+              placeholder={t('auth.nickname')}
               value={nickname}
               onChangeText={handleNicknameChange}
               autoCapitalize="words"
@@ -221,7 +234,7 @@ export default function SignupScreen() {
           </Animated.View>
 
           <StyledInput
-            placeholder="Email"
+            placeholder={t('auth.email')}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -231,7 +244,7 @@ export default function SignupScreen() {
           />
 
           <StyledInput
-            placeholder="Password"
+            placeholder={t('auth.password')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -241,7 +254,7 @@ export default function SignupScreen() {
           />
 
           <StyledInput
-            placeholder="Confirm Password"
+            placeholder={t('auth.password')}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
@@ -258,7 +271,7 @@ export default function SignupScreen() {
             {isLoading ? (
               <ActivityIndicator color={theme.colors.text.light} />
             ) : (
-              <ButtonText>Sign Up</ButtonText>
+              <ButtonText>{t('auth.signup')}</ButtonText>
             )}
           </StyledButton>
 
@@ -270,7 +283,7 @@ export default function SignupScreen() {
             }}
             disabled={isLoading}
           >
-            <BackButtonText isDisabled={isLoading}>Already have an account? Log In</BackButtonText>
+            <BackButtonText isDisabled={isLoading}>{t('auth.alreadyHaveAccount')}</BackButtonText>
           </BackButtonTouchable>
         </FormContainer>
       </StyledKeyboardAvoidingView>

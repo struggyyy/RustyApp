@@ -14,6 +14,8 @@ import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import theme from '../src/theme';
 import { useHaptics } from '../src/context/HapticsContext';
+import { useTranslation } from '../src/hooks/useTranslation';
+import { getStatusTranslationKey } from '../src/utils/statusTranslation';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -58,18 +60,22 @@ const ModalCloseButton = styled.TouchableOpacity({
   padding: 8,
 });
 
-// Helper function for status colors
-const getStatusColor = (status: ReportStatus | undefined) => {
-  const safeStatus = status || 'Report submitted';
+// Helper function for status colors (handles both old and new format)
+const getStatusColor = (status: ReportStatus | string | undefined) => {
+  if (!status) return '#1976D2';
+  
+  // Normalize to new format
+  const normalized = status.replace('Report ', '');
+  const safeStatus = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
 
   switch (safeStatus) {
-    case 'Report submitted':
+    case 'Submitted':
       return '#1976D2'; // Blue
-    case 'Report accepted':
+    case 'Accepted':
       return '#00796B'; // Teal
-    case 'Report completed':
+    case 'Completed':
       return '#2E7D32'; // Green
-    case 'Report canceled':
+    case 'Canceled':
       return '#C62828'; // Distinctive red
     default:
       return theme.colors.text.primary;
@@ -189,14 +195,15 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
   onStatusUpdate?: (newStatus: ReportStatus) => void;
   onDelete?: () => void;
 }) => {
+  const { t } = useTranslation();
   const haptics = useHaptics();
   return (
   <View style={{ maxHeight: '100%' }}>
     {/* Fixed Header */}
     <CardHeader>
-      <CardTitle>Report Details</CardTitle>
+      <CardTitle>{t('reports.reportDetails')}</CardTitle>
       <HeaderActions>
-        {report.status === 'Report canceled' && onDelete && (
+        {((report.status as string) === 'Canceled' || (report.status as string) === 'Report canceled') && onDelete && (
           <DeleteButton onPress={() => { haptics.light(); onDelete(); }}>
             <MaterialIcons name="delete" size={24} color={theme.colors.primary} />
           </DeleteButton>
@@ -217,31 +224,37 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
       <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
       <View style={{ marginBottom: 16 }}>
-        <DetailLabel>Description:</DetailLabel>
+        <DetailLabel>{t('admin.description')}</DetailLabel>
         <DetailText>{report.description}</DetailText>
       </View>
 
       <View style={{ marginBottom: 16 }}>
-        <DetailLabel>User:</DetailLabel>
+        <DetailLabel>{t('admin.user')}</DetailLabel>
         <DetailText>{report.userEmail || report.userId}</DetailText>
       </View>
     </ScrollView>
 
     {/* Fixed Footer */}
     <View style={{ marginTop: 16 }}>
-      <DetailLabel>Report Status:</DetailLabel>
+      <DetailLabel>{t('admin.reportStatus')}</DetailLabel>
       <StatusGrid>
-        {reportStatuses.map((status) => (
-          <StatusButton
-            key={status}
-            active={report.status === status}
-            activeColor={getStatusColor(status)}
-            onPress={() => { haptics.light(); onStatusUpdate && onStatusUpdate(status); }}
-            disabled={report.status === status}
-          >
-            <StatusButtonText active={report.status === status}>{capitalize(status.replace('Report ', ''))}</StatusButtonText>
-          </StatusButton>
-        ))}
+        {reportStatuses.map((status) => {
+          // Normalize report status for comparison (handles both old "Report submitted" and new "Submitted" formats)
+          const reportStatusNormalized = (report.status as string).replace('Report ', '').replace(/^./, (s: string) => s.toUpperCase());
+          const isActive = reportStatusNormalized.toLowerCase() === status.toLowerCase();
+          
+          return (
+            <StatusButton
+              key={status}
+              active={isActive}
+              activeColor={getStatusColor(status)}
+              onPress={() => { haptics.light(); onStatusUpdate && onStatusUpdate(status); }}
+              disabled={isActive}
+            >
+              <StatusButtonText active={isActive}>{t(getStatusTranslationKey(status))}</StatusButtonText>
+            </StatusButton>
+          );
+        })}
       </StatusGrid>
     </View>
   </View>
@@ -250,6 +263,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
 
 const AdminDashboard = () => {
   const { logOut, isAdmin } = useAuth();
+  const { t } = useTranslation();
   const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
@@ -431,7 +445,7 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Admin' }} />
+      <Stack.Screen options={{ title: t('admin.title') }} />
       <Container>
       <FilterPanel
         selectedStatuses={selectedStatuses}
@@ -451,8 +465,8 @@ const AdminDashboard = () => {
             onRefresh={onRefresh}
             onDelete={handleReportDelete}
             onStatusChange={handleStatusChange}
-            loadingText="Loading all reports..."
-            emptyText="No reports match the current filters."
+            loadingText={t('admin.loading')}
+            emptyText={t('admin.noReports')}
             onDetailsPress={handleDetailsPress}
           />
         </DashboardContainer>

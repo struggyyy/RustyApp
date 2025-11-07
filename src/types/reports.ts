@@ -1,8 +1,8 @@
 import { GeoPoint, Timestamp } from 'firebase/firestore';
 
-export type ReportStatus = 'Report submitted' | 'Report accepted' | 'Report completed' | 'Report canceled';
+export type ReportStatus = 'Submitted' | 'Accepted' | 'Completed' | 'Canceled';
 
-export const reportStatuses: ReportStatus[] = ['Report submitted', 'Report accepted', 'Report completed', 'Report canceled'];
+export const reportStatuses: ReportStatus[] = ['Submitted', 'Accepted', 'Completed', 'Canceled'];
 
 export interface Report {
   id: string; // The document ID

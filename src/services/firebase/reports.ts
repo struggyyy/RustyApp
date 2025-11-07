@@ -116,7 +116,7 @@ export const createReport = async (reportData: {
       ),
       imageUrl: reportData.imageUrl,
       createdAt: serverTimestamp(),
-      status: 'Report submitted',
+      status: 'Submitted',
       points: 0,
     });
 
@@ -132,7 +132,7 @@ export const createReport = async (reportData: {
         reportData.location.latitude,
         reportData.location.longitude
       ),
-      status: 'Report submitted',
+      status: 'Submitted',
       points: 0,
     };
     return newReport;
@@ -213,10 +213,10 @@ export const updateReportStatus = async (
   const userDocRef = doc(db, 'users', userId);
 
   const pointsMap: Record<ReportStatus, number> = {
-    'Report submitted': 0,
-    'Report accepted': 10,
-    'Report completed': 100,
-    'Report canceled': 0,
+    'Submitted': 0,
+    'Accepted': 10,
+    'Completed': 100,
+    'Canceled': 0,
   };
 
   const pointsForCurrentStatus = pointsMap[currentStatus] || 0;

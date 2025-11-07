@@ -5,6 +5,7 @@ import styled from "styled-components/native";
 import StyledButton from "../../common/buttons/StyledButton";
 import colors from "../../../theme/colors";
 import { useHaptics } from "../../../context/HapticsContext";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -127,15 +128,16 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const haptics = useHaptics();
+  const { t } = useTranslation();
 
   if (variant === 'admin') {
     return (
       <SettingsCard style={shadowStyles.modalShadow}>
         <SettingsHeader>
-          <SettingsTitle>Settings</SettingsTitle>
+          <SettingsTitle>{t('settings.title')}</SettingsTitle>
         </SettingsHeader>
         <NotificationRow>
-          <NotificationLabel>Enable Notifications</NotificationLabel>
+          <NotificationLabel>{t('settings.enableNotifications')}</NotificationLabel>
           <Switch
             trackColor={{ false: colors.primary, true: colors.status.recycled }}
             thumbColor={colors.white}
@@ -146,7 +148,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           />
         </NotificationRow>
         <NotificationRow>
-          <NotificationLabel>Enable Haptics</NotificationLabel>
+          <NotificationLabel>{t('settings.enableHaptics')}</NotificationLabel>
           <Switch
             trackColor={{ false: colors.primary, true: colors.status.recycled }}
             thumbColor={colors.white}
@@ -157,15 +159,15 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           />
         </NotificationRow>
         <LanguageToggle onPress={() => { haptics.light(); onToggleLanguage(); }}>
-          <LanguageOption isSelected={language === 'English'}>
-            <LanguageText isSelected={language === 'English'}>🇬🇧 English</LanguageText>
+          <LanguageOption isSelected={language === 'en'}>
+            <LanguageText isSelected={language === 'en'}>🇬🇧 {t('settings.english')}</LanguageText>
           </LanguageOption>
-          <LanguageOption isSelected={language === 'Polish'}>
-            <LanguageText isSelected={language === 'Polish'}>🇵🇱 Polski</LanguageText>
+          <LanguageOption isSelected={language === 'pl'}>
+            <LanguageText isSelected={language === 'pl'}>🇵🇱 {t('settings.polish')}</LanguageText>
           </LanguageOption>
         </LanguageToggle>
         <StyledButton
-          title="Logout"
+          title={t('auth.logout')}
           onPress={onLogout}
           disabled={authLoading}
           loading={authLoading && !isSubmitting}
@@ -179,10 +181,10 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
   return (
     <SettingsCard style={shadowStyles.modalShadow}>
       <SettingsHeader>
-        <SettingsTitle>Settings</SettingsTitle>
+        <SettingsTitle>{t('settings.title')}</SettingsTitle>
       </SettingsHeader>
       <NotificationRow>
-        <NotificationLabel>Enable Notifications</NotificationLabel>
+        <NotificationLabel>{t('settings.enableNotifications')}</NotificationLabel>
         <Switch
           trackColor={{ false: colors.primary, true: colors.status.recycled }}
           thumbColor={colors.white}
@@ -193,7 +195,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         />
       </NotificationRow>
       <NotificationRow>
-        <NotificationLabel>Enable Haptics</NotificationLabel>
+        <NotificationLabel>{t('settings.enableHaptics')}</NotificationLabel>
         <Switch
           trackColor={{ false: colors.primary, true: colors.status.recycled }}
           thumbColor={colors.white}
@@ -204,15 +206,15 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         />
       </NotificationRow>
       <LanguageToggle onPress={() => { haptics.light(); onToggleLanguage(); }}>
-        <LanguageOption isSelected={language === 'English'}>
-          <LanguageText isSelected={language === 'English'}>🇬🇧 English</LanguageText>
+        <LanguageOption isSelected={language === 'en'}>
+          <LanguageText isSelected={language === 'en'}>🇬🇧 {t('settings.english')}</LanguageText>
         </LanguageOption>
-        <LanguageOption isSelected={language === 'Polish'}>
-          <LanguageText isSelected={language === 'Polish'}>🇵🇱 Polski</LanguageText>
+        <LanguageOption isSelected={language === 'pl'}>
+          <LanguageText isSelected={language === 'pl'}>🇵🇱 {t('settings.polish')}</LanguageText>
         </LanguageOption>
       </LanguageToggle>
       <StyledButton
-        title="Logout"
+        title={t('auth.logout')}
         onPress={onLogout}
         disabled={authLoading}
         loading={authLoading && !isSubmitting}
@@ -227,7 +229,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
       </ExpandArrow>
       {isExpanded && onDeleteAccount && (
         <DeleteAccountButton onPress={() => { haptics.light(); onDeleteAccount(); }}>
-          <DeleteAccountText>Delete Account :(</DeleteAccountText>
+          <DeleteAccountText>{t('profile.deleteAccount')}</DeleteAccountText>
         </DeleteAccountButton>
       )}
     </SettingsCard>

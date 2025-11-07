@@ -11,6 +11,7 @@ import {
   Keyboard,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
+import { useTranslation } from "../src/hooks/useTranslation";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import MapView, { Region, PROVIDER_GOOGLE } from "react-native-maps";
@@ -202,6 +203,7 @@ const ButtonRow = styled.View({
 });
 
 export default function ReportScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
   const haptics = useHaptics();
@@ -225,7 +227,7 @@ export default function ReportScreen() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -259,7 +261,7 @@ export default function ReportScreen() {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        throw new Error("Permission to access location was denied");
+        throw new Error(t('map.locationPermissionRequired'));
       }
       let currentLocation = await Location.getLastKnownPositionAsync({});
       if (!currentLocation) {
@@ -281,11 +283,10 @@ export default function ReportScreen() {
         });
       }
     } catch (error: any) {
-      setLocationErrorMsg(error.message || "Failed to get location");
+      setLocationErrorMsg(error.message || t('map.locationError'));
       showAlert(
-        "Location Error",
-        error.message ||
-          "Could not fetch location. Please ensure location services are enabled."
+        t('common.error'),
+        error.message || t('map.locationPermissionRequired')
       );
     }
   }, []);
@@ -330,8 +331,8 @@ export default function ReportScreen() {
       description.trim().length > 150
     ) {
       showAlert(
-        "Incomplete Form",
-        "Please fill all fields, take a picture, and ensure location is set. Description must be 150 characters or less."
+        t('common.error'),
+        t('reports.descriptionRequired')
       );
       return;
     }
@@ -350,12 +351,12 @@ export default function ReportScreen() {
         location,
       });
 
-      showAlert("Success", "Report submitted successfully!", [
-        { text: "OK", onPress: () => router.replace("/my-reports") },
+      showAlert(t('common.success'), t('reports.reportSubmittedSuccess'), [
+        { text: t('common.ok'), onPress: () => router.replace("/my-reports") },
       ]);
     } catch (error) {
       console.error("Report submission error:", error);
-      showAlert("Error", "Failed to submit report. Please try again.");
+      showAlert(t('common.error'), t('reports.deleteReportError'));
       // On failure, release the lock and reset the button to allow another attempt.
       isSubmittingRef.current = false;
       setIsSubmitting(false);
@@ -394,7 +395,7 @@ export default function ReportScreen() {
         />
       );
     }
-    return <MapErrorText>Initializing map...</MapErrorText>;
+    return <MapErrorText>{t('common.loading')}</MapErrorText>;
   };
 
   const isFormReady =
@@ -406,7 +407,7 @@ export default function ReportScreen() {
   return (
     <>
       <Container behavior={Platform.OS === "ios" ? "padding" : "height"}>
-        <Stack.Screen options={{ title: "Report a Car" }} />
+        <Stack.Screen options={{ title: t('reports.reportVehicle') }} />
         <InnerScrollView
           refreshControl={
             <RefreshControl
@@ -418,10 +419,9 @@ export default function ReportScreen() {
           }
         >
           <TopContent>
-            <Title>SAVE THE ENVIRONMENT</Title>
+            <Title>{t('reports.newReport')}</Title>
             <Subtitle>
-              By pointing out abandoned cars in your neighbourhood, you contribute
-              to cleaner and safer surroundings.
+              {t('reports.descriptionPlaceholder')}
             </Subtitle>
             {imageUri ? (
               !isKeyboardVisible && (
@@ -457,7 +457,7 @@ export default function ReportScreen() {
             ) : (
               <ButtonRow>
                 <StyledButton
-                  title="TAKE A PICTURE"
+                  title={t('reports.takePhoto')}
                   onPress={() => pickImage(true)}
                   variant="secondary"
                   style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
@@ -490,7 +490,7 @@ export default function ReportScreen() {
               pointerEvents="none"
             />
             <DescriptionInput
-              placeholder="Description..."
+              placeholder={t('reports.vehicleDescription')}
               placeholderTextColor={theme.colors.text.secondary}
               value={description}
               onChangeText={setDescription}
@@ -516,7 +516,7 @@ export default function ReportScreen() {
 
           <BottomContent>
             <StyledButton
-              title="SUBMIT"
+              title={t('common.submit')}
               onPress={handleSubmit}
               disabled={!isFormReady || isSubmitting}
               loading={isSubmitting}

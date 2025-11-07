@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { Stack, useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
+import { useTranslation } from "../src/hooks/useTranslation";
 import * as Location from "expo-location";
 import MapView, { Marker, Region, PROVIDER_GOOGLE } from "react-native-maps";
 import { LinearGradient } from "expo-linear-gradient";
@@ -281,6 +282,7 @@ export default function HomeScreen() {
 }
 
 function HomeScreenComponent() {
+  const { t } = useTranslation();
   const { user, profile, initialLoading } = useAuth();
   const router = useRouter();
   const [location, setLocation] = useState<Location.LocationObject | null>(
@@ -309,7 +311,7 @@ function HomeScreenComponent() {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setWaitingForPermissions(true);
-        setLocationErrorMsg("Location permission is required to show your location on the map. Please enable location services and pull to refresh.");
+        setLocationErrorMsg(t('map.locationPermissionRequired'));
         return;
       }
 
@@ -329,7 +331,7 @@ function HomeScreenComponent() {
         setFallbackUsed(true);
       } else {
         setWaitingForPermissions(true);
-        setLocationErrorMsg("Current location is unavailable. Make sure that location services are enabled.");
+        setLocationErrorMsg(t('map.locationError'));
       }
     } finally {
       setIsLocationLoading(false);
@@ -399,7 +401,7 @@ function HomeScreenComponent() {
       return (
         <MapPlaceholderView>
           <ActivityIndicator size="large" color="#BD5151" />
-          <LoadingMapText>Loading map data...</LoadingMapText>
+          <LoadingMapText>{t('common.loading')}</LoadingMapText>
         </MapPlaceholderView>
       );
     }
@@ -418,7 +420,7 @@ function HomeScreenComponent() {
                 alignItems: "center"
               }}
             >
-              <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Try Again</Text>
+              <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>{t('common.continue')}</Text>
             </TouchableButton>
           )}
         </MapPlaceholderView>
@@ -427,7 +429,7 @@ function HomeScreenComponent() {
     if (!location) {
       return (
         <MapPlaceholderView>
-          <MapErrorText>Could not load map location.</MapErrorText>
+          <MapErrorText>{t('map.locationError')}</MapErrorText>
         </MapPlaceholderView>
       );
     }
@@ -437,7 +439,7 @@ function HomeScreenComponent() {
         <MapPlaceholderView>
           {fallbackUsed && (
             <FallbackWarningView>
-              <FallbackWarningText>Using Demo Location</FallbackWarningText>
+              <FallbackWarningText>{t('map.currentLocation')}</FallbackWarningText>
             </FallbackWarningView>
           )}
           <MapPlaceholderInfoText>
@@ -479,7 +481,7 @@ function HomeScreenComponent() {
   if (initialLoading) {
     return (
       <>
-        <Stack.Screen options={{ title: "Rusty" }} />
+        <Stack.Screen options={{ title: t('home.title') }} />
         <LoadingIndicatorContainer>
           <ActivityIndicator size="large" color="#BD5151" />
         </LoadingIndicatorContainer>
@@ -490,7 +492,7 @@ function HomeScreenComponent() {
   return (
     <StyledContainer>
       <StatusBar barStyle="dark-content" />
-      <Stack.Screen options={{ title: "Home" }} />
+      <Stack.Screen options={{ title: t('home.title') }} />
       <ContentView
         refreshControl={
           <RefreshControl
@@ -503,7 +505,7 @@ function HomeScreenComponent() {
       >
         <ScoreSection>
           <View>
-            <ScoreLabelText>YOUR COMMUNITY SCORE</ScoreLabelText>
+            <ScoreLabelText>{t('home.yourScore')}</ScoreLabelText>
             <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
           </View>
           <TouchableButton
@@ -537,7 +539,7 @@ function HomeScreenComponent() {
         </CarImageCard>
 
         <StyledButton
-          title="REPORT A CAR"
+          title={t('home.reportAbandonedVehicle')}
           onPress={() => router.push("/report")}
         />
 
@@ -557,7 +559,7 @@ function HomeScreenComponent() {
                 alignItems: "center"
               }]}
             >
-              <Text style={{ color: "#656565", fontWeight: "bold", fontSize: 18, textAlign: "center" }}>MY REPORTS</Text>
+              <Text style={{ color: "#656565", fontWeight: "bold", fontSize: 18, textAlign: "center" }}>{t('home.myReports')}</Text>
             </TouchableButton>
           )}
           <MapWrapperView>

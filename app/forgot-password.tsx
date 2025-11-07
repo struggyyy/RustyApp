@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvo
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
+import { useTranslation } from '../src/hooks/useTranslation';
+import LanguageSwitcher from '../src/components/common/LanguageSwitcher';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';
@@ -98,6 +100,8 @@ const ErrorText = styled.Text({
 });
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
+  const [, forceUpdate] = useState({});
   const router = useRouter();
   const params = useLocalSearchParams();
   const [email, setEmail] = useState(params.email as string || '');
@@ -111,7 +115,11 @@ export default function ForgotPassword() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+  const handleLanguageChange = () => {
+    forceUpdate({});
+  };
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -132,7 +140,7 @@ export default function ForgotPassword() {
   const handleResetPassword = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (!email) {
-      showAlert('Error', 'Please enter your email address');
+      showAlert(t('common.error'), t('auth.emailRequired'));
       return;
     }
 
@@ -141,12 +149,12 @@ export default function ForgotPassword() {
     try {
       await resetPassword(email);
       showAlert(
-        'Password Reset Email Sent',
-        'Please check your email for instructions to reset your password.',
-        [{ text: 'OK', onPress: () => router.replace({ pathname: '/login', params: { email }}) }]
+        t('common.success'),
+        t('auth.passwordResetSent'),
+        [{ text: t('common.ok'), onPress: () => router.replace({ pathname: '/login', params: { email }}) }]
       );
     } catch (err: any) {
-      showAlert('Error', err.message || 'Failed to send password reset email');
+      showAlert(t('common.error'), err.message || t('auth.passwordResetError'));
     } finally {
       setLoading(false);
     }
@@ -160,21 +168,23 @@ export default function ForgotPassword() {
       >
         <Stack.Screen
           options={{
-            title: 'Reset Password',
+            title: t('auth.resetPassword'),
             headerShown: true,
           }}
         />
+
+        <LanguageSwitcher onLanguageChange={handleLanguageChange} />
         
         <FormContainer>
-          <TitleText>Reset Your Password</TitleText>
+          <TitleText>{t('auth.forgotPasswordTitle')}</TitleText>
           <SubtitleText>
-            Enter your email and we'll send you instructions to reset your password.
+            {t('auth.forgotPasswordSubtitle')}
           </SubtitleText>
 
           {error && <ErrorText>{error}</ErrorText>}
 
           <StyledInput
-            placeholder="Email"
+            placeholder={t('auth.email')}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -192,7 +202,7 @@ export default function ForgotPassword() {
             {loading ? (
               <ActivityIndicator color={theme.colors.text.light} />
             ) : (
-              <ButtonText>Send Reset Instructions</ButtonText>
+              <ButtonText>{t('auth.sendResetLink')}</ButtonText>
             )}
           </StyledButton>
 
@@ -200,7 +210,7 @@ export default function ForgotPassword() {
             onPress={handleBackToLogin}
             disabled={loading}
           >
-            <BackButtonText isDisabled={loading}>Back to Login</BackButtonText>
+            <BackButtonText isDisabled={loading}>{t('auth.backToLogin')}</BackButtonText>
           </BackButton>
         </FormContainer>
       </StyledKeyboardAvoidingView>

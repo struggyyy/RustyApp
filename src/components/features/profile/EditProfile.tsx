@@ -11,6 +11,7 @@ import {
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../../../context/AuthContext";
 import { useHaptics } from "../../../context/HapticsContext";
+import { useTranslation } from "../../../hooks/useTranslation";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
 import styled from "styled-components/native";
@@ -294,6 +295,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
   profileImageUrl,
   shakeAnimation,
 }) => {
+  const { t } = useTranslation();
   const { user, profile, initialLoading } = useAuth();
   const haptics = useHaptics();
 
@@ -341,7 +343,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
         {isExpanded ? (
           <>
             <ExpandedProfileHeader>
-              <ExpandedProfileTitle>Edit Profile</ExpandedProfileTitle>
+              <ExpandedProfileTitle>{t('profile.editProfile')}</ExpandedProfileTitle>
               <ExpandedProfileCloseButton onPress={() => { haptics.light(); handleCancel(); }}>
                 <MaterialIcons name="close" size={24} color={colors.text.primary} />
               </ExpandedProfileCloseButton>
@@ -368,12 +370,12 @@ const EditProfile: React.FC<EditProfileProps> = ({
               </ExpandedAvatarWrapper>
             </AvatarTouchable>
 
-            <EditLabel>Nickname</EditLabel>
+            <EditLabel>{t('auth.nickname')}</EditLabel>
             <Animated.View style={{ transform: [{ translateX: shake }] }}>
               <EditInput
                 value={editedNickname}
                 onChangeText={onNicknameChange}
-                placeholder="Enter your nickname (2-15 characters)"
+                placeholder={t('auth.nickname')}
                 placeholderTextColor={colors.text.secondary}
                 editable={!uploading}
                 onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
@@ -389,7 +391,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
             </EmailTouchable>
 
             <StyledButton
-              title={uploading ? "Saving..." : "Save"}
+              title={uploading ? t('common.loading') : t('common.save')}
               onPress={handleSave}
               disabled={uploading}
               loading={uploading}
@@ -401,7 +403,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
             <CollapsedProfileTop>
               <NicknameContainer>
                 <Nickname style={{ marginBottom: 0 }}>
-                  {profile?.displayName || user?.displayName || "Nickname"}
+                  {profile?.displayName || user?.displayName || t('auth.nickname')}
                 </Nickname>
                 {variant === 'user' && typeof profile?.points === 'number' && profile.points > 0 && (
                   <PointsText>{profile.points}</PointsText>
@@ -427,7 +429,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
               </AvatarTouchable>
             </CollapsedProfileTop>
             <StyledButton
-              title="Edit Profile"
+              title={t('profile.editProfile')}
               onPress={handleToggleExpanded}
               variant="secondary"
               style={{ marginBottom: 0 }}
@@ -440,7 +442,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
         <ModalOverlay>
           <ModalContent style={shadowStyles.modalShadow}>
             <ModalHeader>
-              <ModalTitle>Profile Picture</ModalTitle>
+              <ModalTitle>{t('profile.profilePicture')}</ModalTitle>
               <ModalCloseButton onPress={() => { haptics.light(); onCloseImageModal?.(); }}>
                 <Feather name="x" size={24} color={colors.text.primary} />
               </ModalCloseButton>

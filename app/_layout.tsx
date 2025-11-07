@@ -7,10 +7,12 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { Platform, View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { HapticsProvider } from '../src/context/HapticsContext';
+import { LanguageProvider } from '../src/context/LanguageContext';
 import * as Linking from 'expo-linking';
 import styled from 'styled-components/native';
 import HeaderBackButton from '../src/components/common/buttons/HeaderBackButton';
 import colors from '../src/theme/colors';
+import '../src/i18n/i18n'; // Initialize i18n
 
 const StyledSafeAreaProvider = styled(SafeAreaProvider)`
   flex: 1;
@@ -129,10 +131,12 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <StyledSafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AuthProvider>
-          <HapticsProvider>
-            <ExpoStatusBar style="dark" translucent={false} backgroundColor="#FFFFFF" />
-            <AuthenticatedStack />
-          </HapticsProvider>
+          <LanguageProvider>
+            <HapticsProvider>
+              <ExpoStatusBar style="dark" translucent={false} backgroundColor="#FFFFFF" />
+              <AuthenticatedStack />
+            </HapticsProvider>
+          </LanguageProvider>
         </AuthProvider>
       </StyledSafeAreaProvider>
     </GestureHandlerRootView>

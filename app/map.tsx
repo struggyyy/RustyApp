@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Stack, useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
+import { useTranslation } from "../src/hooks/useTranslation";
 import * as Location from "expo-location";
 import MapView, { Marker, Region, PROVIDER_GOOGLE } from "react-native-maps";
 import { LinearGradient } from "expo-linear-gradient";
@@ -164,15 +165,17 @@ const getFallbackLocation = () => ({
 });
 
 export default function MapScreen() {
+  const { t } = useTranslation();
   return (
     <>
-      <Stack.Screen options={{ title: "All My Reports" }} />
+      <Stack.Screen options={{ title: t('map.title') }} />
       <MapScreenComponent />
     </>
   );
 }
 
 function MapScreenComponent() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
   const haptics = useHaptics();
@@ -196,7 +199,7 @@ function MapScreenComponent() {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        throw new Error("Permission to access location was denied");
+        throw new Error(t('map.locationPermissionRequired'));
       }
       let currentLocation = await Location.getLastKnownPositionAsync({});
       if (!currentLocation) {
@@ -213,7 +216,7 @@ function MapScreenComponent() {
       } else {
         setLocation(null);
       }
-      setLocationErrorMsg(error.message || "Failed to get location");
+      setLocationErrorMsg(error.message || t('map.locationError'));
     } finally {
       setIsLocationLoading(false);
     }
@@ -287,7 +290,7 @@ function MapScreenComponent() {
       return (
         <MapPlaceholderView>
           <ActivityIndicator size="large" color="#BD5151" />
-          <LoadingMapText>Loading map data...</LoadingMapText>
+          <LoadingMapText>{t('common.loading')}</LoadingMapText>
         </MapPlaceholderView>
       );
     }
@@ -301,7 +304,7 @@ function MapScreenComponent() {
     if (!location) {
       return (
         <MapPlaceholderView>
-          <MapErrorText>Could not load map location.</MapErrorText>
+          <MapErrorText>{t('map.locationError')}</MapErrorText>
         </MapPlaceholderView>
       );
     }
@@ -311,7 +314,7 @@ function MapScreenComponent() {
         <MapPlaceholderView>
           {fallbackUsed && (
             <FallbackWarningView>
-              <FallbackWarningText>Using Demo Location</FallbackWarningText>
+              <FallbackWarningText>{t('map.currentLocation')}</FallbackWarningText>
             </FallbackWarningView>
           )}
           <MapPlaceholderInfoText>

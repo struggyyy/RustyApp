@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useTranslation } from '../src/hooks/useTranslation';
+import LanguageSwitcher from '../src/components/common/LanguageSwitcher';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';
@@ -86,6 +88,8 @@ const InfoText = styled.Text({
 });
 
 export default function VerifyEmailScreen() {
+  const { t } = useTranslation();
+  const [, forceUpdate] = useState({});
   const params = useLocalSearchParams();
   const { user, sendVerificationEmail, logOut, loading, error } = useAuth();
   const router = useRouter();
@@ -99,7 +103,11 @@ export default function VerifyEmailScreen() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+  const handleLanguageChange = () => {
+    forceUpdate({});
+  };
+
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -116,9 +124,9 @@ export default function VerifyEmailScreen() {
     setResendMessage('');
     try {
       await sendVerificationEmail();
-      setResendMessage('New verification email sent successfully!');
+      setResendMessage(t('auth.emailSentSuccess'));
     } catch (err: any) {
-      setResendMessage(error || 'Failed to resend email. Please try again later.');
+      setResendMessage(error || t('auth.verificationError'));
       console.error("Resend Error:", err);
     } finally {
       setIsResending(false);
@@ -135,7 +143,7 @@ export default function VerifyEmailScreen() {
       router.replace({ pathname: '/login', params: { email: emailToVerify } });
     } catch (err: any) {
       console.error('[VerifyEmail] Logout failed:', err);
-      showAlert("Logout Failed", err.message || "Could not log out. Please try again.");
+      showAlert(t('auth.logoutError'), err.message || t('auth.logoutError'));
     } finally {
       setIsLoggingOut(false);
     }
@@ -145,17 +153,16 @@ export default function VerifyEmailScreen() {
 
   return (
     <>
+      <LanguageSwitcher onLanguageChange={handleLanguageChange} />
+
       <StyledContainer>
         <Stack.Screen options={{ headerShown: false }} />
 
-        <TitleText>Check Your Email</TitleText>
+        <TitleText>{t('auth.verifyEmailTitle')}</TitleText>
         <SubtitleText>
-          We've sent a verification link to 
-          <EmailHighlightText> {emailToVerify || 'your email address'}</EmailHighlightText>.
+          {t('auth.verifyEmailMessage')}
+          <EmailHighlightText> {emailToVerify || t('auth.email')}</EmailHighlightText>.
         </SubtitleText>
-        <InstructionsText>
-          Please click the link in that email to activate your account. You may need to check your spam folder.
-        </InstructionsText>
 
         {(error && !resendMessage) && <FeedbackText isError>{error}</FeedbackText>}
         {resendMessage && 
@@ -172,7 +179,7 @@ export default function VerifyEmailScreen() {
           {isResending ? (
             <ActivityIndicator color={theme.colors.text.light} />
           ) : (
-            <ButtonText>Resend Verification Email</ButtonText>
+            <ButtonText>{t('auth.resendEmail')}</ButtonText>
           )}
         </StyledButton>
 
@@ -184,13 +191,10 @@ export default function VerifyEmailScreen() {
           {isLoggingOut ? (
             <ActivityIndicator color={theme.colors.text.light} />
           ) : (
-            <ButtonText>Go to Login</ButtonText>
+            <ButtonText>{t('auth.backToLogin')}</ButtonText>
           )}
         </StyledButton>
 
-        <InfoText>
-          (After verifying, please use the Login button).
-        </InfoText>
       </StyledContainer>
 
       <CustomAlert

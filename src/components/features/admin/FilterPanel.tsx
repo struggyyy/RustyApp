@@ -7,6 +7,8 @@ import { useAuth } from '../../../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomWheelPicker from './CustomWheelPicker';
 import { useHaptics } from '../../../context/HapticsContext';
+import { useTranslation } from '../../../hooks/useTranslation';
+import { getStatusTranslationKey } from '../../../utils/statusTranslation';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -46,7 +48,8 @@ const SectionTitle = styled.Text`
 const FilterChip = styled.TouchableOpacity<{ isSelected: boolean; chipColor?: string }>`
   background-color: ${(props: { isSelected: boolean; chipColor?: string }) => props.isSelected ? (props.chipColor || theme.colors.primary) : theme.colors.white};
   border-radius: 16px;
-  padding: 10px 16px;
+  padding: 10px 12px;
+  align-items: center;
   border-width: 1px;
   border-color: ${(props: { isSelected: boolean; chipColor?: string }) => props.isSelected ? (props.chipColor || theme.colors.primary) : theme.colors.border.medium};
 `;
@@ -191,6 +194,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 }) => {
   const { user, profile } = useAuth();
   const haptics = useHaptics();
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [selectedDistanceIndex, setSelectedDistanceIndex] = React.useState((maxDistance || 5) - 1);
   
@@ -199,10 +203,10 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
   // Representative colors per status
   const statusColors: Record<ReportStatus, string> = {
-    'Report submitted': '#1976D2', // matches ReportCard blue
-    'Report accepted': '#00796B',  // matches ReportCard teal
-    'Report completed': '#2E7D32', // matches ReportCard green
-    'Report canceled': '#C62828',  // matches ReportCard red
+    'Submitted': '#1976D2', // matches ReportCard blue
+    'Accepted': '#00796B',  // matches ReportCard teal
+    'Completed': '#2E7D32', // matches ReportCard green
+    'Canceled': '#C62828',  // matches ReportCard red
   };
 
   // Set default values if not already set
@@ -226,11 +230,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   const getStatusDisplayText = () => {
-    if (!selectedStatuses || selectedStatuses.length === 0) return 'Show All';
+    if (!selectedStatuses || selectedStatuses.length === 0) return t('admin.showAll');
     if (selectedStatuses.length === 1) {
-      return selectedStatuses[0].replace('Report ', '').replace(/^./, (s) => s.toUpperCase());
+      return t(getStatusTranslationKey(selectedStatuses[0]));
     }
-    return `${selectedStatuses.length} selected`;
+    return `${selectedStatuses.length} ${t('admin.selected')}`;
   };
 
   const renderCollapsedView = () => (
@@ -239,8 +243,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <CollapsedFilterTop>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
-              <StatusInfo>Status: {getStatusDisplayText()}</StatusInfo>
-              <DistanceInfo>Radius: {maxDistance || 0} km</DistanceInfo>
+              <StatusInfo>{t('admin.status')}: {getStatusDisplayText()}</StatusInfo>
+              <DistanceInfo>{t('admin.radius')}: {maxDistance || 0} km</DistanceInfo>
             </View>
             <View style={{ marginLeft: 12 }}>
               <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.secondary} />
@@ -272,7 +276,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const renderExpandedView = () => (
     <>
       <ExpandedFilterHeader>
-        <ExpandedFilterTitle>Filters</ExpandedFilterTitle>
+        <ExpandedFilterTitle>{t('admin.filters')}</ExpandedFilterTitle>
         <ExpandedFilterCloseButton onPress={() => { haptics.light(); setIsExpanded(false); }}>
           <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
         </ExpandedFilterCloseButton>
@@ -280,19 +284,19 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
       <FiltersSplitRow>
         <LeftColumn>
-          <SectionTitle>Status</SectionTitle>
+          <SectionTitle>{t('admin.status')}</SectionTitle>
           <View style={{ gap: 8 }}>
             <FilterChip
               isSelected={!selectedStatuses || selectedStatuses.length === 0}
               onPress={() => { haptics.light(); onStatusesChange([]); }}
             >
               <FilterChipText isSelected={!selectedStatuses || selectedStatuses.length === 0}>
-                Show All
+                {t('admin.showAll')}
               </FilterChipText>
             </FilterChip>
             {reportStatuses.map((status) => {
               const isSelected = selectedStatuses?.includes(status) ?? false;
-              const displayText = status.replace('Report ', '').replace(/^./, str => str.toUpperCase());
+              const displayText = t(getStatusTranslationKey(status));
               const handleToggle = () => {
                 haptics.light();
                 if (!selectedStatuses || selectedStatuses.length === 0) {
@@ -325,7 +329,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </View>
         </LeftColumn>
         <RightColumn>
-          <SectionTitle>Radius</SectionTitle>
+          <SectionTitle>{t('admin.radius')}</SectionTitle>
           <PickerContainer>
             <PickerWrapper>
               <CustomWheelPicker

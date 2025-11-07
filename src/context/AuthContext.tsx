@@ -53,7 +53,7 @@ interface AuthContextType {
   error: string | null;
   isAdmin: boolean; // <-- Add isAdmin state
   profileLoaded: boolean; // <-- Add profileLoaded state
-  signUp: (email: string, password: string, nickname: string) => Promise<User | null>; // Return user or null
+  signUp: (email: string, password: string, nickname: string, language?: 'en' | 'pl') => Promise<User | null>; // Return user or null
   logIn: (email: string, password: string) => Promise<void>;
   logOut: (router: any) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -195,7 +195,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []); // Dependency array is empty, runs once on mount
 
   // Function to create initial profile (ensure this exists)
-  const createInitialProfile = async (userToCreateFor: User, nickname?: string) => {
+  const createInitialProfile = async (userToCreateFor: User, nickname?: string, language?: 'en' | 'pl') => {
     console.log(`[AuthContext] Creating initial profile for: ${userToCreateFor.uid}`);
     const userDocRef = doc(db, 'users', userToCreateFor.uid);
     const initialProfileData: UserProfile = {
@@ -204,7 +204,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       displayName: nickname || userToCreateFor.displayName || 'Nickname',
       createdAt: serverTimestamp(),
       notificationPreferences: { email: true, push: true, haptics: true },
-      language: 'en',
+      language: language || 'en', // Use provided language or default to 'en'
       role: 'user', // <-- Set default role for new users
       points: 0,
     };
@@ -222,7 +222,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // --- Auth Actions ---
 
-  const signUp = async (email: string, password: string, nickname: string): Promise<User | null> => {
+  const signUp = async (email: string, password: string, nickname: string, language?: 'en' | 'pl'): Promise<User | null> => {
     setLoading(true);
     setError(null);
     try {
@@ -231,8 +231,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const newUser = userCredential.user;
       console.log('[AuthContext] Sign up successful, user created:', newUser.uid);
 
-      // Create initial profile immediately
-      await createInitialProfile(newUser, nickname);
+      // Create initial profile immediately with selected language
+      await createInitialProfile(newUser, nickname, language);
 
       // Send verification email
       try {

@@ -6,6 +6,7 @@ import colors from '../../../theme/colors';
 import { Report } from '../../../types/reports';
 import IconButton from '../buttons/IconButton';
 import TouchableButton from '../buttons/TouchableButton';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -154,6 +155,7 @@ const getStatusColor = (status: string): string => {
 };
 
 const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onNavigate, onViewReport, onPrev, onNext, hasMultiple }) => {
+  const { t } = useTranslation();
   if (!report) return null;
 
   return (
@@ -166,7 +168,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
       <ModalOverlay>
         <ModalContent style={shadowStyles.modalShadow}>
           <ModalHeader>
-            <ModalTitle>Reported Car</ModalTitle>
+            <ModalTitle>{t('reports.reportDetails')}</ModalTitle>
             <IconButton
               onPress={onClose}
               size={40}
@@ -214,7 +216,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
                   gap: 8,
                 }}
               >
-                <ActionButtonText variant="close">More</ActionButtonText>
+                <ActionButtonText variant="close">{t('common.more')}</ActionButtonText>
               </TouchableButton>
             )}
             {onNavigate && (
@@ -232,7 +234,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
                 }}
               >
                 <MaterialIcons name="navigation" size={20} color={colors.white} />
-                <ActionButtonText variant="navigate">Navigate</ActionButtonText>
+                <ActionButtonText variant="navigate">{t('common.navigate')}</ActionButtonText>
               </TouchableButton>
             )}
           </ActionButtons>

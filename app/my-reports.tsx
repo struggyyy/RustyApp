@@ -3,6 +3,7 @@ import { StatusBar, StyleSheet, Modal, View, ScrollView } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
+import { useTranslation } from '../src/hooks/useTranslation';
 import { getReportsByUserId, deleteReport } from '../src/services/firebase/reports';
 import { Report, ReportStatus } from '../src/types/reports';
 import ReportList from '../src/components/features/reports/ReportList';
@@ -12,6 +13,7 @@ import CustomAlert from '../src/components/common/modals/CustomAlert';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import IconButton from '../src/components/common/buttons/IconButton';
+import { getStatusTranslationKey, getStatusNoteTranslationKey, getStatusColor } from '../src/utils/statusTranslation';
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -27,41 +29,6 @@ const shadowStyles = StyleSheet.create({
 // Helper functions
 const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-};
-
-const getStatusColor = (status: ReportStatus | undefined) => {
-  const safeStatus = status || 'Report submitted';
-
-  switch (safeStatus) {
-    case 'Report submitted':
-      return '#1976D2'; // Blue
-    case 'Report accepted':
-      return '#00796B'; // Teal
-    case 'Report completed':
-      return '#2E7D32'; // Green
-    case 'Report canceled':
-      return '#C62828'; // Distinctive red
-    default:
-      return theme.colors.text.primary;
-  }
-};
-
-const getStatusNote = (status: ReportStatus | undefined): string => {
-  const safeStatus = status || 'Report submitted';
-
-  switch (safeStatus) {
-    case 'Report submitted':
-      return 'Your report has been received and is now being verified. We\'ll notify you once its status changes.';
-    case 'Report accepted':
-      return 'Your report has been accepted. Our team is now processing it, which may take some time as we contact the vehicle owner and complete the necessary paperwork.';
-    case 'Report completed':
-      return 'The reported vehicle has been removed from the street and is now being recycled, donated, or prepared for a city auction.';
-    case 'Report canceled':
-      return 'We were unable to verify your report due to insufficient information or potential inaccuracies. Please feel free to submit a new report if you believe this was an error.';
-
-    default:
-      return '';
-  }
 };
 
 // Styled components for modal view
@@ -128,24 +95,25 @@ const StatusNote = styled.Text({
 interface UserReportModalViewProps {
   report: Report;
   onClose: () => void;
-  onDelete: (reportId: string) => Promise<void>;
+  onDelete: (id: string) => void;
   showAlert: (title: string, message?: string, buttons?: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>) => void;
 }
 
 const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClose, onDelete, showAlert }) => {
+  const { t } = useTranslation();
   const statusColor = getStatusColor(report.status);
 
   const handleDeletePress = () => {
     showAlert(
-      'Delete Report',
-      'Are you sure you want to delete this report? This action cannot be undone.',
+      t('reports.deleteReport'),
+      t('reports.deleteReportConfirm'),
       [
         {
-          text: 'Cancel',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -154,16 +122,16 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
               // Show success message
               setTimeout(() => {
                 showAlert(
-                  'Success',
-                  'Your report has been successfully deleted.',
-                  [{ text: 'OK' }]
+                  t('common.success'),
+                  t('reports.deleteReportSuccess'),
+                  [{ text: t('common.ok') }]
                 );
               }, 300);
             } catch (error) {
               showAlert(
-                'Error',
-                'Failed to delete report. Please try again.',
-                [{ text: 'OK' }]
+                t('common.error'),
+                t('reports.deleteReportError'),
+                [{ text: t('common.ok') }]
               );
             }
           },
@@ -176,7 +144,7 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
     <View style={{ maxHeight: '100%' }}>
       {/* Fixed Header */}
       <CardHeader>
-        <CardTitle>Report Details</CardTitle>
+        <CardTitle>{t('reports.reportDetails')}</CardTitle>
         <HeaderActions>
           <IconButton
             onPress={handleDeletePress}
@@ -202,17 +170,17 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({ report, onClo
         <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
         <View style={{ marginBottom: 16 }}>
-          <DetailLabel>Description</DetailLabel>
+          <DetailLabel>{t('reports.description')}</DetailLabel>
           <DetailText>{report.description}</DetailText>
         </View>
 
         <View style={{ marginBottom: 16 }}>
-          <DetailText color={statusColor} style={{ fontWeight: 'bold' }}>{report.status}</DetailText>
-          <StatusNote>{getStatusNote(report.status)}</StatusNote>
+          <DetailText color={statusColor} style={{ fontWeight: 'bold' }}>{t(getStatusTranslationKey(report.status))}</DetailText>
+          <StatusNote>{t(getStatusNoteTranslationKey(report.status))}</StatusNote>
         </View>
 
         <View style={{ marginBottom: 8 }}>
-          <DetailText><DetailLabel>Points: </DetailLabel>{report.points}</DetailText>
+          <DetailText><DetailLabel>{t('reports.points')}: </DetailLabel>{report.points}</DetailText>
         </View>
       </ScrollView>
     </View>
@@ -259,6 +227,7 @@ const ModalContent = styled.View({
 });
 
 export default function MyReportsScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { reportId } = useLocalSearchParams();
   const [reports, setReports] = useState<Report[]>([]);
@@ -275,7 +244,7 @@ export default function MyReportsScreen() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -288,7 +257,7 @@ export default function MyReportsScreen() {
     if (!user) {
       setLoading(false);
       setRefreshing(false);
-      setError('You must be logged in to view your reports.');
+      setError(t('auth.emailRequired'));
       return;
     }
 
@@ -297,7 +266,7 @@ export default function MyReportsScreen() {
       const userReports = await getReportsByUserId(user.uid);
       setReports(userReports);
     } catch (err) {
-      setError('Failed to fetch reports. Please try again.');
+      setError(t('reports.deleteReportError'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -369,9 +338,9 @@ export default function MyReportsScreen() {
     <>
       <StatusBar barStyle="dark-content" />
       <Container>
-        <Stack.Screen options={{ title: 'My Reports' }} />
+        <Stack.Screen options={{ title: t('reports.pageTitle') }} />
         <HistoryContainer style={shadowStyles.modalShadow}>
-          <HistoryTitle>HISTORY OF REPORTS</HistoryTitle>
+          <HistoryTitle>{t('reports.title')}</HistoryTitle>
           <ReportList
             reports={reports}
             loading={loading}
@@ -381,8 +350,8 @@ export default function MyReportsScreen() {
             onRefresh={onRefresh}
             onDelete={handleReportDelete}
             onStatusChange={() => {}} // No-op for users
-            loadingText="Loading your reports..."
-            emptyText="You have no reports yet."
+            loadingText={t('reports.loadingReports')}
+            emptyText={t('reports.noReports')}
             onDetailsPress={handleDetailsPress}
             scrollToIndex={scrollToIndex}
           />

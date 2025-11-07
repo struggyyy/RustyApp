@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
+import { useLanguage } from "../src/context/LanguageContext";
 import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
 import StyledButton from "../src/components/common/buttons/StyledButton";
@@ -25,6 +26,7 @@ import CustomAlert from "../src/components/common/modals/CustomAlert";
 import EditProfile from "../src/components/features/profile/EditProfile";
 import SettingsCard from "../src/components/features/profile/SettingsCard";
 import { useHaptics } from "../src/context/HapticsContext";
+import { useTranslation } from "../src/hooks/useTranslation";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -99,7 +101,9 @@ const ModalImage = styled.Image({
 
 export default function AdminProfile() {
   const { user, profile, uploadProfileImage, updateUserProfile, loading: authLoading, initialLoading, logOut } = useAuth();
+  const { currentLanguage, changeLanguage, isChanging } = useLanguage();
   const haptics = useHaptics();
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -120,13 +124,12 @@ export default function AdminProfile() {
   // Settings related state
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [language, setLanguage] = useState('English');
   const [hapticsEnabled, setHapticsEnabled] = useState(profile?.notificationPreferences?.haptics ?? true);
 
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
+  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -174,9 +177,9 @@ export default function AdminProfile() {
           haptics: hapticsEnabled,
         },
       });
-      showAlert('Success', 'Notification settings updated.');
+      showAlert(t('common.success'), t('settings.settingsUpdated'));
     } catch (error: any) {
-      showAlert('Error', error.message || 'Failed to update settings.');
+      showAlert(t('common.error'), error.message || t('settings.settingsError'));
       setNotificationsEnabled(!value); // Revert on error
     } finally {
       setIsSubmitting(false);
@@ -194,26 +197,30 @@ export default function AdminProfile() {
           haptics: value,
         },
       });
-      showAlert('Success', 'Haptics settings updated.');
+      showAlert(t('common.success'), t('settings.settingsUpdated'));
     } catch (error: any) {
-      showAlert('Error', error.message || 'Failed to update settings.');
+      showAlert(t('common.error'), error.message || t('settings.settingsError'));
       setHapticsEnabled(!value); // Revert on error
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleToggleLanguage = () => {
-    const newLanguage = language === 'English' ? 'Polish' : 'English';
-    setLanguage(newLanguage);
-    showAlert('Language Changed', `Language set to ${newLanguage}.`);
+  const handleToggleLanguage = async () => {
+    const newLanguage = currentLanguage === 'en' ? 'pl' : 'en';
+    try {
+      await changeLanguage(newLanguage);
+      showAlert(t('common.success'), t('settings.languageSetTo', { language: newLanguage === 'en' ? t('settings.english') : t('settings.polish') }));
+    } catch (error: any) {
+      showAlert(t('common.error'), error.message || t('settings.settingsError'));
+    }
   };
 
   const handleLogout = async () => {
     try {
       await logOut(router);
     } catch (error: any) {
-      showAlert('Logout Error', error.message || 'Failed to log out.');
+      showAlert(t('auth.logoutError'), error.message || t('auth.logoutError'));
     }
   };
 
@@ -273,11 +280,11 @@ export default function AdminProfile() {
 
     // Validate nickname length
     if (editedNickname.length < 2) {
-      showAlert("Error", "Nickname must be at least 2 characters long.");
+      showAlert(t('common.error'), t('validation.nicknameTooShort'));
       return;
     }
     if (editedNickname.length > 15) {
-      showAlert("Error", "Nickname cannot be longer than 15 characters.");
+      showAlert(t('common.error'), t('validation.nicknameTooLong'));
       return;
     }
 
@@ -320,10 +327,10 @@ export default function AdminProfile() {
         },
       });
 
-      showAlert("Success", "Profile updated successfully!");
+      showAlert(t('common.success'), t('profile.profileUpdated'));
     } catch (error: any) {
       console.error("Update error:", error);
-      showAlert("Error", error.message || "Failed to update profile.");
+      showAlert(t('common.error'), error.message || t('profile.updateError'));
     } finally {
       setUploading(false);
       setIsEditMode(false);
@@ -357,7 +364,7 @@ export default function AdminProfile() {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <Stack.Screen options={{ title: "Admin Profile" }} />
+      <Stack.Screen options={{ title: t('admin.profileTitle') }} />
       <Container
         refreshControl={
           <RefreshControl
@@ -384,7 +391,7 @@ export default function AdminProfile() {
           }}
           onCancel={handleCancelEdit}
           onChoosePhoto={(uri) => setTempImageUri(uri)}
-          onEmailPress={() => showAlert('Email Information', 'Your email address cannot be changed as it is used for account verification and security purposes.')}
+          onEmailPress={() => showAlert(t('common.error'), t('profile.emailCannotBeChanged'))}
           uploading={uploading}
           tempImageUri={tempImageUri}
           editedNickname={editedNickname}
@@ -399,7 +406,7 @@ export default function AdminProfile() {
           <ModalOverlay>
             <ModalContent style={shadowStyles.modalShadow}>
               <ModalHeader>
-                <ModalTitle>Profile Picture</ModalTitle>
+                <ModalTitle>{t('admin.profilePicture')}</ModalTitle>
                 <ModalCloseButton onPress={() => { haptics.light(); setShowImageModal(false); }}>
                   <Feather name="x" size={24} color={colors.text.primary} />
                 </ModalCloseButton>
@@ -416,8 +423,8 @@ export default function AdminProfile() {
           variant="admin"
           notificationsEnabled={notificationsEnabled}
           hapticsEnabled={hapticsEnabled}
-          language={language}
-          isSubmitting={isSubmitting}
+          language={currentLanguage}
+          isSubmitting={isSubmitting || isChanging}
           authLoading={authLoading}
           onToggleNotifications={handleToggleNotifications}
           onToggleHaptics={handleToggleHaptics}
