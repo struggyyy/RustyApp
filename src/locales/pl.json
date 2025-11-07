@@ -218,6 +218,10 @@
     "goToSettings": "Przejdź do ustawień",
     "later": "Później"
   },
+  "notifications": {
+    "reportStatusUpdated": "Status zgłoszenia zaktualizowany",
+    "reportStatusChanged": "Status Twojego zgłoszenia zmienił się z \"{{oldStatus}}\" na \"{{newStatus}}\"."
+  },
   "validation": {
     "required": "To pole jest wymagane.",
     "invalidEmail": "Wprowadź prawidłowy adres email.",

@@ -218,6 +218,10 @@
     "goToSettings": "Go to Settings",
     "later": "Later"
   },
+  "notifications": {
+    "reportStatusUpdated": "Report Status Updated",
+    "reportStatusChanged": "Your report status has changed from \"{{oldStatus}}\" to \"{{newStatus}}\"."
+  },
   "validation": {
     "required": "This field is required.",
     "invalidEmail": "Please enter a valid email address.",

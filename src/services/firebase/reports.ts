@@ -259,7 +259,8 @@ export const updateReportStatus = async (
         // Only send notifications to regular users, not admins
         if (pushToken && pushEnabled && userRole !== 'admin') {
           console.log(`[updateReportStatus] Sending push notification to user ${userId}...`);
-          await sendReportStatusNotification(pushToken, reportId, currentStatus, newStatus);
+          const userLanguage = userData.language || 'en'; // Default to English if no language set
+          await sendReportStatusNotification(pushToken, reportId, currentStatus, newStatus, userLanguage);
           console.log(`[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`);
         } else {
           const skipReason = !pushToken ? 'no push token' :

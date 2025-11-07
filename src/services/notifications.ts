@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase'; // Assuming db is exported from firebase.ts
+import { translate, translateStatus } from '../utils/serverTranslations';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -81,10 +82,16 @@ export const sendReportStatusNotification = async (
   pushToken: string,
   reportId: string,
   oldStatus: string,
-  newStatus: string
+  newStatus: string,
+  language: 'en' | 'pl' = 'en'
 ): Promise<void> => {
-  const title = 'Report Status Updated';
-  const body = `Your report status has changed from "${oldStatus}" to "${newStatus}".`;
+  const title = translate('notifications.reportStatusUpdated', language);
+  const translatedOldStatus = translateStatus(oldStatus, language);
+  const translatedNewStatus = translateStatus(newStatus, language);
+  const body = translate('notifications.reportStatusChanged', language, {
+    oldStatus: translatedOldStatus,
+    newStatus: translatedNewStatus,
+  });
   const data = {
     type: 'report_status_update',
     reportId,
