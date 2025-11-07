@@ -129,7 +129,7 @@ export default function ForgotPassword() {
   };
 
   const handleBackToLogin = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Keyboard.dismiss();
     router.replace({ 
       pathname: '/login', 
@@ -138,7 +138,7 @@ export default function ForgotPassword() {
   };
 
   const handleResetPassword = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     if (!email) {
       showAlert(t('common.error'), t('auth.emailRequired'));
       return;
@@ -191,7 +191,7 @@ export default function ForgotPassword() {
             keyboardType="email-address"
             returnKeyType="go"
             onSubmitEditing={handleResetPassword}
-            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
             editable={!loading}
           />
 

@@ -159,7 +159,7 @@ export default function SignupScreen() {
   };
 
   const handleSignup = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     if (nickname.length < 2) {
       showAlert(t('common.error'), t('validation.nicknameTooShort'));
       return;
@@ -229,7 +229,7 @@ export default function SignupScreen() {
               onChangeText={handleNicknameChange}
               autoCapitalize="words"
               editable={!isLoading}
-              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
             />
           </Animated.View>
 
@@ -240,7 +240,7 @@ export default function SignupScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
             editable={!isLoading}
-            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           />
 
           <StyledInput
@@ -250,7 +250,7 @@ export default function SignupScreen() {
             secureTextEntry
             autoCapitalize="none"
             editable={!isLoading}
-            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           />
 
           <StyledInput
@@ -260,7 +260,7 @@ export default function SignupScreen() {
             secureTextEntry
             autoCapitalize="none"
             editable={!isLoading}
-            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+            onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           />
 
           <StyledButton 
@@ -277,7 +277,7 @@ export default function SignupScreen() {
 
           <BackButtonTouchable 
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
               Keyboard.dismiss();
               router.replace('/login');
             }}

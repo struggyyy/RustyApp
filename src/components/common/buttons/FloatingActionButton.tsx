@@ -52,7 +52,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
 
   const handlePress = () => {
     if (!disabled) {
-      haptics.light();
+      haptics.heavy();
       onPress();
     }
   };

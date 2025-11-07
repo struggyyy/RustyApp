@@ -26,7 +26,7 @@ const TouchableButton: React.FC<TouchableButtonProps> = ({
 
   const handlePress = () => {
     if (!disabled) {
-      haptics.light();
+      haptics.heavy();
       onPress();
     }
   };

@@ -69,7 +69,7 @@ const IconButton: React.FC<IconButtonProps> = ({
 
   const handlePress = () => {
     if (!disabled) {
-      haptics.light();
+      haptics.heavy();
       onPress();
     }
   };

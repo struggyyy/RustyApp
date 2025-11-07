@@ -142,7 +142,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
             trackColor={{ false: colors.primary, true: colors.status.recycled }}
             thumbColor={colors.white}
             ios_backgroundColor={colors.primary}
-            onValueChange={(value) => { haptics.light(); onToggleNotifications(value); }}
+            onValueChange={(value) => { haptics.heavy(); onToggleNotifications(value); }}
             value={notificationsEnabled}
             disabled={isSubmitting}
           />
@@ -153,12 +153,12 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
             trackColor={{ false: colors.primary, true: colors.status.recycled }}
             thumbColor={colors.white}
             ios_backgroundColor={colors.primary}
-            onValueChange={(value) => { haptics.light(); onToggleHaptics(value); }}
+            onValueChange={(value) => { haptics.heavy(); onToggleHaptics(value); }}
             value={hapticsEnabled}
             disabled={isSubmitting}
           />
         </NotificationRow>
-        <LanguageToggle onPress={() => { haptics.light(); onToggleLanguage(); }}>
+        <LanguageToggle onPress={() => { haptics.heavy(); onToggleLanguage(); }}>
           <LanguageOption isSelected={language === 'en'}>
             <LanguageText isSelected={language === 'en'}>🇬🇧 {t('settings.english')}</LanguageText>
           </LanguageOption>
@@ -189,7 +189,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           trackColor={{ false: colors.primary, true: colors.status.recycled }}
           thumbColor={colors.white}
           ios_backgroundColor={colors.primary}
-          onValueChange={(value) => { haptics.light(); onToggleNotifications(value); }}
+          onValueChange={(value) => { haptics.heavy(); onToggleNotifications(value); }}
           value={notificationsEnabled}
           disabled={isSubmitting}
         />
@@ -200,12 +200,12 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           trackColor={{ false: colors.primary, true: colors.status.recycled }}
           thumbColor={colors.white}
           ios_backgroundColor={colors.primary}
-          onValueChange={(value) => { haptics.light(); onToggleHaptics(value); }}
+          onValueChange={(value) => { haptics.heavy(); onToggleHaptics(value); }}
           value={hapticsEnabled}
           disabled={isSubmitting}
         />
       </NotificationRow>
-      <LanguageToggle onPress={() => { haptics.light(); onToggleLanguage(); }}>
+      <LanguageToggle onPress={() => { haptics.heavy(); onToggleLanguage(); }}>
         <LanguageOption isSelected={language === 'en'}>
           <LanguageText isSelected={language === 'en'}>🇬🇧 {t('settings.english')}</LanguageText>
         </LanguageOption>
@@ -220,7 +220,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         loading={authLoading && !isSubmitting}
         style={{ backgroundColor: colors.primary, marginTop: 8, marginBottom: 0 }}
       />
-      <ExpandArrow onPress={() => { haptics.light(); setIsExpanded(!isExpanded); }}>
+      <ExpandArrow onPress={() => { haptics.heavy(); setIsExpanded(!isExpanded); }}>
         <Feather
           name={isExpanded ? "chevron-up" : "chevron-down"}
           size={24}
@@ -228,7 +228,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         />
       </ExpandArrow>
       {isExpanded && onDeleteAccount && (
-        <DeleteAccountButton onPress={() => { haptics.light(); onDeleteAccount(); }}>
+        <DeleteAccountButton onPress={() => { haptics.heavy(); onDeleteAccount(); }}>
           <DeleteAccountText>{t('profile.deleteAccount')}</DeleteAccountText>
         </DeleteAccountButton>
       )}

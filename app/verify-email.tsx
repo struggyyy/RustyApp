@@ -119,7 +119,7 @@ export default function VerifyEmailScreen() {
   const emailToVerify = params.email as string || user?.email;
 
   const handleResendVerification = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setIsResending(true);
     setResendMessage('');
     try {
@@ -134,7 +134,7 @@ export default function VerifyEmailScreen() {
   };
 
   const goToLogin = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     console.log('[VerifyEmail] Logging out before navigating to login...');
     setIsLoggingOut(true);
     try {

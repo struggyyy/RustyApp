@@ -46,7 +46,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ onLanguageChange })
   );
 
   const handleLanguageChange = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const newLanguage = currentLanguage === 'en' ? 'pl' : 'en';
     await i18n.changeLanguage(newLanguage);
     setCurrentLanguage(newLanguage);

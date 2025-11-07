@@ -238,7 +238,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   const renderCollapsedView = () => (
-    <TouchableOpacity onPress={() => { haptics.light(); setIsExpanded(true); }} activeOpacity={0.7}>
+    <TouchableOpacity onPress={() => { haptics.heavy(); setIsExpanded(true); }} activeOpacity={0.7}>
       <CollapsedFilterContent>
         <CollapsedFilterTop>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -250,7 +250,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.secondary} />
             </View>
             <View style={{ flex: 1 }} />
-            <TouchableOpacity onPress={() => { haptics.light(); onProfile(); }}>
+            <TouchableOpacity onPress={() => { haptics.heavy(); onProfile(); }}>
               <ProfileButtonView>
                 {profile?.profileImage || user?.photoURL ? (
                   <ProfileUserImage
@@ -277,7 +277,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     <>
       <ExpandedFilterHeader>
         <ExpandedFilterTitle>{t('admin.filters')}</ExpandedFilterTitle>
-        <ExpandedFilterCloseButton onPress={() => { haptics.light(); setIsExpanded(false); }}>
+        <ExpandedFilterCloseButton onPress={() => { haptics.heavy(); setIsExpanded(false); }}>
           <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
         </ExpandedFilterCloseButton>
       </ExpandedFilterHeader>
@@ -288,7 +288,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           <View style={{ gap: 8 }}>
             <FilterChip
               isSelected={!selectedStatuses || selectedStatuses.length === 0}
-              onPress={() => { haptics.light(); onStatusesChange([]); }}
+              onPress={() => { haptics.heavy(); onStatusesChange([]); }}
             >
               <FilterChipText isSelected={!selectedStatuses || selectedStatuses.length === 0}>
                 {t('admin.showAll')}
@@ -298,7 +298,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               const isSelected = selectedStatuses?.includes(status) ?? false;
               const displayText = t(getStatusTranslationKey(status));
               const handleToggle = () => {
-                haptics.light();
+                haptics.heavy();
                 if (!selectedStatuses || selectedStatuses.length === 0) {
                   onStatusesChange([status]);
                   return;

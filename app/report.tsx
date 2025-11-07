@@ -494,7 +494,7 @@ export default function ReportScreen() {
               placeholderTextColor={theme.colors.text.secondary}
               value={description}
               onChangeText={setDescription}
-              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
               multiline
               maxLength={150}
             />

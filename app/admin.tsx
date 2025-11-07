@@ -204,11 +204,11 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
       <CardTitle>{t('reports.reportDetails')}</CardTitle>
       <HeaderActions>
         {((report.status as string) === 'Canceled' || (report.status as string) === 'Report canceled') && onDelete && (
-          <DeleteButton onPress={() => { haptics.light(); onDelete(); }}>
+          <DeleteButton onPress={() => { haptics.heavy(); onDelete(); }}>
             <MaterialIcons name="delete" size={24} color={theme.colors.primary} />
           </DeleteButton>
         )}
-        <CloseButton onPress={() => { haptics.light(); onClose(); }}>
+        <CloseButton onPress={() => { haptics.heavy(); onClose(); }}>
           <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
         </CloseButton>
       </HeaderActions>
@@ -248,7 +248,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
               key={status}
               active={isActive}
               activeColor={getStatusColor(status)}
-              onPress={() => { haptics.light(); onStatusUpdate && onStatusUpdate(status); }}
+              onPress={() => { haptics.heavy(); onStatusUpdate && onStatusUpdate(status); }}
               disabled={isActive}
             >
               <StatusButtonText active={isActive}>{t(getStatusTranslationKey(status))}</StatusButtonText>

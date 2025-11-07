@@ -129,7 +129,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
 
     // Provide light haptic feedback when crossing item boundaries
     if (lastHapticIndex.current !== null && lastHapticIndex.current !== currentIndex) {
-      haptics.light();
+      haptics.heavy();
     }
     lastHapticIndex.current = currentIndex;
 
@@ -142,7 +142,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
       if (newIndex !== selectedIndexRef.current && newIndex >= 0 && newIndex < options.length) {
         onChangeRef.current(newIndex);
         // Medium haptic feedback when snapping to a new selection
-        haptics.medium();
+        haptics.heavy();
       } else {
         // Even if selection didn't change, ensure we're snapped to the correct position
         const targetOffset = selectedIndexRef.current * itemHeight;
@@ -152,7 +152,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
             animated: true,
           });
           // Light haptic feedback for position correction
-          haptics.light();
+          haptics.heavy();
         }
       }
     }, 200); // Wait 200ms after scroll events stop for smoother feel

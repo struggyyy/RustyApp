@@ -348,7 +348,7 @@ function MapScreenComponent() {
             }}
             pinColor={colors.primary}
             onPress={() => {
-              haptics.light();
+              haptics.heavy();
               const reportsAtLocation = reports.filter(
                 (r) =>
                   getDistance(

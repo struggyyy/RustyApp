@@ -4,18 +4,16 @@ import { useAuth } from './AuthContext';
 
 // Define the shape of the Haptics Context
 interface HapticsContextType {
-  // Light haptic feedback (subtle)
-  light: () => void;
   // Medium haptic feedback
   medium: () => void;
-  // Heavy haptic feedback
+  // Heavy haptic feedback (default for all interactions)
   heavy: () => void;
   // Selection haptic feedback
   selection: () => void;
   // Notification haptic feedback
   notification: (type?: 'success' | 'warning' | 'error') => void;
   // Impact haptic feedback with customizable style
-  impact: (style?: Haptics.ImpactFeedbackStyle) => void;
+  impactCustom: (style?: Haptics.ImpactFeedbackStyle) => void;
   // Haptics enabled status
   isEnabled: boolean;
 }
@@ -33,12 +31,6 @@ export const HapticsProvider: React.FC<HapticsProviderProps> = ({ children }) =>
   const isEnabled = profile?.notificationPreferences?.haptics !== false;
 
   // Haptic functions that respect user settings
-  const light = () => {
-    if (isEnabled) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  };
-
   const medium = () => {
     if (isEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -75,19 +67,18 @@ export const HapticsProvider: React.FC<HapticsProviderProps> = ({ children }) =>
     }
   };
 
-  const impact = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
+  const impactCustom = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium) => {
     if (isEnabled) {
       Haptics.impactAsync(style);
     }
   };
 
   const value = useMemo(() => ({
-    light,
     medium,
     heavy,
     selection,
     notification,
-    impact,
+    impactCustom,
     isEnabled,
   }), [isEnabled]);
 

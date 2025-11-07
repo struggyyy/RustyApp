@@ -75,7 +75,7 @@ const StyledButton: React.FC<StyledButtonProps> = ({
 
   const handlePress = () => {
     if (!disabled && !loading) {
-      haptics.light();
+      haptics.heavy();
       onPress();
     }
   };

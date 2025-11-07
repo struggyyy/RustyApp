@@ -407,7 +407,7 @@ export default function AdminProfile() {
             <ModalContent style={shadowStyles.modalShadow}>
               <ModalHeader>
                 <ModalTitle>{t('admin.profilePicture')}</ModalTitle>
-                <ModalCloseButton onPress={() => { haptics.light(); setShowImageModal(false); }}>
+                <ModalCloseButton onPress={() => { haptics.heavy(); setShowImageModal(false); }}>
                   <Feather name="x" size={24} color={colors.text.primary} />
                 </ModalCloseButton>
               </ModalHeader>

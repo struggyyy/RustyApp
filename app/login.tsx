@@ -147,7 +147,7 @@ export default function Login() {
   }, [user, initialLoading]);
 
   const handleLogin = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setLocalError(null);
     Keyboard.dismiss();
 
@@ -184,7 +184,7 @@ export default function Login() {
   };
 
   const goToSignUp = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Keyboard.dismiss();
     setLocalError(null);
     setTimeout(() => {
@@ -196,7 +196,7 @@ export default function Login() {
   };
 
   const goToForgotPassword = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Keyboard.dismiss();
     setLocalError(null);
     setTimeout(() => {
@@ -238,7 +238,7 @@ export default function Login() {
           autoCapitalize="none"
           returnKeyType="next"
           onSubmitEditing={() => passwordInputRef.current?.focus()}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           hasError={!!localError}
         />
         <StyledInput
@@ -249,7 +249,7 @@ export default function Login() {
           secureTextEntry
           returnKeyType="go"
           onSubmitEditing={handleLogin}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           hasError={!!localError}
         />
         

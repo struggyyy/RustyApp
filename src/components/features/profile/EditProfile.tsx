@@ -344,12 +344,12 @@ const EditProfile: React.FC<EditProfileProps> = ({
           <>
             <ExpandedProfileHeader>
               <ExpandedProfileTitle>{t('profile.editProfile')}</ExpandedProfileTitle>
-              <ExpandedProfileCloseButton onPress={() => { haptics.light(); handleCancel(); }}>
+              <ExpandedProfileCloseButton onPress={() => { haptics.heavy(); handleCancel(); }}>
                 <MaterialIcons name="close" size={24} color={colors.text.primary} />
               </ExpandedProfileCloseButton>
             </ExpandedProfileHeader>
 
-            <AvatarTouchable onPress={() => { if (!uploading) { haptics.light(); handleChoosePhoto(); } }} disabled={uploading}>
+            <AvatarTouchable onPress={() => { if (!uploading) { haptics.heavy(); handleChoosePhoto(); } }} disabled={uploading}>
               <ExpandedAvatarWrapper>
                 {uploading ? (
                   <ActivityIndicator size="large" color="#fff" />
@@ -364,7 +364,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                     </ExpandedAvatarPlaceholderText>
                   </ExpandedAvatarPlaceholder>
                 )}
-                <EditIconButton onPress={() => { if (!uploading) { haptics.light(); handleChoosePhoto(); } }} disabled={uploading}>
+                <EditIconButton onPress={() => { if (!uploading) { haptics.heavy(); handleChoosePhoto(); } }} disabled={uploading}>
                   <MaterialIcons name="edit" size={20} color={colors.primary} />
                 </EditIconButton>
               </ExpandedAvatarWrapper>
@@ -378,11 +378,11 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 placeholder={t('auth.nickname')}
                 placeholderTextColor={colors.text.secondary}
                 editable={!uploading}
-                onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+                onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
               />
             </Animated.View>
 
-            <EmailTouchable onPress={() => { haptics.light(); onEmailPress?.(); }}>
+            <EmailTouchable onPress={() => { haptics.heavy(); onEmailPress?.(); }}>
               <EmailText style={{
                 fontSize: user?.email && user.email.length > 20 ? 14 : 16
               }}>
@@ -410,7 +410,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 )}
               </NicknameContainer>
               <AvatarTouchable
-                onPress={() => { if (!uploading) { haptics.light(); handleAvatarPress(); } }}
+                onPress={() => { if (!uploading) { haptics.heavy(); handleAvatarPress(); } }}
                 disabled={uploading}
               >
                 <AvatarWrapper>
@@ -443,7 +443,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
           <ModalContent style={shadowStyles.modalShadow}>
             <ModalHeader>
               <ModalTitle>{t('profile.profilePicture')}</ModalTitle>
-              <ModalCloseButton onPress={() => { haptics.light(); onCloseImageModal?.(); }}>
+              <ModalCloseButton onPress={() => { haptics.heavy(); onCloseImageModal?.(); }}>
                 <Feather name="x" size={24} color={colors.text.primary} />
               </ModalCloseButton>
             </ModalHeader>
