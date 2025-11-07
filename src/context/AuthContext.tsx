@@ -22,6 +22,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { getReportsByUserId } from '../services/firebase/reports';
 import { requestNotificationPermissions, getPushToken, storePushToken } from '../services/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ReportStatus } from '../types/reports';
 
 // Define the shape of the user profile data stored in Firestore
 interface UserProfile {
@@ -42,6 +43,10 @@ interface UserProfile {
   pushToken?: string;
   language?: string;
   points?: number;
+  adminPreferences?: {
+    selectedStatuses?: ReportStatus[];
+    maxDistance?: number;
+  };
 }
 
 // Define the shape of the Auth Context state

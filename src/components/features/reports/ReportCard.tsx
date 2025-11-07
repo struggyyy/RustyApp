@@ -274,7 +274,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
     <CardHeader>
       <CardTitle>{t('reports.reportDetails')}</CardTitle>
       <HeaderActions>
-        {(report.status === 'Canceled' || (report.status as string) === 'Report canceled') && onDelete && (
+        {report.status === 'Canceled' && onDelete && (
           <IconButton
             onPress={onDelete}
             size={40}
@@ -419,10 +419,8 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
               const statusStr = report.status as string;
               switch (statusStr) {
                 case 'Submitted':
-                case 'Report submitted':
                   return <StatusIndicatorText color={statusColor}>...</StatusIndicatorText>;
                 case 'Canceled':
-                case 'Report canceled':
                   return <FontAwesome name="times-circle" size={24} color={statusColor} style={{ marginTop: 8 }} />;
                 default:
                   return <PointsText color={statusColor}>{`${report.points}p`}</PointsText>;
