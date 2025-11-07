@@ -12,19 +12,21 @@
  *                                                                         *
  ************************************************************************** */
 // React specific imports
-import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React from "react";
+import { View, ActivityIndicator } from "react-native";
 
 // Internal imports
-import colors from '../../theme/colors';
+import colors from "../../theme/colors";
 
 interface LoadingScreenProps {
   color?: string;
 }
 
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ color = colors.primary }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({
+  color = colors.primary,
+}) => {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <ActivityIndicator size="large" color={color} />
     </View>
   );

@@ -12,26 +12,29 @@
  *                                                                         *
  ************************************************************************** */
 // React specific imports
-import React from 'react';
+import React from "react";
 
 // External libraries
-import 'react-native-url-polyfill/auto';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Stack, useRouter } from 'expo-router';
-import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
-import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
-import styled from 'styled-components/native';
+import "react-native-url-polyfill/auto";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Stack, useRouter } from "expo-router";
+import {
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from "react-native-safe-area-context";
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import styled from "styled-components/native";
 
 // Internal imports
-import { AuthProvider } from '../src/context/AuthContext';
-import { HapticsProvider } from '../src/context/HapticsContext';
-import { LanguageProvider } from '../src/context/LanguageContext';
-import HeaderBackButton from '../src/components/common/buttons/HeaderBackButton';
-import LoadingScreen from '../src/components/common/LoadingScreen';
-import colors from '../src/theme/colors';
-import { useAuthNavigation } from '../src/hooks/layout/useAuthNavigation';
-import { useDeepLinking } from '../src/hooks/layout/useDeepLinking';
-import '../src/i18n/i18n'; // Initialize i18n
+import { AuthProvider } from "../src/context/AuthContext";
+import { HapticsProvider } from "../src/context/HapticsContext";
+import { LanguageProvider } from "../src/context/LanguageContext";
+import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
+import LoadingScreen from "../src/components/common/LoadingScreen";
+import colors from "../src/theme/colors";
+import { useAuthNavigation } from "../src/hooks/layout/useAuthNavigation";
+import { useDeepLinking } from "../src/hooks/layout/useDeepLinking";
+import "../src/i18n/i18n"; // Initialize i18n
 
 // Styled components
 const StyledSafeAreaProvider = styled(SafeAreaProvider)`
@@ -62,23 +65,48 @@ function AuthenticatedStack() {
   return (
     <Stack
       screenOptions={{
-        statusBarStyle: 'dark',
+        statusBarStyle: "dark",
         headerStyle: { backgroundColor: colors.background.primary },
         headerTransparent: false,
         contentStyle: { backgroundColor: colors.background.primary },
         headerTintColor: colors.text.primary,
-        headerLeft: () => (
-          <HeaderBackButton onPress={() => router.back()} />
-        ),
+        headerLeft: () => <HeaderBackButton onPress={() => router.back()} />,
       }}
     >
-      <Stack.Screen name="admin" options={{ title: 'Admin', headerBackVisible: false, headerLeft: undefined }} />
-      <Stack.Screen name="admin-profile" options={{ title: 'Admin Profile' }} />
-      <Stack.Screen name="home" options={{ title: 'Home', headerBackVisible: false, headerLeft: undefined }} />
-      <Stack.Screen name="login" options={{ title: 'Login', headerBackVisible: false, headerLeft: undefined }} />
-      <Stack.Screen name="signup" options={{ title: 'Sign Up' }} />
-      <Stack.Screen name="forgot-password" options={{ title: 'Reset Password' }} />
-      <Stack.Screen name="verify-email" options={{ title: 'Verify Email', headerBackVisible: false }} />
+      <Stack.Screen
+        name="admin"
+        options={{
+          title: "Admin",
+          headerBackVisible: false,
+          headerLeft: undefined,
+        }}
+      />
+      <Stack.Screen name="admin-profile" options={{ title: "Admin Profile" }} />
+      <Stack.Screen
+        name="home"
+        options={{
+          title: "Home",
+          headerBackVisible: false,
+          headerLeft: undefined,
+        }}
+      />
+      <Stack.Screen
+        name="login"
+        options={{
+          title: "Login",
+          headerBackVisible: false,
+          headerLeft: undefined,
+        }}
+      />
+      <Stack.Screen name="signup" options={{ title: "Sign Up" }} />
+      <Stack.Screen
+        name="forgot-password"
+        options={{ title: "Reset Password" }}
+      />
+      <Stack.Screen
+        name="verify-email"
+        options={{ title: "Verify Email", headerBackVisible: false }}
+      />
     </Stack>
   );
 }
@@ -86,12 +114,18 @@ function AuthenticatedStack() {
 // Root layout component with all providers
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background.primary }}>
+    <GestureHandlerRootView
+      style={{ flex: 1, backgroundColor: colors.background.primary }}
+    >
       <StyledSafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AuthProvider>
           <LanguageProvider>
             <HapticsProvider>
-              <ExpoStatusBar style="dark" translucent={false} backgroundColor={colors.background.primary} />
+              <ExpoStatusBar
+                style="dark"
+                translucent={false}
+                backgroundColor={colors.background.primary}
+              />
               <AuthenticatedStack />
             </HapticsProvider>
           </LanguageProvider>
