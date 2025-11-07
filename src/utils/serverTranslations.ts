@@ -1,5 +1,5 @@
-import en from '../locales/en.json';
-import pl from '../locales/pl.json';
+import en from '../i18n/locales/en.json';
+import pl from '../i18n/locales/pl.json';
 import { ReportStatus } from '../types/reports';
 
 const translations = {

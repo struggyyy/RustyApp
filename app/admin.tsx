@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
-import { getAllReports, updateReportStatus, deleteReport } from '../src/services/firebase/reports';
+import { getAllReports, updateReportStatus, deleteReport } from '../src/components/lib/firebase/reports';
 import { Stack } from 'expo-router';
 import { Report as ReportType, ReportStatus, reportStatuses } from '../src/types/reports';
 import ReportList from '../src/components/features/reports/ReportList';

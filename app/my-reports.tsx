@@ -4,7 +4,7 @@ import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import styled from 'styled-components/native';
 import { useAuth } from '../src/context/AuthContext';
 import { useTranslation } from '../src/hooks/useTranslation';
-import { getReportsByUserId, deleteReport } from '../src/services/firebase/reports';
+import { getReportsByUserId, deleteReport } from '../src/components/lib/firebase/reports';
 import { Report, ReportStatus } from '../src/types/reports';
 import ReportList from '../src/components/features/reports/ReportList';
 import theme from '../src/theme';

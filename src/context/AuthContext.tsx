@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo } from 'react';
-import { auth, db, storage } from '../services/firebase'; // Import Firebase services
+import { auth, db, storage } from '../components/lib/firebase/firebase'; // Import Firebase services
 import {
   User, // Firebase User type
   onAuthStateChanged,
@@ -19,8 +19,8 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp, FirestoreError, deleteDoc, writeBatch } from 'firebase/firestore'; // Firestore for user profiles and deleteDoc
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // Firebase Storage for uploads
-import { getReportsByUserId } from '../services/firebase/reports';
-import { requestNotificationPermissions, getPushToken, storePushToken } from '../services/notifications';
+import { getReportsByUserId } from '../components/lib/firebase/reports';
+import { requestNotificationPermissions, getPushToken, storePushToken } from '../components/lib/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ReportStatus } from '../types/reports';
 

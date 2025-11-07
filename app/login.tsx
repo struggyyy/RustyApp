@@ -4,7 +4,7 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import { useTranslation } from '../src/hooks/useTranslation';
-import LanguageSwitcher from '../src/components/common/LanguageSwitcher';
+import LanguageSwitcher from '../src/components/common/buttons/LanguageSwitcher';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import * as Haptics from 'expo-haptics';

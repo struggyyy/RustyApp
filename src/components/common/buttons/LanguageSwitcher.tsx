@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
-import i18n from '../../i18n/i18n';
+import i18n from '../../../i18n/i18n';
 import * as Haptics from 'expo-haptics';
 
 const SwitcherContainer = styled.View({

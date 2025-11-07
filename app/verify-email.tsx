@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { useTranslation } from '../src/hooks/useTranslation';
-import LanguageSwitcher from '../src/components/common/LanguageSwitcher';
+import LanguageSwitcher from '../src/components/common/buttons/LanguageSwitcher';
 import styled from 'styled-components/native';
 import theme from '../src/theme';
 import CustomAlert from '../src/components/common/modals/CustomAlert';

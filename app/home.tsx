@@ -23,7 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import colors from "../src/theme/colors";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getReportsByUserId } from "../src/services/firebase/reports";
+import { getReportsByUserId } from "../src/components/lib/firebase/reports";
 import { Report } from "../src/types/reports";
 import StyledButton from "../src/components/common/buttons/StyledButton";
 import TouchableButton from "../src/components/common/buttons/TouchableButton";

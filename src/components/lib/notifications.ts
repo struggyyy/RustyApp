@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase'; // Assuming db is exported from firebase.ts
-import { translate, translateStatus } from '../utils/serverTranslations';
+import { db } from './firebase/firebase'; // Assuming db is exported from firebase.ts
+import { translate, translateStatus } from '../../utils/serverTranslations';
 
 // Configure notification handler
 Notifications.setNotificationHandler({

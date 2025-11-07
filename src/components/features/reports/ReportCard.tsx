@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../../../theme/colors';
 import { Report, ReportStatus, reportStatuses } from '../../../types/reports';
-import { deleteReport, updateReportStatus } from '../../../services/firebase/reports';
+import { deleteReport, updateReportStatus } from '../../lib/firebase/reports';
 import CustomAlert from '../../common/modals/CustomAlert';
 import IconButton from '../../common/buttons/IconButton';
 import TouchableButton from '../../common/buttons/TouchableButton';

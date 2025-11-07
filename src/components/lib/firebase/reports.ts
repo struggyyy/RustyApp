@@ -16,8 +16,8 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from "firebase/storage";
-import { db, storage } from "../firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
-import { Report, ReportStatus } from "../../types/reports";
+import { db, storage } from "./firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
+import { Report, ReportStatus } from "../../../types/reports";
 import { sendReportStatusNotification } from "../notifications";
 
 /**

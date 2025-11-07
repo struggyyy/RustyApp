@@ -1,8 +1,8 @@
 import i18n from 'i18next';
 
 // Import language resources
-import en from '../locales/en.json';
-import pl from '../locales/pl.json';
+import en from './locales/en.json';
+import pl from './locales/pl.json';
 
 const resources = {
   en: {

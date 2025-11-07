@@ -22,7 +22,7 @@ import { useAuth } from "../src/context/AuthContext";
 import {
   createReport,
   uploadReportImage,
-} from "../src/services/firebase/reports";
+} from "../src/components/lib/firebase/reports";
 import theme from "../src/theme";
 import StyledButton from "../src/components/common/buttons/StyledButton";
 import CustomAlert from "../src/components/common/modals/CustomAlert";

@@ -17,7 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import colors from "../src/theme/colors";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getReportsByUserId } from "../src/services/firebase/reports";
+import { getReportsByUserId } from "../src/components/lib/firebase/reports";
 import { Report } from "../src/types/reports";
 import * as Linking from "expo-linking";
 import ReportModal from "../src/components/common/modals/ReportModal";

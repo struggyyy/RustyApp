@@ -19,7 +19,7 @@ import StyledButton from "../../common/buttons/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import colors from "../../../theme/colors";
 import { ref, deleteObject } from "firebase/storage";
-import { storage } from "../../../services/firebase";
+import { storage } from "../../lib/firebase/firebase";
 import CustomAlert from "../../common/modals/CustomAlert";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
