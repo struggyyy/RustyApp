@@ -6,7 +6,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { getAllReports, updateReportStatus, deleteReport } from '../src/services/firebase/reports';
 import { Stack } from 'expo-router';
-import { Report, ReportStatus, reportStatuses } from '../src/types/reports';
+import { Report as ReportType, ReportStatus, reportStatuses } from '../src/types/reports';
 import ReportList from '../src/components/features/reports/ReportList';
 import FilterPanel from '../src/components/features/admin/FilterPanel';
 import ReportCard from '../src/components/features/reports/ReportCard';
@@ -60,13 +60,11 @@ const ModalCloseButton = styled.TouchableOpacity({
   padding: 8,
 });
 
-// Helper function for status colors (handles both old and new format)
+// Helper function for status colors
 const getStatusColor = (status: ReportStatus | string | undefined) => {
   if (!status) return '#1976D2';
-  
-  // Normalize to new format
-  const normalized = status.replace('Report ', '');
-  const safeStatus = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
+
+  const safeStatus = status as ReportStatus;
 
   switch (safeStatus) {
     case 'Submitted':
@@ -189,7 +187,7 @@ const DashboardContainer = styled.View({
 });
 
 const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDelete }: {
-  report: Report;
+  report: ReportType;
   statusColor: string;
   onClose: () => void;
   onStatusUpdate?: (newStatus: ReportStatus) => void;
@@ -203,7 +201,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
     <CardHeader>
       <CardTitle>{t('reports.reportDetails')}</CardTitle>
       <HeaderActions>
-        {((report.status as string) === 'Canceled' || (report.status as string) === 'Report canceled') && onDelete && (
+        {(report.status === 'Canceled') && onDelete && (
           <DeleteButton onPress={() => { haptics.heavy(); onDelete(); }}>
             <MaterialIcons name="delete" size={24} color={theme.colors.primary} />
           </DeleteButton>
@@ -239,9 +237,7 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
       <DetailLabel>{t('admin.reportStatus')}</DetailLabel>
       <StatusGrid>
         {reportStatuses.map((status) => {
-          // Normalize report status for comparison (handles both old "Report submitted" and new "Submitted" formats)
-          const reportStatusNormalized = (report.status as string).replace('Report ', '').replace(/^./, (s: string) => s.toUpperCase());
-          const isActive = reportStatusNormalized.toLowerCase() === status.toLowerCase();
+          const isActive = report.status === status;
           
           return (
             <StatusButton
@@ -262,25 +258,39 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
 };
 
 const AdminDashboard = () => {
-  const { logOut, isAdmin } = useAuth();
+  const { logOut, isAdmin, profile, updateUserProfile } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [filteredReports, setFilteredReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<ReportType[]>([]);
+  const [filteredReports, setFilteredReports] = useState<ReportType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<ReportStatus[]>([]);
   const [maxDistance, setMaxDistance] = useState<number | null>(5);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
 
   useEffect(() => {
     if (!isAdmin) {
       router.replace('/home');
     }
   }, [isAdmin, router]);
+
+  // Load saved admin preferences when profile is available
+  useEffect(() => {
+    if (profile?.adminPreferences) {
+      const { selectedStatuses: savedStatuses, maxDistance: savedDistance } = profile.adminPreferences;
+      if (savedStatuses && savedStatuses.length > 0) {
+        setSelectedStatuses(savedStatuses);
+      }
+      if (savedDistance !== undefined && savedDistance !== null) {
+        setMaxDistance(savedDistance);
+      }
+    }
+  }, [profile]);
 
   // Get user's current location
   useEffect(() => {
@@ -296,6 +306,8 @@ const AdminDashboard = () => {
         }
       } catch (error) {
         console.error('Error getting location:', error);
+      } finally {
+        setLocationLoading(false);
       }
     })();
   }, []);
@@ -323,8 +335,8 @@ const AdminDashboard = () => {
       filtered = filtered.filter(report => selectedStatuses.includes(report.status));
     }
 
-    // Filter by distance
-    if (maxDistance !== null && userLocation) {
+    // Filter by distance - only apply when location is available and not loading
+    if (maxDistance !== null && userLocation && !locationLoading) {
       filtered = filtered.filter(report => {
         const distance = calculateDistance(
           userLocation.latitude,
@@ -337,7 +349,7 @@ const AdminDashboard = () => {
     }
 
     setFilteredReports(filtered);
-  }, [reports, selectedStatuses, maxDistance, userLocation]);
+  }, [reports, selectedStatuses, maxDistance, userLocation, locationLoading]);
 
   const fetchAllReports = useCallback(async () => {
     if (!isAdmin) {
@@ -373,6 +385,31 @@ const AdminDashboard = () => {
       fetchAllReports();
     }
   }, [fetchAllReports, isAdmin]);
+
+  // Save admin filter preferences to user profile
+  const saveAdminPreferences = useCallback(async (statuses: ReportStatus[], distance: number | null) => {
+    try {
+      await updateUserProfile({
+        adminPreferences: {
+          selectedStatuses: statuses,
+          maxDistance: distance ?? undefined,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to save admin preferences:', error);
+      // Don't show error to user for preference saves
+    }
+  }, [updateUserProfile]);
+
+  const handleStatusFilterChange = useCallback((statuses: ReportStatus[]) => {
+    setSelectedStatuses(statuses);
+    saveAdminPreferences(statuses, maxDistance);
+  }, [saveAdminPreferences, maxDistance]);
+
+  const handleDistanceFilterChange = useCallback((distance: number | null) => {
+    setMaxDistance(distance);
+    saveAdminPreferences(selectedStatuses, distance);
+  }, [saveAdminPreferences, selectedStatuses]);
 
   const handleReportDelete = async (deletedReportId: string) => {
     try {
@@ -434,7 +471,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDetailsPress = (report: Report) => {
+  const handleDetailsPress = (report: ReportType) => {
     setSelectedReport(report);
     setShowReportModal(true);
   };
@@ -449,16 +486,16 @@ const AdminDashboard = () => {
       <Container>
       <FilterPanel
         selectedStatuses={selectedStatuses}
-        onStatusesChange={setSelectedStatuses}
+        onStatusesChange={handleStatusFilterChange}
         maxDistance={maxDistance}
-        onDistanceChange={setMaxDistance}
+        onDistanceChange={handleDistanceFilterChange}
         onProfile={handleLogout}
       />
       <DashboardShadowWrapper style={shadowStyles.modalShadow}>
         <DashboardContainer>
           <ReportList
             reports={filteredReports}
-            loading={loading}
+            loading={loading || locationLoading}
             error={error}
             refreshing={refreshing}
             isAdmin={true}

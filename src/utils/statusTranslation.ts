@@ -1,45 +1,14 @@
 import { ReportStatus } from '../types/reports';
 
 /**
- * Normalizes status to new format (without "Report " prefix)
- * Handles both old format ("Report submitted") and new format ("Submitted")
- */
-const normalizeStatus = (status: string | undefined): ReportStatus => {
-  if (!status) return 'Submitted';
-  
-  // If it's already in new format, return as is
-  if (['Submitted', 'Accepted', 'Completed', 'Canceled'].includes(status)) {
-    return status as ReportStatus;
-  }
-  
-  // Convert old format to new format
-  const normalized = status.replace('Report ', '');
-  const capitalized = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
-  
-  // Map to valid status
-  switch (capitalized) {
-    case 'Submitted':
-      return 'Submitted';
-    case 'Accepted':
-      return 'Accepted';
-    case 'Completed':
-      return 'Completed';
-    case 'Canceled':
-      return 'Canceled';
-    default:
-      return 'Submitted';
-  }
-};
-
-/**
  * Maps report status values to translation keys
- * @param status - The report status from Firebase (old or new format)
+ * @param status - The report status from Firebase
  * @returns Translation key for the status
  */
 export const getStatusTranslationKey = (status: ReportStatus | string | undefined): string => {
-  const normalizedStatus = normalizeStatus(status as string);
+  const safeStatus = status as ReportStatus;
 
-  switch (normalizedStatus) {
+  switch (safeStatus) {
     case 'Submitted':
       return 'reports.statusSubmitted';
     case 'Accepted':
@@ -55,13 +24,13 @@ export const getStatusTranslationKey = (status: ReportStatus | string | undefine
 
 /**
  * Maps report status values to note translation keys
- * @param status - The report status from Firebase (old or new format)
+ * @param status - The report status from Firebase
  * @returns Translation key for the status note
  */
 export const getStatusNoteTranslationKey = (status: ReportStatus | string | undefined): string => {
-  const normalizedStatus = normalizeStatus(status as string);
+  const safeStatus = status as ReportStatus;
 
-  switch (normalizedStatus) {
+  switch (safeStatus) {
     case 'Submitted':
       return 'reports.reportSubmittedNote';
     case 'Accepted':
@@ -77,13 +46,13 @@ export const getStatusNoteTranslationKey = (status: ReportStatus | string | unde
 
 /**
  * Gets the color for a report status
- * @param status - The report status (old or new format)
+ * @param status - The report status
  * @returns Color hex string
  */
 export const getStatusColor = (status: ReportStatus | string | undefined): string => {
-  const normalizedStatus = normalizeStatus(status as string);
+  const safeStatus = status as ReportStatus;
 
-  switch (normalizedStatus) {
+  switch (safeStatus) {
     case 'Submitted':
       return '#1976D2'; // Blue
     case 'Accepted':
