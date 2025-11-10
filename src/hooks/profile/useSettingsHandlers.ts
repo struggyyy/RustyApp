@@ -1,0 +1,110 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
+import { useState } from "react";
+
+// Internal imports
+import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
+import { useTranslation } from "../useTranslation";
+
+type ShowAlertFn = (title: string, message?: string) => void;
+
+export function useSettingsHandlers(showAlert: ShowAlertFn) {
+  const { profile, updateUserProfile } = useAuth();
+  const { currentLanguage, changeLanguage } = useLanguage();
+  const { t } = useTranslation();
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    profile?.notificationPreferences?.push ?? true
+  );
+  const [hapticsEnabled, setHapticsEnabled] = useState(
+    profile?.notificationPreferences?.haptics ?? true
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleToggleNotifications = async (value: boolean) => {
+    setIsSubmitting(true);
+    setNotificationsEnabled(value);
+    try {
+      await updateUserProfile({
+        notificationPreferences: {
+          push: value,
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: hapticsEnabled,
+        },
+      });
+      showAlert(t("common.success"), t("settings.settingsUpdated"));
+    } catch (error: any) {
+      showAlert(
+        t("common.error"),
+        error.message || t("settings.settingsError")
+      );
+      setNotificationsEnabled(!value);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleHaptics = async (value: boolean) => {
+    setIsSubmitting(true);
+    setHapticsEnabled(value);
+    try {
+      await updateUserProfile({
+        notificationPreferences: {
+          push: notificationsEnabled,
+          email: profile?.notificationPreferences?.email ?? true,
+          haptics: value,
+        },
+      });
+      showAlert(t("common.success"), t("settings.settingsUpdated"));
+    } catch (error: any) {
+      showAlert(
+        t("common.error"),
+        error.message || t("settings.settingsError")
+      );
+      setHapticsEnabled(!value);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleLanguage = async () => {
+    const newLanguage = currentLanguage === "en" ? "pl" : "en";
+    try {
+      await changeLanguage(newLanguage);
+      showAlert(
+        t("common.success"),
+        t("settings.languageSetTo", {
+          language:
+            newLanguage === "en" ? t("settings.english") : t("settings.polish"),
+        })
+      );
+    } catch (error: any) {
+      showAlert(
+        t("common.error"),
+        error.message || t("settings.settingsError")
+      );
+    }
+  };
+
+  return {
+    notificationsEnabled,
+    hapticsEnabled,
+    isSubmitting,
+    handleToggleNotifications,
+    handleToggleHaptics,
+    handleToggleLanguage,
+  };
+}

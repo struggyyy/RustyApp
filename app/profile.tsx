@@ -1,29 +1,19 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
-  Text,
-  TouchableOpacity,
   ActivityIndicator,
-  Alert,
-  Image,
   StatusBar,
   RefreshControl,
-  TextInput,
   Modal,
   StyleSheet,
-  Switch,
-  Animated,
   ScrollView,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import { useLanguage } from "../src/context/LanguageContext";
-import * as ImagePicker from "expo-image-picker";
 import styled from "styled-components/native";
-import StyledButton from "../src/components/common/buttons/StyledButton";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import ReportCard from "../src/components/features/reports/ReportCard";
-import { Report, ReportStatus } from "../src/types/reports";
+import { Report } from "../src/types/reports";
 import { getReportsByUserId, deleteReport } from "../src/components/lib/firebase/reports";
 import colors from "../src/theme/colors";
 import { ref, deleteObject } from "firebase/storage";
@@ -34,6 +24,7 @@ import SettingsCard from "../src/components/features/profile/SettingsCard";
 import TouchableButton from "../src/components/common/buttons/TouchableButton";
 import IconButton from "../src/components/common/buttons/IconButton";
 import { useTranslation } from "../src/hooks/useTranslation";
+import { useShakeAnimation } from "../src/hooks/useShakeAnimation";
 import { getStatusTranslationKey, getStatusNoteTranslationKey, getStatusColor } from "../src/utils/statusTranslation";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
@@ -70,14 +61,6 @@ const ModalHeaderActions = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
   gap: 8,
-});
-
-const ModalCloseButtonNew = styled.TouchableOpacity({
-  padding: 8,
-});
-
-const ModalDeleteButton = styled.TouchableOpacity({
-  padding: 8,
 });
 
 const ModalReportDate = styled.Text<{ color: string }>((props: { color: string }) => ({
@@ -236,60 +219,6 @@ const LoadingContainer = styled.View`
   align-items: center;
 `;
 
-const NoReportsText = styled.Text`
-  text-align: center;
-  color: ${colors.text.secondary};
-  font-size: 16px;
-`;
-
-const AvatarTouchable = styled.TouchableOpacity``;
-
-const AvatarWrapper = styled.View`
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
-  background-color: #eee;
-  justify-content: center;
-  align-items: center;
-  border: 5px solid ${colors.primary};
-  position: relative;
-`;
-
-const AvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-`;
-
-const AvatarPlaceholder = styled.View`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-  background-color: #ccc;
-  justify-content: center;
-  align-items: center;
-`;
-
-const AvatarPlaceholderText = styled.Text`
-  font-size: 30px;
-  color: #fff;
-  font-weight: bold;
-`;
-
-const Nickname = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${colors.primary};
-  margin-bottom: 4px;
-`;
-
-const PointsText = styled.Text`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${colors.text.secondary};
-  margin-top: 2px;
-`;
-
 const ModalOverlay = styled.View({
   flex: 1,
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -317,10 +246,6 @@ const ModalTitle = styled.Text({
   fontSize: 20,
   fontWeight: 'bold',
   color: colors.text.primary,
-});
-
-const ModalCloseButton = styled.TouchableOpacity({
-  padding: 8,
 });
 
 const ModalImage = styled.Image({
@@ -368,8 +293,8 @@ export default function Profile() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
-  const shakeAnimation = useRef(new Animated.Value(0)).current;
-  const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
+  // Shake animation hook
+  const { shakeAnimation, triggerShake } = useShakeAnimation();
 
   const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
     setAlertConfig({ title, message, buttons });
@@ -378,23 +303,6 @@ export default function Profile() {
 
   const hideAlert = () => {
     setAlertVisible(false);
-  };
-
-  const triggerShake = () => {
-    // Prevent triggering if animation is already running
-    if (isShakeAnimationRunning) return;
-
-    setIsShakeAnimationRunning(true);
-    Animated.sequence([
-      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 0, duration: 75, useNativeDriver: true }),
-    ]).start(() => {
-      // Animation completed, allow next trigger
-      setIsShakeAnimationRunning(false);
-    });
   };
 
   const handleEditedNicknameChange = (text: string) => {

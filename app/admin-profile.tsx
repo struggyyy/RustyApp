@@ -1,135 +1,115 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ActivityIndicator,
   StatusBar,
   RefreshControl,
-  Modal,
   StyleSheet,
-  Switch,
-  Animated,
-  TouchableOpacity,
-  Text,
+  View,
+  ScrollView,
 } from "react-native";
+
+// External libraries
 import { Stack, useRouter } from "expo-router";
+import { ref, deleteObject } from "firebase/storage";
+
+// Internal imports
 import { useAuth } from "../src/context/AuthContext";
 import { useLanguage } from "../src/context/LanguageContext";
-import * as ImagePicker from "expo-image-picker";
-import styled from "styled-components/native";
-import StyledButton from "../src/components/common/buttons/StyledButton";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "../src/hooks/useTranslation";
+import { useShakeAnimation } from "../src/hooks/useShakeAnimation";
 import { Report } from "../src/types/reports";
 import { getReportsByUserId } from "../src/components/lib/firebase/reports";
-import colors from "../src/theme/colors";
-import { ref, deleteObject } from "firebase/storage";
 import { storage } from "../src/components/lib/firebase/firebase";
+import colors from "../src/theme/colors";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
 import EditProfile from "../src/components/features/profile/EditProfile";
 import SettingsCard from "../src/components/features/profile/SettingsCard";
-import { useHaptics } from "../src/context/HapticsContext";
-import { useTranslation } from "../src/hooks/useTranslation";
+import ProfileImageModal from "../src/components/features/profile/ProfileImageModal";
+import { useSettingsHandlers } from "../src/hooks/profile/useSettingsHandlers";
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  modalShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
+// Styles for layout
+const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.white,
   },
-});
-
-// --- STYLED COMPONENTS ---
-const Container = styled.ScrollView.attrs({
-  contentContainerStyle: {
+  scrollContent: {
     paddingTop: 12,
     paddingHorizontal: 12,
-    paddingBottom: 148, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
+    paddingBottom: 148,
   },
-  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
-})({
-  flex: 1,
-  backgroundColor: colors.white,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
-
-const LoadingContainer = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ModalOverlay = styled.View({
-  flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 20,
-});
-
-const ModalContent = styled.View({
-  backgroundColor: colors.white,
-  borderRadius: 24,
-  padding: 24,
-  width: '90%',
-  maxWidth: 400,
-});
-
-const ModalHeader = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 16,
-});
-
-const ModalTitle = styled.Text({
-  fontSize: 20,
-  fontWeight: 'bold',
-  color: colors.text.primary,
-});
-
-const ModalCloseButton = styled.TouchableOpacity({
-  padding: 8,
-});
-
-const ModalImage = styled.Image({
-  width: '100%',
-  height: 300,
-  borderRadius: 16,
-  marginBottom: 16,
-});
-
 
 export default function AdminProfile() {
-  const { user, profile, uploadProfileImage, updateUserProfile, loading: authLoading, initialLoading, logOut } = useAuth();
-  const { currentLanguage, changeLanguage, isChanging } = useLanguage();
-  const haptics = useHaptics();
+  // Authentication and context hooks
+  const {
+    user,
+    profile,
+    uploadProfileImage,
+    updateUserProfile,
+    loading: authLoading,
+    initialLoading,
+    logOut,
+  } = useAuth();
+  const { currentLanguage, isChanging } = useLanguage();
   const { t } = useTranslation();
+  const router = useRouter();
+
+  // UI state management
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [reports, setReports] = useState<Report[]>([]);
-  const [reportsLoading, setReportsLoading] = useState(true);
-  const [reportsError, setReportsError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedNickname, setEditedNickname] = useState("");
   const [tempImageUri, setTempImageUri] = useState<string | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
-  const router = useRouter();
+
+  // Reports state
+  const [reports, setReports] = useState<Report[]>([]);
+
+  // Alert state
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
     title: string;
     message?: string;
-    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
-  }>({ title: '', buttons: [] });
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>;
+  }>({ title: "", buttons: [] });
 
-  // Settings related state
-  const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationPreferences?.push ?? true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hapticsEnabled, setHapticsEnabled] = useState(profile?.notificationPreferences?.haptics ?? true);
+  // Shake animation hook
+  const { shakeAnimation, triggerShake } = useShakeAnimation();
 
-  const shakeAnimation = useRef(new Animated.Value(0)).current;
-  const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
-
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
+  // Alert management
+  const showAlert = (
+    title: string,
+    message?: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }> = [{ text: t("common.ok") }]
+  ) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -138,81 +118,22 @@ export default function AdminProfile() {
     setAlertVisible(false);
   };
 
-  const triggerShake = () => {
-    // Prevent triggering if animation is already running
-    if (isShakeAnimationRunning) return;
+  // Settings handlers from custom hook
+  const {
+    notificationsEnabled,
+    hapticsEnabled,
+    isSubmitting,
+    handleToggleNotifications,
+    handleToggleHaptics,
+    handleToggleLanguage,
+  } = useSettingsHandlers(showAlert);
 
-    setIsShakeAnimationRunning(true);
-    Animated.sequence([
-      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 0, duration: 75, useNativeDriver: true }),
-    ]).start(() => {
-      // Animation completed, allow next trigger
-      setIsShakeAnimationRunning(false);
-    });
-  };
-
+  // Nickname change handler
   const handleEditedNicknameChange = (text: string) => {
-    // Allow typing up to 15 characters, but prevent going beyond
     if (text.length <= 15) {
       setEditedNickname(text);
     } else {
-      // Trigger shake animation when trying to exceed limit
       triggerShake();
-    }
-  };
-
-  // Settings handlers
-  const handleToggleNotifications = async (value: boolean) => {
-    setIsSubmitting(true);
-    setNotificationsEnabled(value);
-    try {
-      await updateUserProfile({
-        notificationPreferences: {
-          push: value,
-          email: profile?.notificationPreferences?.email ?? true,
-          haptics: hapticsEnabled,
-        },
-      });
-      showAlert(t('common.success'), t('settings.settingsUpdated'));
-    } catch (error: any) {
-      showAlert(t('common.error'), error.message || t('settings.settingsError'));
-      setNotificationsEnabled(!value); // Revert on error
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleToggleHaptics = async (value: boolean) => {
-    setIsSubmitting(true);
-    setHapticsEnabled(value);
-    try {
-      await updateUserProfile({
-        notificationPreferences: {
-          push: notificationsEnabled,
-          email: profile?.notificationPreferences?.email ?? true,
-          haptics: value,
-        },
-      });
-      showAlert(t('common.success'), t('settings.settingsUpdated'));
-    } catch (error: any) {
-      showAlert(t('common.error'), error.message || t('settings.settingsError'));
-      setHapticsEnabled(!value); // Revert on error
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleToggleLanguage = async () => {
-    const newLanguage = currentLanguage === 'en' ? 'pl' : 'en';
-    try {
-      await changeLanguage(newLanguage);
-      showAlert(t('common.success'), t('settings.languageSetTo', { language: newLanguage === 'en' ? t('settings.english') : t('settings.polish') }));
-    } catch (error: any) {
-      showAlert(t('common.error'), error.message || t('settings.settingsError'));
     }
   };
 
@@ -220,46 +141,37 @@ export default function AdminProfile() {
     try {
       await logOut(router);
     } catch (error: any) {
-      showAlert(t('auth.logoutError'), error.message || t('auth.logoutError'));
+      showAlert(t("auth.logoutError"), error.message || t("auth.logoutError"));
     }
   };
 
-
+  // Computed values
   const isLoading = authLoading || initialLoading || uploading;
   const profileImageUrl = profile?.profileImage || user?.photoURL;
 
+  // Load user reports on mount
   useEffect(() => {
     if (user?.uid) {
       getReportsByUserId(user.uid)
         .then(setReports)
         .catch((err) => {
           console.error(err);
-          // Optionally set an error state here
         });
     }
   }, [user]);
 
-  const handleReportDelete = (deletedReportId: string) => {
-    setReports((prevReports) =>
-      prevReports.filter((report) => report.id !== deletedReportId)
-    );
-  };
-
+  // Fetch reports
   const fetchReports = useCallback(async () => {
     if (!user) return;
-    setReportsLoading(true);
-    setReportsError(null);
     try {
       const userReports = await getReportsByUserId(user.uid);
       setReports(userReports);
     } catch (error) {
       console.error("Failed to fetch reports:", error);
-      setReportsError("Failed to load reports.");
-    } finally {
-      setReportsLoading(false);
     }
   }, [user]);
 
+  // Authentication redirect and reports initialization
   useEffect(() => {
     if (!initialLoading && !user) {
       router.replace("/login");
@@ -269,28 +181,29 @@ export default function AdminProfile() {
     }
   }, [initialLoading, user, router, fetchReports]);
 
+  // Sync edited nickname with profile changes
   useEffect(() => {
     if (isEditMode) {
       setEditedNickname(profile?.displayName || user?.displayName || "");
     }
   }, [isEditMode, profile?.displayName, user?.displayName]);
 
+  // Save profile with validation and error handling
   const handleSaveProfile = async () => {
     if (!user?.uid) throw new Error("User not found");
 
-    // Validate nickname length
     if (editedNickname.length < 2) {
-      showAlert(t('common.error'), t('validation.nicknameTooShort'));
+      showAlert(t("common.error"), t("validation.nicknameTooShort"));
       return;
     }
     if (editedNickname.length > 15) {
-      showAlert(t('common.error'), t('validation.nicknameTooLong'));
+      showAlert(t("common.error"), t("validation.nicknameTooLong"));
       return;
     }
 
     setUploading(true);
     try {
-      // Delete old profile image if it exists
+      // Delete old image from storage
       const oldImageUrl = profile?.profileImage || user?.photoURL;
       if (oldImageUrl && tempImageUri) {
         try {
@@ -298,14 +211,13 @@ export default function AdminProfile() {
           const path = decodeURIComponent(url.pathname.split("/o/")[1]);
           const imageRef = ref(storage, path);
           await deleteObject(imageRef);
-          console.log("Old profile image deleted successfully");
+          console.log("Old image deleted successfully");
         } catch (deleteError) {
-          console.error("Failed to delete old profile image:", deleteError);
-          // Don't block the save process if delete fails
+          console.error("Failed to delete old image:", deleteError);
         }
       }
 
-      // Upload new profile picture if changed
+      // Upload new image if changed
       if (tempImageUri) {
         await uploadProfileImage(user.uid, tempImageUri);
       }
@@ -327,10 +239,10 @@ export default function AdminProfile() {
         },
       });
 
-      showAlert(t('common.success'), t('profile.profileUpdated'));
+      showAlert(t("common.success"), t("profile.profileUpdated"));
     } catch (error: any) {
       console.error("Update error:", error);
-      showAlert(t('common.error'), error.message || t('profile.updateError'));
+      showAlert(t("common.error"), error.message || t("profile.updateError"));
     } finally {
       setUploading(false);
       setIsEditMode(false);
@@ -338,34 +250,41 @@ export default function AdminProfile() {
     }
   };
 
+  // Reset edit state
   const handleCancelEdit = () => {
     setIsEditMode(false);
     setTempImageUri(null);
     setEditedNickname(profile?.displayName || user?.displayName || "");
   };
 
+  // Pull-to-refresh handler
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchReports();
     setRefreshing(false);
   }, [fetchReports]);
 
+  // Loading screen
   if (initialLoading) {
     return (
       <>
         <Stack.Screen options={{ title: "Admin Profile" }} />
-        <LoadingContainer>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-        </LoadingContainer>
+        </View>
       </>
     );
   }
 
+  // Main component render
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <Stack.Screen options={{ title: t('admin.profileTitle') }} />
-      <Container
+      <Stack.Screen options={{ title: t("admin.profileTitle") }} />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -381,7 +300,8 @@ export default function AdminProfile() {
           onToggleExpanded={() => setIsEditMode(true)}
           onAvatarPress={() => setShowImageModal(true)}
           onSave={() => {
-            const nicknameChanged = editedNickname !== (profile?.displayName || user?.displayName);
+            const nicknameChanged =
+              editedNickname !== (profile?.displayName || user?.displayName);
             const imageChanged = tempImageUri !== null;
             if (!nicknameChanged && !imageChanged) {
               handleCancelEdit();
@@ -391,7 +311,9 @@ export default function AdminProfile() {
           }}
           onCancel={handleCancelEdit}
           onChoosePhoto={(uri) => setTempImageUri(uri)}
-          onEmailPress={() => showAlert(t('common.error'), t('profile.emailCannotBeChanged'))}
+          onEmailPress={() =>
+            showAlert(t("common.error"), t("profile.emailCannotBeChanged"))
+          }
           uploading={uploading}
           tempImageUri={tempImageUri}
           editedNickname={editedNickname}
@@ -402,22 +324,12 @@ export default function AdminProfile() {
           shakeAnimation={shakeAnimation}
         />
 
-        <Modal visible={showImageModal} transparent animationType="fade">
-          <ModalOverlay>
-            <ModalContent style={shadowStyles.modalShadow}>
-              <ModalHeader>
-                <ModalTitle>{t('admin.profilePicture')}</ModalTitle>
-                <ModalCloseButton onPress={() => { haptics.heavy(); setShowImageModal(false); }}>
-                  <Feather name="x" size={24} color={colors.text.primary} />
-                </ModalCloseButton>
-              </ModalHeader>
-              <ModalImage
-                source={{ uri: profileImageUrl }}
-                resizeMode="contain"
-              />
-            </ModalContent>
-          </ModalOverlay>
-        </Modal>
+        <ProfileImageModal
+          visible={showImageModal}
+          imageUrl={profileImageUrl}
+          title={t("admin.profilePicture")}
+          onClose={() => setShowImageModal(false)}
+        />
 
         <SettingsCard
           variant="admin"
@@ -431,7 +343,7 @@ export default function AdminProfile() {
           onToggleLanguage={handleToggleLanguage}
           onLogout={handleLogout}
         />
-      </Container>
+      </ScrollView>
 
       <CustomAlert
         visible={alertVisible}

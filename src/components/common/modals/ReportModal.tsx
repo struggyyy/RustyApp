@@ -1,8 +1,8 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Modal, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
-import colors from '../../../theme/colors';
+import colors, { getStatusColor } from '../../../theme/colors';
 import { Report } from '../../../types/reports';
 import IconButton from '../buttons/IconButton';
 import TouchableButton from '../buttons/TouchableButton';
@@ -68,10 +68,6 @@ const DateText = styled.Text({
   textAlign: 'left',
 });
 
-const CloseButton = styled.TouchableOpacity({
-  padding: 8,
-});
-
 const ReportImage = styled.Image({
   width: '100%',
   height: 180,
@@ -84,30 +80,6 @@ const NavigationView = styled.View({
   justifyContent: 'space-between',
   alignItems: 'center',
   marginBottom: 16,
-});
-
-const NavButton = styled.TouchableOpacity({
-  padding: 8,
-});
-
-const ReportInfo = styled.View({
-  marginBottom: 16,
-});
-
-const InfoRow = styled.View({
-  flexDirection: 'row',
-  marginBottom: 8,
-});
-
-const InfoLabel = styled.Text({
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: colors.text.primary,
-});
-
-const InfoValue = styled.Text({
-  fontSize: 16,
-  color: colors.text.primary,
 });
 
 const ActionButtons = styled.View({
@@ -136,22 +108,6 @@ const ActionButtonText = styled.Text<{ variant?: 'primary' | 'secondary' | 'navi
 // Helper function to format date
 const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-};
-
-// Helper function to get status color
-const getStatusColor = (status: string): string => {
-  switch (status) {
-    case 'Report submitted':
-      return '#1976D2'; // Blue
-    case 'Report accepted':
-      return '#00796B'; // Teal
-    case 'Report completed':
-      return '#2E7D32'; // Green
-    case 'Report canceled':
-      return '#C62828'; // Distinctive red
-    default:
-      return colors.text.primary;
-  }
 };
 
 const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onNavigate, onViewReport, onPrev, onNext, hasMultiple }) => {

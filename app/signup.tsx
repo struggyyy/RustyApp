@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, Animated } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAuth } from '../src/context/AuthContext';
 import { useTranslation } from '../src/hooks/useTranslation';
+import { useShakeAnimation } from '../src/hooks/useShakeAnimation';
 import LanguageSwitcher from '../src/components/common/buttons/LanguageSwitcher';
 import i18n from '../src/i18n/i18n';
 import styled from 'styled-components/native';
@@ -115,8 +116,8 @@ export default function SignupScreen() {
     buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
   }>({ title: '', buttons: [] });
 
-  const shakeAnimation = useRef(new Animated.Value(0)).current;
-  const [isShakeAnimationRunning, setIsShakeAnimationRunning] = useState(false);
+  // Shake animation hook
+  const { shakeAnimation, triggerShake } = useShakeAnimation();
 
   const handleLanguageChange = () => {
     forceUpdate({});
@@ -129,23 +130,6 @@ export default function SignupScreen() {
 
   const hideAlert = () => {
     setAlertVisible(false);
-  };
-
-  const triggerShake = () => {
-    // Prevent triggering if animation is already running
-    if (isShakeAnimationRunning) return;
-
-    setIsShakeAnimationRunning(true);
-    Animated.sequence([
-      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -5, duration: 75, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 0, duration: 75, useNativeDriver: true }),
-    ]).start(() => {
-      // Animation completed, allow next trigger
-      setIsShakeAnimationRunning(false);
-    });
   };
 
   const handleNicknameChange = (text: string) => {
