@@ -12,37 +12,36 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import { useCallback, useState, useEffect } from "react";
+import React, { forwardRef } from "react";
+import { TextInput, TextInputProps } from "react-native";
 
 // Internal imports
-import i18n from "../i18n/i18n";
+import styled from "styled-components/native";
+import theme from "@/theme";
 
-export const useTranslation = () => {
-  // Force re-render when language changes
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+interface AuthInputProps extends TextInputProps {
+  hasError?: boolean;
+}
 
-  useEffect(() => {
-    const handleLanguageChange = (lng: string) => {
-      setCurrentLanguage(lng);
-    };
+const StyledInput = styled.TextInput.attrs({
+  placeholderTextColor: theme.colors.text.tertiary,
+})<AuthInputProps>((props: AuthInputProps) => ({
+  backgroundColor: theme.colors.background.primary,
+  borderRadius: theme.spacing.md,
+  padding: theme.spacing.md,
+  marginBottom: theme.spacing.md,
+  borderWidth: 1,
+  borderColor: props.hasError
+    ? theme.colors.error.main
+    : theme.colors.border.medium,
+  color: theme.colors.text.primary,
+  fontSize: theme.typography.fontSize.input,
+}));
 
-    i18n.on("languageChanged", handleLanguageChange);
+export const AuthInput = forwardRef<TextInput, AuthInputProps>(
+  ({ hasError, ...props }, ref) => {
+    return <StyledInput ref={ref} hasError={hasError} {...props} />;
+  }
+);
 
-    return () => {
-      i18n.off("languageChanged", handleLanguageChange);
-    };
-  }, []);
-
-  const t = useCallback(
-    (key: string, options?: any): string => {
-      const result = i18n.t(key, options);
-      return typeof result === "string" ? result : String(result);
-    },
-    [currentLanguage]
-  ); // Now depends on currentLanguage
-
-  return {
-    t,
-    i18n,
-  };
-};
+AuthInput.displayName = "AuthInput";

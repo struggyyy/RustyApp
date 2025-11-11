@@ -1,276 +1,190 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
-import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { useHeaderHeight } from '@react-navigation/elements';
-import { useAuth } from '../src/context/AuthContext';
-import { useTranslation } from '../src/hooks/useTranslation';
-import LanguageSwitcher from '../src/components/common/buttons/LanguageSwitcher';
-import styled from 'styled-components/native';
-import theme from '../src/theme';
-import * as Haptics from 'expo-haptics';
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
+import React, { useRef, useEffect } from "react";
+import { TextInput, Keyboard } from "react-native";
 
-// Styled Components
-const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
-  flex: 1,
-  backgroundColor: theme.colors.background.primary,
-});
+// External libraries
+import { useRouter, useLocalSearchParams } from "expo-router";
 
-const FormContainer = styled.ScrollView.attrs(() => ({
-  contentContainerStyle: {
-    flexGrow: 1,
-    justifyContent: 'flex-start',
-    paddingHorizontal: theme.spacing.layout.screenPadding,
-    paddingTop: 90,
-    paddingBottom: 24,
-  },
-  keyboardShouldPersistTaps: 'handled',
-  showsVerticalScrollIndicator: false,
-}))`
-  flex: 1;
-`;
+// Internal imports
+import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useAuthForm } from "@/hooks/auth/useAuthForm";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { AuthInput } from "@/components/auth/AuthInput";
+import { AuthButton } from "@/components/auth/AuthButton";
+import {
+  AuthTitle,
+  AuthSubtitle,
+  AuthErrorText,
+  AuthLinkButton,
+} from "@/components/auth/AuthText";
+import * as Haptics from "expo-haptics";
 
-const TitleText = styled.Text({
-  fontSize: theme.typography.fontSize.h1,
-  fontWeight: 'bold',
-  marginBottom: theme.spacing.sm,
-  textAlign: 'center',
-  color: theme.colors.text.primary,
-});
-
-const SubtitleText = styled.Text({
-  fontSize: theme.typography.fontSize.body1,
-  marginBottom: theme.spacing.xl,
-  textAlign: 'center',
-  color: theme.colors.text.secondary,
-});
-
-interface StyledInputProps {
-  hasError?: boolean;
-}
-const StyledInput = styled.TextInput.attrs({
-  placeholderTextColor: theme.colors.text.tertiary,
-})<StyledInputProps>((props: StyledInputProps) => ({
-  backgroundColor: theme.colors.background.primary,
-  borderRadius: theme.spacing.md, // Updated radius
-  padding: theme.spacing.md,
-  marginBottom: theme.spacing.md,
-  borderWidth: 1,
-  borderColor: props.hasError ? theme.colors.error.main : theme.colors.border.medium,
-  color: theme.colors.text.primary,
-  fontSize: theme.typography.fontSize.input,
-}));
-
-interface StyledButtonProps {
-  isDisabled?: boolean;
-}
-const StyledButton = styled.TouchableOpacity<StyledButtonProps>((props: StyledButtonProps) => ({
-  backgroundColor: props.isDisabled ? theme.colors.secondaryLight : theme.colors.primary,
-  borderRadius: theme.spacing.md, // Updated radius
-  padding: theme.spacing.md,
-  alignItems: 'center',
-  marginTop: theme.spacing.sm,
-}));
-
-const ButtonText = styled.Text({
-  color: theme.colors.text.light,
-  fontWeight: 'bold',
-  fontSize: theme.typography.fontSize.button,
-});
-
-const SwitchButton = styled.TouchableOpacity({
-  marginTop: theme.spacing.lg,
-  alignItems: 'center',
-});
-
-interface SwitchTextProps {
-  isDisabled?: boolean;
-}
-const SwitchText = styled.Text<SwitchTextProps>((props: SwitchTextProps) => ({
-  color: props.isDisabled ? theme.colors.text.disabled : theme.colors.primary,
-  fontSize: theme.typography.fontSize.body2,
-  fontWeight: 'bold',
-}));
+// Styled Components (minimal, for specific elements)
+import styled from "styled-components/native";
+import theme from "@/theme";
 
 const ForgotPasswordButton = styled.TouchableOpacity({
-  alignSelf: 'flex-end',
+  alignSelf: "flex-end",
   marginBottom: theme.spacing.md,
 });
 
 const ForgotPasswordText = styled.Text({
   color: theme.colors.primary,
-  fontSize: theme.typography.fontSize.body2, // Updated font size
-});
-
-const ErrorText = styled.Text({
-  color: theme.colors.error.main,
-  marginBottom: theme.spacing.md,
-  textAlign: 'center',
-  fontSize: theme.typography.fontSize.body1,
+  fontSize: theme.typography.fontSize.body2,
 });
 
 export default function Login() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const [email, setEmail] = useState(params.email as string || '');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [, forceUpdate] = useState({});
-  const { logIn, loading: authLoading, user, initialLoading } = useAuth();
+  const { logIn, user, initialLoading } = useAuth();
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
-  const headerHeight = useHeaderHeight();
 
-  const handleLanguageChange = () => {
-    forceUpdate({});
-  };
+  // Form state management with validation
+  const {
+    values,
+    errors,
+    touched,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+  } = useAuthForm({
+    initialValues: {
+      email: (params.email as string) || "",
+      password: "",
+    },
+    onSubmit: async (values) => {
+      try {
+        console.log("Calling useAuth logIn function for:", values.email);
+        await logIn(values.email, values.password);
+        console.log(
+          "logIn function completed successfully (redirect handled by listener in _layout)."
+        );
+      } catch (err: any) {
+        console.error("Login handler error:", err.code, err.message);
+        if (
+          err.code === "auth/user-not-found" ||
+          err.code === "auth/invalid-credential"
+        ) {
+          throw new Error(t("auth.userNotFound"));
+        } else if (err.code === "auth/wrong-password") {
+          throw new Error(t("auth.wrongPassword"));
+        } else if (err.code === "auth/invalid-email") {
+          throw new Error(t("auth.invalidEmail"));
+        } else if (err.code === "auth/too-many-requests") {
+          throw new Error(t("auth.tooManyAttempts"));
+        } else {
+          throw new Error(err.message || t("auth.loginFailed"));
+        }
+      }
+    },
+  });
 
+  // Auto-redirect if user is authenticated
   useEffect(() => {
-    if (localError) {
-      setLocalError(null);
-    }
-  }, [email, password]);
-
-  useEffect(() => {
-    console.log('Login screen rendered, auth state:', {
+    console.log("Login screen rendered, auth state:", {
       hasUser: !!user,
       initialLoading: initialLoading,
-      userEmail: user?.email || 'none',
-      authLoading: authLoading
+      userEmail: user?.email || "none",
     });
-  }, [user, initialLoading, authLoading]);
 
-  useEffect(() => {
     if (!initialLoading && user) {
-      console.log('User authenticated in login screen, redirecting to home:', user.email);
+      console.log(
+        "User authenticated in login screen, redirecting to home:",
+        user.email
+      );
     }
   }, [user, initialLoading]);
 
-  const handleLogin = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    setLocalError(null);
-    Keyboard.dismiss();
-
-    if (!email) {
-      setLocalError(t('auth.emailRequired'));
-      return;
-    }
-    if (!password) {
-      setLocalError(t('auth.passwordRequired'));
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      console.log('Calling useAuth logIn function for:', email);
-      await logIn(email, password);
-      console.log('logIn function completed successfully (redirect handled by listener in _layout).');
-    } catch (err: any) {
-      console.error('Login handler error:', err.code, err.message);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        setLocalError(t('auth.userNotFound'));
-      } else if (err.code === 'auth/wrong-password') {
-        setLocalError(t('auth.wrongPassword'));
-      } else if (err.code === 'auth/invalid-email') {
-        setLocalError(t('auth.invalidEmail'));
-      } else if (err.code === 'auth/too-many-requests') {
-        setLocalError(t('auth.tooManyAttempts'));
-      } else {
-        setLocalError(err.message || t('auth.loginFailed'));
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+  // Navigation handlers
   const goToSignUp = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Keyboard.dismiss();
-    setLocalError(null);
-    setTimeout(() => {
-      router.push({ 
-        pathname: '/signup',
-        params: { email }
-      });
-    }, 100);
+    router.push({
+      pathname: "/signup",
+      params: { email: values.email },
+    });
   };
 
   const goToForgotPassword = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Keyboard.dismiss();
-    setLocalError(null);
-    setTimeout(() => {
-      router.push({ 
-        pathname: '/forgot-password',
-        params: { email }
-      });
-    }, 100);
+    router.push({
+      pathname: "/forgot-password",
+      params: { email: values.email },
+    });
   };
 
-  const isLoading = initialLoading || isSubmitting || authLoading;
-
   return (
-    <StyledKeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
-      <Stack.Screen
-        options={{
-          title: t('auth.login'),
-          headerShown: true,
-          headerBackVisible: false,
-        }}
+    <AuthLayout title="auth.login">
+      <AuthTitle>{t("auth.welcomeBack")}</AuthTitle>
+      <AuthSubtitle>{t("auth.loginSubtitle")}</AuthSubtitle>
+
+      <AuthInput
+        placeholder={t("auth.email")}
+        value={values.email}
+        onChangeText={handleChange("email")}
+        onBlur={handleBlur("email")}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        returnKeyType="next"
+        onSubmitEditing={() => passwordInputRef.current?.focus()}
+        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        hasError={!!(touched.email && errors.email)}
       />
 
-      <LanguageSwitcher onLanguageChange={handleLanguageChange} />
+      <AuthInput
+        ref={passwordInputRef}
+        placeholder={t("auth.password")}
+        value={values.password}
+        onChangeText={handleChange("password")}
+        onBlur={handleBlur("password")}
+        secureTextEntry
+        returnKeyType="go"
+        onSubmitEditing={handleSubmit}
+        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        hasError={!!(touched.password && errors.password)}
+      />
 
-      <FormContainer>
-        <TitleText>{t('auth.welcomeBack')}</TitleText>
-        <SubtitleText>
-          {t('auth.loginSubtitle')}
-        </SubtitleText>
+      <ForgotPasswordButton onPress={goToForgotPassword}>
+        <ForgotPasswordText>{t("auth.forgotPassword")}</ForgotPasswordText>
+      </ForgotPasswordButton>
 
-        <StyledInput
-          placeholder={t('auth.email')}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          returnKeyType="next"
-          onSubmitEditing={() => passwordInputRef.current?.focus()}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
-          hasError={!!localError}
-        />
-        <StyledInput
-          ref={passwordInputRef}
-          placeholder={t('auth.password')}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          returnKeyType="go"
-          onSubmitEditing={handleLogin}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
-          hasError={!!localError}
-        />
-        
-        <ForgotPasswordButton onPress={goToForgotPassword} disabled={isLoading}>
-          <ForgotPasswordText>{t('auth.forgotPassword')}</ForgotPasswordText>
-        </ForgotPasswordButton>
+      {(touched.email && errors.email) ||
+      (touched.password && errors.password) ? (
+        <AuthErrorText>
+          {touched.email && errors.email
+            ? errors.email
+            : touched.password && errors.password
+            ? errors.password
+            : ""}
+        </AuthErrorText>
+      ) : null}
 
-        {localError && <ErrorText>{localError}</ErrorText>}
+      <AuthButton
+        title={t("auth.login")}
+        onPress={handleSubmit}
+        isLoading={isSubmitting}
+      />
 
-        <StyledButton onPress={handleLogin} disabled={isLoading}>
-          {isLoading ? (
-            <ActivityIndicator color={theme.colors.text.light} />
-          ) : (
-            <ButtonText>{t('auth.login')}</ButtonText>
-          )}
-        </StyledButton>
-
-        <SwitchButton onPress={goToSignUp} disabled={isLoading}>
-          <SwitchText isDisabled={isLoading}>{t('auth.dontHaveAccount')}</SwitchText>
-        </SwitchButton>
-      </FormContainer>
-    </StyledKeyboardAvoidingView>
+      <AuthLinkButton onPress={goToSignUp}>
+        {t("auth.dontHaveAccount")}
+      </AuthLinkButton>
+    </AuthLayout>
   );
 }
