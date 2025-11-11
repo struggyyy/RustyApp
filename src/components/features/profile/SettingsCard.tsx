@@ -104,7 +104,7 @@ const LanguageText = styled.Text<{ isSelected: boolean }>`
 const DeleteAccountButton = styled.TouchableOpacity`
   padding: 8px 16px;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 4px;
 `;
 
 const DeleteAccountText = styled.Text`

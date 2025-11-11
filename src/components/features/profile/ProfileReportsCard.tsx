@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 12,
     marginBottom: 20,
+    minHeight: 53,
   },
   reportsTitle: {
     fontSize: 20,
@@ -49,7 +50,7 @@ const ProfileReportsCard: React.FC<ProfileReportsCardProps> = ({
   t,
 }) => {
   if (reports.length === 0) {
-    return null;
+    return <View style={[styles.reportsCard, { opacity: 0 }]} />;
   }
 
   return (

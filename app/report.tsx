@@ -72,7 +72,7 @@ const InnerScrollView = styled(ScrollView).attrs({
     justifyContent: "flex-start",
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingBottom: 20,
   },
   keyboardShouldPersistTaps: "handled",
   alwaysBounceVertical: true,

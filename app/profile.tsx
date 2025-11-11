@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 12,
     paddingHorizontal: 12,
-    paddingBottom: 91, // Adjusted for reports card
+    paddingBottom: 18, // Adjusted for reports card
   },
   loadingContainer: {
     flex: 1,
