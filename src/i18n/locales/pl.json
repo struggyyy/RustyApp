@@ -73,18 +73,6 @@
     "resendEmail": "Wyślij ponownie email",
     "emailSentSuccess": "Email wysłany pomyślnie!"
   },
-  "settings": {
-    "title": "Ustawienia",
-    "enableNotifications": "Włącz powiadomienia",
-    "enableHaptics": "Włącz haptykę",
-    "language": "Język",
-    "english": "English",
-    "polish": "Polski",
-    "languageChanged": "Język zmieniony",
-    "languageSetTo": "Język ustawiony na {{language}}.",
-    "settingsUpdated": "Ustawienia zaktualizowane.",
-    "settingsError": "Nie udało się zaktualizować ustawień."
-  },
   "profile": {
     "title": "Twój profil",
     "editProfile": "Edytuj profil",
@@ -208,6 +196,17 @@
     "deleteReportConfirm": "Czy na pewno chcesz usunąć to zgłoszenie?",
     "reportDeleted": "Zgłoszenie usunięte pomyślnie",
     "profilePicture": "Zdjęcie profilowe"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "enableNotifications": "Włącz powiadomienia",
+    "enableHaptics": "Włącz wibracje",
+    "language": "Język",
+    "english": "Angielski",
+    "polish": "Polski",
+    "settingsUpdated": "Ustawienia zostały pomyślnie zaktualizowane.",
+    "settingsError": "Nie udało się zaktualizować ustawień.",
+    "languageSetTo": "Język został ustawiony na {{language}}."
   },
   "alerts": {
     "permissionRequired": "Wymagane uprawnienia",

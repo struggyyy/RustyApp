@@ -73,18 +73,6 @@
     "resendEmail": "Resend Email",
     "emailSentSuccess": "Email sent successfully!"
   },
-  "settings": {
-    "title": "Settings",
-    "enableNotifications": "Enable Notifications",
-    "enableHaptics": "Enable Haptics",
-    "language": "Language",
-    "english": "English",
-    "polish": "Polish",
-    "languageChanged": "Language Changed",
-    "languageSetTo": "Language set to {{language}}.",
-    "settingsUpdated": "Settings updated.",
-    "settingsError": "Failed to update settings."
-  },
   "profile": {
     "title": "Your Profile",
     "editProfile": "Edit Profile",
@@ -208,6 +196,17 @@
     "deleteReportConfirm": "Are you sure you want to delete this report?",
     "reportDeleted": "Report deleted successfully",
     "profilePicture": "Profile Picture"
+  },
+  "settings": {
+    "title": "Settings",
+    "enableNotifications": "Enable Notifications",
+    "enableHaptics": "Enable Haptic Feedback",
+    "language": "Language",
+    "english": "English",
+    "polish": "Polish",
+    "settingsUpdated": "Settings updated successfully.",
+    "settingsError": "Failed to update settings.",
+    "languageSetTo": "Language set to {{language}}."
   },
   "alerts": {
     "permissionRequired": "Permission Required",

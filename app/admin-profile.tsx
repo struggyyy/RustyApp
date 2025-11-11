@@ -39,7 +39,7 @@ import CustomAlert from "../src/components/common/modals/CustomAlert";
 import EditProfile from "../src/components/features/profile/EditProfile";
 import SettingsCard from "../src/components/features/profile/SettingsCard";
 import ProfileImageModal from "../src/components/features/profile/ProfileImageModal";
-import { useSettingsHandlers } from "../src/hooks/profile/useSettingsHandlers";
+import { useProfileSettings } from "../src/hooks/profile/useProfileSettings";
 
 // Styles for layout
 const styles = StyleSheet.create({
@@ -126,7 +126,7 @@ export default function AdminProfile() {
     handleToggleNotifications,
     handleToggleHaptics,
     handleToggleLanguage,
-  } = useSettingsHandlers(showAlert);
+  } = useProfileSettings({ showAlert, t });
 
   // Nickname change handler
   const handleEditedNicknameChange = (text: string) => {
