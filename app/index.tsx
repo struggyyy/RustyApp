@@ -1,40 +1,45 @@
-import React from 'react';
-import { ActivityIndicator, View, Text } from 'react-native';
-import styled from 'styled-components/native';
-// Removed useRouter and useAuth as this page should not handle redirects directly
-// import { Redirect, useRouter } from 'expo-router';
-// import { useAuth } from '../src/context/AuthContext';
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
+import React from "react";
+
+// External libraries
+import { ActivityIndicator } from "react-native";
+import styled from "styled-components/native";
+
+// Internal imports
+import colors from "../src/theme/colors";
 
 // Styled Components
 const StyledContainer = styled.View({
   flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#FFFFFF',
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: colors.background.primary,
 });
 
 const LoadingText = styled.Text({
   marginTop: 10,
-  color: '#656565',
+  color: colors.text.primary,
 });
 
-/**
- * This is the initial screen loaded by the router.
- * It should simply render a loading indicator.
- * The actual routing logic (checking auth state and redirecting)
- * is handled by the AuthGuard component in `app/_layout.tsx`.
- */
+// Initial loading screen while auth guard determines navigation
 export default function Index() {
-  // Removed useEffect hook that performed redirects
-  // const { user, loading, session } = useAuth();
-  // const router = useRouter();
-  // useEffect(() => { ... redirect logic removed ... }, [loading, user, session, router]);
-
-  // Render a simple loading indicator while the AuthGuard in layout decides the route.
   return (
     <StyledContainer>
-      <ActivityIndicator size="large" color="#BD5151" />
+      <ActivityIndicator size="large" color={colors.primary} />
       <LoadingText>Loading...</LoadingText>
     </StyledContainer>
   );
-} 
+}

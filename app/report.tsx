@@ -1,35 +1,46 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
   StyleSheet,
-  Alert,
   RefreshControl,
-  Dimensions,
   Keyboard,
 } from "react-native";
+
+// External libraries
 import { Stack, useRouter } from "expo-router";
-import { useTranslation } from "../src/hooks/useTranslation";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
-import MapView, { Region, PROVIDER_GOOGLE } from "react-native-maps";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import styled from "styled-components/native";
+
+// Internal imports
 import { useAuth } from "../src/context/AuthContext";
+import { useTranslation } from "../src/hooks/useTranslation";
+import colors from "../src/theme/colors";
+import spacing from "../src/theme/spacing";
 import {
   createReport,
   uploadReportImage,
 } from "../src/components/lib/firebase/reports";
-import theme from "../src/theme";
 import StyledButton from "../src/components/common/buttons/StyledButton";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
-import TouchableButton from "../src/components/common/buttons/TouchableButton";
-import FloatingActionButton from "../src/components/common/buttons/FloatingActionButton";
-import { useHaptics } from "../src/context/HapticsContext";
-import * as Haptics from "expo-haptics";
+import { ImagePickerSection } from "../src/components/features/report-page/ImagePickerSection";
+import { ReportFormCard } from "../src/components/features/report-page/ReportFormCard";
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
@@ -51,7 +62,7 @@ const shadowStyles = StyleSheet.create({
 
 const Container = styled(KeyboardAvoidingView)({
   flex: 1,
-  backgroundColor: theme.colors.background.primary,
+  backgroundColor: colors.background.primary,
 });
 
 const InnerScrollView = styled(ScrollView).attrs({
@@ -59,175 +70,83 @@ const InnerScrollView = styled(ScrollView).attrs({
     flexGrow: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 30,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   keyboardShouldPersistTaps: "handled",
   alwaysBounceVertical: true,
   showsVerticalScrollIndicator: false,
 })({
-  width: '100%',
+  width: "100%",
 });
 
 const TopContent = styled.View({
-  alignItems: 'center',
-  width: '100%',
+  alignItems: "center",
+  width: "100%",
 });
 
 const Title = styled.Text({
   fontSize: 22,
-  fontWeight: 'bold',
-  color: theme.colors.text.primary,
-  textAlign: 'center',
-  marginBottom: 8,
+  fontWeight: "bold",
+  color: colors.text.primary,
+  textAlign: "center",
+  marginBottom: spacing.xs,
 });
 
 const Subtitle = styled.Text({
   fontSize: 14,
-  color: theme.colors.text.secondary,
-  textAlign: 'center',
-  marginBottom: 20,
-  lineHeight: '20px',
-});
-
-const ImagePreviewContainer = styled.View({
-  width: '100%',
-  aspectRatio: 1.34,
-  marginBottom: 20,
-  borderRadius: 16,
-  backgroundColor: theme.colors.background.secondary,
-  justifyContent: 'center',
-  alignItems: 'center',
-  overflow: 'hidden',
-});
-
-const ImagePreview = styled.Image({
-  width: '100%',
-  height: '100%',
-});
-
-const ImageOverlayActions = styled.View({
-  position: 'absolute',
-  top: 10,
-  right: 10,
-  flexDirection: 'row',
-  zIndex: 10,
-});
-
-const ImageActionButton = styled.TouchableOpacity({
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  borderRadius: 20,
-  padding: 8,
-  marginLeft: 10,
-});
-
-const MainCard = styled.View({
-  width: '100%',
-  backgroundColor: theme.colors.background.secondary,
-  borderRadius: 24,
-  overflow: 'hidden',
-});
-
-const DescriptionInput = styled.TextInput({
-  padding: 15,
-  fontSize: 16,
-  color: theme.colors.text.primary,
-  textAlignVertical: 'top',
-});
-
-const InsetShadowGradientView = styled(LinearGradient)({
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  height: 15,
-  zIndex: 2,
-  // borderRadius: 16, // Applied to MapWrapperView now for the effect
-});
-
-const MapContainer = styled.View({
-  height: 300,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#e0e0e0',
-  borderTopLeftRadius: 24,
-  borderTopRightRadius: 24,
-  overflow: 'hidden',
-});
-
-const StyledMapView = styled(MapView)(StyleSheet.absoluteFillObject);
-
-const MapErrorText = styled.Text({
-  color: theme.colors.error.main,
+  color: colors.text.secondary,
+  textAlign: "center",
+  marginBottom: spacing.lg,
+  lineHeight: "20px",
 });
 
 const BottomContent = styled.View({
-  alignItems: 'center',
-  width: '100%',
-  marginTop: 20,
-});
-
-const MyLocationButtonTouchable = styled.TouchableOpacity({
-  position: "absolute",
-  bottom: 20,
-  right: 20,
-  backgroundColor: "rgba(255, 255, 255, 0.9)",
-  padding: 10,
-  borderRadius: 30,
-  zIndex: 3,
-});
-
-const IconBar = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-around',
-  width: '60%',
-  marginBottom: 20,
-});
-
-const SelectImageButton = styled.TouchableOpacity({
-  backgroundColor: theme.colors.secondaryLight,
-  width: 60,
-  height: 60,
-  borderRadius: 30,
   alignItems: "center",
-  justifyContent: "center",
-});
-
-const ButtonRow = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
-  marginBottom: 20,
+  width: "100%",
+  marginTop: spacing.lg,
 });
 
 export default function ReportScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
-  const haptics = useHaptics();
+
+  // Form state
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
-  const [mapRegion, setMapRegion] = useState<Region | undefined>(undefined);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  // UI state
   const isSubmittingRef = useRef(false);
-  const mapRef = useRef<MapView>(null);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
     title: string;
     message?: string;
-    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
-  }>({ title: '', buttons: [] });
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>;
+  }>({ title: "", buttons: [] });
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: t('common.ok') }]) => {
+  const showAlert = (
+    title: string,
+    message?: string,
+    buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }> = [{ text: t("common.ok") }]
+  ) => {
     setAlertConfig({ title, message, buttons });
     setAlertVisible(true);
   };
@@ -236,6 +155,7 @@ export default function ReportScreen() {
     setAlertVisible(false);
   };
 
+  // Keyboard visibility handling
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -256,12 +176,13 @@ export default function ReportScreen() {
     };
   }, []);
 
+  // Location fetching logic
   const getCurrentLocation = useCallback(async () => {
     setLocationErrorMsg(null);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        throw new Error(t('map.locationPermissionRequired'));
+        throw new Error(t("map.locationPermissionRequired"));
       }
       let currentLocation = await Location.getLastKnownPositionAsync({});
       if (!currentLocation) {
@@ -276,17 +197,12 @@ export default function ReportScreen() {
           longitude: currentLocation.coords.longitude,
         };
         setLocation(coords);
-        setMapRegion({
-          ...coords,
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.01,
-        });
       }
     } catch (error: any) {
-      setLocationErrorMsg(error.message || t('map.locationError'));
+      setLocationErrorMsg(error.message || t("map.locationError"));
       showAlert(
-        t('common.error'),
-        error.message || t('map.locationPermissionRequired')
+        t("common.error"),
+        error.message || t("map.locationPermissionRequired")
       );
     }
   }, []);
@@ -301,6 +217,7 @@ export default function ReportScreen() {
     setIsRefreshing(false);
   }, [getCurrentLocation]);
 
+  // Image handling functions
   const handleCancelImage = () => {
     setImageUri(null);
   };
@@ -320,6 +237,7 @@ export default function ReportScreen() {
     }
   };
 
+  // Form submission logic
   const handleSubmit = async () => {
     if (isSubmittingRef.current) return;
 
@@ -330,10 +248,7 @@ export default function ReportScreen() {
       !description.trim() ||
       description.trim().length > 150
     ) {
-      showAlert(
-        t('common.error'),
-        t('reports.descriptionRequired')
-      );
+      showAlert(t("common.error"), t("reports.descriptionRequired"));
       return;
     }
 
@@ -351,172 +266,57 @@ export default function ReportScreen() {
         location,
       });
 
-      showAlert(t('common.success'), t('reports.reportSubmittedSuccess'), [
-        { text: t('common.ok'), onPress: () => router.replace("/my-reports") },
+      showAlert(t("common.success"), t("reports.reportSubmittedSuccess"), [
+        { text: t("common.ok"), onPress: () => router.replace("/my-reports") },
       ]);
     } catch (error) {
       console.error("Report submission error:", error);
-      showAlert(t('common.error'), t('reports.deleteReportError'));
+      showAlert(t("common.error"), t("reports.deleteReportError"));
       // On failure, release the lock and reset the button to allow another attempt.
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
 
-  const handleCenterMap = () => {
-    if (location && mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.005,
-        },
-        500
-      );
-    }
-  };
-
-  const renderMapContent = () => {
-    if (!mapRegion && !locationErrorMsg) {
-      return <ActivityIndicator size="large" color={theme.colors.primary} />;
-    }
-    if (locationErrorMsg) {
-      return <MapErrorText>{locationErrorMsg}</MapErrorText>;
-    }
-    if (mapRegion) {
-      return (
-        <StyledMapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          initialRegion={mapRegion}
-          showsUserLocation
-          showsMyLocationButton={false}
-        />
-      );
-    }
-    return <MapErrorText>{t('common.loading')}</MapErrorText>;
-  };
-
+  // Form validation
   const isFormReady =
-    !!imageUri &&
-    !!description.trim() &&
-    description.trim().length <= 150 &&
-    !!location;
+    !!imageUri && !!description.trim() && description.trim().length <= 150;
 
   return (
     <>
       <Container behavior={Platform.OS === "ios" ? "padding" : "height"}>
-        <Stack.Screen options={{ title: t('reports.reportVehicle') }} />
+        <Stack.Screen options={{ title: t("reports.reportVehicle") }} />
         <InnerScrollView
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={onRefresh}
-              colors={[theme.colors.primary]}
-              tintColor={theme.colors.primary}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
           }
         >
           <TopContent>
-            <Title>{t('reports.newReport')}</Title>
-            <Subtitle>
-              {t('reports.descriptionPlaceholder')}
-            </Subtitle>
-            {imageUri ? (
-              !isKeyboardVisible && (
-                <ImagePreviewContainer>
-                  <ImagePreview source={{ uri: imageUri }} />
-                  <ImageOverlayActions>
-                    {/* Select other image from the phone (currently disabled)
-                <TouchableButton
-                  style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    borderRadius: 20,
-                    padding: 8,
-                    marginLeft: 10,
-                  }}
-                  onPress={() => pickImage(false)}
-                >
-                  <Ionicons name="create-outline" size={24} color="white" />
-                </TouchableButton> */}
-                    <TouchableButton
-                      style={{
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        borderRadius: 20,
-                        padding: 8,
-                        marginLeft: 10,
-                      }}
-                      onPress={handleCancelImage}
-                    >
-                      <Ionicons name="close" size={24} color="white" />
-                    </TouchableButton>
-                  </ImageOverlayActions>
-                </ImagePreviewContainer>
-              )
-            ) : (
-              <ButtonRow>
-                <StyledButton
-                  title={t('reports.takePhoto')}
-                  onPress={() => pickImage(true)}
-                  variant="secondary"
-                  style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
-                />
-                <TouchableButton
-                  style={{
-                    backgroundColor: theme.colors.secondaryLight,
-                    width: 60,
-                    height: 60,
-                    borderRadius: 30,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    ...shadowStyles.shadowMedium,
-                  }}
-                  onPress={() => pickImage(false)}
-                >
-                  <Ionicons
-                    name="image-outline"
-                    size={24}
-                    color={theme.colors.text.primary}
-                  />
-                </TouchableButton>
-              </ButtonRow>
-            )}
+            <Title>{t("reports.newReport")}</Title>
+            <Subtitle>{t("reports.descriptionPlaceholder")}</Subtitle>
+            <ImagePickerSection
+              imageUri={imageUri}
+              isKeyboardVisible={isKeyboardVisible}
+              onPickImage={pickImage}
+              onRemoveImage={handleCancelImage}
+            />
           </TopContent>
 
-          <MainCard>
-            <InsetShadowGradientView
-              colors={["rgba(0,0,0,0.15)", "transparent"]}
-              pointerEvents="none"
-            />
-            <DescriptionInput
-              placeholder={t('reports.vehicleDescription')}
-              placeholderTextColor={theme.colors.text.secondary}
-              value={description}
-              onChangeText={setDescription}
-              onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
-              multiline
-              maxLength={150}
-            />
-
-            <MapContainer>
-              {renderMapContent()}
-              <FloatingActionButton
-                onPress={handleCenterMap}
-                style={{ position: "absolute", bottom: 20, right: 20 }}
-              >
-                <MaterialIcons
-                  name="my-location"
-                  size={24}
-                  color={theme.colors.primary}
-                />
-              </FloatingActionButton>
-            </MapContainer>
-          </MainCard>
+          <ReportFormCard
+            description={description}
+            onDescriptionChange={setDescription}
+            location={location}
+            locationErrorMsg={locationErrorMsg}
+          />
 
           <BottomContent>
             <StyledButton
-              title={t('common.submit')}
+              title={t("common.submit")}
               onPress={handleSubmit}
               disabled={!isFormReady || isSubmitting}
               loading={isSubmitting}
