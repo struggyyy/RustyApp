@@ -261,6 +261,7 @@ export default function ReportScreen() {
 
       await createReport({
         userId: user.uid,
+        userEmail: user.email || 'Unknown User',
         imageUrl,
         description,
         location,

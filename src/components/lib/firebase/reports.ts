@@ -102,6 +102,7 @@ export const uploadReportImage = (
  */
 export const createReport = async (reportData: {
   userId: string;
+  userEmail: string; // Add userEmail parameter
   description: string;
   location: { latitude: number; longitude: number };
   imageUrl: string;
@@ -109,6 +110,7 @@ export const createReport = async (reportData: {
   try {
     const docRef = await addDoc(collection(db, "reports"), {
       userId: reportData.userId,
+      userEmail: reportData.userEmail, // Store email directly
       description: reportData.description,
       location: new GeoPoint(
         reportData.location.latitude,
@@ -288,21 +290,10 @@ export const getAllReports = async (): Promise<Report[]> => {
     const querySnapshot = await getDocs(q);
     const reports: Report[] = [];
 
-    for (const reportDoc of querySnapshot.docs) {
-      const reportData = reportDoc.data();
-      const userDocRef = doc(db, 'users', reportData.userId);
-      const userDoc = await getDoc(userDocRef);
-      const userEmail = userDoc.exists() ? userDoc.data().email : 'Unknown User';
+    querySnapshot.forEach((doc) => {
+      reports.push({ id: doc.id, ...doc.data() } as Report);
+    });
 
-      // Create a new object without the original 'id' to avoid conflict
-      const { id, ...dataWithoutId } = reportData;
-
-      reports.push({
-        id: reportDoc.id, // Use the document's actual ID
-        ...dataWithoutId,
-        userEmail,
-      } as Report);
-    }
     return reports;
   } catch (error) {
     console.error("Error fetching all reports:", error);

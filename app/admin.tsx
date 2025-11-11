@@ -26,7 +26,7 @@ import { useReportManagement } from "../src/hooks/admin/useReportManagement";
 import { Report as ReportType, ReportStatus } from "../src/types/reports";
 import ReportList from "../src/components/features/reports/ReportList";
 import FilterPanel from "../src/components/features/admin/FilterPanel";
-import AdminExpandedView from "../src/components/features/admin/AdminExpandedView";
+import AdminReportModal from "../src/components/features/admin/AdminReportModal";
 import theme from "../src/theme";
 import { getStatusColor } from "../src/theme/colors";
 
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
           <View style={styles.modalOverlay}>
             <View style={[styles.modalContent, shadowStyles.modalShadow]}>
               {selectedReport && (
-                <AdminExpandedView
+                <AdminReportModal
                   report={selectedReport}
                   statusColor={getStatusColor(selectedReport.status)}
                   onClose={handleModalClose}

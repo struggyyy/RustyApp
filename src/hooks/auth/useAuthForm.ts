@@ -86,7 +86,7 @@ export function useAuthForm({
     const newErrors: Record<string, string> = {};
 
     // Email validation
-    if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
+    if (values.email && !/\S+@\S+\.\S+/.test(values.email.trim())) {
       newErrors.email = "Invalid email format";
     }
 
@@ -132,7 +132,13 @@ export function useAuthForm({
     setIsSubmitting(true);
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      await onSubmit?.(values);
+      // Trim email before submitting
+      const trimmedValues = { ...values };
+      if (trimmedValues.email) {
+        trimmedValues.email = trimmedValues.email.trim();
+        setValues(trimmedValues); // Update the form state with trimmed email
+      }
+      await onSubmit?.(trimmedValues);
     } catch (error) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       console.error("Form submission error:", error);

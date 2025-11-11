@@ -37,7 +37,7 @@ import { getStatusColor } from "../../../theme/colors";
 import { useHaptics } from "../../../context/HapticsContext";
 import { useTranslation } from "../../../hooks/useTranslation";
 
-interface AdminExpandedViewProps {
+interface AdminReportModalProps {
   report: ReportType;
   statusColor: string;
   onClose: () => void;
@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function AdminExpandedView({
+export default function AdminReportModal({
   report,
   statusColor,
   onClose,
   onStatusUpdate,
   onDelete,
-}: AdminExpandedViewProps) {
+}: AdminReportModalProps) {
   const { t } = useTranslation();
   const haptics = useHaptics();
 
