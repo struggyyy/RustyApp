@@ -13,6 +13,7 @@ const palette = {
 
   // Secondary/accent colors
   gray: {
+    200: "#EEEEEE", // Light gray for map backgrounds
     300: "#D9D9D9", // Component background
     500: "#9E9E9E",
     600: "#757575",
@@ -54,6 +55,7 @@ const colors = {
   background: {
     primary: palette.white,
     secondary: palette.gray[300],
+    tertiary: palette.gray[200], // Light gray for map backgrounds
   },
 
   text: {
@@ -69,6 +71,8 @@ const colors = {
   },
 
   componentBackground: palette.gray[300],
+
+  primaryTransparent: "rgba(189, 81, 81, 0.7)", // Semi-transparent primary for overlays
 
   status: {
     inProcess: palette.info.dark,
