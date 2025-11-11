@@ -1,144 +1,62 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Platform,
-  ActivityIndicator,
-  Dimensions,
-  StyleSheet,
-} from "react-native";
+
+// External libraries
 import { Stack, useRouter, useFocusEffect } from "expo-router";
+import * as Location from "expo-location";
+import MapView, { Marker, Region } from "react-native-maps";
+import { LinearGradient } from "expo-linear-gradient";
+
+// Internal imports
 import { useAuth } from "../src/context/AuthContext";
 import { useTranslation } from "../src/hooks/useTranslation";
-import * as Location from "expo-location";
-import MapView, { Marker, Region, PROVIDER_GOOGLE } from "react-native-maps";
-import { LinearGradient } from "expo-linear-gradient";
+import { useHaptics } from "../src/context/HapticsContext";
 import colors from "../src/theme/colors";
+import spacing from "../src/theme/spacing";
 import styled from "styled-components/native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { getReportsByUserId } from "../src/components/lib/firebase/reports";
 import { Report } from "../src/types/reports";
-import * as Linking from "expo-linking";
 import ReportModal from "../src/components/common/modals/ReportModal";
-import FloatingActionButton from "../src/components/common/buttons/FloatingActionButton";
-import { useHaptics } from "../src/context/HapticsContext";
-
-const { width, height } = Dimensions.get("window");
-const isWeb = Platform.OS === "web";
-
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  shadowMedium: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
-  },
-});
-
-// Helper function to calculate distance between two coordinates in meters
-const getDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number => {
-  const R = 6371e3; // Earth's radius in meters
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-};
+import { MapComponent } from "../src/components/common/map/MapComponent";
+import { MapControls } from "../src/components/common/map/MapControls";
+import {
+  getDistance,
+  openNavigation as openExternalNavigation,
+} from "../src/utils/map";
 
 // Styled Components Definitions
 const StyledContainer = styled.View({
   flex: 1,
-  backgroundColor: "#FFFFFF",
-  padding: 24,
+  backgroundColor: colors.background.primary,
+  padding: spacing.lg,
 });
 
 const MapSection = styled.View({
   flex: 1,
-  borderRadius: 24,
+  borderRadius: spacing.radius.lg,
   overflow: "hidden",
-  backgroundColor: "#F5F5F5",
+  backgroundColor: colors.componentBackground,
   position: "relative",
 });
 
 const MapWrapperView = styled.View({
   flex: 1,
   overflow: "hidden",
-  borderRadius: 16, // This was applied to mapPlaceholder and map before, now to wrapper
-  backgroundColor: "#EFEFEF", // Moved from mapPlaceholder
-});
-
-const StyledMapView = styled(MapView)({
-  flex: 1,
-  width: "100%",
-  height: "100%",
-});
-
-const MapPlaceholderView = styled.View({
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  // backgroundColor: '#EFEFEF', // Moved to MapWrapperView
-  // borderRadius: 16, // Moved to MapWrapperView
-});
-
-const LoadingMapText = styled.Text({
-  marginTop: 10,
-  color: "#656565",
-  fontSize: 14,
-});
-
-const MapErrorText = styled.Text({
-  color: "#BD5151",
-  fontSize: 14,
-  textAlign: "center",
-  padding: 20,
-});
-
-const MapPlaceholderInfoText = styled.Text({
-  color: "#656565",
-  textAlign: "center",
-  padding: 20,
-});
-
-const FallbackWarningView = styled.View({
-  position: "absolute",
-  top: 10,
-  left: 10,
-  backgroundColor: "rgba(189, 81, 81, 0.7)",
-  paddingVertical: 5,
-  paddingHorizontal: 10,
-  borderRadius: 5,
-  zIndex: 2,
-});
-
-const FallbackWarningText = styled.Text({
-  color: "white",
-  fontSize: 12,
-  fontWeight: "bold",
-});
-
-const MyLocationButtonTouchable = styled.TouchableOpacity({
-  position: "absolute",
-  bottom: 20,
-  right: 20,
-  backgroundColor: "rgba(255, 255, 255, 0.9)",
-  padding: 10,
-  borderRadius: 30,
-  zIndex: 3,
+  borderRadius: spacing.radius.md,
+  backgroundColor: colors.background.tertiary,
 });
 
 const InsetShadowGradientView = styled(LinearGradient)({
@@ -146,29 +64,15 @@ const InsetShadowGradientView = styled(LinearGradient)({
   left: 0,
   right: 0,
   top: 0,
-  height: 15,
+  height: spacing.md - 1,
   zIndex: 2,
-  // borderRadius: 16, // Applied to MapWrapperView now for the effect
-});
-
-const getFallbackLocation = () => ({
-  coords: {
-    latitude: 40.7128,
-    longitude: -74.006,
-    altitude: null,
-    accuracy: null,
-    altitudeAccuracy: null,
-    heading: null,
-    speed: null,
-  },
-  timestamp: Date.now(),
 });
 
 export default function MapScreen() {
   const { t } = useTranslation();
   return (
     <>
-      <Stack.Screen options={{ title: t('map.title') }} />
+      <Stack.Screen options={{ title: t("map.title") }} />
       <MapScreenComponent />
     </>
   );
@@ -179,27 +83,29 @@ function MapScreenComponent() {
   const { user } = useAuth();
   const router = useRouter();
   const haptics = useHaptics();
+
+  // Location and loading state
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
-  const [fallbackUsed, setFallbackUsed] = useState(false);
   const mapRef = useRef<MapView>(null);
+
+  // Reports and modal state
   const [reports, setReports] = useState<Report[]>([]);
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReports, setSelectedReports] = useState<Report[]>([]);
   const [currentReportIndex, setCurrentReportIndex] = useState(0);
 
+  // Location fetching logic
   const fetchLocation = useCallback(async () => {
     setIsLocationLoading(true);
     setLocationErrorMsg(null);
-    setFallbackUsed(false);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        throw new Error(t('map.locationPermissionRequired'));
+        throw new Error(t("map.locationPermissionRequired"));
       }
       let currentLocation = await Location.getLastKnownPositionAsync({});
       if (!currentLocation) {
@@ -210,18 +116,14 @@ function MapScreenComponent() {
       setLocation(currentLocation);
     } catch (error: any) {
       console.error("Location Error:", error.message);
-      if (isWeb) {
-        setLocation(getFallbackLocation());
-        setFallbackUsed(true);
-      } else {
-        setLocation(null);
-      }
-      setLocationErrorMsg(error.message || t('map.locationError'));
+      setLocation(null);
+      setLocationErrorMsg(error.message || t("map.locationError"));
     } finally {
       setIsLocationLoading(false);
     }
   }, []);
 
+  // Reports fetching logic
   const fetchReports = useCallback(async () => {
     if (user) {
       try {
@@ -243,6 +145,7 @@ function MapScreenComponent() {
     }, [fetchReports])
   );
 
+  // Map interaction handlers
   const goToMyLocation = () => {
     if (location && mapRef.current) {
       const region: Region = {
@@ -255,15 +158,16 @@ function MapScreenComponent() {
     }
   };
 
-  const openNavigation = () => {
+  // External navigation handler
+  const openNavigation = async () => {
     if (selectedReports[currentReportIndex]) {
       const { latitude, longitude } =
         selectedReports[currentReportIndex].location;
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-      Linking.openURL(url);
+      await openExternalNavigation(latitude, longitude);
     }
   };
 
+  // Modal navigation handlers
   const viewReport = () => {
     if (selectedReports[currentReportIndex]) {
       setModalVisible(false);
@@ -285,59 +189,14 @@ function MapScreenComponent() {
     );
   };
 
+  // Map rendering logic
   const renderMap = () => {
-    if (isLocationLoading) {
-      return (
-        <MapPlaceholderView>
-          <ActivityIndicator size="large" color="#BD5151" />
-          <LoadingMapText>{t('common.loading')}</LoadingMapText>
-        </MapPlaceholderView>
-      );
-    }
-    if (locationErrorMsg && !location) {
-      return (
-        <MapPlaceholderView>
-          <MapErrorText>{locationErrorMsg}</MapErrorText>
-        </MapPlaceholderView>
-      );
-    }
-    if (!location) {
-      return (
-        <MapPlaceholderView>
-          <MapErrorText>{t('map.locationError')}</MapErrorText>
-        </MapPlaceholderView>
-      );
-    }
-
-    if (isWeb) {
-      return (
-        <MapPlaceholderView>
-          {fallbackUsed && (
-            <FallbackWarningView>
-              <FallbackWarningText>{t('map.currentLocation')}</FallbackWarningText>
-            </FallbackWarningView>
-          )}
-          <MapPlaceholderInfoText>
-            Map showing location at: {location.coords.latitude.toFixed(4)},{" "}
-            {location.coords.longitude.toFixed(4)}
-          </MapPlaceholderInfoText>
-        </MapPlaceholderView>
-      );
-    }
-
     return (
-      <StyledMapView
-        provider={PROVIDER_GOOGLE}
-        ref={mapRef}
-        initialRegion={{
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.01,
-        }}
-        showsUserLocation={true}
-        showsMyLocationButton={false}
-        toolbarEnabled={false}
+      <MapComponent
+        location={location}
+        locationErrorMsg={locationErrorMsg}
+        isLocationLoading={isLocationLoading}
+        mapRef={mapRef}
       >
         {reports.map((report) => (
           <Marker
@@ -364,31 +223,21 @@ function MapScreenComponent() {
             }}
           />
         ))}
-      </StyledMapView>
+      </MapComponent>
     );
   };
 
+  // Main component render
   return (
     <StyledContainer>
-      <MapSection isWeb={isWeb}>
+      <MapSection>
         <MapWrapperView>
           {renderMap()}
           <InsetShadowGradientView
             colors={["rgba(0,0,0,0.15)", "transparent"]}
             pointerEvents="none"
           />
-          {!isWeb && location && (
-            <FloatingActionButton
-              onPress={goToMyLocation}
-              style={{ position: "absolute", bottom: 20, right: 20 }}
-            >
-              <MaterialIcons
-                name="my-location"
-                size={24}
-                color={colors.primary}
-              />
-            </FloatingActionButton>
-          )}
+          <MapControls location={location} onGoToMyLocation={goToMyLocation} />
         </MapWrapperView>
       </MapSection>
       <ReportModal

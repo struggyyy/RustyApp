@@ -16,32 +16,15 @@ import { useState, useCallback, useEffect } from "react";
 
 // External libraries
 import * as Location from "expo-location";
-import { AppState, AppStateStatus, Platform } from "react-native";
+import { AppState, AppStateStatus } from "react-native";
 
 // Internal imports
 import { useTranslation } from "@/hooks/useTranslation";
-
-const isWeb = Platform.OS === "web";
-
-const getFallbackLocation = () => ({
-  coords: {
-    latitude: 40.7128,
-    longitude: -74.006,
-    altitude: null,
-    accuracy: null,
-    altitudeAccuracy: null,
-    heading: null,
-    speed: null,
-  },
-  timestamp: Date.now(),
-});
 
 export interface UseLocationReturn {
   location: Location.LocationObject | null;
   locationErrorMsg: string | null;
   isLocationLoading: boolean;
-  fallbackUsed: boolean;
-  waitingForPermissions: boolean;
   fetchLocation: (forceRetry?: boolean) => Promise<void>;
 }
 
@@ -52,8 +35,6 @@ export function useLocation(): UseLocationReturn {
   );
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
-  const [fallbackUsed, setFallbackUsed] = useState(false);
-  const [waitingForPermissions, setWaitingForPermissions] = useState(false);
 
   const fetchLocation = useCallback(
     async (forceRetry = false) => {
@@ -64,13 +45,10 @@ export function useLocation(): UseLocationReturn {
 
       setIsLocationLoading(true);
       setLocationErrorMsg(null);
-      setFallbackUsed(false);
-      setWaitingForPermissions(false);
 
       try {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
-          setWaitingForPermissions(true);
           setLocationErrorMsg(t("map.locationPermissionRequired"));
           return;
         }
@@ -83,16 +61,9 @@ export function useLocation(): UseLocationReturn {
         }
 
         setLocation(currentLocation);
-        setWaitingForPermissions(false);
       } catch (error: any) {
         console.error("Location Error:", error.message);
-        if (isWeb) {
-          setLocation(getFallbackLocation());
-          setFallbackUsed(true);
-        } else {
-          setWaitingForPermissions(true);
-          setLocationErrorMsg(t("map.locationError"));
-        }
+        setLocationErrorMsg(error.message || t("map.locationError"));
       } finally {
         setIsLocationLoading(false);
       }
@@ -103,8 +74,8 @@ export function useLocation(): UseLocationReturn {
   // Add AppState listener to retry location when app becomes active
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === "active" && waitingForPermissions) {
-        // App became active and we were waiting for permissions, retry location
+      if (nextAppState === "active") {
+        // App became active, retry location fetch
         fetchLocation(true);
       }
     };
@@ -117,7 +88,7 @@ export function useLocation(): UseLocationReturn {
     return () => {
       subscription.remove();
     };
-  }, [waitingForPermissions, fetchLocation]);
+  }, [fetchLocation]);
 
   // Initial location fetch
   useEffect(() => {
@@ -128,8 +99,6 @@ export function useLocation(): UseLocationReturn {
     location,
     locationErrorMsg,
     isLocationLoading,
-    fallbackUsed,
-    waitingForPermissions,
     fetchLocation,
   };
 }

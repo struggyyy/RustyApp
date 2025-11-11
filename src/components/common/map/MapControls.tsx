@@ -15,27 +15,26 @@
 import React from "react";
 
 // External libraries
-import { Platform } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal imports
 import colors from "@/theme/colors";
 import FloatingActionButton from "@/components/common/buttons/FloatingActionButton";
 
-const isWeb = Platform.OS === "web";
-
-interface MapControlsProps {
+export interface MapControlsProps {
   location: any;
   onGoToMyLocation: () => void;
-  onExpandMap: () => void;
+  showExpandMap?: boolean;
+  onExpandMap?: () => void;
 }
 
 export function MapControls({
   location,
   onGoToMyLocation,
+  showExpandMap = false,
   onExpandMap,
 }: MapControlsProps) {
-  if (isWeb || !location) {
+  if (!location) {
     return null;
   }
 
@@ -47,12 +46,14 @@ export function MapControls({
       >
         <MaterialIcons name="my-location" size={24} color={colors.primary} />
       </FloatingActionButton>
-      <FloatingActionButton
-        onPress={onExpandMap}
-        style={{ position: "absolute", bottom: 20, left: 20 }}
-      >
-        <MaterialIcons name="fullscreen" size={24} color={colors.primary} />
-      </FloatingActionButton>
+      {showExpandMap && onExpandMap && (
+        <FloatingActionButton
+          onPress={onExpandMap}
+          style={{ position: "absolute", bottom: 20, left: 20 }}
+        >
+          <MaterialIcons name="fullscreen" size={24} color={colors.primary} />
+        </FloatingActionButton>
+      )}
     </>
   );
 }

@@ -73,13 +73,8 @@ function HomeScreenComponent() {
   const router = useRouter();
 
   // Use extracted hooks for location and reports management
-  const {
-    location,
-    locationErrorMsg,
-    isLocationLoading,
-    fallbackUsed,
-    fetchLocation,
-  } = useLocation();
+  const { location, locationErrorMsg, isLocationLoading, fetchLocation } =
+    useLocation();
 
   const { reports, fetchReports } = useReports();
 
@@ -168,7 +163,6 @@ function HomeScreenComponent() {
           location={location}
           locationErrorMsg={locationErrorMsg}
           isLocationLoading={isLocationLoading}
-          fallbackUsed={fallbackUsed}
           reports={reports}
           mapRef={mapRef}
           onGoToMyLocation={goToMyLocation}

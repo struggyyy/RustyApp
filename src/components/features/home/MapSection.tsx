@@ -17,7 +17,7 @@ import React from "react";
 // External libraries
 import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 
 // Internal imports
 import { useTranslation } from "@/hooks/useTranslation";
@@ -26,8 +26,8 @@ import spacing from "@/theme/spacing";
 import styled from "styled-components/native";
 import { StyleSheet } from "react-native";
 import TouchableButton from "@/components/common/buttons/TouchableButton";
-import { MapComponent } from "./MapComponent";
-import { MapControls } from "./MapControls";
+import { MapComponent } from "@/components/common/map/MapComponent";
+import { MapControls } from "@/components/common/map/MapControls";
 import { Report } from "@/types/reports";
 
 const { height } = Dimensions.get("window");
@@ -88,7 +88,6 @@ interface MapSectionProps {
   location: any;
   locationErrorMsg: string | null;
   isLocationLoading: boolean;
-  fallbackUsed: boolean;
   reports: Report[];
   mapRef: React.RefObject<MapView | null>;
   onGoToMyLocation: () => void;
@@ -100,7 +99,6 @@ export function MapSection({
   location,
   locationErrorMsg,
   isLocationLoading,
-  fallbackUsed,
   reports,
   mapRef,
   onGoToMyLocation,
@@ -124,10 +122,19 @@ export function MapSection({
           location={location}
           locationErrorMsg={locationErrorMsg}
           isLocationLoading={isLocationLoading}
-          fallbackUsed={fallbackUsed}
-          reports={reports}
           mapRef={mapRef}
-        />
+        >
+          {reports.map((report) => (
+            <Marker
+              key={report.id}
+              coordinate={{
+                latitude: report.location.latitude,
+                longitude: report.location.longitude,
+              }}
+              pinColor={colors.primary}
+            />
+          ))}
+        </MapComponent>
         <InsetShadowGradientView
           colors={["rgba(0,0,0,0.15)", "transparent"]}
           pointerEvents="none"
@@ -135,6 +142,7 @@ export function MapSection({
         <MapControls
           location={location}
           onGoToMyLocation={onGoToMyLocation}
+          showExpandMap={true}
           onExpandMap={onExpandMap}
         />
       </MapWrapperView>

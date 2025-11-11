@@ -17,7 +17,7 @@ import React from "react";
 // External libraries
 import { Text, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 // Internal imports
 import { useTranslation } from "@/hooks/useTranslation";
@@ -25,11 +25,11 @@ import colors from "@/theme/colors";
 import spacing from "@/theme/spacing";
 import styled from "styled-components/native";
 import TouchableButton from "@/components/common/buttons/TouchableButton";
-import { Report } from "@/types/reports";
 
 const StyledMapView = styled(MapView)({
   flex: 1,
   width: "100%",
+  height: "100%",
 });
 
 const MapPlaceholderView = styled.View({
@@ -52,45 +52,20 @@ const MapErrorText = styled.Text({
   padding: spacing.md,
 });
 
-const MapPlaceholderInfoText = styled.Text({
-  color: colors.text.primary,
-  textAlign: "center",
-  padding: spacing.md,
-});
-
-const FallbackWarningView = styled.View({
-  position: "absolute",
-  top: spacing.sm,
-  left: spacing.sm,
-  backgroundColor: colors.primaryTransparent,
-  paddingVertical: spacing.xxs,
-  paddingHorizontal: spacing.sm,
-  borderRadius: spacing.radius.sm,
-  zIndex: 2,
-});
-
-const FallbackWarningText = styled.Text({
-  color: colors.text.light,
-  fontSize: 12,
-  fontWeight: "bold",
-});
-
-interface MapComponentProps {
+export interface MapComponentProps {
   location: any;
   locationErrorMsg: string | null;
   isLocationLoading: boolean;
-  fallbackUsed: boolean;
-  reports: Report[];
   mapRef: React.RefObject<MapView | null>;
+  children?: React.ReactNode; // Allow custom markers/content
 }
 
 export function MapComponent({
   location,
   locationErrorMsg,
   isLocationLoading,
-  fallbackUsed,
-  reports,
   mapRef,
+  children,
 }: MapComponentProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -140,25 +115,6 @@ export function MapComponent({
     );
   }
 
-  // Web fallback
-  if (typeof window !== "undefined" && !location.coords) {
-    return (
-      <MapPlaceholderView>
-        {fallbackUsed && (
-          <FallbackWarningView>
-            <FallbackWarningText>
-              {t("map.currentLocation")}
-            </FallbackWarningText>
-          </FallbackWarningView>
-        )}
-        <MapPlaceholderInfoText>
-          Map showing location at: {location.coords.latitude.toFixed(4)},{" "}
-          {location.coords.longitude.toFixed(4)}
-        </MapPlaceholderInfoText>
-      </MapPlaceholderView>
-    );
-  }
-
   return (
     <StyledMapView
       provider={PROVIDER_GOOGLE}
@@ -173,16 +129,7 @@ export function MapComponent({
       showsMyLocationButton={false}
       toolbarEnabled={false}
     >
-      {reports.map((report) => (
-        <Marker
-          key={report.id}
-          coordinate={{
-            latitude: report.location.latitude,
-            longitude: report.location.longitude,
-          }}
-          pinColor={colors.primary}
-        />
-      ))}
+      {children}
     </StyledMapView>
   );
 }
