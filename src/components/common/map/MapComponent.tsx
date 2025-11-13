@@ -20,9 +20,9 @@ import { useRouter } from "expo-router";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 // Internal imports
-import { useTranslation } from "@/hooks/useTranslation";
-import colors from "@/theme/colors";
-import spacing from "@/theme/spacing";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import colors from "@/core/theme/colors";
+import spacing from "@/core/theme/spacing";
 import styled from "styled-components/native";
 import TouchableButton from "@/components/common/buttons/TouchableButton";
 

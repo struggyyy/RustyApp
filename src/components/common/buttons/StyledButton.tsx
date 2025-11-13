@@ -24,19 +24,9 @@ import {
 import styled from "styled-components/native";
 
 // Internal imports
-import theme from "../../../theme";
-import { useHaptics } from "../../../context/HapticsContext";
+import theme from "../../../core/theme";
+import { useHaptics } from "../../../core/context/HapticsContext";
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  buttonShadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
-  },
-});
 
 interface StyledButtonProps {
   onPress: () => void;
@@ -98,7 +88,7 @@ const StyledButton: React.FC<StyledButtonProps> = ({
       disabled={disabled || loading}
       isDisabled={disabled || loading}
       variant={variant}
-      style={[shadowStyles.buttonShadow, style]}
+      style={[theme.shadows.button, style]}
     >
       {loading ? (
         <ActivityIndicator color={theme.colors.white} />

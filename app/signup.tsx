@@ -19,20 +19,20 @@ import { TextInput, Keyboard, Animated } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
-import { useAuth } from "@/context/AuthContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useShakeAnimation } from "@/hooks/useShakeAnimation";
-import { useAuthForm } from "@/hooks/auth/useAuthForm";
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { AuthInput } from "@/components/auth/AuthInput";
-import { AuthButton } from "@/components/auth/AuthButton";
+import { useAuth } from "@/core/context/AuthContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
+import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
+import { AuthLayout } from "@/components/common/auth/AuthLayout";
+import { AuthInput } from "@/components/common/auth/AuthInput";
+import { AuthButton } from "@/components/common/auth/AuthButton";
 import {
   AuthTitle,
   AuthSubtitle,
   AuthErrorText,
   AuthLinkButton,
-} from "@/components/auth/AuthText";
-import i18n from "@/i18n/i18n";
+} from "@/components/common/auth/AuthText";
+import i18n from "@/core/i18n/i18n";
 import * as Haptics from "expo-haptics";
 
 export default function SignupScreen() {

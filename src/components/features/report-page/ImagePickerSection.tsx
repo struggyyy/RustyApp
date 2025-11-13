@@ -19,10 +19,10 @@ import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useTranslation } from "../../../hooks/useTranslation";
-import colors from "../../../theme/colors";
-import spacing from "../../../theme/spacing";
-import shadows from "../../../theme/shadows";
+import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import colors from "../../../core/theme/colors";
+import spacing from "../../../core/theme/spacing";
+import shadows from "../../../core/theme/shadows";
 import StyledButton from "../../common/buttons/StyledButton";
 import TouchableButton from "../../common/buttons/TouchableButton";
 

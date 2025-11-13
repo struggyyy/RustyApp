@@ -1,19 +1,10 @@
 import React from "react";
 import { StyleProp, ViewStyle, StyleSheet } from "react-native";
 import styled from "styled-components/native";
-import { useHaptics } from "../../../context/HapticsContext";
-import colors from "../../../theme/colors";
+import { useHaptics } from "../../../core/context/HapticsContext";
+import colors from "../../../core/theme/colors";
+import theme from "../../../core/theme";
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
-  },
-});
 
 interface IconButtonProps {
   onPress: () => void;
@@ -75,7 +66,7 @@ const IconButton: React.FC<IconButtonProps> = ({
   };
 
   const containerStyle = withShadow
-    ? [style, shadowStyles.shadow]
+    ? [style, theme.shadows.button]
     : style;
 
   return (

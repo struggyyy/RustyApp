@@ -19,7 +19,7 @@ import { ActivityIndicator } from "react-native";
 import styled from "styled-components/native";
 
 // Internal imports
-import colors from "../src/theme/colors";
+import colors from "../src/core/theme/colors";
 
 // Styled Components
 const StyledContainer = styled.View({

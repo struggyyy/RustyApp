@@ -18,16 +18,16 @@ import React, { useState } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
-import { useAuth } from "@/context/AuthContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { AuthButton } from "@/components/auth/AuthButton";
-import { AuthTitle, AuthSubtitle } from "@/components/auth/AuthText";
+import { useAuth } from "@/core/context/AuthContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { AuthLayout } from "@/components/common/auth/AuthLayout";
+import { AuthButton } from "@/components/common/auth/AuthButton";
+import { AuthTitle, AuthSubtitle } from "@/components/common/auth/AuthText";
 import * as Haptics from "expo-haptics";
 
 // Styled Components (minimal, for specific elements)
 import styled from "styled-components/native";
-import theme from "@/theme";
+import theme from "@/core/theme";
 
 const EmailHighlightText = styled.Text({
   fontWeight: "bold",

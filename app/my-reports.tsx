@@ -19,22 +19,18 @@ import { StatusBar, StyleSheet, Modal, View, Text } from "react-native";
 import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 
 // Internal project imports
-import { useAuth } from "../src/context/AuthContext";
-import { useTranslation } from "../src/hooks/useTranslation";
+import { useAuth } from "../src/core/context/AuthContext";
+import { useTranslation } from "../src/shared/hooks/common/useTranslation";
 import {
   getReportsByUserId,
   deleteReport,
-} from "../src/components/lib/firebase/reports";
-import { Report } from "../src/types/reports";
-import ReportList from "../src/components/features/reports/ReportList";
-import theme from "../src/theme";
+} from "../src/lib/firebase/reports";
+import { Report } from "../src/shared/types/reports";
+import ReportList from "../src/components/features/reports-page/ReportList";
+import theme from "../src/core/theme";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
-import UserReportModalView from "../src/components/features/my-reports/UserReportModal";
+import UserReportModalView from "../src/components/features/reports-page/UserReportModal";
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  modalShadow: theme.shadows.modal,
-});
 
 // Main screen styles
 const styles = StyleSheet.create({
@@ -212,7 +208,7 @@ export default function MyReportsScreen() {
       <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
         <Stack.Screen options={{ title: t("reports.pageTitle") }} />
-        <View style={[styles.historyContainer, shadowStyles.modalShadow]}>
+        <View style={[styles.historyContainer, theme.shadows.modal]}>
           <Text style={styles.historyTitle}>{t("reports.title")}</Text>
           <ReportList
             reports={reports}
@@ -232,7 +228,7 @@ export default function MyReportsScreen() {
 
         <Modal visible={showReportModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, shadowStyles.modalShadow]}>
+            <View style={[styles.modalContent, theme.shadows.modal]}>
               {selectedReport && (
                 <UserReportModalView
                   report={selectedReport}

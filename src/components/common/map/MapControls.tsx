@@ -18,7 +18,7 @@ import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal imports
-import colors from "@/theme/colors";
+import colors from "@/core/theme/colors";
 import FloatingActionButton from "@/components/common/buttons/FloatingActionButton";
 
 export interface MapControlsProps {

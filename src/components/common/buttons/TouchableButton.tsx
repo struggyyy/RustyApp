@@ -5,7 +5,7 @@ import {
   ViewStyle,
   StyleSheet,
 } from "react-native";
-import { useHaptics } from "../../../context/HapticsContext";
+import { useHaptics } from "../../../core/context/HapticsContext";
 
 interface TouchableButtonProps {
   onPress: () => void;

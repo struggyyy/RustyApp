@@ -2,22 +2,13 @@ import React from 'react';
 import { Modal, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
-import colors, { getStatusColor } from '../../../theme/colors';
-import { Report } from '../../../types/reports';
+import colors, { getStatusColor } from '../../../core/theme/colors';
+import theme from '../../../core/theme';
+import { Report } from '../../../shared/types/reports';
 import IconButton from '../buttons/IconButton';
 import TouchableButton from '../buttons/TouchableButton';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useTranslation } from '../../../shared/hooks/common/useTranslation';
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  modalShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-});
 
 interface ReportModalProps {
   visible: boolean;
@@ -88,17 +79,6 @@ const ActionButtons = styled.View({
   marginTop: 16,
 });
 
-const ActionButton = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' | 'navigate' | 'close' }>((props: { variant?: 'primary' | 'secondary' | 'navigate' | 'close' }) => ({
-  flex: 1,
-  backgroundColor: props.variant === 'primary' ? colors.primary : props.variant === 'navigate' ? colors.navigation : props.variant === 'close' ? colors.text.secondary : colors.background.secondary,
-  padding: 14,
-  borderRadius: 20,
-  alignItems: 'center',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  gap: 8,
-}));
-
 const ActionButtonText = styled.Text<{ variant?: 'primary' | 'secondary' | 'navigate' | 'close' }>((props: { variant?: 'primary' | 'secondary' | 'navigate' | 'close' }) => ({
   color: (props.variant === 'primary' || props.variant === 'navigate' || props.variant === 'close') ? colors.white : colors.text.primary,
   fontSize: 16,
@@ -122,7 +102,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
       onRequestClose={onClose}
     >
       <ModalOverlay>
-        <ModalContent style={shadowStyles.modalShadow}>
+        <ModalContent style={theme.shadows.modal}>
           <ModalHeader>
             <ModalTitle>{t('reports.reportDetails')}</ModalTitle>
             <IconButton

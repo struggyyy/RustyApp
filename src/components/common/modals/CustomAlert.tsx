@@ -2,19 +2,10 @@ import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import styled from "styled-components/native";
-import colors from "../../../theme/colors";
+import colors from "../../../core/theme/colors";
+import theme from "../../../core/theme";
 import TouchableButton from "../buttons/TouchableButton";
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  modalShadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-});
 
 interface AlertButton {
   text: string;
@@ -135,7 +126,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
       onRequestClose={onRequestClose}
     >
       <ModalOverlay>
-        <ModalContent style={shadowStyles.modalShadow}>
+        <ModalContent style={theme.shadows.modal}>
           <ModalHeader>
             <ModalTitle>{title}</ModalTitle>
           </ModalHeader>

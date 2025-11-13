@@ -17,10 +17,10 @@ import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal imports
-import { useTranslation } from "../../../hooks/useTranslation";
-import { useHaptics } from "../../../context/HapticsContext";
-import colors from "../../../theme/colors";
-import spacing from "../../../theme/spacing";
+import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import { useHaptics } from "../../../core/context/HapticsContext";
+import colors from "../../../core/theme/colors";
+import spacing from "../../../core/theme/spacing";
 
 // Styled components for the instruction toggle
 const InstructionToggle = styled.TouchableOpacity({

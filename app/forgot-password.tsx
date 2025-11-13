@@ -18,18 +18,18 @@ import React from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
-import { useAuth } from "@/context/AuthContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useAuthForm } from "@/hooks/auth/useAuthForm";
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { AuthInput } from "@/components/auth/AuthInput";
-import { AuthButton } from "@/components/auth/AuthButton";
+import { useAuth } from "@/core/context/AuthContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
+import { AuthLayout } from "@/components/common/auth/AuthLayout";
+import { AuthInput } from "@/components/common/auth/AuthInput";
+import { AuthButton } from "@/components/common/auth/AuthButton";
 import {
   AuthTitle,
   AuthSubtitle,
   AuthErrorText,
   AuthLinkButton,
-} from "@/components/auth/AuthText";
+} from "@/components/common/auth/AuthText";
 import * as Haptics from "expo-haptics";
 
 export default function ForgotPassword() {

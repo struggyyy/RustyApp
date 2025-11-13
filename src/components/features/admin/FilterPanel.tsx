@@ -1,14 +1,14 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
-import { ReportStatus, reportStatuses } from '../../../types/reports';
-import theme from '../../../theme';
-import { useAuth } from '../../../context/AuthContext';
+import { ReportStatus, reportStatuses } from '../../../shared/types/reports';
+import theme from '../../../core/theme';
+import { useAuth } from '../../../core/context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomWheelPicker from './CustomWheelPicker';
-import { useHaptics } from '../../../context/HapticsContext';
-import { useTranslation } from '../../../hooks/useTranslation';
-import { getStatusTranslationKey } from '../../../utils/statusTranslation';
+import { useHaptics } from '../../../core/context/HapticsContext';
+import { useTranslation } from '../../../shared/hooks/common/useTranslation';
+import { getStatusTranslationKey } from '../../../shared/utils/statusTranslation';
 
 // Use theme shadows instead of local shadowStyles
 

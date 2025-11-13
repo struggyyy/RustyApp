@@ -26,16 +26,16 @@ import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import styled from "styled-components/native";
 
 // Internal imports
-import { AuthProvider } from "../src/context/AuthContext";
-import { HapticsProvider } from "../src/context/HapticsContext";
-import { LanguageProvider } from "../src/context/LanguageContext";
-import { useAuth } from "../src/context/AuthContext";
+import { AuthProvider } from "../src/core/context/AuthContext";
+import { HapticsProvider } from "../src/core/context/HapticsContext";
+import { LanguageProvider } from "../src/core/context/LanguageContext";
+import { useAuth } from "../src/core/context/AuthContext";
 import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
-import LoadingScreen from "../src/components/common/LoadingScreen";
-import colors from "../src/theme/colors";
-import { useAuthNavigation } from "../src/hooks/layout/useAuthNavigation";
-import { useDeepLinking } from "../src/hooks/layout/useDeepLinking";
-import "../src/i18n/i18n"; // Initialize i18n
+import LoadingScreen from "../src/components/common/modals/LoadingScreen";
+import colors from "../src/core/theme/colors";
+import { useAuthNavigation } from "../src/shared/hooks/layout/useAuthNavigation";
+import { useDeepLinking } from "../src/shared/hooks/layout/useDeepLinking";
+import "../src/core/i18n/i18n"; // Initialize i18n
 
 // Styled components
 const StyledSafeAreaProvider = styled(SafeAreaProvider)`

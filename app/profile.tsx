@@ -19,20 +19,20 @@ import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { Stack, useRouter } from "expo-router";
 
 // Internal imports
-import { useAuth } from "../src/context/AuthContext";
-import { useTranslation } from "../src/hooks/useTranslation";
-import { useShakeAnimation } from "../src/hooks/useShakeAnimation";
-import { useProfileManagement } from "../src/hooks/profile/useProfileManagement";
-import { useProfileSettings } from "../src/hooks/profile/useProfileSettings";
-import { useProfileActions } from "../src/hooks/profile/useProfileActions";
-import { Report } from "../src/types/reports";
-import { getReportsByUserId } from "../src/components/lib/firebase/reports";
-import colors from "../src/theme/colors";
+import { useAuth } from "../src/core/context/AuthContext";
+import { useTranslation } from "../src/shared/hooks/common/useTranslation";
+import { useShakeAnimation } from "../src/shared/hooks/ui/useShakeAnimation";
+import { useProfileManagement } from "../src/shared/hooks/profile/useProfileManagement";
+import { useProfileSettings } from "../src/shared/hooks/profile/useProfileSettings";
+import { useProfileActions } from "../src/shared/hooks/profile/useProfileActions";
+import { Report } from "../src/shared/types/reports";
+import { getReportsByUserId } from "../src/lib/firebase/reports";
+import colors from "../src/core/theme/colors";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
-import EditProfile from "../src/components/features/profile/EditProfile";
-import SettingsCard from "../src/components/features/profile/SettingsCard";
-import ProfileImageModal from "../src/components/features/profile/ProfileImageModal";
-import ProfileReportsCard from "../src/components/features/profile/ProfileReportsCard";
+import EditProfile from "../src/components/features/profile-page/EditProfile";
+import SettingsCard from "../src/components/features/profile-page/SettingsCard";
+import ProfileImageModal from "../src/components/features/profile-page/ProfileImageModal";
+import ProfileReportsCard from "../src/components/features/profile-page/ProfileReportsCard";
 
 // Styles using StyleSheet for performance
 const styles = StyleSheet.create({

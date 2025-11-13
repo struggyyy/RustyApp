@@ -1,0 +1,178 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
+import { useState, useCallback } from "react";
+
+// External libraries
+import * as ImagePicker from "expo-image-picker";
+import { ref, deleteObject } from "firebase/storage";
+
+// Internal imports
+import { useAuth } from "@/core/context/AuthContext";
+import { storage } from "@/lib/firebase/firebase";
+
+interface UseProfileManagementOptions {
+  showAlert: (
+    title: string,
+    message?: string,
+    buttons?: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "default" | "cancel" | "destructive";
+    }>
+  ) => void;
+}
+
+export function useProfileManagement({
+  showAlert,
+}: UseProfileManagementOptions) {
+  // Profile editing state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedNickname, setEditedNickname] = useState("");
+  const [tempImageUri, setTempImageUri] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  // Auth hooks
+  const { user, profile, uploadProfileImage, updateUserProfile } = useAuth();
+
+  // Handle nickname change with validation
+  const handleEditedNicknameChange = useCallback((text: string) => {
+    if (text.length <= 15) {
+      setEditedNickname(text);
+    }
+  }, []);
+
+  // Choose photo from library
+  const handleChoosePhoto = useCallback(async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        showAlert(
+          "Permission required",
+          "Camera roll permissions are required to select a photo."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setTempImageUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      showAlert("Error", "Failed to select image. Please try again.");
+    }
+  }, [showAlert]);
+
+  // Validate and save profile
+  const handleSaveProfile = useCallback(async () => {
+    if (!user?.uid) throw new Error("User not found");
+
+    // Validate nickname length
+    if (editedNickname.length < 2) {
+      showAlert("Error", "Nickname must be at least 2 characters long.");
+      return;
+    }
+    if (editedNickname.length > 15) {
+      showAlert("Error", "Nickname cannot exceed 15 characters.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Delete old profile image if it exists and we're replacing it
+      const oldImageUrl = profile?.profileImage || user?.photoURL;
+      if (oldImageUrl && tempImageUri) {
+        try {
+          const url = new URL(oldImageUrl);
+          const path = decodeURIComponent(url.pathname.split("/o/")[1]);
+          const imageRef = ref(storage, path);
+          await deleteObject(imageRef);
+          console.log("Old profile image deleted successfully");
+        } catch (deleteError) {
+          console.error("Failed to delete old profile image:", deleteError);
+          // Don't block the save process if delete fails
+        }
+      }
+
+      // Upload new profile picture if changed
+      if (tempImageUri) {
+        await uploadProfileImage(user.uid, tempImageUri);
+      }
+
+      // Update display name if changed
+      if (
+        editedNickname &&
+        editedNickname !== (profile?.displayName || user?.displayName)
+      ) {
+        await updateUserProfile({ displayName: editedNickname });
+      }
+
+      showAlert("Success", "Profile updated successfully.");
+      setIsEditMode(false);
+      setTempImageUri(null);
+    } catch (error: any) {
+      console.error("Update error:", error);
+      showAlert("Error", error.message || "Failed to update profile.");
+    } finally {
+      setUploading(false);
+    }
+  }, [
+    user,
+    profile,
+    editedNickname,
+    tempImageUri,
+    uploadProfileImage,
+    updateUserProfile,
+    showAlert,
+  ]);
+
+  // Cancel edit and reset state
+  const handleCancelEdit = useCallback(() => {
+    setIsEditMode(false);
+    setTempImageUri(null);
+    setEditedNickname(profile?.displayName || user?.displayName || "");
+  }, [profile?.displayName, user?.displayName]);
+
+  // Initialize edited nickname when entering edit mode
+  const initializeEditMode = useCallback(() => {
+    if (isEditMode) {
+      setEditedNickname(profile?.displayName || user?.displayName || "");
+    }
+  }, [isEditMode, profile?.displayName, user?.displayName]);
+
+  return {
+    // State
+    isEditMode,
+    editedNickname,
+    tempImageUri,
+    uploading,
+
+    // Actions
+    setIsEditMode,
+    setEditedNickname,
+    handleEditedNicknameChange,
+    handleChoosePhoto,
+    handleSaveProfile,
+    handleCancelEdit,
+    initializeEditMode,
+  };
+}

@@ -19,7 +19,8 @@ import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 
 // Internal imports
-import i18n from "../../../i18n/i18n";
+import i18n from "../../../core/i18n/i18n";
+import theme from "../../../core/theme";
 
 const styles = StyleSheet.create({
   switcherContainer: {
@@ -36,11 +37,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   flagText: {
     fontSize: 20,
@@ -91,7 +87,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   return (
     <View style={styles.switcherContainer}>
       <TouchableOpacity
-        style={styles.languageButton}
+        style={[styles.languageButton, theme.shadows.card]}
         onPress={handleLanguageChange}
       >
         <Text style={styles.flagText}>{flag}</Text>

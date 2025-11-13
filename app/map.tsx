@@ -21,21 +21,21 @@ import MapView, { Marker, Region } from "react-native-maps";
 import { LinearGradient } from "expo-linear-gradient";
 
 // Internal imports
-import { useAuth } from "../src/context/AuthContext";
-import { useTranslation } from "../src/hooks/useTranslation";
-import { useHaptics } from "../src/context/HapticsContext";
-import colors from "../src/theme/colors";
-import spacing from "../src/theme/spacing";
+import { useAuth } from "../src/core/context/AuthContext";
+import { useTranslation } from "../src/shared/hooks/common/useTranslation";
+import { useHaptics } from "../src/core/context/HapticsContext";
+import colors from "../src/core/theme/colors";
+import spacing from "../src/core/theme/spacing";
 import styled from "styled-components/native";
-import { getReportsByUserId } from "../src/components/lib/firebase/reports";
-import { Report } from "../src/types/reports";
+import { getReportsByUserId } from "../src/lib/firebase/reports";
+import { Report } from "../src/shared/types/reports";
 import ReportModal from "../src/components/common/modals/ReportModal";
 import { MapComponent } from "../src/components/common/map/MapComponent";
 import { MapControls } from "../src/components/common/map/MapControls";
 import {
   getDistance,
   openNavigation as openExternalNavigation,
-} from "../src/utils/map";
+} from "../src/shared/utils/map";
 
 // Styled Components Definitions
 const StyledContainer = styled.View({

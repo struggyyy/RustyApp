@@ -28,18 +28,18 @@ import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Internal imports
-import { useAuth } from "../src/context/AuthContext";
-import { useTranslation } from "../src/hooks/useTranslation";
-import { useLocation } from "../src/hooks/useLocation";
-import { useKeyboardScroll } from "../src/hooks/useKeyboardScroll";
-import { useAlert } from "../src/hooks/useAlert";
-import { useImagePicker } from "../src/hooks/useImagePicker";
-import colors from "../src/theme/colors";
-import spacing from "../src/theme/spacing";
+import { useAuth } from "../src/core/context/AuthContext";
+import { useTranslation } from "../src/shared/hooks/common/useTranslation";
+import { useLocation } from "../src/shared/hooks/common/useLocation";
+import { useKeyboardScroll } from "../src/shared/hooks/ui/useKeyboardScroll";
+import { useAlert } from "../src/shared/hooks/common/useAlert";
+import { useImagePicker } from "../src/shared/hooks/common/useImagePicker";
+import colors from "../src/core/theme/colors";
+import spacing from "../src/core/theme/spacing";
 import {
   createReport,
   uploadReportImage,
-} from "../src/components/lib/firebase/reports";
+} from "../src/lib/firebase/reports";
 import StyledButton from "../src/components/common/buttons/StyledButton";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
 import { ReportHeader } from "../src/components/features/report-page/ReportHeader";

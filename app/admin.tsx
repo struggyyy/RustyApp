@@ -19,16 +19,16 @@ import { View, StyleSheet, Modal } from "react-native";
 import { Stack, useRouter } from "expo-router";
 
 // Internal imports
-import { useAuth } from "../src/context/AuthContext";
-import { useTranslation } from "../src/hooks/useTranslation";
-import { useAdminFilters } from "../src/hooks/admin/useAdminFilters";
-import { useReportManagement } from "../src/hooks/admin/useReportManagement";
-import { Report as ReportType, ReportStatus } from "../src/types/reports";
-import ReportList from "../src/components/features/reports/ReportList";
+import { useAuth } from "../src/core/context/AuthContext";
+import { useTranslation } from "../src/shared/hooks/common/useTranslation";
+import { useAdminFilters } from "../src/shared/hooks/admin/useAdminFilters";
+import { useReportManagement } from "../src/shared/hooks/admin/useReportManagement";
+import { Report as ReportType, ReportStatus } from "../src/shared/types/reports";
+import ReportList from "../src/components/features/reports-page/ReportList";
 import FilterPanel from "../src/components/features/admin/FilterPanel";
 import AdminReportModal from "../src/components/features/admin/AdminReportModal";
-import theme from "../src/theme";
-import { getStatusColor } from "../src/theme/colors";
+import theme from "../src/core/theme";
+import { getStatusColor } from "../src/core/theme/colors";
 
 // Styles for layout
 const styles = StyleSheet.create({
@@ -63,16 +63,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// Shadow styles
-const shadowStyles = StyleSheet.create({
-  modalShadow: {
-    shadowColor: theme.colors.text.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-});
 
 export default function AdminDashboard() {
   // Context hooks
@@ -157,7 +147,7 @@ export default function AdminDashboard() {
           onDistanceChange={handleDistanceFilterChange}
           onProfile={handleProfilePress}
         />
-        <View style={[styles.dashboardWrapper, shadowStyles.modalShadow]}>
+        <View style={[styles.dashboardWrapper, theme.shadows.modal]}>
           <View style={styles.dashboardContainer}>
             <ReportList
               reports={filteredReports}
@@ -177,7 +167,7 @@ export default function AdminDashboard() {
 
         <Modal visible={showReportModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, shadowStyles.modalShadow]}>
+            <View style={[styles.modalContent, theme.shadows.modal]}>
               {selectedReport && (
                 <AdminReportModal
                   report={selectedReport}

@@ -20,15 +20,15 @@ import { Stack, useRouter, useFocusEffect } from "expo-router";
 import MapView, { Region } from "react-native-maps";
 
 // Internal imports
-import { useAuth } from "@/context/AuthContext";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useLocation } from "@/hooks/useLocation";
-import { useReports } from "@/hooks/useReports";
-import { ScoreSection } from "@/components/features/home/ScoreSection";
-import { CarImageCard } from "@/components/features/home/CarImageCard";
-import { MapSection } from "@/components/features/home/MapSection";
-import colors from "@/theme/colors";
-import spacing from "@/theme/spacing";
+import { useAuth } from "@/core/context/AuthContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useLocation } from "@/shared/hooks/common/useLocation";
+import { useReports } from "@/shared/hooks/reports/useReports";
+import { ScoreSection } from "@/components/features/home-page/ScoreSection";
+import { CarImageCard } from "@/components/features/home-page/CarImageCard";
+import { MapSection } from "@/components/features/home-page/MapSection";
+import colors from "@/core/theme/colors";
+import spacing from "@/core/theme/spacing";
 import styled from "styled-components/native";
 import StyledButton from "@/components/common/buttons/StyledButton";
 

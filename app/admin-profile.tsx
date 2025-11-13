@@ -27,19 +27,19 @@ import { Stack, useRouter } from "expo-router";
 import { ref, deleteObject } from "firebase/storage";
 
 // Internal imports
-import { useAuth } from "../src/context/AuthContext";
-import { useLanguage } from "../src/context/LanguageContext";
-import { useTranslation } from "../src/hooks/useTranslation";
-import { useShakeAnimation } from "../src/hooks/useShakeAnimation";
-import { Report } from "../src/types/reports";
-import { getReportsByUserId } from "../src/components/lib/firebase/reports";
-import { storage } from "../src/components/lib/firebase/firebase";
-import colors from "../src/theme/colors";
+import { useAuth } from "../src/core/context/AuthContext";
+import { useLanguage } from "../src/core/context/LanguageContext";
+import { useTranslation } from "../src/shared/hooks/common/useTranslation";
+import { useShakeAnimation } from "../src/shared/hooks/ui/useShakeAnimation";
+import { Report } from "../src/shared/types/reports";
+import { getReportsByUserId } from "../src/lib/firebase/reports";
+import { storage } from "../src/lib/firebase/firebase";
+import colors from "../src/core/theme/colors";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
-import EditProfile from "../src/components/features/profile/EditProfile";
-import SettingsCard from "../src/components/features/profile/SettingsCard";
-import ProfileImageModal from "../src/components/features/profile/ProfileImageModal";
-import { useProfileSettings } from "../src/hooks/profile/useProfileSettings";
+import EditProfile from "../src/components/features/profile-page/EditProfile";
+import SettingsCard from "../src/components/features/profile-page/SettingsCard";
+import ProfileImageModal from "../src/components/features/profile-page/ProfileImageModal";
+import { useProfileSettings } from "../src/shared/hooks/profile/useProfileSettings";
 
 // Styles for layout
 const styles = StyleSheet.create({

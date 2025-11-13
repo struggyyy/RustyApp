@@ -21,9 +21,9 @@ import * as Haptics from "expo-haptics";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useTranslation } from "../../../hooks/useTranslation";
-import colors from "../../../theme/colors";
-import spacing from "../../../theme/spacing";
+import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import colors from "../../../core/theme/colors";
+import spacing from "../../../core/theme/spacing";
 import { MapComponent } from "../../common/map/MapComponent";
 import { MapControls } from "../../common/map/MapControls";
 
