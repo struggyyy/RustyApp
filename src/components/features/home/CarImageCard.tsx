@@ -25,9 +25,9 @@ import spacing from "@/theme/spacing";
 const CarImageCardContainer = styled.View({
   width: "100%",
   aspectRatio: 1.3,
-  backgroundColor: colors.componentBackground,
-  borderRadius: spacing.lg,
-  marginBottom: spacing.lg,
+  backgroundColor: colors.background.secondary,
+  borderRadius: spacing.L,
+  marginBottom: spacing.L,
   overflow: "hidden",
 });
 

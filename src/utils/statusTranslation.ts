@@ -44,24 +44,3 @@ export const getStatusNoteTranslationKey = (status: ReportStatus | string | unde
   }
 };
 
-/**
- * Gets the color for a report status
- * @param status - The report status
- * @returns Color hex string
- */
-export const getStatusColor = (status: ReportStatus | string | undefined): string => {
-  const safeStatus = status as ReportStatus;
-
-  switch (safeStatus) {
-    case 'Submitted':
-      return '#1976D2'; // Blue
-    case 'Accepted':
-      return '#00796B'; // Teal
-    case 'Completed':
-      return '#2E7D32'; // Green
-    case 'Canceled':
-      return '#C62828'; // Distinctive red
-    default:
-      return '#333333';
-  }
-};

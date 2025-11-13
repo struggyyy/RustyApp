@@ -23,7 +23,6 @@ import { Report } from "../../../types/reports";
 import {
   getStatusTranslationKey,
   getStatusNoteTranslationKey,
-  getStatusColor,
 } from "../../../utils/statusTranslation";
 import colors from "../../../theme/colors";
 import IconButton from "../../common/buttons/IconButton";
@@ -115,7 +114,7 @@ const UserReportModalView: React.FC<UserReportModalViewProps> = ({
   showAlert,
 }) => {
   const { t } = useTranslation();
-  const statusColor = getStatusColor(report.status);
+  const statusColor = colors.getStatusColor(report.status);
 
   const handleDeletePress = () => {
     showAlert(

@@ -29,6 +29,7 @@ import styled from "styled-components/native";
 import { AuthProvider } from "../src/context/AuthContext";
 import { HapticsProvider } from "../src/context/HapticsContext";
 import { LanguageProvider } from "../src/context/LanguageContext";
+import { useAuth } from "../src/context/AuthContext";
 import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
 import LoadingScreen from "../src/components/common/LoadingScreen";
 import colors from "../src/theme/colors";
@@ -49,6 +50,7 @@ function AuthenticatedStack() {
 
   // Custom hooks for authentication navigation and deep linking
   const { shouldShowLoading, isAdminRouteAccessDenied } = useAuthNavigation();
+  const { isAdmin, profileLoaded } = useAuth();
   useDeepLinking();
 
   // Show loading screen during authentication checks
@@ -62,6 +64,50 @@ function AuthenticatedStack() {
   }
 
   // Stack navigator configuration for authenticated screens
+  const screens = [
+    ...(profileLoaded && isAdmin ? [
+      <Stack.Screen
+        key="admin"
+        name="admin"
+        options={{
+          title: "Admin",
+          headerBackVisible: false,
+          headerLeft: undefined,
+        }}
+      />,
+      <Stack.Screen key="admin-profile" name="admin-profile" options={{ title: "Admin Profile" }} />
+    ] : []),
+    <Stack.Screen
+      key="home"
+      name="home"
+      options={{
+        title: "Home",
+        headerBackVisible: false,
+        headerLeft: undefined,
+      }}
+    />,
+    <Stack.Screen
+      key="login"
+      name="login"
+      options={{
+        title: "Login",
+        headerBackVisible: false,
+        headerLeft: undefined,
+      }}
+    />,
+    <Stack.Screen key="signup" name="signup" options={{ title: "Sign Up" }} />,
+    <Stack.Screen
+      key="forgot-password"
+      name="forgot-password"
+      options={{ title: "Reset Password" }}
+    />,
+    <Stack.Screen
+      key="verify-email"
+      name="verify-email"
+      options={{ title: "Verify Email", headerBackVisible: false }}
+    />,
+  ];
+
   return (
     <Stack
       screenOptions={{
@@ -73,40 +119,7 @@ function AuthenticatedStack() {
         headerLeft: () => <HeaderBackButton onPress={() => router.back()} />,
       }}
     >
-      <Stack.Screen
-        name="admin"
-        options={{
-          title: "Admin",
-          headerBackVisible: false,
-          headerLeft: undefined,
-        }}
-      />
-      <Stack.Screen name="admin-profile" options={{ title: "Admin Profile" }} />
-      <Stack.Screen
-        name="home"
-        options={{
-          title: "Home",
-          headerBackVisible: false,
-          headerLeft: undefined,
-        }}
-      />
-      <Stack.Screen
-        name="login"
-        options={{
-          title: "Login",
-          headerBackVisible: false,
-          headerLeft: undefined,
-        }}
-      />
-      <Stack.Screen name="signup" options={{ title: "Sign Up" }} />
-      <Stack.Screen
-        name="forgot-password"
-        options={{ title: "Reset Password" }}
-      />
-      <Stack.Screen
-        name="verify-email"
-        options={{ title: "Verify Email", headerBackVisible: false }}
-      />
+      {screens}
     </Stack>
   );
 }

@@ -4,24 +4,16 @@ import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../../../theme/colors';
+import { typography, spacing, shadows } from '../../../theme';
 import { Report, ReportStatus, reportStatuses } from '../../../types/reports';
 import { deleteReport, updateReportStatus } from '../../lib/firebase/reports';
 import CustomAlert from '../../common/modals/CustomAlert';
 import IconButton from '../../common/buttons/IconButton';
 import TouchableButton from '../../common/buttons/TouchableButton';
 import { useTranslation } from '../../../hooks/useTranslation';
-import { getStatusTranslationKey, getStatusNoteTranslationKey, getStatusColor as getStatusColorUtil } from '../../../utils/statusTranslation';
+import { getStatusTranslationKey, getStatusNoteTranslationKey } from '../../../utils/statusTranslation';
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  cardShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-});
+// Use theme shadows instead of local shadowStyles
 
 // --- TYPES ---
 interface ReportCardProps {
@@ -40,9 +32,9 @@ interface CardContainerProps {
 const CardContainer = styled.View<CardContainerProps>(
   (props: CardContainerProps) => ({
     backgroundColor: colors.white,
-    borderRadius: 15,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: spacing.radius.M,
+    padding: spacing.layout.cardPadding,
+    marginBottom: spacing.M,
     flexDirection: props.isExpanded ? 'column' : 'row',
     alignItems: props.isExpanded ? 'stretch' : 'center',
   })
@@ -58,82 +50,82 @@ interface StatusTextProps {
 
 const ReportDate = styled.Text<StatusTextProps>(
   (props: StatusTextProps) => ({
-    fontSize: 18,
+    fontSize: typography.fontSize.h5,
     fontWeight: 'bold',
     color: props.color,
-    marginBottom: 8,
+    marginBottom: spacing.S,
   })
 );
 
 const ReportStatusText = styled.Text<StatusTextProps>(
   (props: StatusTextProps) => ({
-    fontSize: 16,
+    fontSize: typography.fontSize.h6,
     color: props.color,
-    marginBottom: 8,
+    marginBottom: spacing.S,
   })
 );
 
 const StatusNote = styled.Text({
-  fontSize: 14,
+  fontSize: typography.fontSize.body2,
   color: colors.text.secondary,
-  marginBottom: 16,
+  marginBottom: spacing.layout.cardPadding,
   fontStyle: 'italic',
 });
 
 const DetailsButton = styled.TouchableOpacity({
   backgroundColor: colors.text.secondary,
-  paddingVertical: 10,
-  paddingHorizontal: 20,
-  borderRadius: 20,
+  paddingVertical: spacing.component.buttonPadding,
+  paddingHorizontal: spacing.L,
+  borderRadius: spacing.radius.L,
   alignItems: 'center',
 });
 
 const DetailsButtonText = styled.Text({
-  color: colors.text.light,
+  color: colors.text.inverse,
   fontWeight: 'bold',
-  fontSize: 14,
+  fontSize: typography.fontSize.caption,
 });
 
 const CarImageContainer = styled.View({
-  marginLeft: 16,
+  marginLeft: spacing.M,
   alignItems: 'center',
 });
 
 const CollapsedCarImage = styled.Image({
   width: 80,
   height: 80,
-  borderRadius: 40,
+  borderRadius: spacing.radius.XXL,
 });
 
 const ExpandedCarImage = styled.Image({
   width: '100%',
   height: 180,
-  borderRadius: 10,
-  marginTop: 8,
-  marginBottom: 16,
+  borderRadius: spacing.radius.XS,
+  marginTop: spacing.S,
+  marginBottom: spacing.layout.cardPadding,
 });
 
 const PointsText = styled.Text<StatusTextProps>(
   (props: StatusTextProps) => ({
-    fontSize: 14,
+    fontSize: typography.fontSize.body2,
     fontWeight: 'bold',
     color: props.color,
-    marginTop: 8,
+    marginTop: spacing.S,
   })
 );
 
 const StatusIndicatorText = styled.Text<StatusTextProps>(
   (props: StatusTextProps) => ({
-    fontSize: 24,
+    fontSize: typography.fontSize.h3,
     fontWeight: 'bold',
     color: props.color,
-    marginTop: 8,
+    marginTop: spacing.S,
   })
 );
 
 const DetailText = styled.Text<{ color?: string }>(
   (props: { color?: string }) => ({
-    fontSize: 16,
+    fontSize: typography.fontSize.body1,
     color: props.color || colors.text.primary,
   })
 );
@@ -141,7 +133,7 @@ const DetailText = styled.Text<{ color?: string }>(
 const DetailLabel = styled.Text({
   fontWeight: 'bold',
   color: colors.text.primary,
-  fontSize: 16,
+  fontSize: typography.fontSize.body1,
 });
 
 // --- CARD HEADER COMPONENTS ---
@@ -149,11 +141,11 @@ const CardHeader = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 8,
+  marginBottom: spacing.S,
 });
 
 const CardTitle = styled.Text({
-  fontSize: 20,
+  fontSize: typography.fontSize.h4,
   fontWeight: 'bold',
   color: colors.text.primary,
 });
@@ -161,15 +153,15 @@ const CardTitle = styled.Text({
 const HeaderActions = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 8,
+  gap: spacing.S,
 });
 
 const CloseButton = styled.TouchableOpacity({
-  padding: 8,
+  padding: spacing.S,
 });
 
 const DeleteButton = styled.TouchableOpacity({
-  padding: 8,
+  padding: spacing.S,
 });
 
 // --- ADMIN-SPECIFIC STYLED COMPONENTS ---
@@ -178,7 +170,7 @@ const StatusButtonText = styled.Text<{ active: boolean }>(
   (props: { active: boolean }) => ({
     color: props.active ? colors.white : colors.text.primary,
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: typography.fontSize.overline,
   })
 );
 
@@ -186,17 +178,17 @@ const StatusGrid = styled.View({
   flexDirection: 'row',
   flexWrap: 'wrap',
   justifyContent: 'space-between',
-  gap: 10,
-  marginTop: 16,
-  marginBottom: 16,
+  gap: spacing.M,
+  marginTop: spacing.layout.cardPadding,
+  marginBottom: spacing.layout.cardPadding,
 });
 
 const StatusButton = styled.TouchableOpacity<{ active: boolean; activeColor: string }>(
   (props: { active: boolean; activeColor: string }) => ({
-    backgroundColor: props.active ? props.activeColor : colors.componentBackground,
-    paddingVertical: 18,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    backgroundColor: props.active ? props.activeColor : colors.background.secondary,
+    paddingVertical: spacing.L,
+    paddingHorizontal: spacing.S,
+    borderRadius: spacing.radius.M,
     alignItems: 'center',
     justifyContent: 'center',
     width: '48%',
@@ -251,17 +243,17 @@ const UserExpandedView = ({ report, statusColor, onClose, onDelete }: ViewProps)
     <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
     <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
-    <View style={{ marginBottom: 16 }}>
+    <View style={{ marginBottom: spacing.layout.cardPadding }}>
       <DetailLabel>{t('reports.description')}</DetailLabel>
       <DetailText>{report.description}</DetailText>
     </View>
 
-    <View style={{ marginBottom: 16 }}>
+    <View style={{ marginBottom: spacing.layout.cardPadding }}>
       <DetailText color={statusColor} style={{ fontWeight: 'bold' }}>{t(getStatusTranslationKey(report.status))}</DetailText>
-      <StatusNote style={{ marginTop: 2, marginBottom: 0 }}>{t(getStatusNoteTranslationKey(report.status))}</StatusNote>
+      <StatusNote style={{ marginTop: spacing.XXS, marginBottom: 0 }}>{t(getStatusNoteTranslationKey(report.status))}</StatusNote>
     </View>
 
-    <View style={{ marginBottom: 8 }}>
+    <View style={{ marginBottom: spacing.S }}>
       <DetailText><DetailLabel>{t('reports.points')}: </DetailLabel>{report.points}</DetailText>
     </View>
   </>
@@ -297,12 +289,12 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
     <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
     <ExpandedCarImage source={{ uri: report.imageUrl }} />
 
-    <View style={{ marginBottom: 16 }}>
+    <View style={{ marginBottom: spacing.layout.cardPadding }}>
       <DetailLabel>{t('reports.description')}:</DetailLabel>
       <DetailText>{report.description}</DetailText>
     </View>
 
-    <View style={{ marginBottom: 16 }}>
+    <View style={{ marginBottom: spacing.layout.cardPadding }}>
       <DetailLabel>{t('admin.user')}</DetailLabel>
       <DetailText>{report.userEmail || report.userId}</DetailText>
     </View>
@@ -315,10 +307,10 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
           onPress={() => onStatusUpdate && onStatusUpdate(status)}
           disabled={report.status === status}
           style={{
-            backgroundColor: report.status === status ? getStatusColorUtil(status) : colors.componentBackground,
-            paddingVertical: 18,
-            paddingHorizontal: 8,
-            borderRadius: 12,
+            backgroundColor: report.status === status ? colors.getStatusColor(status) : colors.background.secondary,
+            paddingVertical: spacing.L,
+            paddingHorizontal: spacing.S,
+            borderRadius: spacing.radius.M,
             alignItems: 'center',
             justifyContent: 'center',
             width: '48%',
@@ -351,7 +343,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
     setAlertVisible(false);
   };
 
-  const statusColor = getStatusColorUtil(report.status);
+  const statusColor = colors.getStatusColor(report.status);
 
   const handleDelete = () => {
     showAlert(t('reports.deleteReport'), t('reports.deleteReportConfirm'), [
@@ -386,7 +378,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
 
   if (isProcessing) {
     return (
-      <CardContainer style={shadowStyles.cardShadow} isExpanded={false}>
+      <CardContainer style={shadows.card} isExpanded={false}>
         <ActivityIndicator size="large" color={colors.primary} />
       </CardContainer>
     );
@@ -394,7 +386,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
 
   return (
     <>
-      <CardContainer style={shadowStyles.cardShadow} isExpanded={false}>
+      <CardContainer style={shadows.card} isExpanded={false}>
         <ReportInfo>
           <ReportDate color={statusColor}>{formatDate(report.createdAt.toDate())}</ReportDate>
           <ReportStatusText color={statusColor}>{t(getStatusTranslationKey(report.status))}</ReportStatusText>
@@ -402,9 +394,9 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
             onPress={() => onDetailsPress?.(report)}
             style={{
               backgroundColor: colors.text.secondary,
-              paddingVertical: 10,
-              paddingHorizontal: 28,
-              borderRadius: 20,
+              paddingVertical: spacing.component.buttonPadding,
+              paddingHorizontal: spacing.XL,
+              borderRadius: spacing.radius.L,
               alignItems: 'center',
               minWidth: 140,
             }}
@@ -421,7 +413,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
                 case 'Submitted':
                   return <StatusIndicatorText color={statusColor}>...</StatusIndicatorText>;
                 case 'Canceled':
-                  return <FontAwesome name="times-circle" size={24} color={statusColor} style={{ marginTop: 8 }} />;
+                  return <FontAwesome name="times-circle" size={24} color={statusColor} style={{ marginTop: spacing.S }} />;
                 default:
                   return <PointsText color={statusColor}>{`${report.points}p`}</PointsText>;
               }

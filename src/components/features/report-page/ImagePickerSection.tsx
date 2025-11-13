@@ -22,6 +22,7 @@ import styled from "styled-components/native";
 import { useTranslation } from "../../../hooks/useTranslation";
 import colors from "../../../theme/colors";
 import spacing from "../../../theme/spacing";
+import shadows from "../../../theme/shadows";
 import StyledButton from "../../common/buttons/StyledButton";
 import TouchableButton from "../../common/buttons/TouchableButton";
 
@@ -29,8 +30,8 @@ import TouchableButton from "../../common/buttons/TouchableButton";
 const ImagePreviewContainer = styled.View({
   width: "100%",
   aspectRatio: 1.34,
-  marginBottom: spacing.lg,
-  borderRadius: spacing.radius.lg,
+  marginBottom: spacing.L,
+  borderRadius: spacing.radius.L,
   backgroundColor: colors.background.secondary,
   justifyContent: "center",
   alignItems: "center",
@@ -44,8 +45,8 @@ const ImagePreview = styled.Image({
 
 const ImageOverlayActions = styled.View({
   position: "absolute",
-  top: spacing.sm,
-  right: spacing.sm,
+  top: spacing.S,
+  right: spacing.S,
   flexDirection: "row",
   zIndex: 10,
 });
@@ -55,7 +56,7 @@ const ButtonRow = styled.View({
   justifyContent: "space-between",
   alignItems: "center",
   width: "100%",
-  marginBottom: spacing.lg,
+  marginBottom: spacing.L,
 });
 
 // Component props interface
@@ -83,9 +84,9 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
           <TouchableButton
             style={{
               backgroundColor: "rgba(0, 0, 0, 0.5)",
-              borderRadius: spacing.radius.lg,
-              padding: spacing.xs,
-              marginLeft: spacing.sm,
+              borderRadius: spacing.radius.L,
+              padding: spacing.XS,
+              marginLeft: spacing.S,
             }}
             onPress={onRemoveImage}
           >
@@ -107,17 +108,13 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
       />
       <TouchableButton
         style={{
-          backgroundColor: colors.secondaryLight,
+          backgroundColor: colors.background.secondary,
           width: 60,
           height: 60,
           borderRadius: 30,
           alignItems: "center",
           justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.23,
-          shadowRadius: 2.62,
-          elevation: 4,
+          ...shadows.button,
         }}
         onPress={() => onPickImage(false)}
       >

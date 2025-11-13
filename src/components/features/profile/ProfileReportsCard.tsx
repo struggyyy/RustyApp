@@ -28,7 +28,7 @@ interface ProfileReportsCardProps {
 
 const styles = StyleSheet.create({
   reportsCard: {
-    backgroundColor: colors.componentBackground,
+    backgroundColor: colors.background.secondary,
     borderRadius: 24,
     padding: 12,
     marginBottom: 20,

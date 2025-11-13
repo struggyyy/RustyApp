@@ -29,18 +29,18 @@ interface AuthButtonProps {
 const StyledButton = styled.TouchableOpacity<AuthButtonProps>(
   (props: AuthButtonProps) => ({
     backgroundColor: props.isDisabled
-      ? theme.colors.secondaryLight
+      ? theme.colors.background.secondary
       : theme.colors.primary,
-    borderRadius: theme.spacing.md,
-    padding: theme.spacing.md,
+    borderRadius: theme.spacing.M,
+    padding: theme.spacing.M,
     alignItems: "center",
-    marginTop: theme.spacing.sm,
+    marginTop: theme.spacing.S,
     opacity: props.isDisabled || props.isLoading ? 0.6 : 1,
   })
 );
 
 const ButtonText = styled.Text({
-  color: theme.colors.text.light,
+  color: theme.colors.text.inverse,
   fontWeight: "bold",
   fontSize: theme.typography.fontSize.button,
 });
@@ -48,7 +48,7 @@ const ButtonText = styled.Text({
 const ButtonContent = styled.View({
   flexDirection: "row",
   alignItems: "center",
-  gap: theme.spacing.sm,
+  gap: theme.spacing.S,
 });
 
 export function AuthButton({
@@ -65,7 +65,7 @@ export function AuthButton({
     >
       <ButtonContent>
         {isLoading && (
-          <ActivityIndicator size="small" color={theme.colors.text.light} />
+          <ActivityIndicator size="small" color={theme.colors.text.inverse} />
         )}
         <ButtonText>{title}</ButtonText>
       </ButtonContent>

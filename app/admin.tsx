@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   dashboardContainer: {
     flex: 1,
-    backgroundColor: theme.colors.componentBackground,
+    backgroundColor: theme.colors.background.secondary,
     borderRadius: 24,
     padding: 20,
   },

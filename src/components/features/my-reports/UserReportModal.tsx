@@ -26,7 +26,6 @@ import { Report } from "../../../types/reports";
 import {
   getStatusTranslationKey,
   getStatusNoteTranslationKey,
-  getStatusColor,
 } from "../../../utils/statusTranslation";
 
 const styles = StyleSheet.create({
@@ -119,7 +118,7 @@ const UserReportModal: React.FC<UserReportModalProps> = ({
   showAlert,
 }) => {
   const { t } = useTranslation();
-  const statusColor = getStatusColor(report.status);
+  const statusColor = theme.colors.getStatusColor(report.status);
 
   const handleDeletePress = () => {
     showAlert(t("reports.deleteReport"), t("reports.deleteReportConfirm"), [

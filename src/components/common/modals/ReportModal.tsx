@@ -90,7 +90,7 @@ const ActionButtons = styled.View({
 
 const ActionButton = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' | 'navigate' | 'close' }>((props: { variant?: 'primary' | 'secondary' | 'navigate' | 'close' }) => ({
   flex: 1,
-  backgroundColor: props.variant === 'primary' ? colors.primary : props.variant === 'navigate' ? colors.navigation : props.variant === 'close' ? colors.text.secondary : colors.componentBackground,
+  backgroundColor: props.variant === 'primary' ? colors.primary : props.variant === 'navigate' ? colors.navigation : props.variant === 'close' ? colors.text.secondary : colors.background.secondary,
   padding: 14,
   borderRadius: 20,
   alignItems: 'center',

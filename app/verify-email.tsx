@@ -36,8 +36,8 @@ const EmailHighlightText = styled.Text({
 
 const FeedbackText = styled.Text<{ isError?: boolean }>(
   ({ isError }: { isError?: boolean }) => ({
-    color: isError ? theme.colors.error.main : theme.colors.primary,
-    marginBottom: theme.spacing.md,
+    color: isError ? theme.colors.error : theme.colors.primary,
+    marginBottom: theme.spacing.M,
     textAlign: "center",
     fontWeight: "bold",
   })
@@ -46,7 +46,7 @@ const FeedbackText = styled.Text<{ isError?: boolean }>(
 const InfoText = styled.Text({
   fontSize: theme.typography.fontSize.caption,
   color: theme.colors.text.tertiary,
-  marginTop: theme.spacing.md,
+  marginTop: theme.spacing.M,
   textAlign: "center",
 });
 

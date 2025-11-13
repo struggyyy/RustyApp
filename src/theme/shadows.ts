@@ -12,45 +12,44 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React from "react";
+import { StyleSheet } from "react-native";
 
-// External libraries
-import styled from "styled-components/native";
+const shadows = StyleSheet.create({
+  // Card shadows
+  card: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
 
-// Internal imports
-import { useTranslation } from "../../../hooks/useTranslation";
-import colors from "../../../theme/colors";
-import spacing from "../../../theme/spacing";
+  // Button shadows
+  button: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
 
-// Styled components
-const HeaderContainer = styled.View({
-  alignItems: "center",
-  width: "100%",
+  // Modal shadows (stronger)
+  modal: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+
+  // Muted shadows for subtle effects
+  muted: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.18,
+    shadowRadius: 1.0,
+    elevation: 1,
+  },
 });
 
-const Title = styled.Text({
-  fontSize: 22,
-  fontWeight: "bold",
-  color: colors.text.primary,
-  textAlign: "center",
-  marginBottom: spacing.XS,
-});
-
-const Subtitle = styled.Text({
-  fontSize: 14,
-  color: colors.text.secondary,
-  textAlign: "center",
-  marginBottom: spacing.M,
-  lineHeight: "20px",
-});
-
-export const ReportHeader: React.FC = () => {
-  const { t } = useTranslation();
-
-  return (
-    <HeaderContainer>
-      <Title>{t("reports.newReport")}</Title>
-      <Subtitle>{t("reports.descriptionPlaceholder")}</Subtitle>
-    </HeaderContainer>
-  );
-};
+export default shadows;

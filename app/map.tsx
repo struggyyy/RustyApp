@@ -41,22 +41,22 @@ import {
 const StyledContainer = styled.View({
   flex: 1,
   backgroundColor: colors.background.primary,
-  padding: spacing.lg,
+  padding: spacing.L,
 });
 
 const MapSection = styled.View({
   flex: 1,
-  borderRadius: spacing.radius.lg,
+  borderRadius: spacing.radius.XL,
   overflow: "hidden",
-  backgroundColor: colors.componentBackground,
+  backgroundColor: colors.background.secondary,
   position: "relative",
 });
 
 const MapWrapperView = styled.View({
   flex: 1,
   overflow: "hidden",
-  borderRadius: spacing.radius.md,
-  backgroundColor: colors.background.tertiary,
+  borderRadius: spacing.radius.M,
+  backgroundColor: colors.background.primary,
 });
 
 const InsetShadowGradientView = styled(LinearGradient)({
@@ -64,7 +64,7 @@ const InsetShadowGradientView = styled(LinearGradient)({
   left: 0,
   right: 0,
   top: 0,
-  height: spacing.md - 1,
+  height: spacing.M - 1,
   zIndex: 2,
 });
 

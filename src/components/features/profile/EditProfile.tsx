@@ -48,7 +48,7 @@ const Container = styled.ScrollView.attrs({
 
 const ProfileCard = styled.View<{ isExpanded: boolean }>(
   (props: { isExpanded: boolean }) => ({
-    backgroundColor: colors.componentBackground,
+    backgroundColor: colors.background.secondary,
     borderRadius: 24,
     padding: 20,
     marginBottom: 12,
@@ -151,7 +151,7 @@ const EditInput = styled.TextInput`
   font-size: 16px;
   color: ${colors.text.primary};
   margin-bottom: 4px;
-  border: 1px solid ${colors.componentBackground};
+  border: 1px solid ${colors.background.secondary};
 `;
 
 const EmailTouchable = styled.TouchableOpacity`

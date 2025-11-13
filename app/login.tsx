@@ -39,7 +39,7 @@ import theme from "@/theme";
 
 const ForgotPasswordButton = styled.TouchableOpacity({
   alignSelf: "flex-end",
-  marginBottom: theme.spacing.md,
+  marginBottom: theme.spacing.M,
 });
 
 const ForgotPasswordText = styled.Text({

@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingHorizontal: spacing.L,
+    paddingTop: spacing.L,
     paddingBottom: 36,
   },
   topContent: {
@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
   bottomContent: {
     alignItems: "center",
     width: "100%",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingHorizontal: spacing.L,
+    paddingTop: spacing.M,
     paddingBottom: 0, // Will be controlled via safe area insets below
   },
 });

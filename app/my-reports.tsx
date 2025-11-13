@@ -33,13 +33,7 @@ import UserReportModalView from "../src/components/features/my-reports/UserRepor
 
 // Shadow styles using StyleSheet to avoid styled-components issues
 const shadowStyles = StyleSheet.create({
-  modalShadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-  },
+  modalShadow: theme.shadows.modal,
 });
 
 // Main screen styles
@@ -51,7 +45,7 @@ const styles = StyleSheet.create({
   },
   historyContainer: {
     flex: 1,
-    backgroundColor: theme.colors.componentBackground,
+    backgroundColor: theme.colors.background.secondary,
     borderRadius: 24,
     padding: 16,
     overflow: "hidden",

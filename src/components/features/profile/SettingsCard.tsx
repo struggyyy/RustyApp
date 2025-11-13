@@ -33,7 +33,7 @@ interface SettingsCardProps {
 }
 
 const SettingsCard = styled.View`
-  background-color: ${colors.componentBackground};
+  background-color: ${colors.background.secondary};
   border-radius: 24px;
   padding: 20px;
   margin-bottom: 12px;
@@ -62,7 +62,7 @@ const ExpandedContent = styled.View`
   margin-top: 16px;
   padding-top: 16px;
   border-top-width: 1px;
-  border-top-color: ${colors.componentBackground};
+  border-top-color: ${colors.background.secondary};
 `;
 
 const NotificationRow = styled.View`
@@ -83,7 +83,7 @@ const LanguageToggle = styled.TouchableOpacity`
   align-items: center;
   padding: 10px 16px;
   border-radius: 12px;
-  border: 1px solid ${colors.componentBackground};
+  border: 1px solid ${colors.background.secondary};
   margin-bottom: 16px;
 `;
 
@@ -139,7 +139,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         <NotificationRow>
           <NotificationLabel>{t('settings.enableNotifications')}</NotificationLabel>
           <Switch
-            trackColor={{ false: colors.primary, true: colors.status.recycled }}
+          trackColor={{ false: colors.primary, true: colors.status.Completed }}
             thumbColor={colors.white}
             ios_backgroundColor={colors.primary}
             onValueChange={(value) => { haptics.heavy(); onToggleNotifications(value); }}
@@ -150,7 +150,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         <NotificationRow>
           <NotificationLabel>{t('settings.enableHaptics')}</NotificationLabel>
           <Switch
-            trackColor={{ false: colors.primary, true: colors.status.recycled }}
+          trackColor={{ false: colors.primary, true: colors.status.Completed }}
             thumbColor={colors.white}
             ios_backgroundColor={colors.primary}
             onValueChange={(value) => { haptics.heavy(); onToggleHaptics(value); }}
@@ -186,7 +186,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
       <NotificationRow>
         <NotificationLabel>{t('settings.enableNotifications')}</NotificationLabel>
         <Switch
-          trackColor={{ false: colors.primary, true: colors.status.recycled }}
+          trackColor={{ false: colors.primary, true: colors.status.Completed }}
           thumbColor={colors.white}
           ios_backgroundColor={colors.primary}
           onValueChange={(value) => { haptics.heavy(); onToggleNotifications(value); }}
@@ -197,7 +197,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
       <NotificationRow>
         <NotificationLabel>{t('settings.enableHaptics')}</NotificationLabel>
         <Switch
-          trackColor={{ false: colors.primary, true: colors.status.recycled }}
+          trackColor={{ false: colors.primary, true: colors.status.Completed }}
           thumbColor={colors.white}
           ios_backgroundColor={colors.primary}
           onValueChange={(value) => { haptics.heavy(); onToggleHaptics(value); }}

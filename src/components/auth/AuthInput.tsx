@@ -27,13 +27,13 @@ const StyledInput = styled.TextInput.attrs({
   placeholderTextColor: theme.colors.text.tertiary,
 })<AuthInputProps>((props: AuthInputProps) => ({
   backgroundColor: theme.colors.background.primary,
-  borderRadius: theme.spacing.md,
-  padding: theme.spacing.md,
-  marginBottom: theme.spacing.md,
+  borderRadius: theme.spacing.M,
+  padding: theme.spacing.M,
+  marginBottom: theme.spacing.M,
   borderWidth: 1,
   borderColor: props.hasError
-    ? theme.colors.error.main
-    : theme.colors.border.medium,
+    ? theme.colors.error
+    : theme.colors.border.default,
   color: theme.colors.text.primary,
   fontSize: theme.typography.fontSize.input,
 }));

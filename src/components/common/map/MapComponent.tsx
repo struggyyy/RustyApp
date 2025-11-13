@@ -40,7 +40,7 @@ const MapPlaceholderView = styled.View({
 });
 
 const LoadingMapText = styled.Text({
-  marginTop: spacing.sm,
+  marginTop: spacing.S,
   color: colors.text.primary,
   fontSize: 14,
 });
@@ -49,7 +49,7 @@ const MapErrorText = styled.Text({
   color: colors.primary,
   fontSize: 14,
   textAlign: "center",
-  padding: spacing.md,
+  padding: spacing.M,
 });
 
 export interface MapComponentProps {
@@ -86,10 +86,10 @@ export function MapComponent({
         <TouchableButton
           onPress={() => router.replace("/")}
           style={{
-            marginTop: spacing.sm,
-            padding: spacing.sm,
+            marginTop: spacing.S,
+            padding: spacing.S,
             backgroundColor: colors.primary,
-            borderRadius: spacing.radius.sm,
+            borderRadius: spacing.radius.S,
             alignItems: "center",
           }}
         >

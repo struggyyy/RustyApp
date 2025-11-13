@@ -1,70 +1,55 @@
-/**
- * Spacing system for Rusty application
- * Provides consistent spacing throughout the app
- */
-
-// Base unit for spacing (4px)
-const BASE = 4;
-
-// Calculate spacing values
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// Simplified spacing system - direct pixel values for clarity
 const spacing = {
-  // Base spacing units
-  xxs: BASE * 0.5, // 2px
-  xs: BASE, // 4px
-  sm: BASE * 2, // 8px
-  md: BASE * 4, // 16px
-  lg: BASE * 6, // 24px
-  xl: BASE * 8, // 32px
-  xxl: BASE * 12, // 48px
-  xxxl: BASE * 16, // 64px
+  // Core spacing scale
+  XXS: 2, // Very small gaps, fine adjustments
+  XS: 4, // Extra small - icon padding, small gaps
+  S: 8, // Small - margins, component padding
+  M: 16, // Medium - standard padding, margins (most common)
+  L: 24, // Large - section spacing, larger components
+  XL: 32, // Extra large - major sections, big components
 
-  // Border radius values
+  // Border radius
   radius: {
-    sm: BASE * 2, // 8px
-    md: BASE * 4, // 16px
-    lg: BASE * 6, // 24px
-    xl: BASE * 8, // 32px
+    XS: 4,  // Small buttons, chips
+    S: 8,   // Standard components
+    M: 16,  // Cards, modals (increased from 12px for better rounded appearance)
+    L: 20,  // Large containers (increased from 16px for better rounded appearance)
+    XL: 24, // Special cases, large radius
+    XXL: 40, // Circular images (80px diameter)
   },
 
-  // Layout spacing
+  // Layout spacing - commonly used in layouts
   layout: {
-    screenPadding: BASE * 4, // 16px padding for screens
-    sectionPadding: BASE * 6, // 24px padding between major sections
-    cardPadding: BASE * 4, // 16px padding within cards
-    listItemPadding: BASE * 3, // 12px padding for list items
+    cardPadding: 16, // Standard card padding
+    screenPadding: 16, // Screen edge padding
+    sectionPadding: 24, // Between major sections
   },
 
-  // Form spacing
-  form: {
-    fieldMargin: BASE * 3, // 12px margin between form fields
-    labelMargin: BASE * 1, // 4px margin after labels
-    groupMargin: BASE * 6, // 24px margin between form groups
-    inputPadding: BASE * 3, // 12px padding inside inputs
-  },
-
-  // Element spacing
-  element: {
-    buttonPadding: BASE * 3, // 12px padding within buttons
-    iconPadding: BASE * 2, // 8px padding around icons
-    chipPadding: BASE * 2, // 8px padding inside chips
-  },
-
-  // Component spacing
+  // Component spacing - specific to UI components
   component: {
-    headerHeight: BASE * 14, // 56px default header height
-    footerHeight: BASE * 16, // 64px default footer/tab bar height
-    modalPadding: BASE * 5, // 20px padding inside modals
-    fabSize: BASE * 14, // 56px floating action button size
+    buttonPadding: 12, // Button vertical padding
+    fabSize: 56, // Floating action button size
+    modalPadding: 20, // Modal content padding
   },
 
-  // Insets for safe area
+  // Safe area insets
   insets: {
-    horizontal: BASE * 4, // 16px safe area inset
-    vertical: BASE * 4, // 16px safe area inset
+    horizontal: 16, // Safe area horizontal padding
+    vertical: 16, // Safe area vertical padding
   },
-
-  // Helper function to create custom spacing
-  create: (multiplier: number) => BASE * multiplier,
 };
 
 export default spacing;

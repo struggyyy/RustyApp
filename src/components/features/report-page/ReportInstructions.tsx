@@ -24,7 +24,7 @@ import spacing from "../../../theme/spacing";
 
 // Styled components for the instruction toggle
 const InstructionToggle = styled.TouchableOpacity({
-  marginBottom: spacing.lg,
+  marginBottom: spacing.L,
 });
 
 const InstructionToggleText = styled.Text({
@@ -38,7 +38,7 @@ const InstructionToggleContent = styled.View({
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
-  gap: spacing.xs,
+  gap: spacing.XS,
 });
 
 // Styled components for the instructions display
@@ -46,16 +46,16 @@ const InstructionsContainer = styled.View({
   width: "100%",
   backgroundColor: colors.background.primary,
   borderRadius: 16,
-  paddingVertical: spacing.md,
-  paddingHorizontal: spacing.sm,
-  gap: spacing.md,
-  marginBottom: spacing.xl,
+  paddingVertical: spacing.M,
+  paddingHorizontal: spacing.S,
+  gap: spacing.M,
+  marginBottom: spacing.XL,
 });
 
 const InstructionRow = styled.View({
   flexDirection: "row",
   alignItems: "flex-start",
-  gap: spacing.md,
+  gap: spacing.M,
 });
 
 const NumberBadge = styled.View({

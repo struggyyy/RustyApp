@@ -31,12 +31,12 @@ import { MapControls } from "../../common/map/MapControls";
 const MainCard = styled.View({
   width: "100%",
   backgroundColor: colors.background.secondary,
-  borderRadius: spacing.radius.xl,
+  borderRadius: spacing.radius.XL,
   overflow: "hidden",
 });
 
 const DescriptionInput = styled.TextInput({
-  padding: spacing.md,
+  padding: spacing.M,
   fontSize: 16,
   color: colors.text.primary,
   textAlignVertical: "top",
@@ -47,7 +47,7 @@ const InsetShadowGradientView = styled(LinearGradient)({
   left: 0,
   right: 0,
   top: 0,
-  height: spacing.sm,
+  height: spacing.S,
   zIndex: 2,
 });
 
@@ -56,8 +56,8 @@ const MapContainer = styled.View({
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: colors.background.secondary,
-  borderTopLeftRadius: spacing.radius.xl,
-  borderTopRightRadius: spacing.radius.xl,
+  borderTopLeftRadius: spacing.radius.XL,
+  borderTopRightRadius: spacing.radius.XL,
   overflow: "hidden",
 });
 

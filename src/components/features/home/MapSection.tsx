@@ -34,21 +34,21 @@ const { height } = Dimensions.get("window");
 
 const MapSectionContainer = styled.View({
   height: height * 0.33,
-  borderRadius: spacing.radius.lg,
+  borderRadius: spacing.radius.XL,
   overflow: "hidden",
-  backgroundColor: colors.componentBackground,
+  backgroundColor: colors.background.secondary,
   position: "relative",
 });
 
 const MyReportsButton = styled(TouchableButton)({
   position: "absolute",
-  top: spacing.md,
-  left: spacing.md,
-  right: spacing.md,
+  top: spacing.M,
+  left: spacing.M,
+  right: spacing.M,
   zIndex: 3,
   backgroundColor: colors.background.primary,
-  padding: spacing.md,
-  borderRadius: spacing.radius.md,
+  padding: spacing.M,
+  borderRadius: spacing.radius.M,
 });
 
 const MyReportsButtonText = styled.Text({
@@ -61,8 +61,8 @@ const MyReportsButtonText = styled.Text({
 const MapWrapperView = styled.View({
   flex: 1,
   overflow: "hidden",
-  borderRadius: spacing.radius.md,
-  backgroundColor: colors.background.tertiary,
+  borderRadius: spacing.radius.M,
+  backgroundColor: colors.background.primary,
 });
 
 const InsetShadowGradientView = styled(LinearGradient)({
@@ -70,7 +70,7 @@ const InsetShadowGradientView = styled(LinearGradient)({
   left: 0,
   right: 0,
   top: 0,
-  height: spacing.md - 1, // 15px
+  height: spacing.M - 1, // 15px
   zIndex: 2,
 });
 

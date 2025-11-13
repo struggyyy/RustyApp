@@ -213,7 +213,7 @@ export default function AdminReportModal({
                   {
                     backgroundColor: isActive
                       ? getStatusColor(status)
-                      : theme.colors.componentBackground,
+                      : theme.colors.background.secondary,
                   },
                 ]}
                 onPress={() => {

@@ -10,16 +10,7 @@ import { useHaptics } from '../../../context/HapticsContext';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { getStatusTranslationKey } from '../../../utils/statusTranslation';
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  modalShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-});
+// Use theme shadows instead of local shadowStyles
 
 interface FilterPanelProps {
   selectedStatuses: ReportStatus[]; // empty array means Show All
@@ -30,7 +21,7 @@ interface FilterPanelProps {
 }
 
 const PanelContainer = styled.View<{ isExpanded: boolean }>`
-  background-color: ${theme.colors.componentBackground};
+  background-color: ${theme.colors.background.secondary};
   border-radius: 24px;
   padding: 20px;
   margin-bottom: 12px;
@@ -51,7 +42,7 @@ const FilterChip = styled.TouchableOpacity<{ isSelected: boolean; chipColor?: st
   padding: 10px 12px;
   align-items: center;
   border-width: 1px;
-  border-color: ${(props: { isSelected: boolean; chipColor?: string }) => props.isSelected ? (props.chipColor || theme.colors.primary) : theme.colors.border.medium};
+  border-color: ${(props: { isSelected: boolean; chipColor?: string }) => props.isSelected ? (props.chipColor || theme.colors.primary) : theme.colors.border.default};
 `;
 
 const FilterChipText = styled.Text<{ isSelected: boolean }>`
@@ -69,7 +60,7 @@ const PickerContainer = styled.View`
   background-color: ${theme.colors.white};
   border-radius: 16px;
   border-width: 1px;
-  border-color: ${theme.colors.border.medium};
+  border-color: ${theme.colors.border.default};
   padding: 12px;
   align-self: center;
 `;
@@ -201,13 +192,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   // Distance options from 1 to 50 km
   const distanceOptions = Array.from({ length: 50 }, (_, i) => (i + 1).toString());
 
-  // Representative colors per status
-  const statusColors: Record<ReportStatus, string> = {
-    'Submitted': '#1976D2', // matches ReportCard blue
-    'Accepted': '#00796B',  // matches ReportCard teal
-    'Completed': '#2E7D32', // matches ReportCard green
-    'Canceled': '#C62828',  // matches ReportCard red
-  };
+  // Use theme status colors
+  const statusColors: Record<ReportStatus, string> = theme.colors.status;
 
   // Set default values if not already set
   React.useEffect(() => {
@@ -353,7 +339,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   );
 
   return (
-    <PanelContainer style={shadowStyles.modalShadow} isExpanded={isExpanded}>
+    <PanelContainer style={theme.shadows.modal} isExpanded={isExpanded}>
       {isExpanded ? renderExpandedView() : renderCollapsedView()}
     </PanelContainer>
   );

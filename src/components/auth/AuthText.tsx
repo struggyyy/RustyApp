@@ -28,21 +28,21 @@ interface AuthLinkProps {
 export const AuthTitle = styled.Text({
   fontSize: theme.typography.fontSize.h1,
   fontWeight: "bold",
-  marginBottom: theme.spacing.sm,
+  marginBottom: theme.spacing.S,
   textAlign: "center",
   color: theme.colors.text.primary,
 });
 
 export const AuthSubtitle = styled.Text({
   fontSize: theme.typography.fontSize.body1,
-  marginBottom: theme.spacing.xl,
+  marginBottom: theme.spacing.XL,
   textAlign: "center",
   color: theme.colors.text.secondary,
 });
 
 export const AuthErrorText = styled.Text({
-  color: theme.colors.error.main,
-  marginBottom: theme.spacing.md,
+  color: theme.colors.error,
+  marginBottom: theme.spacing.M,
   textAlign: "center",
   fontSize: theme.typography.fontSize.body1,
 });
@@ -52,7 +52,7 @@ export const AuthLink = styled.Text<AuthLinkProps>((props: AuthLinkProps) => ({
   fontSize: theme.typography.fontSize.body2,
   fontWeight: "bold",
   textAlign: "center",
-  marginTop: theme.spacing.lg,
+  marginTop: theme.spacing.L,
 }));
 
 export const AuthLinkButton = ({

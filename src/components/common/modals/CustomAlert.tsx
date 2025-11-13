@@ -89,7 +89,7 @@ const AlertButton = styled.TouchableOpacity<ButtonVariant>(
         ? colors.primary
         : props.variant === "cancel"
         ? colors.text.secondary
-        : colors.componentBackground,
+        : colors.background.secondary,
     padding: 14,
     borderRadius: 20,
     alignItems: "center",
@@ -155,7 +155,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
                     ? colors.primary
                     : buttonVariant === "cancel"
                     ? colors.text.secondary
-                    : colors.componentBackground,
+                    : colors.background.secondary,
                 padding: 14,
                 borderRadius: 20,
                 alignItems: "center" as const,

@@ -49,8 +49,8 @@ const LoadingIndicatorContainer = styled.View({
 
 const ContentView = styled.ScrollView.attrs({
   contentContainerStyle: {
-    paddingTop: spacing.lg,
-    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.L,
+    paddingHorizontal: spacing.L,
     paddingBottom: 20, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
   },
   showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator

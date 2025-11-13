@@ -29,7 +29,7 @@ const ScoreSectionContainer = styled.View({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: spacing.md,
+  marginBottom: spacing.M,
 });
 
 const ScoreLabelText = styled.Text({
@@ -48,10 +48,10 @@ const ProfileButtonView = styled.View({
   width: spacing.component.fabSize,
   height: spacing.component.fabSize,
   borderRadius: spacing.component.fabSize / 2,
-  backgroundColor: colors.secondaryLight,
+  backgroundColor: colors.background.secondary,
   justifyContent: "center",
   alignItems: "center",
-  borderWidth: spacing.xs,
+  borderWidth: spacing.XS,
   borderColor: colors.primary,
 });
 
@@ -65,7 +65,7 @@ const ProfileImagePlaceholder = styled.View({
   width: "100%",
   height: "100%",
   borderRadius: spacing.component.fabSize / 2,
-  backgroundColor: colors.secondaryLight,
+  backgroundColor: colors.background.secondary,
   justifyContent: "center",
   alignItems: "center",
 });
