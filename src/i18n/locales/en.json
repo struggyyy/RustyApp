@@ -133,7 +133,22 @@
     "photoRequired": "Please take a photo of the vehicle",
     "descriptionRequired": "Please fill all fields, take a picture, and ensure location is set. Description must be 150 characters or less.",
     "submittingReport": "Submitting report...",
-    "reportSubmittedSuccess": "Report submitted successfully!"
+    "reportSubmittedSuccess": "Report submitted successfully!",
+    "showInstructions": "Show the usage instruction",
+    "hideInstructions": "Hide the usage instruction",
+    "instruction": {
+      "step1Before": "Click",
+      "takePicture": "\"TAKE A PICTURE\"",
+      "step1After": "button or select a high quality image from your gallery that represents the abandoned car you want to report.",
+      "step2Before": "Write a short",
+      "description": "Description...",
+      "step2After": "(5-150 characters long) about the reported vehicle and why you think it is abandoned.",
+      "step3Before": "Check if the",
+      "map": "Map",
+      "step3Middle": "shows your correct location and click",
+      "submit": "\"SUBMIT\"",
+      "step3After": "button to finalize the report."
+    }
   },
   "home": {
     "title": "Home",

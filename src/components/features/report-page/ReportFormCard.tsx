@@ -52,7 +52,7 @@ const InsetShadowGradientView = styled(LinearGradient)({
 });
 
 const MapContainer = styled.View({
-  height: 300,
+  height: 240,
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: colors.background.secondary,

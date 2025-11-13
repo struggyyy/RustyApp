@@ -133,7 +133,22 @@
     "photoRequired": "Zrób zdjęcie pojazdu",
     "descriptionRequired": "Wypełnij wszystkie pola, zrób zdjęcie i upewnij się, że lokalizacja jest ustawiona. Opis musi mieć maksymalnie 150 znaków.",
     "submittingReport": "Wysyłanie zgłoszenia...",
-    "reportSubmittedSuccess": "Twoje zgłoszenie zostało wysłane pomyślnie!"
+    "reportSubmittedSuccess": "Twoje zgłoszenie zostało wysłane pomyślnie!",
+    "showInstructions": "Pokaż instrukcję obsługi",
+    "hideInstructions": "Ukryj instrukcję obsługi",
+    "instruction": {
+      "step1Before": "Kliknij przycisk",
+      "takePicture": "\"ZRÓB ZDJĘCIE\"",
+      "step1After": "lub wybierz wysokiej jakości zdjęcie z galerii, które przedstawia zgłaszany pojazd.",
+      "step2Before": "Napisz krótki",
+      "description": "Opis...",
+      "step2After": "(5-150 znaków) o zgłaszanym pojeździe i dlaczego uważasz, że jest porzucony.",
+      "step3Before": "Sprawdź, czy",
+      "map": "Mapa",
+      "step3Middle": "pokazuje Twoją prawidłową lokalizację i kliknij przycisk",
+      "submit": "\"WYŚLIJ\"",
+      "step3After": ", aby zatwierdzić zgłoszenie."
+    }
   },
   "home": {
     "title": "Strona główna",

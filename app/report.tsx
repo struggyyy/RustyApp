@@ -12,8 +12,9 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
+  View,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -24,13 +25,15 @@ import {
 
 // External libraries
 import { Stack, useRouter } from "expo-router";
-import * as Location from "expo-location";
-import * as ImagePicker from "expo-image-picker";
-import styled from "styled-components/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Internal imports
 import { useAuth } from "../src/context/AuthContext";
 import { useTranslation } from "../src/hooks/useTranslation";
+import { useLocation } from "../src/hooks/useLocation";
+import { useKeyboardScroll } from "../src/hooks/useKeyboardScroll";
+import { useAlert } from "../src/hooks/useAlert";
+import { useImagePicker } from "../src/hooks/useImagePicker";
 import colors from "../src/theme/colors";
 import spacing from "../src/theme/spacing";
 import {
@@ -39,203 +42,79 @@ import {
 } from "../src/components/lib/firebase/reports";
 import StyledButton from "../src/components/common/buttons/StyledButton";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
+import { ReportHeader } from "../src/components/features/report-page/ReportHeader";
+import { ReportInstructions } from "../src/components/features/report-page/ReportInstructions";
 import { ImagePickerSection } from "../src/components/features/report-page/ImagePickerSection";
 import { ReportFormCard } from "../src/components/features/report-page/ReportFormCard";
 
-// Shadow styles using StyleSheet to avoid styled-components issues
-const shadowStyles = StyleSheet.create({
-  shadowSmall: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
+// Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background.primary,
+    position: "relative" as const, // Needed for absolute positioning of gradient
   },
-  shadowMedium: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
+  scrollView: {
+    flex: 1,
   },
-});
-
-const Container = styled(KeyboardAvoidingView)({
-  flex: 1,
-  backgroundColor: colors.background.primary,
-});
-
-const InnerScrollView = styled(ScrollView).attrs({
-  contentContainerStyle: {
+  scrollViewContent: {
     flexGrow: 1,
     alignItems: "center",
     justifyContent: "flex-start",
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
-    paddingBottom: 20,
+    paddingBottom: 36,
   },
-  keyboardShouldPersistTaps: "handled",
-  alwaysBounceVertical: true,
-  showsVerticalScrollIndicator: false,
-})({
-  width: "100%",
-});
-
-const TopContent = styled.View({
-  alignItems: "center",
-  width: "100%",
-});
-
-const Title = styled.Text({
-  fontSize: 22,
-  fontWeight: "bold",
-  color: colors.text.primary,
-  textAlign: "center",
-  marginBottom: spacing.xs,
-});
-
-const Subtitle = styled.Text({
-  fontSize: 14,
-  color: colors.text.secondary,
-  textAlign: "center",
-  marginBottom: spacing.lg,
-  lineHeight: "20px",
-});
-
-const BottomContent = styled.View({
-  alignItems: "center",
-  width: "100%",
-  marginTop: spacing.lg,
+  topContent: {
+    alignItems: "center",
+    width: "100%",
+  },
+  bottomContent: {
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: 0, // Will be controlled via safe area insets below
+  },
 });
 
 export default function ReportScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  // Form state
+  // Use custom hooks for separated concerns
+  const { location, locationErrorMsg, isLocationLoading, fetchLocation } =
+    useLocation();
+  const { isKeyboardVisible } = useKeyboardScroll();
+  const { alertVisible, alertConfig, showAlert, hideAlert } = useAlert();
+  const { imageUri, pickImage, handleCancelImage } = useImagePicker();
+
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   // UI state
   const isSubmittingRef = useRef(false);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{
-    title: string;
-    message?: string;
-    buttons: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }>;
-  }>({ title: "", buttons: [] });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const showAlert = (
-    title: string,
-    message?: string,
-    buttons: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }> = [{ text: t("common.ok") }]
-  ) => {
-    setAlertConfig({ title, message, buttons });
-    setAlertVisible(true);
-  };
-
-  const hideAlert = () => {
-    setAlertVisible(false);
-  };
-
-  // Keyboard visibility handling
+  // Keyboard scroll handling
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
-        setKeyboardVisible(true);
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
+        // Scroll to make description field visible when keyboard appears
+        setTimeout(() => {
+          scrollViewRef.current?.scrollTo({ y: 300, animated: true });
+        }, 100);
       }
     );
 
     return () => {
-      keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
   }, []);
-
-  // Location fetching logic
-  const getCurrentLocation = useCallback(async () => {
-    setLocationErrorMsg(null);
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        throw new Error(t("map.locationPermissionRequired"));
-      }
-      let currentLocation = await Location.getLastKnownPositionAsync({});
-      if (!currentLocation) {
-        currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-      }
-
-      if (currentLocation) {
-        const coords = {
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        };
-        setLocation(coords);
-      }
-    } catch (error: any) {
-      setLocationErrorMsg(error.message || t("map.locationError"));
-      showAlert(
-        t("common.error"),
-        error.message || t("map.locationPermissionRequired")
-      );
-    }
-  }, []);
-
-  useEffect(() => {
-    getCurrentLocation();
-  }, [getCurrentLocation]);
-
-  const onRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    await getCurrentLocation();
-    setIsRefreshing(false);
-  }, [getCurrentLocation]);
-
-  // Image handling functions
-  const handleCancelImage = () => {
-    setImageUri(null);
-  };
-
-  const pickImage = async (useCamera: boolean) => {
-    const action = useCamera
-      ? ImagePicker.launchCameraAsync
-      : ImagePicker.launchImageLibraryAsync;
-    const result = await action({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.5,
-    });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
-  };
 
   // Form submission logic
   const handleSubmit = async () => {
@@ -246,6 +125,7 @@ export default function ReportScreen() {
       !imageUri ||
       !location ||
       !description.trim() ||
+      description.trim().length < 5 ||
       description.trim().length > 150
     ) {
       showAlert(t("common.error"), t("reports.descriptionRequired"));
@@ -261,10 +141,13 @@ export default function ReportScreen() {
 
       await createReport({
         userId: user.uid,
-        userEmail: user.email || 'Unknown User',
+        userEmail: user.email || "Unknown User",
         imageUrl,
         description,
-        location,
+        location: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
       });
 
       showAlert(t("common.success"), t("reports.reportSubmittedSuccess"), [
@@ -281,51 +164,83 @@ export default function ReportScreen() {
 
   // Form validation
   const isFormReady =
-    !!imageUri && !!description.trim() && description.trim().length <= 150;
+    !!imageUri &&
+    !!description.trim() &&
+    description.trim().length >= 5 &&
+    description.trim().length <= 150;
 
   return (
     <>
-      <Container behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <View style={styles.container}>
         <Stack.Screen options={{ title: t("reports.reportVehicle") }} />
-        <InnerScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <TopContent>
-            <Title>{t("reports.newReport")}</Title>
-            <Subtitle>{t("reports.descriptionPlaceholder")}</Subtitle>
-            <ImagePickerSection
-              imageUri={imageUri}
-              isKeyboardVisible={isKeyboardVisible}
-              onPickImage={pickImage}
-              onRemoveImage={handleCancelImage}
-            />
-          </TopContent>
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollViewContent}
+            keyboardShouldPersistTaps="handled"
+            alwaysBounceVertical
+            showsVerticalScrollIndicator={false}
+            fadingEdgeLength={15}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLocationLoading}
+                onRefresh={() => fetchLocation(true)}
+                colors={[colors.primary]}
+                tintColor={colors.primary}
+              />
+            }
+          >
+            <View style={styles.topContent}>
+              <ReportHeader />
 
-          <ReportFormCard
-            description={description}
-            onDescriptionChange={setDescription}
-            location={location}
-            locationErrorMsg={locationErrorMsg}
+              <ReportInstructions
+                showInstructions={showInstructions}
+                onToggleInstructions={() => setShowInstructions((v) => !v)}
+              />
+
+              <ImagePickerSection
+                imageUri={imageUri}
+                isKeyboardVisible={isKeyboardVisible}
+                onPickImage={pickImage}
+                onRemoveImage={handleCancelImage}
+              />
+
+              <ReportFormCard
+                description={description}
+                onDescriptionChange={setDescription}
+                location={
+                  location
+                    ? {
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
+                      }
+                    : null
+                }
+                locationErrorMsg={locationErrorMsg}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+
+        <View
+          style={[
+            styles.bottomContent,
+            { paddingBottom: Math.max(insets.bottom, 12) },
+          ]}
+        >
+          <StyledButton
+            title={t("common.submit")}
+            onPress={handleSubmit}
+            disabled={!isFormReady || isSubmitting}
+            loading={isSubmitting}
+            variant="primary"
           />
-
-          <BottomContent>
-            <StyledButton
-              title={t("common.submit")}
-              onPress={handleSubmit}
-              disabled={!isFormReady || isSubmitting}
-              loading={isSubmitting}
-              variant="primary"
-            />
-          </BottomContent>
-        </InnerScrollView>
-      </Container>
+        </View>
+      </View>
 
       <CustomAlert
         visible={alertVisible}
