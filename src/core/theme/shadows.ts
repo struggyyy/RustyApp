@@ -14,10 +14,13 @@
 // React-specific imports
 import { StyleSheet } from "react-native";
 
+// Internal imports
+import colors from "./colors";
+
 const shadows = {
   // Card shadows
   card: {
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -26,7 +29,7 @@ const shadows = {
 
   // Button shadows
   button: {
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
@@ -35,7 +38,7 @@ const shadows = {
 
   // Modal shadows (stronger)
   modal: {
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -44,7 +47,7 @@ const shadows = {
 
   // Muted shadows for subtle effects
   muted: {
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.18,
     shadowRadius: 1.0,

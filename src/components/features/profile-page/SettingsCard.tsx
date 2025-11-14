@@ -58,7 +58,7 @@ const NotificationRow = styled.View`
 
 const NotificationLabel = styled.Text`
   font-size: 16px;
-  color: ${colors.text.secondary};
+  color: ${colors.text.primary};
 `;
 
 const LanguageToggle = styled.TouchableOpacity`
@@ -82,7 +82,7 @@ const LanguageOption = styled.View<{ isSelected: boolean }>`
 const LanguageText = styled.Text<{ isSelected: boolean }>`
   font-size: 16px;
   font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
-  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.secondary};
+  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.primary};
 `;
 
 const DeleteAccountButton = styled.TouchableOpacity`
@@ -94,7 +94,7 @@ const DeleteAccountButton = styled.TouchableOpacity`
 const DeleteAccountText = styled.Text`
   font-size: 16px;
   font-weight: bold;
-  color: ${colors.text.secondary};
+  color: ${colors.text.primary};
 `;
 
 const SettingsCardComponent: React.FC<SettingsCardProps> = ({
@@ -208,7 +208,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         <Feather
           name={isExpanded ? "chevron-up" : "chevron-down"}
           size={24}
-          color={colors.text.secondary}
+          color={colors.text.primary}
         />
       </ExpandArrow>
       {isExpanded && onDeleteAccount && (

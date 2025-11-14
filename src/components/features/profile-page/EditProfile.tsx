@@ -77,7 +77,7 @@ const ExpandedAvatarWrapper = styled.View`
   width: 120px;
   height: 120px;
   border-radius: 60px;
-  background-color: #eee;
+  background-color: ${colors.background.secondary};
   justify-content: center;
   align-items: center;
   border: 5px solid ${colors.primary};
@@ -95,14 +95,14 @@ const ExpandedAvatarPlaceholder = styled.View`
   width: 100%;
   height: 100%;
   border-radius: 60px;
-  background-color: #ccc;
+  background-color: ${colors.background.secondary};
   justify-content: center;
   align-items: center;
 `;
 
 const ExpandedAvatarPlaceholderText = styled.Text`
   font-size: 40px;
-  color: #fff;
+  color: ${colors.white};
   font-weight: bold;
 `;
 
@@ -117,7 +117,7 @@ const EditIconButton = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
   z-index: 5;
-  border: 4px solid #BD5151;
+  border: 4px solid ${colors.primary};
 `;
 
 const EditLabel = styled.Text`
@@ -145,14 +145,14 @@ const EmailTouchable = styled.TouchableOpacity`
 
 const EmailText = styled.Text`
   font-size: 16px;
-  color: ${colors.text.secondary};
+  color: ${colors.text.primary};
   text-align: center;
 `;
 
 const PointsText = styled.Text`
   font-size: 14px;
   font-weight: bold;
-  color: ${colors.text.secondary};
+  color: ${colors.text.primary};
   margin-top: 2px;
 `;
 
@@ -167,7 +167,7 @@ const AvatarWrapper = styled.View`
   width: 80px;
   height: 80px;
   border-radius: 40px;
-  background-color: #eee;
+  background-color: ${colors.background.secondary};
   justify-content: center;
   align-items: center;
   border: 5px solid ${colors.primary};
@@ -184,14 +184,14 @@ const AvatarPlaceholder = styled.View`
   width: 100%;
   height: 100%;
   border-radius: 40px;
-  background-color: #ccc;
+  background-color: ${colors.background.secondary};
   justify-content: center;
   align-items: center;
 `;
 
 const AvatarPlaceholderText = styled.Text`
   font-size: 30px;
-  color: #fff;
+  color: ${colors.white};
   font-weight: bold;
 `;
 
@@ -204,7 +204,7 @@ const Nickname = styled.Text`
 
 const ModalOverlay = styled.View({
   flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  backgroundColor: colors.background.overlay,
   justifyContent: 'center',
   alignItems: 'center',
   padding: 20,
@@ -336,7 +336,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
             <AvatarTouchable onPress={() => { if (!uploading) { haptics.heavy(); handleChoosePhoto(); } }} disabled={uploading}>
               <ExpandedAvatarWrapper>
                 {uploading ? (
-                  <ActivityIndicator size="large" color="#fff" />
+                  <ActivityIndicator size="large" color={colors.white} />
                 ) : tempImageUri ? (
                   <ExpandedAvatarImage source={{ uri: tempImageUri }} />
                 ) : profileImageUrl ? (
@@ -360,7 +360,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
                 value={editedNickname}
                 onChangeText={onNicknameChange}
                 placeholder={t('auth.nickname')}
-                placeholderTextColor={colors.text.secondary}
+                placeholderTextColor={colors.text.primary}
                 editable={!uploading}
                 onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
               />
@@ -399,7 +399,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
               >
                 <AvatarWrapper>
                   {uploading ? (
-                    <ActivityIndicator size="small" color="#fff" />
+                    <ActivityIndicator size="small" color={colors.white} />
                   ) : profileImageUrl ? (
                     <AvatarImage source={{ uri: profileImageUrl }} />
                   ) : (

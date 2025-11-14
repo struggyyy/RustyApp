@@ -32,7 +32,7 @@ const HeaderBackButton: React.FC<HeaderBackButtonProps> = ({
       <MaterialIcons
         name="arrow-back"
         size={24}
-        color={disabled ? colors.text.secondary : colors.text.primary}
+        color={disabled ? colors.text.tertiary : colors.text.primary}
       />
     </TouchableOpacity>
   );

@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   statusNote: {
     fontSize: 14,
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.tertiary,
     marginBottom: 16,
     fontStyle: "italic",
   },

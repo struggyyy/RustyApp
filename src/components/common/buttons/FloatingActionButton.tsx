@@ -25,7 +25,7 @@ const FloatingButtonContainer = styled.TouchableOpacity<StyledProps>((props: Sty
   width: props.size,
   height: props.size,
   borderRadius: props.size / 2,
-  backgroundColor: props.disabled ? colors.text.secondary : (props.backgroundColor || "rgba(255, 255, 255, 0.9)"),
+  backgroundColor: props.disabled ? colors.text.primary : (props.backgroundColor || colors.background.semiTransparent),
   justifyContent: "center",
   alignItems: "center",
   // Remove shadow properties from styled-components - apply via style prop

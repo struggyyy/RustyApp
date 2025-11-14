@@ -23,11 +23,11 @@ const palette = {
   // Neutral grays
   neutral: {
     50: "#FFFFFF", // White backgrounds, text on dark
-    100: "#F5F5F5", // Light gray backgrounds
-    200: "#D9D9D9", // Component backgrounds, borders
-    300: "#9E9E9E", // Tertiary text, disabled states
-    400: "#757575", // Secondary text
-    500: "#656565", // Primary text
+    100: "#CCCCCC", // Medium gray for backgrounds and borders
+    200: "#9E9E9E", // Tertiary text, disabled states
+    300: "#656565", // Primary text
+    400: "#333333", // Dark gray text
+    500: "#000000", // Black for shadows
   },
 
   // Status colors
@@ -61,7 +61,7 @@ export const getStatusColor = (
     case "Canceled":
       return palette.status.Canceled;
     default:
-      return palette.neutral[500]; // primary text color
+      return palette.neutral[300]; // primary text color
   }
 };
 
@@ -73,23 +73,23 @@ const colors = {
   // Backgrounds
   background: {
     primary: palette.neutral[50], // Main app background
-    secondary: palette.neutral[200], // Component backgrounds
-    tertiary: palette.neutral[100], // Alternative component backgrounds
+    secondary: palette.neutral[100], // Component backgrounds
+    semiTransparent: "rgba(255, 255, 255, 0.9)", // Semi-transparent white
+    overlay: "rgba(0, 0, 0, 0.5)", // Modal overlay
+    overlayLight: "rgba(0, 0, 0, 0.3)", // Lighter modal overlay for nested modals
   },
 
   // Text colors
   text: {
-    primary: palette.neutral[500], // Main text color
-    secondary: palette.neutral[400], // Secondary text
-    tertiary: palette.neutral[300], // Tertiary text / placeholders
+    primary: palette.neutral[300], // Main text color
+    tertiary: palette.neutral[200], // Tertiary text / placeholders
     inverse: palette.neutral[50], // Text on dark backgrounds
-    disabled: palette.neutral[300], // Disabled text
-    light: palette.neutral[300], // Light text (alias for tertiary)
+    dark: palette.neutral[400], // Dark text
   },
 
   // Interactive elements
   border: {
-    default: palette.neutral[200], // Default borders
+    default: palette.neutral[100], // Default borders
   },
 
   // Status colors
@@ -103,6 +103,8 @@ const colors = {
 
   // Utility
   white: palette.neutral[50],
+  black: palette.neutral[500],
+  shadow: "rgba(0, 0, 0, 0.15)", // For gradients
 
   // Utility functions
   getStatusColor,

@@ -36,7 +36,7 @@ const MapPlaceholderView = styled.View({
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: colors.background.tertiary,
+  backgroundColor: colors.background.primary,
 });
 
 const LoadingMapText = styled.Text({
@@ -95,7 +95,7 @@ export function MapComponent({
         >
           <Text
             style={{
-              color: colors.text.light,
+              color: colors.text.tertiary,
               textAlign: "center",
               fontWeight: "bold",
             }}

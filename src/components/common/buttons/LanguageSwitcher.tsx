@@ -21,6 +21,7 @@ import * as Haptics from "expo-haptics";
 // Internal imports
 import i18n from "../../../core/i18n/i18n";
 import theme from "../../../core/theme";
+import colors from "../../../core/theme/colors";
 
 const styles = StyleSheet.create({
   switcherContainer: {
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: colors.background.semiTransparent,
   },
   flagText: {
     fontSize: 20,
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
   languageText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: colors.text.dark,
   },
 });
 

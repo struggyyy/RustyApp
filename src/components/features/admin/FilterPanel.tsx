@@ -145,7 +145,7 @@ const CollapsedFilterTop = styled.View`
 
 const StatusInfo = styled.Text`
   font-size: 14px;
-  color: ${theme.colors.text.secondary};
+  color: ${theme.colors.text.primary};
   margin-bottom: 2px;
   font-weight: bold;
   flex-shrink: 0;
@@ -153,7 +153,7 @@ const StatusInfo = styled.Text`
 
 const DistanceInfo = styled.Text`
   font-size: 14px;
-  color: ${theme.colors.text.secondary};
+  color: ${theme.colors.text.primary};
   font-weight: bold;
   flex-shrink: 0;
 `;
@@ -233,7 +233,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <DistanceInfo>{t('admin.radius')}: {maxDistance || 0} km</DistanceInfo>
             </View>
             <View style={{ marginLeft: 12 }}>
-              <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.secondary} />
+              <MaterialIcons name="keyboard-arrow-down" size={26} color={theme.colors.text.primary} />
             </View>
             <View style={{ flex: 1 }} />
             <TouchableOpacity onPress={() => { haptics.heavy(); onProfile(); }}>
@@ -326,7 +326,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 containerStyle={{ width: 100, height: 200 }}
                 itemTextStyle={{
                   fontSize: 16,
-                  color: theme.colors.text.secondary,
+                  color: theme.colors.text.primary,
                 }}
                 visibleRest={2}
               />

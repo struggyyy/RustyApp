@@ -45,7 +45,7 @@ const ButtonTouchable = styled.TouchableOpacity<{
 }>((props: { isDisabled: boolean; variant: "primary" | "secondary" }) => ({
   backgroundColor:
     props.variant === "secondary"
-      ? theme.colors.text.secondary
+      ? theme.colors.text.primary
       : props.isDisabled
       ? theme.colors.primary
       : theme.colors.primary,

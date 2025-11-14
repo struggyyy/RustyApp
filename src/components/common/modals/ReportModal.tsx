@@ -24,7 +24,7 @@ interface ReportModalProps {
 // Styled Components
 const ModalOverlay = styled.View({
   flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  backgroundColor: colors.background.overlay,
   justifyContent: 'center',
   alignItems: 'center',
   padding: 20,
@@ -143,7 +143,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
                 onPress={onViewReport}
                 style={{
                   flex: 1,
-                  backgroundColor: colors.text.secondary,
+                  backgroundColor: colors.text.primary,
                   padding: 14,
                   borderRadius: 20,
                   alignItems: 'center',

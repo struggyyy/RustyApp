@@ -128,7 +128,7 @@ export function MapSection({
           ))}
         </MapComponent>
         <InsetShadowGradientView
-          colors={["rgba(0,0,0,0.15)", "transparent"]}
+          colors={[colors.shadow, "transparent"]}
           pointerEvents="none"
         />
         <MapControls

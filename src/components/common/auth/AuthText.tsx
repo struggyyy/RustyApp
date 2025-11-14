@@ -37,7 +37,7 @@ export const AuthSubtitle = styled.Text({
   fontSize: theme.typography.fontSize.body1,
   marginBottom: theme.spacing.XL,
   textAlign: "center",
-  color: theme.colors.text.secondary,
+  color: theme.colors.text.primary,
 });
 
 export const AuthErrorText = styled.Text({
@@ -48,7 +48,7 @@ export const AuthErrorText = styled.Text({
 });
 
 export const AuthLink = styled.Text<AuthLinkProps>((props: AuthLinkProps) => ({
-  color: props.disabled ? theme.colors.text.disabled : theme.colors.primary,
+  color: props.disabled ? theme.colors.text.tertiary : theme.colors.primary,
   fontSize: theme.typography.fontSize.body2,
   fontWeight: "bold",
   textAlign: "center",

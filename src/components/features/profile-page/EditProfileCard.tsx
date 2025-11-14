@@ -40,7 +40,7 @@ const CollapsedContent = styled.View({
 
 const CollapsedText = styled.Text({
   fontSize: 16,
-  color: colors.text.secondary,
+  color: colors.text.tertiary,
   fontWeight: '500',
 });
 
@@ -71,7 +71,7 @@ const ExpandedAvatarWrapper = styled.View`
   width: 120px;
   height: 120px;
   border-radius: 60px;
-  background-color: #eee;
+  background-color: ${colors.background.secondary};
   justify-content: center;
   align-items: center;
   border: 5px solid ${colors.primary};
@@ -89,14 +89,14 @@ const ExpandedAvatarPlaceholder = styled.View`
   width: 100%;
   height: 100%;
   border-radius: 60px;
-  background-color: #ccc;
+  background-color: ${colors.background.secondary};
   justify-content: center;
   align-items: center;
 `;
 
 const ExpandedAvatarPlaceholderText = styled.Text`
   font-size: 40px;
-  color: #fff;
+  color: ${colors.white};
   font-weight: bold;
 `;
 
@@ -111,7 +111,7 @@ const EditIconButton = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
   z-index: 5;
-  border: 4px solid #BD5151;
+  border: 4px solid ${colors.primary};
 `;
 
 const EditLabel = styled.Text`
@@ -134,7 +134,7 @@ const EditInput = styled.TextInput`
 
 const EmailText = styled.Text`
   font-size: 16px;
-  color: ${colors.text.secondary};
+  color: ${colors.text.primary};
   text-align: center;
 `;
 
@@ -144,7 +144,7 @@ const EmailTouchable = styled.TouchableOpacity`
 `;
 
 const ActionButton = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
-  backgroundColor: props.variant === 'primary' ? colors.primary : colors.text.secondary,
+  backgroundColor: props.variant === 'primary' ? colors.primary : colors.background.secondary,
   padding: 14,
   borderRadius: 20,
   alignItems: 'center',
@@ -152,7 +152,7 @@ const ActionButton = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary'
 }));
 
 const ActionButtonText = styled.Text<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
-  color: props.variant === 'primary' ? colors.white : colors.white,
+  color: props.variant === 'primary' ? colors.white : colors.text.primary,
   fontWeight: 'bold',
   fontSize: 14,
 }));
@@ -165,7 +165,7 @@ const ActionButtonsContainer = styled.View({
 
 const ActionButtonFlex = styled.TouchableOpacity<{ variant?: 'primary' | 'secondary' }>((props: { variant?: 'primary' | 'secondary' }) => ({
   flex: 1,
-  backgroundColor: props.variant === 'primary' ? colors.primary : colors.text.secondary,
+  backgroundColor: props.variant === 'primary' ? colors.primary : colors.background.secondary,
   padding: 14,
   borderRadius: 20,
   alignItems: 'center',
@@ -259,7 +259,7 @@ const EditProfileCard: React.FC<EditProfileCardProps> = ({
             <AvatarTouchable onPress={onChoosePhoto} disabled={uploading}>
               <ExpandedAvatarWrapper>
                 {uploading ? (
-                  <ActivityIndicator size="large" color="#fff" />
+                  <ActivityIndicator size="large" color={colors.white} />
                 ) : tempImageUri ? (
                   <ExpandedAvatarImage source={{ uri: tempImageUri }} />
                 ) : profileImageUrl ? (
@@ -282,7 +282,7 @@ const EditProfileCard: React.FC<EditProfileCardProps> = ({
               value={editedNickname}
               onChangeText={setEditedNickname}
               placeholder="Enter your nickname"
-              placeholderTextColor={colors.text.secondary}
+              placeholderTextColor={colors.text.primary}
               editable={!uploading}
             />
 
@@ -309,7 +309,7 @@ const EditProfileCard: React.FC<EditProfileCardProps> = ({
           <CollapsedContent>
             <CollapsedText>Click to edit your profile</CollapsedText>
             <ExpandButton>
-              <MaterialIcons name="expand-more" size={24} color={colors.text.secondary} />
+              <MaterialIcons name="expand-more" size={24} color={colors.text.primary} />
             </ExpandButton>
           </CollapsedContent>
         )}

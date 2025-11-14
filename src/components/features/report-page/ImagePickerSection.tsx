@@ -83,7 +83,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
         <ImageOverlayActions>
           <TouchableButton
             style={{
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              backgroundColor: colors.background.overlay,
               borderRadius: spacing.radius.L,
               padding: spacing.XS,
               marginLeft: spacing.S,

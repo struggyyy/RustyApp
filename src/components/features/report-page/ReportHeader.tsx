@@ -38,7 +38,7 @@ const Title = styled.Text({
 
 const Subtitle = styled.Text({
   fontSize: 14,
-  color: colors.text.secondary,
+  color: colors.text.tertiary,
   textAlign: "center",
   marginBottom: spacing.M,
   lineHeight: "20px",

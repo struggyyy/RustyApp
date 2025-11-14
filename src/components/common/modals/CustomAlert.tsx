@@ -28,7 +28,7 @@ interface ButtonVariant {
 // Styled Components
 const ModalOverlay = styled.View({
   flex: 1,
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  backgroundColor: colors.background.overlay,
   justifyContent: "center",
   alignItems: "center",
   padding: 20,
@@ -79,7 +79,7 @@ const AlertButton = styled.TouchableOpacity<ButtonVariant>(
         : props.variant === "destructive"
         ? colors.primary
         : props.variant === "cancel"
-        ? colors.text.secondary
+        ? colors.text.primary
         : colors.background.secondary,
     padding: 14,
     borderRadius: 20,
@@ -145,7 +145,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
                     : buttonVariant === "destructive"
                     ? colors.primary
                     : buttonVariant === "cancel"
-                    ? colors.text.secondary
+                    ? colors.text.primary
                     : colors.background.secondary,
                 padding: 14,
                 borderRadius: 20,

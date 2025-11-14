@@ -32,7 +32,7 @@ interface CardContainerProps {
 const CardContainer = styled.View<CardContainerProps>(
   (props: CardContainerProps) => ({
     backgroundColor: colors.white,
-    borderRadius: spacing.radius.M,
+    borderRadius: spacing.radius.L,
     padding: spacing.layout.cardPadding,
     marginBottom: spacing.M,
     flexDirection: props.isExpanded ? 'column' : 'row',
@@ -61,19 +61,19 @@ const ReportStatusText = styled.Text<StatusTextProps>(
   (props: StatusTextProps) => ({
     fontSize: typography.fontSize.h6,
     color: props.color,
-    marginBottom: spacing.S,
+    marginBottom: spacing.M,
   })
 );
 
 const StatusNote = styled.Text({
   fontSize: typography.fontSize.body2,
-  color: colors.text.secondary,
+  color: colors.text.tertiary,
   marginBottom: spacing.layout.cardPadding,
   fontStyle: 'italic',
 });
 
 const DetailsButton = styled.TouchableOpacity({
-  backgroundColor: colors.text.secondary,
+  backgroundColor: colors.text.primary,
   paddingVertical: spacing.component.buttonPadding,
   paddingHorizontal: spacing.L,
   borderRadius: spacing.radius.L,
@@ -81,7 +81,7 @@ const DetailsButton = styled.TouchableOpacity({
 });
 
 const DetailsButtonText = styled.Text({
-  color: colors.text.inverse,
+  color: colors.white,
   fontWeight: 'bold',
   fontSize: typography.fontSize.caption,
 });
@@ -393,7 +393,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
           <TouchableButton
             onPress={() => onDetailsPress?.(report)}
             style={{
-              backgroundColor: colors.text.secondary,
+              backgroundColor: colors.text.primary,
               paddingVertical: spacing.component.buttonPadding,
               paddingHorizontal: spacing.XL,
               borderRadius: spacing.radius.L,

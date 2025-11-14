@@ -82,12 +82,12 @@ export const ReportFormCard: React.FC<ReportFormCardProps> = ({
   return (
     <MainCard>
       <InsetShadowGradientView
-        colors={["rgba(0,0,0,0.15)", "transparent"]}
+        colors={[colors.shadow, "transparent"]}
         pointerEvents="none"
       />
       <DescriptionInput
         placeholder={t("reports.vehicleDescription")}
-        placeholderTextColor={colors.text.secondary}
+        placeholderTextColor={colors.text.primary}
         value={description}
         onChangeText={onDescriptionChange}
         onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}

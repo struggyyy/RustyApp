@@ -63,7 +63,7 @@ const PickerItem = styled.View<{ isSelected: boolean }>`
 const PickerText = styled.Text<{ isSelected: boolean }>`
   font-size: 16px;
   color: ${(props: { isSelected: boolean }) =>
-    props.isSelected ? theme.colors.primary : theme.colors.text.secondary};
+    props.isSelected ? theme.colors.primary : theme.colors.text.primary};
   font-weight: ${(props: { isSelected: boolean }) =>
     props.isSelected ? '600' : '400'};
 `;

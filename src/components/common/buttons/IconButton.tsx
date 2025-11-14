@@ -32,7 +32,7 @@ const IconButtonContainer = styled.View<IconButtonContainerProps>((props: IconBu
   width: props.size,
   height: props.size,
   borderRadius: props.size / 2,
-  backgroundColor: props.disabled ? colors.text.secondary : (props.backgroundColor || "transparent"),
+  backgroundColor: props.disabled ? colors.text.tertiary : (props.backgroundColor || "transparent"),
   justifyContent: "center",
   alignItems: "center",
 }));
@@ -84,7 +84,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       >
         {React.cloneElement(children as React.ReactElement<any>, {
           size: iconSize || size * 0.6, // Default to 60% of button size for better visibility
-          color: disabled ? colors.text.secondary : color,
+          color: disabled ? colors.text.tertiary : color,
         })}
       </IconButtonContainer>
     </TouchableContainer>
