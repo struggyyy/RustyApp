@@ -163,8 +163,8 @@ export default function AdminReportModal({
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              haptics.heavy();
               onClose();
+              haptics.heavy();
             }}
           >
             <MaterialIcons

@@ -26,19 +26,19 @@ export const useAuthNavigation = () => {
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
 
-  // Monitor authentication state and route segments to handle navigation redirects
+  // Handle navigation based on authentication state
   useEffect(() => {
-    // Wait for initial auth loading to complete
+    // Wait for auth initialization
     if (initialLoading) {
-      return; // Still loading, do nothing.
+      return;
     }
 
-    // Determine current route types
+    // Identify current route types
     const isAuthRoute =
       segments[0] === "login" ||
       segments[0] === "signup" ||
       segments[0] === "forgot-password" ||
-      segments[0] === "reset-password";
+      segments[0] === "verify-email";
     const isVerifyEmailRoute = segments[0] === "verify-email";
     const isAdminRoute =
       segments[0] === "admin" || segments[0] === "admin-profile";
@@ -74,17 +74,18 @@ export const useAuthNavigation = () => {
       router.replace("/admin");
     }
 
-    setIsReady(true); // Auth state is now known.
+    setIsReady(true);
   }, [user, initialLoading, segments, router, isAdmin]);
 
+  // Determine if loading screen should be shown
   const shouldShowLoading = !isReady || (user && !profileLoaded);
 
+  // Check if user is trying to access admin routes without permission
   const isAdminRouteAccessDenied =
     user &&
     !isAdmin &&
     (segments[0] === "admin" || segments[0] === "admin-profile");
 
-  // Return loading and access denial states for component consumption
   return {
     shouldShowLoading,
     isAdminRouteAccessDenied,

@@ -16,7 +16,7 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Modal } from "react-native";
 
 // External libraries
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
 import { useAuth } from "../src/core/context/AuthContext";
@@ -69,6 +69,7 @@ export default function AdminDashboard() {
   const { isAdmin } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
+  const { reportId } = useLocalSearchParams();
 
   // Report management hook
   const {
@@ -95,12 +96,32 @@ export default function AdminDashboard() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
 
+  // Track processed report IDs to prevent duplicate modal opens
+  const [processedReportId, setProcessedReportId] = useState<string | null>(null);
+
   // Redirect non-admin users
   useEffect(() => {
     if (!isAdmin) {
       router.replace("/home");
     }
   }, [isAdmin, router]);
+
+  // Handle deep linking to specific report from notification
+  useEffect(() => {
+    const normalizedReportId = Array.isArray(reportId) ? reportId[0] : reportId;
+    if (normalizedReportId && reports.length > 0 && !loading && normalizedReportId !== processedReportId) {
+      const report = reports.find((r) => r.id === normalizedReportId);
+      if (report) {
+        setSelectedReport(report);
+        setShowReportModal(true);
+        setProcessedReportId(normalizedReportId);
+        // Clear URL param after opening the modal with a small delay
+        setTimeout(() => {
+          router.setParams({});
+        }, 100);
+      }
+    }
+  }, [reportId, reports, loading, router, processedReportId]);
 
   // Modal handlers
   const handleModalClose = () => {
@@ -165,7 +186,7 @@ export default function AdminDashboard() {
           </View>
         </View>
 
-        <Modal visible={showReportModal} transparent animationType="fade">
+        <Modal key={showReportModal ? 'visible' : 'hidden'} visible={showReportModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={[styles.modalContent, theme.shadows.modal]}>
               {selectedReport && (

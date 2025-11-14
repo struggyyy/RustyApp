@@ -14,27 +14,23 @@
 // React-specific imports
 import { useState, useEffect, useCallback } from "react";
 
-// External libraries
-import * as Location from "expo-location";
-
 // Internal imports
 import { Report as ReportType, ReportStatus } from "../../types/reports";
 import { useAuth } from "../../../core/context/AuthContext";
+import { useLocation } from "../common/useLocation";
+import { getDistance } from "../../utils/map";
 
 export function useAdminFilters(reports: ReportType[]) {
+  // Get user profile and location from hooks
   const { profile, updateUserProfile } = useAuth();
+  const { location: currentLocation, isLocationLoading } = useLocation();
 
-  // Filter state
+  // Filter state management
   const [selectedStatuses, setSelectedStatuses] = useState<ReportStatus[]>([]);
   const [maxDistance, setMaxDistance] = useState<number | null>(5);
-  const [userLocation, setUserLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [locationLoading, setLocationLoading] = useState(true);
   const [filteredReports, setFilteredReports] = useState<ReportType[]>([]);
 
-  // Load saved preferences
+  // Load saved filter preferences from user profile
   useEffect(() => {
     if (profile?.adminPreferences) {
       const { selectedStatuses: savedStatuses, maxDistance: savedDistance } =
@@ -48,72 +44,42 @@ export function useAdminFilters(reports: ReportType[]) {
     }
   }, [profile]);
 
-  // Request user location
-  useEffect(() => {
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === "granted") {
-          const location = await Location.getCurrentPositionAsync({});
-          setUserLocation({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          });
-        }
-      } catch (error) {
-        console.error("Error getting location:", error);
-      } finally {
-        setLocationLoading(false);
-      }
-    })();
-  }, []);
-
-  // Calculate distance using Haversine formula
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ): number => {
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
-  // Apply filters
+  // Apply status and distance filters to reports
   useEffect(() => {
     let filtered = [...reports];
 
+    // Filter by selected statuses
     if (selectedStatuses.length > 0) {
       filtered = filtered.filter((report) =>
         selectedStatuses.includes(report.status)
       );
     }
 
-    if (maxDistance !== null && userLocation && !locationLoading) {
+    // Filter by distance from user location
+    if (maxDistance !== null && currentLocation && !isLocationLoading) {
       filtered = filtered.filter((report) => {
-        const distance = calculateDistance(
-          userLocation.latitude,
-          userLocation.longitude,
+        const distanceInMeters = getDistance(
+          currentLocation.coords.latitude,
+          currentLocation.coords.longitude,
           report.location.latitude,
           report.location.longitude
         );
-        return distance <= maxDistance;
+        // Convert meters to kilometers for comparison
+        const distanceInKm = distanceInMeters / 1000;
+        return distanceInKm <= maxDistance;
       });
     }
 
     setFilteredReports(filtered);
-  }, [reports, selectedStatuses, maxDistance, userLocation, locationLoading]);
+  }, [
+    reports,
+    selectedStatuses,
+    maxDistance,
+    currentLocation,
+    isLocationLoading,
+  ]);
 
-  // Save preferences
+  // Save filter preferences to user profile
   const savePreferences = useCallback(
     async (statuses: ReportStatus[], distance: number | null) => {
       try {
@@ -130,7 +96,7 @@ export function useAdminFilters(reports: ReportType[]) {
     [updateUserProfile]
   );
 
-  // Handlers
+  // Filter change handlers with preference persistence
   const handleStatusFilterChange = useCallback(
     (statuses: ReportStatus[]) => {
       setSelectedStatuses(statuses);
@@ -150,7 +116,7 @@ export function useAdminFilters(reports: ReportType[]) {
   return {
     selectedStatuses,
     maxDistance,
-    locationLoading,
+    locationLoading: isLocationLoading,
     filteredReports,
     handleStatusFilterChange,
     handleDistanceFilterChange,

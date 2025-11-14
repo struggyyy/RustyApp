@@ -17,26 +17,47 @@ import { useState } from "react";
 // External libraries
 import * as ImagePicker from "expo-image-picker";
 
+// Configuration options for image picker
+interface ImagePickerOptions {
+  aspect?: [number, number];
+  quality?: number;
+  allowsEditing?: boolean;
+}
+
 export const useImagePicker = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
 
-  // Image picker functions
-  const pickImage = async (useCamera: boolean) => {
+  // Pick image from camera or gallery with configurable options
+  const pickImage = async (
+    useCamera: boolean,
+    options: ImagePickerOptions = {}
+  ) => {
+    // Default configuration
+    const {
+      aspect = [4, 3], // Default aspect ratio
+      quality = 0.5, // Default quality
+      allowsEditing = true,
+    } = options;
+
+    // Choose picker type
     const action = useCamera
       ? ImagePicker.launchCameraAsync
       : ImagePicker.launchImageLibraryAsync;
 
+    // Launch picker with configuration
     const result = await action({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.5,
+      allowsEditing,
+      aspect,
+      quality,
     });
 
+    // Update state if image was selected
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
     }
   };
 
+  // Clear selected image
   const handleCancelImage = () => {
     setImageUri(null);
   };

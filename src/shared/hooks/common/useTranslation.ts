@@ -15,12 +15,13 @@
 import { useCallback, useState, useEffect } from "react";
 
 // Internal imports
-import i18n from '../../../core/i18n/i18n';
+import i18n from "../../../core/i18n/i18n";
 
 export const useTranslation = () => {
-  // Force re-render when language changes
+  // Track language changes to trigger re-renders
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
+  // Listen for language changes
   useEffect(() => {
     const handleLanguageChange = (lng: string) => {
       setCurrentLanguage(lng);
@@ -28,18 +29,20 @@ export const useTranslation = () => {
 
     i18n.on("languageChanged", handleLanguageChange);
 
+    // Cleanup listener
     return () => {
       i18n.off("languageChanged", handleLanguageChange);
     };
   }, []);
 
+  // Translation function with type safety
   const t = useCallback(
     (key: string, options?: any): string => {
       const result = i18n.t(key, options);
       return typeof result === "string" ? result : String(result);
     },
     [currentLanguage]
-  ); // Now depends on currentLanguage
+  );
 
   return {
     t,

@@ -26,12 +26,13 @@ import {
 } from "../../../lib/firebase/reports";
 
 export function useReportManagement(isAdmin: boolean) {
+  // Report data state
   const [reports, setReports] = useState<ReportType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch all reports
+  // Fetch all reports from database
   const fetchAllReports = useCallback(async () => {
     if (!isAdmin) {
       setLoading(false);
@@ -51,7 +52,7 @@ export function useReportManagement(isAdmin: boolean) {
     }
   }, [isAdmin]);
 
-  // Load reports on focus
+  // Load reports when screen gains focus
   useFocusEffect(
     useCallback(() => {
       if (isAdmin) {
@@ -61,7 +62,7 @@ export function useReportManagement(isAdmin: boolean) {
     }, [fetchAllReports, isAdmin])
   );
 
-  // Refresh handler
+  // Handle pull-to-refresh
   const onRefresh = useCallback(() => {
     if (isAdmin) {
       setRefreshing(true);
@@ -69,7 +70,7 @@ export function useReportManagement(isAdmin: boolean) {
     }
   }, [fetchAllReports, isAdmin]);
 
-  // Delete report
+  // Delete report and update local state
   const handleReportDelete = async (deletedReportId: string) => {
     try {
       const reportToDelete = reports.find(
@@ -86,7 +87,7 @@ export function useReportManagement(isAdmin: boolean) {
     }
   };
 
-  // Update status
+  // Update report status and sync local state
   const handleStatusChange = async (
     reportId: string,
     newStatus: ReportStatus

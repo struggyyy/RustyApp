@@ -12,7 +12,14 @@
     "loading": "Ładowanie danych mapy...",
     "error": "Błąd",
     "success": "Sukces",
+    "warning": "Ostrzeżenie",
+    "info": "Informacja",
     "submit": "WYŚLIJ",
+    "continue": "Kontynuuj",
+    "confirm": "Potwierdź",
+    "yes": "Tak",
+    "no": "Nie",
+    "more": "Więcej",
     "navigate": "Nawiguj",
     "seeDetails": "Zobacz więcej"
   },
@@ -43,7 +50,10 @@
     "emailAlreadyInUse": "Ten adres email jest już zarejestrowany. Spróbuj się zalogować?",
     "tooManyRequests": "Dostęp tymczasowo zablokowany z powodu zbyt wielu nieudanych prób logowania. Zresetuj hasło lub spróbuj ponownie później.",
     "verificationSent": "Email weryfikacyjny wysłany.",
+    "passwordResetSent": "Email resetowania hasła wysłany.",
     "passwordResetError": "Resetowanie hasła nie powiodło się.",
+    "logoutError": "Wylogowanie nie powiodło się.",
+    "verificationError": "Nie udało się ponownie wysłać emaila weryfikacyjnego.",
     "emailRequired": "Wprowadź swój adres email",
     "passwordRequired": "Wprowadź swoje hasło",
     "nicknameRequired": "Nick jest wymagany.",
@@ -61,12 +71,18 @@
     "verifyEmailTitle": "Zweryfikuj swój email",
     "verifyEmailMessage": "Wysłaliśmy link weryfikacyjny na Twój email. Sprawdź skrzynkę odbiorczą i kliknij link, aby zweryfikować konto.",
     "resendEmail": "Wyślij ponownie email",
-    "emailSentSuccess": "Email wysłany pomyślnie!"
+    "emailSentSuccess": "Email wysłany pomyślnie!",
+    "signInWithEmailLink": "Zaloguj się za pomocą linku email",
+    "emailForSignIn": "Email do logowania"
   },
   "profile": {
     "title": "Twój profil",
     "editProfile": "Edytuj profil",
+    "displayName": "Nick",
     "email": "Email",
+    "choosePhoto": "Wybierz zdjęcie",
+    "takePhoto": "Zrób zdjęcie",
+    "selectFromGallery": "Wybierz z galerii",
     "emailCannotBeChanged": "Twój adres email nie może zostać zmieniony, ponieważ jest używany do weryfikacji konta i bezpieczeństwa.",
     "profileUpdated": "Profil zaktualizowany pomyślnie!",
     "updateError": "Nie udało się zaktualizować profilu.",
@@ -76,16 +92,24 @@
     "deleteAccountConfirm": "Czy na pewno chcesz usunąć swoje konto? Ta akcja jest nieodwracalna.",
     "deleteAccountSuccess": "Twoje konto zostało usunięte.",
     "deleteAccountError": "Nie udało się usunąć konta.",
+    "deleteAccountStorageError": "Nie udało się usunąć danych profilu. Spróbuj ponownie.",
+    "deleteAccountFirestoreError": "Nie udało się usunąć rekordów konta. Spróbuj ponownie.",
+    "deleteAccountGenericError": "Usunięcie konta nie powiodło się. Spróbuj ponownie. Twoje dane pozostają bezpieczne.",
+    "deleteAccountAuthRequired": "Ta operacja wymaga niedawnego uwierzytelnienia. Zaloguj się ponownie i spróbuj jeszcze raz.",
     "profilePicture": "Zdjęcie profilowe"
   },
   "reports": {
+    "pageTitle": "Moje Zgłoszenia",
     "title": "HISTORIA ZGŁOSZEŃ",
+    "viewAllReports": "Zobacz listę zgłoszeń",
     "noReports": "Nie znaleziono zgłoszeń.",
     "loadingReports": "Ładowanie zgłoszeń...",
     "reportDetails": "Szczegóły",
     "description": "Opis",
     "status": "Status",
     "points": "Punkty",
+    "createdAt": "Utworzone",
+    "location": "Lokalizacja",
     "deleteReport": "Usuń zgłoszenie",
     "deleteReportConfirm": "Czy na pewno chcesz usunąć to zgłoszenie? Ta akcja nie może zostać cofnięta.",
     "deleteReportSuccess": "Twoje zgłoszenie zostało pomyślnie usunięte.",
@@ -133,38 +157,67 @@
   },
   "home": {
     "title": "Strona główna",
+    "welcome": "Witaj w Rusty",
     "yourScore": "TWÓJ WYNIK SPOŁECZNOŚCI",
     "points": "punkty",
     "reportAbandonedVehicle": "ZGŁOŚ SAMOCHÓD",
     "viewReports": "Zobacz moje zgłoszenia",
     "myReports": "MOJE ZGŁOSZENIA",
+    "recentReports": "Ostatnie zgłoszenia",
     "noReportsYet": "Brak zgłoszeń",
     "startReporting": "Zacznij zgłaszać porzucone pojazdy, aby zdobywać punkty!",
+    "quickActions": "Szybkie akcje",
     "report": "Zgłoś",
     "map": "Mapa",
     "profile": "Profil",
+    "nearbyReports": "Zgłoszenia w pobliżu",
     "refreshing": "Odświeżanie..."
   },
   "map": {
     "title": "Mapa",
+    "currentLocation": "Aktualna lokalizacja",
+    "selectLocation": "Wybierz lokalizację",
+    "confirmLocation": "Potwierdź lokalizację",
     "locationPermissionRequired": "Uprawnienia do lokalizacji są wymagane do korzystania z tej funkcji.",
-    "locationError": "Nie udało się uzyskać lokalizacji."
+    "locationError": "Nie udało się uzyskać lokalizacji.",
+    "addMarker": "Dodaj znacznik",
+    "removeMarker": "Usuń znacznik",
+    "pinLocation": "Przypnij lokalizację",
+    "unpinLocation": "Odepnij lokalizację",
+    "locationPinned": "Lokalizacja przypięta",
+    "searchLocation": "Szukaj lokalizacji..."
   },
   "admin": {
     "title": "Panel Administratora",
     "profileTitle": "Profil Administratora",
+    "dashboard": "Panel",
+    "filterReports": "Filtruj zgłoszenia",
     "filters": "Filtry",
     "status": "Status",
     "reportStatus": "Status zgłoszenia:",
+    "all": "Wszystkie",
     "showAll": "Wszystkie",
+    "pending": "Oczekujące",
+    "accepted": "Zaakceptowane",
+    "completed": "Zakończone",
+    "canceled": "Anulowane",
+    "submitted": "Przesłane",
     "radius": "Promień",
     "selected": "wybrane",
+    "updateStatus": "Zaktualizuj status",
     "statusUpdated": "Status zaktualizowany pomyślnie.",
     "statusUpdateError": "Nie udało się zaktualizować statusu.",
     "noReports": "Nie znaleziono zgłoszeń.",
     "loading": "Ładowanie...",
+    "expandFilter": "Rozwiń filtry",
+    "collapseFilter": "Zwiń filtry",
+    "totalReports": "Wszystkie zgłoszenia",
+    "viewProfile": "Zobacz profil",
     "user": "Użytkownik:",
-    "description": "Opis:"
+    "description": "Opis:",
+    "deleteReportConfirm": "Czy na pewno chcesz usunąć to zgłoszenie?",
+    "reportDeleted": "Zgłoszenie usunięte pomyślnie",
+    "profilePicture": "Zdjęcie profilowe"
   },
   "settings": {
     "title": "Ustawienia",
@@ -173,6 +226,7 @@
     "language": "Język",
     "english": "Angielski",
     "polish": "Polski",
+    "languageSetTo": "Język ustawiony na {{language}}.",
     "settingsUpdated": "Ustawienia zostały pomyślnie zaktualizowane.",
     "settingsError": "Nie udało się zaktualizować ustawień."
   },
@@ -181,14 +235,18 @@
     "cameraPermission": "Uprawnienia do aparatu są wymagane do robienia zdjęć.",
     "galleryPermission": "Uprawnienia do galerii są wymagane do wyboru zdjęć.",
     "locationPermission": "Uprawnienia do lokalizacji są wymagane do dostępu do Twojej lokalizacji.",
-    "notificationPermission": "Uprawnienia do powiadomień są wymagane do otrzymywania aktualizacji."
+    "notificationPermission": "Uprawnienia do powiadomień są wymagane do otrzymywania aktualizacji.",
+    "goToSettings": "Przejdź do ustawień",
+    "later": "Później"
   },
   "permissions": {
     "cameraRollRequired": "Uprawnienia do galerii są wymagane do wyboru zdjęcia."
   },
   "notifications": {
     "reportStatusUpdated": "Status zgłoszenia zaktualizowany",
-    "reportStatusChanged": "Status Twojego zgłoszenia zmienił się z \"{{oldStatus}}\" na \"{{newStatus}}\"."
+    "reportStatusChanged": "Status Twojego zgłoszenia zmienił się z \"{{oldStatus}}\" na \"{{newStatus}}\".",
+    "newReportSubmitted": "Nowe zgłoszenie przesłane",
+    "newReportNotification": "Nowe zgłoszenie zostało przesłane i wymaga sprawdzenia."
   },
   "validation": {
     "required": "To pole jest wymagane.",
@@ -196,6 +254,7 @@
     "passwordTooShort": "Hasło musi mieć co najmniej 6 znaków.",
     "nicknameTooShort": "Nick musi mieć co najmniej 2 znaki.",
     "nicknameTooLong": "Nick nie może być dłuższy niż 15 znaków.",
-    "passwordMismatch": "Hasła nie pasują do siebie."
+    "passwordMismatch": "Hasła nie pasują do siebie.",
+    "unexpectedError": "Wystąpił nieoczekiwany błąd."
   }
 }

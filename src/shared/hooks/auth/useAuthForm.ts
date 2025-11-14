@@ -17,6 +17,7 @@ import { useState, useCallback, useEffect } from "react";
 // External libraries
 import * as Haptics from "expo-haptics";
 
+// Form configuration options
 interface UseAuthFormOptions {
   initialValues?: Record<string, string>;
   onSubmit?: (values: Record<string, string>) => Promise<void> | void;
@@ -30,13 +31,13 @@ export function useAuthForm({
   validateOnChange = true,
   t,
 }: UseAuthFormOptions = {}) {
-  // Form state
+  // Form state management
   const [values, setValues] = useState<Record<string, string>>(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Reset form
+  // Reset form to initial state
   const reset = useCallback(() => {
     setValues(initialValues);
     setErrors({});
@@ -44,7 +45,7 @@ export function useAuthForm({
     setIsSubmitting(false);
   }, [initialValues]);
 
-  // Set field value
+  // Update field value and clear errors
   const setFieldValue = useCallback(
     (field: string, value: string) => {
       setValues((prev) => ({ ...prev, [field]: value }));
@@ -57,17 +58,17 @@ export function useAuthForm({
     [errors, validateOnChange]
   );
 
-  // Set field error
+  // Set validation error for field
   const setFieldError = useCallback((field: string, error: string) => {
     setErrors((prev) => ({ ...prev, [field]: error }));
   }, []);
 
-  // Mark field as touched
+  // Mark field as touched (user interacted with it)
   const setFieldTouched = useCallback((field: string, isTouched = true) => {
     setTouched((prev) => ({ ...prev, [field]: isTouched }));
   }, []);
 
-  // Handle input change
+  // Handle input value changes
   const handleChange = useCallback(
     (field: string) => (value: string) => {
       setFieldValue(field, value);
@@ -75,7 +76,7 @@ export function useAuthForm({
     [setFieldValue]
   );
 
-  // Handle input blur
+  // Handle input blur events
   const handleBlur = useCallback(
     (field: string) => () => {
       setFieldTouched(field, true);
@@ -89,23 +90,31 @@ export function useAuthForm({
 
     // Email validation
     if (values.email && !/\S+@\S+\.\S+/.test(values.email.trim())) {
-      newErrors.email = t ? t("validation.invalidEmail") : "Invalid email format";
+      newErrors.email = t
+        ? t("validation.invalidEmail")
+        : "Invalid email format";
     }
 
     // Password validation (minimum length)
     if (values.password && values.password.length < 6) {
-      newErrors.password = t ? t("validation.passwordTooShort") : "Password must be at least 6 characters";
+      newErrors.password = t
+        ? t("validation.passwordTooShort")
+        : "Password must be at least 6 characters";
     }
 
     // Confirm password validation
     if (values.confirmPassword && values.password !== values.confirmPassword) {
-      newErrors.confirmPassword = t ? t("validation.passwordMismatch") : "Passwords do not match";
+      newErrors.confirmPassword = t
+        ? t("validation.passwordMismatch")
+        : "Passwords do not match";
     }
 
-    // Required fields
+    // Required fields validation
     Object.keys(values).forEach((field) => {
       if (!values[field]?.trim()) {
-        newErrors[field] = t ? t("validation.required") : `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+        newErrors[field] = t
+          ? t("validation.required")
+          : `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
       }
     });
 
@@ -113,18 +122,18 @@ export function useAuthForm({
     return Object.keys(newErrors).length === 0;
   }, [values, t]);
 
-  // Handle form submission
+  // Handle form submission with validation
   const handleSubmit = useCallback(async () => {
     if (isSubmitting) return;
 
-    // Mark all fields as touched
+    // Mark all fields as touched for validation
     const allTouched = Object.keys(values).reduce((acc, field) => {
       acc[field] = true;
       return acc;
     }, {} as Record<string, boolean>);
     setTouched(allTouched);
 
-    // Validate
+    // Validate before submission
     if (!validate()) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
@@ -162,13 +171,13 @@ export function useAuthForm({
   }, [values, validateOnChange]); // Removed 'errors' to prevent infinite loop
 
   return {
-    // State
+    // Form state
     values,
     errors,
     touched,
     isSubmitting,
 
-    // Actions
+    // Form actions
     handleChange,
     handleBlur,
     handleSubmit,

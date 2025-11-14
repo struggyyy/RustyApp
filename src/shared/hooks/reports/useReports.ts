@@ -19,15 +19,18 @@ import { useAuth } from "@/core/context/AuthContext";
 import { getReportsByUserId } from "@/lib/firebase/reports";
 import { Report } from "@/shared/types/reports";
 
+// Hook return type interface
 export interface UseReportsReturn {
   reports: Report[];
   fetchReports: () => Promise<void>;
 }
 
+// Main hook function
 export function useReports(): UseReportsReturn {
   const { user } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
 
+  // Fetch user reports from Firebase
   const fetchReports = useCallback(async () => {
     if (user) {
       try {
@@ -39,6 +42,7 @@ export function useReports(): UseReportsReturn {
     }
   }, [user]);
 
+  // Hook return interface
   return {
     reports,
     fetchReports,

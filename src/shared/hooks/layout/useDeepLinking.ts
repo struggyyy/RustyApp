@@ -1,17 +1,3 @@
-/** *************************************************************************
- *                                                                         *
- *                       Copyright (c) 2025, @struggyyy                    *
- *                                                                         *
- *                             Project: Rusty                              *
- *                                                                         *
- *                         All Rights Reserved                             *
- *                                                                         *
- *         This is unpublished proprietary source code of @struggyyy.      *
- *        The copyright notice above does not evidence any actual          *
- *              or intended publication of such source code.               *
- *                                                                         *
- ************************************************************************** */
-// React specific imports
 import { useEffect } from "react";
 import { Platform } from "react-native";
 
@@ -26,15 +12,16 @@ export const useDeepLinking = () => {
   const { handleSignInWithLink } = useAuth();
   const router = useRouter();
 
-  // Set up deep linking event listeners for non-web platforms
+  // Handle deep links for authentication flows and notifications
   useEffect(() => {
-    // Handle different types of deep link URLs
+    // Process different types of deep link URLs
     const handleDeepLink = (event: { url: string }) => {
-      // Process authentication action links (e.g., email verification)
+      // Handle email verification links
       if (event.url.includes("__/auth/action")) {
         handleSignInWithLink(event.url);
-        // Process password recovery/reset links
-      } else if (
+      }
+      // Handle password reset links
+      else if (
         event.url.includes("type=recovery") ||
         event.url.includes("reset-password")
       ) {
@@ -43,15 +30,24 @@ export const useDeepLinking = () => {
           router.navigate(`/reset-password?token=${token}`);
         }
       }
+      // Handle notification deep links (for report notifications)
+      else if (event.url.includes("reportId=")) {
+        const reportId = event.url.split("reportId=")[1]?.split("&")[0] || "";
+        if (reportId) {
+          // Navigate to admin page with reportId parameter to open specific report modal
+          router.navigate(`/admin?reportId=${reportId}`);
+        }
+      }
     };
 
-    // Initialize deep linking on app start and listen for events
+    // Set up deep linking listeners (non-web platforms only)
     if (Platform.OS !== "web") {
       Linking.getInitialURL().then((url) => {
         if (url) handleDeepLink({ url });
       });
       const subscription = Linking.addEventListener("url", handleDeepLink);
-      // Clean up the event listener on unmount
+
+      // Cleanup event listener
       return () => {
         subscription.remove();
       };

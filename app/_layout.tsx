@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // React specific imports
-import React from "react";
+import React, { useEffect } from "react";
 
 // External libraries
 import "react-native-url-polyfill/auto";
@@ -38,6 +38,7 @@ import colors from "../src/core/theme/colors";
 import { useAuthNavigation } from "../src/shared/hooks/layout/useAuthNavigation";
 import { useDeepLinking } from "../src/shared/hooks/layout/useDeepLinking";
 import "../src/core/i18n/i18n"; // Initialize i18n
+import * as Notifications from "expo-notifications";
 
 // Styled components
 const StyledSafeAreaProvider = styled(SafeAreaProvider)`
@@ -54,6 +55,19 @@ function AuthenticatedStack() {
   const { shouldShowLoading, isAdminRouteAccessDenied } = useAuthNavigation();
   const { isAdmin, profileLoaded } = useAuth();
   useDeepLinking();
+
+  // Handle notification responses (when user taps on a notification)
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      if (data && data.type === 'new_report' && data.reportId) {
+        // Navigate to admin page with specific report to open modal
+        router.navigate(`/admin?reportId=${data.reportId}`);
+      }
+    });
+
+    return () => subscription.remove();
+  }, [router]);
 
   // Show loading screen during authentication checks
   if (shouldShowLoading) {

@@ -88,12 +88,24 @@ export default function ReportScreen() {
     useLocation();
 
   const { imageUri, pickImage, handleCancelImage } = useImagePicker();
+
+  // Wrapper functions for report image picking (landscape aspect ratio)
+  const pickImageFromCamera = () => pickImage(true, { aspect: [4, 3], quality: 0.5 });
+  const pickImageFromLibrary = () => pickImage(false, { aspect: [4, 3], quality: 0.5 });
+
+  // Combined pickImage function for ImagePickerSection interface
+  const handlePickImage = (useCamera: boolean) => {
+    if (useCamera) {
+      pickImageFromCamera();
+    } else {
+      pickImageFromLibrary();
+    }
+  };
+
   const { showAlert } = useAlert();
 
   const [description, setDescription] = useState("");
   const [showInstructions, setShowInstructions] = useState(false);
-
-  // UI state
   const isSubmittingRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -223,7 +235,7 @@ export default function ReportScreen() {
 
               <ImagePickerSection
                 imageUri={imageUri}
-                onPickImage={pickImage}
+                onPickImage={handlePickImage}
                 onRemoveImage={handleCancelImage}
               />
 

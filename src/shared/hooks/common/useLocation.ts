@@ -36,9 +36,10 @@ export function useLocation(): UseLocationReturn {
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
 
+  // Fetch current location with permission handling
   const fetchLocation = useCallback(
     async (forceRetry = false) => {
-      // If we're not forcing a retry and already have location, don't refetch
+      // Skip if we already have location and not forcing retry
       if (!forceRetry && location && !locationErrorMsg) {
         return;
       }
@@ -47,14 +48,17 @@ export function useLocation(): UseLocationReturn {
       setLocationErrorMsg(null);
 
       try {
+        // Request location permissions
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           setLocationErrorMsg(t("map.locationPermissionRequired"));
           return;
         }
 
+        // Get last known location first for performance
         let currentLocation = await Location.getLastKnownPositionAsync({});
         if (!currentLocation) {
+          // Fallback to fresh location if no cached location
           currentLocation = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.Balanced,
           });
@@ -71,11 +75,10 @@ export function useLocation(): UseLocationReturn {
     [location, locationErrorMsg, t]
   );
 
-  // Add AppState listener to retry location when app becomes active
+  // Retry location fetch when app becomes active
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === "active") {
-        // App became active, retry location fetch
         fetchLocation(true);
       }
     };

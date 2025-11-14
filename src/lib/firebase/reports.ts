@@ -18,7 +18,7 @@ import {
 import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from "firebase/storage";
 import { db, storage } from "./firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
 import { Report, ReportStatus } from "../../shared/types/reports";
-import { sendReportStatusNotification } from "../notifications";
+import { sendReportStatusNotification, sendNewReportNotification } from "../notifications";
 
 /**
  * Uploads an image to Firebase Storage for a specific report.
@@ -123,6 +123,16 @@ export const createReport = async (reportData: {
     });
 
     console.log("Report created with ID: ", docRef.id);
+
+    // Send notification to all admins about the new report
+    try {
+      console.log(`[createReport] Sending new report notification to admins for report ${docRef.id}...`);
+      await sendNewReportNotification(docRef.id);
+      console.log(`[createReport] New report notification sent successfully`);
+    } catch (notificationError) {
+      console.error('[createReport] Error sending new report notification:', notificationError);
+      // Don't throw error for notification failure - report creation should still succeed
+    }
 
     // The returned object conforms to the Report type, assuming serverTimestamp() will be resolved.
     // The returned object conforms to the Report type, assuming serverTimestamp() will be resolved.

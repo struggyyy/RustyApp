@@ -517,7 +517,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Delete user account and associated data
+  // Delete user account and ALL associated data atomically
   const deleteAccount = async (): Promise<void> => {
     const currentUser = auth.currentUser;
     if (!currentUser) {
@@ -534,7 +534,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const reports = await getReportsByUserId(currentUser.uid);
       console.log(`[AuthContext] Found ${reports.length} reports to delete.`);
 
-      // 2. Delete all report images from Storage
+      // 2. Delete all report images from Storage (blocking operation)
       const imageDeletionPromises: Promise<void>[] = [];
       reports.forEach(report => {
         if (report.imageUrl) {
@@ -543,21 +543,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       });
 
-      // 3. Delete user's profile picture from Storage
+      // 3. Delete user's profile picture from Storage (blocking operation)
       if (profile?.profileImage) {
         console.log(`[AuthContext] Deleting profile image: ${profile.profileImage}`);
         const profileImageRef = ref(storage, profile.profileImage);
         imageDeletionPromises.push(deleteObject(profileImageRef));
       }
 
-      // Wait for all images to be deleted
-      await Promise.all(imageDeletionPromises).catch(err => {
-        // Log errors but don't block deletion process
-        console.error('[AuthContext] Error deleting one or more images from Storage:', err);
-      });
-      console.log('[AuthContext] All associated images have been deleted from Storage.');
+      // Execute all image deletions - if any fail, the entire process fails
+      if (imageDeletionPromises.length > 0) {
+        await Promise.all(imageDeletionPromises);
+        console.log('[AuthContext] All associated images have been deleted from Storage.');
+      }
 
-      // 4. Use a batch write to delete all Firestore documents (reports + user profile)
+      // 4. Delete all Firestore documents atomically (reports + user profile)
       const batch = writeBatch(db);
       reports.forEach(report => {
         const reportDocRef = doc(db, 'reports', report.id);
@@ -569,19 +568,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await batch.commit();
       console.log('[AuthContext] All Firestore documents (reports and user profile) deleted.');
 
-      // 5. Delete Firebase Auth user
+      // 5. Delete Firebase Auth user (only after all data is successfully deleted)
       await deleteUser(currentUser);
       console.log(`[AuthContext] Firebase Auth user deleted successfully: ${currentUser.uid}`);
 
     } catch (e: any) {
       console.error('[AuthContext] Account deletion process failed:', e);
+
+      // Handle specific Firebase Auth errors with error codes for i18n
       if (e.code === 'auth/requires-recent-login') {
-        const message = 'This is a sensitive operation and requires recent authentication. Please log in again before retrying this request.';
-        setError(message);
-        throw new Error(message);
+        const error = new Error();
+        (error as any).code = 'auth/requires-recent-login';
+        setError('Authentication required for account deletion');
+        throw error;
       }
-      setError(e.message || 'An unexpected error occurred during account deletion.');
-      throw e; // Re-throw the final error
+
+      // Handle storage deletion errors
+      if (e.message?.includes('storage') || e.code?.startsWith('storage/')) {
+        const error = new Error();
+        (error as any).code = 'deleteAccount/storageError';
+        setError('Failed to delete profile data');
+        throw error;
+      }
+
+      // Handle Firestore deletion errors
+      if (e.message?.includes('firestore') || e.code?.startsWith('firestore/')) {
+        const error = new Error();
+        (error as any).code = 'deleteAccount/firestoreError';
+        setError('Failed to delete account records');
+        throw error;
+      }
+
+      // Generic error with code for i18n
+      const error = new Error();
+      (error as any).code = 'deleteAccount/genericError';
+      setError('Account deletion failed');
+      throw error;
     }
   };
 

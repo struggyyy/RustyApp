@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase/firebase'; // Assuming db is exported from firebase.ts
 import { translate, translateStatus } from '../shared/utils/serverTranslations';
 
@@ -100,4 +100,47 @@ export const sendReportStatusNotification = async (
   };
 
   await sendPushNotification(pushToken, title, body, data);
+};
+
+// Send notification for new report submission to all admins
+export const sendNewReportNotification = async (
+  reportId: string,
+  language: 'en' | 'pl' = 'en'
+): Promise<void> => {
+  try {
+    const title = translate('notifications.newReportSubmitted', language);
+    const body = translate('notifications.newReportNotification', language);
+    const data = {
+      type: 'new_report',
+      reportId,
+    };
+
+    // Get all admin users
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('role', '==', 'admin'));
+    const querySnapshot = await getDocs(q);
+
+    const adminNotifications: Promise<void>[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const adminData = doc.data();
+      const pushToken = adminData.pushToken;
+      const pushEnabled = adminData.notificationPreferences?.push !== false;
+
+      if (pushToken && pushEnabled) {
+        console.log(`[sendNewReportNotification] Sending notification to admin ${doc.id}...`);
+        adminNotifications.push(sendPushNotification(pushToken, title, body, data));
+      }
+    });
+
+    if (adminNotifications.length > 0) {
+      await Promise.all(adminNotifications);
+      console.log(`[sendNewReportNotification] Sent new report notification to ${adminNotifications.length} admins`);
+    } else {
+      console.log('[sendNewReportNotification] No admins found with push tokens enabled');
+    }
+  } catch (error) {
+    console.error('[sendNewReportNotification] Error sending new report notifications:', error);
+    throw error;
+  }
 };

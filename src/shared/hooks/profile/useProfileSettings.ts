@@ -17,15 +17,15 @@ import { useState, useCallback } from "react";
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
 import { useLanguage } from "@/core/context/LanguageContext";
-import { useAlert } from '../../../core/context/AlertContext';
+import { useAlert } from "../../../core/context/AlertContext";
 
+// Hook options interface
 interface UseProfileSettingsOptions {
   t: (key: string, options?: any) => string;
 }
 
-export function useProfileSettings({
-  t,
-}: UseProfileSettingsOptions) {
+// Main hook function
+export function useProfileSettings({ t }: UseProfileSettingsOptions) {
   const { updateUserProfile, logOut, deleteAccount, profile } = useAuth();
   const { currentLanguage, changeLanguage } = useLanguage();
   const { showAlert } = useAlert();
@@ -104,6 +104,7 @@ export function useProfileSettings({
     ]
   );
 
+  // Language toggle handler
   const handleToggleLanguage = useCallback(async () => {
     const newLanguage = currentLanguage === "en" ? "pl" : "en";
     try {
@@ -123,6 +124,7 @@ export function useProfileSettings({
     }
   }, [currentLanguage, changeLanguage, showAlert, t]);
 
+  // Hook return interface
   return {
     // State
     notificationsEnabled,

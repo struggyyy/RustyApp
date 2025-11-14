@@ -20,16 +20,16 @@ import { ref, deleteObject } from "firebase/storage";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
-import { useAlert } from '../../../core/context/AlertContext';
+import { useAlert } from "../../../core/context/AlertContext";
 import { storage } from "@/lib/firebase/firebase";
 
+// Hook options interface
 interface UseProfileEditOptions {
   t: (key: string, options?: any) => string;
 }
 
-export function useProfileEdit({
-  t,
-}: UseProfileEditOptions) {
+// Main hook function
+export function useProfileEdit({ t }: UseProfileEditOptions) {
   // Profile editing state
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedNickname, setEditedNickname] = useState("");
@@ -53,10 +53,7 @@ export function useProfileEdit({
       const permissionResult =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        showAlert(
-          t("common.error"),
-          t("permissions.cameraRollRequired")
-        );
+        showAlert(t("common.error"), t("permissions.cameraRollRequired"));
         return;
       }
 
@@ -95,19 +92,14 @@ export function useProfileEdit({
       // Delete old profile image if it exists and we're replacing it
       const oldImageUrl = profile?.profileImage || user?.photoURL;
       if (oldImageUrl && tempImageUri) {
-        try {
-          const url = new URL(oldImageUrl);
-          const path = decodeURIComponent(url.pathname.split("/o/")[1]);
-          const imageRef = ref(storage, path);
-          await deleteObject(imageRef);
-          console.log("Old profile image deleted successfully");
-        } catch (deleteError) {
-          console.error("Failed to delete old profile image:", deleteError);
-          // Don't block the save process if delete fails
-        }
+        const url = new URL(oldImageUrl);
+        const path = decodeURIComponent(url.pathname.split("/o/")[1]);
+        const imageRef = ref(storage, path);
+        await deleteObject(imageRef);
+        console.log("Old profile image deleted successfully");
       }
 
-      // Upload new profile picture if changed
+      // Upload new profile picture if changed (only after old image is successfully deleted)
       if (tempImageUri) {
         await uploadProfileImage(user.uid, tempImageUri);
       }
