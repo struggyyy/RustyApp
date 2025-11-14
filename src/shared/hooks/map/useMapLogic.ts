@@ -12,14 +12,14 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 // External libraries
-import * as Location from "expo-location";
 import MapView, { Region } from "react-native-maps";
 
 // Internal imports
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import { useLocation } from "../common/useLocation";
 import { Report } from "../../../shared/types/reports";
 import {
   getDistance,
@@ -30,12 +30,14 @@ import {
 export const useMapLogic = () => {
   const { t } = useTranslation();
 
-  // Location state
-  const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
-  );
-  const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
-  const [isLocationLoading, setIsLocationLoading] = useState(true);
+  // Use the robust location hook instead of duplicating logic
+  const {
+    location,
+    locationErrorMsg,
+    isLocationLoading,
+    fetchLocation: fetchLocationFromHook,
+  } = useLocation();
+
   const mapRef = useRef<MapView | null>(null);
 
   // Modal state
@@ -43,30 +45,19 @@ export const useMapLogic = () => {
   const [selectedReports, setSelectedReports] = useState<Report[]>([]);
   const [currentReportIndex, setCurrentReportIndex] = useState(0);
 
-  // Location fetching logic
+  // Use ref to store stable reference to fetchLocation function
+  const fetchLocationRef = useRef(fetchLocationFromHook);
+
+  // Update the ref whenever fetchLocationFromHook changes
+  useEffect(() => {
+    fetchLocationRef.current = fetchLocationFromHook;
+  }, [fetchLocationFromHook]);
+
+  // Location fetching logic - stable wrapper that always fetches (force retry)
   const fetchLocation = useCallback(async () => {
-    setIsLocationLoading(true);
-    setLocationErrorMsg(null);
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        throw new Error(t("map.locationPermissionRequired"));
-      }
-      let currentLocation = await Location.getLastKnownPositionAsync({});
-      if (!currentLocation) {
-        currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-      }
-      setLocation(currentLocation);
-    } catch (error: any) {
-      console.error("Location Error:", error.message);
-      setLocation(null);
-      setLocationErrorMsg(error.message || t("map.locationError"));
-    } finally {
-      setIsLocationLoading(false);
-    }
-  }, [t]);
+    // Use the ref to call the current fetchLocation function
+    await fetchLocationRef.current(true);
+  }, []); // Empty dependency array - function never changes
 
   // Map interaction handlers
   const goToMyLocation = useCallback(() => {

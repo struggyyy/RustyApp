@@ -1,3 +1,17 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// External libraries
 import {
   addDoc,
   collection,
@@ -10,23 +24,26 @@ import {
   orderBy,
   doc,
   deleteDoc,
-  updateDoc,
   increment,
   writeBatch,
   getDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from "firebase/storage";
-import { db, storage } from "./firebase"; // Assuming 'db' and 'storage' are exported from your main firebase config
-import { Report, ReportStatus } from "../../shared/types/reports";
-import { sendReportStatusNotification, sendNewReportNotification } from "../notifications";
+import {
+  getDownloadURL,
+  ref,
+  uploadBytesResumable,
+  deleteObject,
+} from "firebase/storage";
 
-/**
- * Uploads an image to Firebase Storage for a specific report.
- * @param imageUri The local URI of the image file.
- * @param userId The ID of the user uploading the image.
- * @param fileName The unique file name for the image.
- * @returns The public download URL of the uploaded image.
- */
+// Internal imports
+import { db, storage } from "./firebase";
+import { Report, ReportStatus } from "../../shared/types/reports";
+import {
+  sendReportStatusNotification,
+  sendNewReportNotification,
+} from "../notifications";
+
+// Upload report image to Firebase Storage
 export const uploadReportImage = (
   imageUri: string,
   userId: string,
@@ -36,11 +53,9 @@ export const uploadReportImage = (
     try {
       console.log("uploadReportImage: Starting upload process for:", imageUri);
 
-      // ***** THIS IS THE CRITICAL CHANGE! *****
-      // Replace the entire XMLHttpRequest block with this fetch approach.
+      // Convert image URI to blob using fetch
       const response = await fetch(imageUri);
       const blob: Blob = await response.blob();
-      // ***************************************
 
       console.log("uploadReportImage: Blob created from imageUri using fetch.");
 
@@ -56,10 +71,8 @@ export const uploadReportImage = (
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log(`Upload is ${progress}% done`);
-          // You can use this progress to update a UI indicator in your app
         },
         (error) => {
-          // No need to close the blob when using fetch.blob()
           console.error("Upload failed:", error);
           if ((error as any).serverResponse) {
             console.error("Server response:", (error as any).serverResponse);
@@ -95,14 +108,10 @@ export const uploadReportImage = (
   });
 };
 
-/**
- * Creates a new report document in Firestore.
- * @param reportData An object containing the report details.
- * @returns The newly created report document data.
- */
+// Create new report document in Firestore
 export const createReport = async (reportData: {
   userId: string;
-  userEmail: string; // Add userEmail parameter
+  userEmail: string;
   description: string;
   location: { latitude: number; longitude: number };
   imageUrl: string;
@@ -110,7 +119,7 @@ export const createReport = async (reportData: {
   try {
     const docRef = await addDoc(collection(db, "reports"), {
       userId: reportData.userId,
-      userEmail: reportData.userEmail, // Store email directly
+      userEmail: reportData.userEmail,
       description: reportData.description,
       location: new GeoPoint(
         reportData.location.latitude,
@@ -118,7 +127,7 @@ export const createReport = async (reportData: {
       ),
       imageUrl: reportData.imageUrl,
       createdAt: serverTimestamp(),
-      status: 'Submitted',
+      status: "Submitted",
       points: 0,
     });
 
@@ -126,16 +135,20 @@ export const createReport = async (reportData: {
 
     // Send notification to all admins about the new report
     try {
-      console.log(`[createReport] Sending new report notification to admins for report ${docRef.id}...`);
+      console.log(
+        `[createReport] Sending new report notification to admins for report ${docRef.id}...`
+      );
       await sendNewReportNotification(docRef.id);
       console.log(`[createReport] New report notification sent successfully`);
     } catch (notificationError) {
-      console.error('[createReport] Error sending new report notification:', notificationError);
+      console.error(
+        "[createReport] Error sending new report notification:",
+        notificationError
+      );
       // Don't throw error for notification failure - report creation should still succeed
     }
 
-    // The returned object conforms to the Report type, assuming serverTimestamp() will be resolved.
-    // The returned object conforms to the Report type, assuming serverTimestamp() will be resolved.
+    // Return report object with client-side timestamp for immediate feedback
     const newReport: Report = {
       ...reportData,
       id: docRef.id,
@@ -144,7 +157,7 @@ export const createReport = async (reportData: {
         reportData.location.latitude,
         reportData.location.longitude
       ),
-      status: 'Submitted',
+      status: "Submitted",
       points: 0,
     };
     return newReport;
@@ -154,11 +167,7 @@ export const createReport = async (reportData: {
   }
 };
 
-/**
- * Fetches all reports submitted by a specific user.
- * @param userId The ID of the user whose reports are to be fetched.
- * @returns A promise that resolves to an array of the user's reports.
- */
+// Fetch all reports submitted by a specific user
 export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
   try {
     const reportsRef = collection(db, "reports");
@@ -182,10 +191,7 @@ export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
   }
 };
 
-/**
- * Deletes a single image from Firebase Storage.
- * @param imageUrl The full URL of the image to delete.
- */
+// Delete image from Firebase Storage
 export const deleteReportImage = async (imageUrl: string) => {
   if (!imageUrl) return; // Do nothing if the URL is not provided
 
@@ -193,26 +199,16 @@ export const deleteReportImage = async (imageUrl: string) => {
     const imageRef = ref(storage, imageUrl);
     await deleteObject(imageRef);
   } catch (error: any) {
-    // If the image doesn't exist, we don't need to throw an error.
-    if (error.code === 'storage/object-not-found') {
+    if (error.code === "storage/object-not-found") {
       console.warn(`Image at ${imageUrl} not found, but proceeding.`);
     } else {
       console.error(`Failed to delete image at ${imageUrl}:`, error);
-      throw error; // Re-throw other errors
+      throw error;
     }
   }
 };
 
-/**
- * Deletes a report document from Firestore and its associated image from Storage.
- * @param reportId The ID of the report to delete.
- * @param imageUrl The URL of the image associated with the report.
- */
-/**
- * Fetches all reports from the database, ordered by creation date.
- * Intended for admin use.
- * @returns A promise that resolves to an array of all reports.
- */
+// Update report status and handle point adjustments
 export const updateReportStatus = async (
   reportId: string,
   userId: string,
@@ -221,14 +217,14 @@ export const updateReportStatus = async (
 ): Promise<void> => {
   if (currentStatus === newStatus) return; // No change, do nothing
 
-  const reportDocRef = doc(db, 'reports', reportId);
-  const userDocRef = doc(db, 'users', userId);
+  const reportDocRef = doc(db, "reports", reportId);
+  const userDocRef = doc(db, "users", userId);
 
   const pointsMap: Record<ReportStatus, number> = {
-    'Submitted': 0,
-    'Accepted': 10,
-    'Completed': 100,
-    'Canceled': 0,
+    Submitted: 0,
+    Accepted: 10,
+    Completed: 100,
+    Canceled: 0,
   };
 
   const pointsForCurrentStatus = pointsMap[currentStatus] || 0;
@@ -251,11 +247,15 @@ export const updateReportStatus = async (
     }
 
     await batch.commit();
-    console.log(`Report ${reportId} status updated to ${newStatus}. User ${userId} points adjusted by ${pointsDifference}.`);
+    console.log(
+      `Report ${reportId} status updated to ${newStatus}. User ${userId} points adjusted by ${pointsDifference}.`
+    );
 
     // Send push notification if enabled
     try {
-      console.log(`[updateReportStatus] Checking notification settings for user ${userId}...`);
+      console.log(
+        `[updateReportStatus] Checking notification settings for user ${userId}...`
+      );
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         const userData = userDoc.data();
@@ -263,36 +263,66 @@ export const updateReportStatus = async (
         const pushEnabled = userData.notificationPreferences?.push !== false;
         const userRole = userData.role;
 
-        console.log(`[updateReportStatus] User ${userId} push enabled: ${pushEnabled}`);
-        console.log(`[updateReportStatus] User ${userId} has push token: ${!!pushToken}`);
+        console.log(
+          `[updateReportStatus] User ${userId} push enabled: ${pushEnabled}`
+        );
+        console.log(
+          `[updateReportStatus] User ${userId} has push token: ${!!pushToken}`
+        );
         console.log(`[updateReportStatus] User ${userId} role: ${userRole}`);
-        console.log(`[updateReportStatus] Push token preview: ${pushToken ? pushToken.substring(0, 20) + '...' : 'null'}`);
+        console.log(
+          `[updateReportStatus] Push token preview: ${
+            pushToken ? pushToken.substring(0, 20) + "..." : "null"
+          }`
+        );
 
         // Only send notifications to regular users, not admins
-        if (pushToken && pushEnabled && userRole !== 'admin') {
-          console.log(`[updateReportStatus] Sending push notification to user ${userId}...`);
-          const userLanguage = userData.language || 'en'; // Default to English if no language set
-          await sendReportStatusNotification(pushToken, reportId, currentStatus, newStatus, userLanguage);
-          console.log(`[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`);
+        if (pushToken && pushEnabled && userRole !== "admin") {
+          console.log(
+            `[updateReportStatus] Sending push notification to user ${userId}...`
+          );
+          const userLanguage = userData.language || "en"; // Default to English if no language set
+          await sendReportStatusNotification(
+            pushToken,
+            reportId,
+            currentStatus,
+            newStatus,
+            userLanguage
+          );
+          console.log(
+            `[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`
+          );
         } else {
-          const skipReason = !pushToken ? 'no push token' :
-                           !pushEnabled ? 'push disabled' :
-                           userRole === 'admin' ? 'user is admin' : 'unknown';
-          console.log(`[updateReportStatus] Skipping push notification: ${skipReason}`);
+          const skipReason = !pushToken
+            ? "no push token"
+            : !pushEnabled
+            ? "push disabled"
+            : userRole === "admin"
+            ? "user is admin"
+            : "unknown";
+          console.log(
+            `[updateReportStatus] Skipping push notification: ${skipReason}`
+          );
         }
       } else {
-        console.log(`[updateReportStatus] User document not found for ${userId}`);
+        console.log(
+          `[updateReportStatus] User document not found for ${userId}`
+        );
       }
     } catch (notificationError) {
-      console.error('[updateReportStatus] Error sending push notification:', notificationError);
+      console.error(
+        "[updateReportStatus] Error sending push notification:",
+        notificationError
+      );
       // Don't throw error for notification failure
     }
   } catch (error) {
-    console.error('Error updating report status:', error);
-    throw new Error('Failed to update report status.');
+    console.error("Error updating report status:", error);
+    throw new Error("Failed to update report status.");
   }
 };
 
+// Fetch all reports for admin use
 export const getAllReports = async (): Promise<Report[]> => {
   try {
     const reportsRef = collection(db, "reports");
@@ -311,9 +341,10 @@ export const getAllReports = async (): Promise<Report[]> => {
   }
 };
 
+// Delete report and associated image
 export const deleteReport = async (reportId: string, imageUrl: string) => {
   if (!reportId) {
-    throw new Error('Report ID is required to delete a report.');
+    throw new Error("Report ID is required to delete a report.");
   }
 
   try {
@@ -321,12 +352,14 @@ export const deleteReport = async (reportId: string, imageUrl: string) => {
     await deleteReportImage(imageUrl);
 
     // Then delete the report document from Firestore
-    const reportDocRef = doc(db, 'reports', reportId);
+    const reportDocRef = doc(db, "reports", reportId);
     await deleteDoc(reportDocRef);
 
-    console.log(`Report ${reportId} and associated image deleted successfully.`);
+    console.log(
+      `Report ${reportId} and associated image deleted successfully.`
+    );
   } catch (error) {
-    console.error('Error deleting report:', error);
-    throw new Error('Failed to delete report. Please check logs for details.');
+    console.error("Error deleting report:", error);
+    throw new Error("Failed to delete report. Please check logs for details.");
   }
 };

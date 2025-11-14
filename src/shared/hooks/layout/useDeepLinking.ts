@@ -1,5 +1,18 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import { useEffect } from "react";
-import { Platform } from "react-native";
 
 // External libraries
 import { useRouter } from "expo-router";
@@ -40,17 +53,15 @@ export const useDeepLinking = () => {
       }
     };
 
-    // Set up deep linking listeners (non-web platforms only)
-    if (Platform.OS !== "web") {
-      Linking.getInitialURL().then((url) => {
-        if (url) handleDeepLink({ url });
-      });
-      const subscription = Linking.addEventListener("url", handleDeepLink);
+    // Set up deep linking listeners for native platforms
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+    const subscription = Linking.addEventListener("url", handleDeepLink);
 
-      // Cleanup event listener
-      return () => {
-        subscription.remove();
-      };
-    }
+    // Cleanup event listener
+    return () => {
+      subscription.remove();
+    };
   }, [handleSignInWithLink, router]);
 };

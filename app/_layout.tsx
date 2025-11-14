@@ -15,7 +15,6 @@
 import React, { useEffect } from "react";
 
 // External libraries
-import "react-native-url-polyfill/auto";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack, useRouter } from "expo-router";
 import {

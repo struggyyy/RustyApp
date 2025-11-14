@@ -1,12 +1,26 @@
-import { initializeApp, getApp, getApps, FirebaseApp } from 'firebase/app';
-import * as firebaseAuth from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { Platform } from 'react-native';
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// External libraries
+import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
+import * as firebaseAuth from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration, now loaded from environment variables
+// Internal imports
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+
+// Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -14,10 +28,10 @@ const firebaseConfig = {
   storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Validate that all required environment variables are present
+// Validate required environment variables
 if (
   !firebaseConfig.apiKey ||
   !firebaseConfig.authDomain ||
@@ -26,42 +40,33 @@ if (
   !firebaseConfig.messagingSenderId ||
   !firebaseConfig.appId
 ) {
-  throw new Error('Firebase configuration is missing. Make sure you have a .env file with all the required EXPO_PUBLIC_FIREBASE_ variables.');
+  throw new Error(
+    "Firebase configuration is missing. Make sure you have a .env file with all the required EXPO_PUBLIC_FIREBASE_ variables."
+  );
 }
 
-
-// Initialize Firebase
+// Initialize Firebase app
 let app: FirebaseApp;
 if (!getApps().length) {
-  console.log('[Firebase] Initializing Firebase app...');
+  console.log("[Firebase] Initializing Firebase app...");
   app = initializeApp(firebaseConfig);
-  console.log('[Firebase] App initialized.');
+  console.log("[Firebase] App initialized.");
 } else {
-  console.log('[Firebase] Using existing Firebase app instance.');
+  console.log("[Firebase] Using existing Firebase app instance.");
   app = getApp();
 }
 
+// Initialize Firebase services
 const auth = firebaseAuth.initializeAuth(app, {
-  persistence: (firebaseAuth as any).getReactNativePersistence(ReactNativeAsyncStorage)
+  persistence: (firebaseAuth as any).getReactNativePersistence(
+    ReactNativeAsyncStorage
+  ),
 });
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Initialize Analytics (conditionally based on support)
-let analytics;
-if (Platform.OS === 'web') {
-    isSupported().then(supported => {
-        if (supported) {
-            analytics = getAnalytics(app);
-            console.log('[Firebase] Analytics initialized.');
-        } else {
-            console.log('[Firebase] Analytics is not supported in this environment.');
-        }
-    });
-} else {
-    console.log('[Firebase] Analytics initialization skipped for native platform.');
-}
+console.log(
+  "[Firebase] Firebase services obtained (Auth, Firestore, Storage)."
+);
 
-console.log('[Firebase] Firebase services obtained (Auth, Firestore, Storage).');
-
-export { app, auth, db, storage, analytics };
+export { app, auth, db, storage };

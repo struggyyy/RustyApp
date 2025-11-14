@@ -130,7 +130,7 @@ function HomeScreenComponent() {
       <>
         <Stack.Screen options={{ title: t("home.title") }} />
         <LoadingIndicatorContainer>
-          <ActivityIndicator size="large" color="#BD5151" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </LoadingIndicatorContainer>
       </>
     );

@@ -11,9 +11,6 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
-// React-specific imports
-import { StyleSheet } from "react-native";
-
 // Internal imports
 import colors from "./colors";
 
