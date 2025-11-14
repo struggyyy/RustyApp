@@ -152,7 +152,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onN
                   gap: 8,
                 }}
               >
-                <ActionButtonText variant="close">{t('common.more')}</ActionButtonText>
+                <ActionButtonText variant="close">{t('common.seeDetails')}</ActionButtonText>
               </TouchableButton>
             )}
             {onNavigate && (

@@ -51,6 +51,7 @@ export default function ForgotPassword() {
     initialValues: {
       email: (params.email as string) || "",
     },
+    t,
     onSubmit: async (values) => {
       try {
         await resetPassword(values.email);

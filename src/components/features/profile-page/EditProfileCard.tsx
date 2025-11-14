@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import colors from '../../../core/theme/colors';
 import theme from '../../../core/theme';
-import CustomAlert from '../../common/modals/CustomAlert';
+import { useAlert } from '../../../core/context/AlertContext';
 
 
 interface EditProfileCardProps {
@@ -184,15 +184,10 @@ const EditProfileCard: React.FC<EditProfileCardProps> = ({
   userEmail,
   onChoosePhoto,
 }) => {
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{
-    title: string;
-    message?: string;
-    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
-  }>({ title: '', buttons: [] });
-
   const [initialNickname, setInitialNickname] = useState('');
   const [initialImageUri, setInitialImageUri] = useState<string | null>(null);
+
+  const { showAlert } = useAlert();
 
   // Track initial values when card expands
   useEffect(() => {
@@ -201,15 +196,6 @@ const EditProfileCard: React.FC<EditProfileCardProps> = ({
       setInitialImageUri(tempImageUri);
     }
   }, [isExpanded]);
-
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
-    setAlertConfig({ title, message, buttons });
-    setAlertVisible(true);
-  };
-
-  const hideAlert = () => {
-    setAlertVisible(false);
-  };
 
   const handleEmailPress = () => {
     showAlert('Email Information', 'Your email address cannot be changed as it is used for account verification and security purposes.');
@@ -315,13 +301,6 @@ const EditProfileCard: React.FC<EditProfileCardProps> = ({
         )}
       </CardContainer>
 
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        buttons={alertConfig.buttons}
-        onRequestClose={hideAlert}
-      />
     </>
   );
 };

@@ -62,14 +62,14 @@ const ButtonRow = styled.View({
 // Component props interface
 interface ImagePickerSectionProps {
   imageUri: string | null;
-  isKeyboardVisible: boolean;
+  isKeyboardVisible?: boolean;
   onPickImage: (useCamera: boolean) => void;
   onRemoveImage: () => void;
 }
 
 export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
   imageUri,
-  isKeyboardVisible,
+  isKeyboardVisible = false,
   onPickImage,
   onRemoveImage,
 }) => {

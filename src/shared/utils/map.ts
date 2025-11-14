@@ -36,10 +36,17 @@ export const getDistance = (
 };
 
 // Open navigation to coordinates in external maps app
+// Using geo: URI scheme which is more universal and Google Play Store compliant
 export const openNavigation = async (
   latitude: number,
   longitude: number
 ): Promise<void> => {
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-  await Linking.openURL(url);
+  const url = `geo:${latitude},${longitude}?q=${latitude},${longitude}`;
+  try {
+    await Linking.openURL(url);
+  } catch (error) {
+    // Fallback to Google Maps if geo: scheme fails
+    const fallbackUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+    await Linking.openURL(fallbackUrl);
+  }
 };

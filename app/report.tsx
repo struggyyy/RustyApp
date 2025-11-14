@@ -12,14 +12,14 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
+  StyleSheet,
   ScrollView,
+  RefreshControl,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
-  RefreshControl,
   Keyboard,
 } from "react-native";
 
@@ -31,9 +31,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../src/core/context/AuthContext";
 import { useTranslation } from "../src/shared/hooks/common/useTranslation";
 import { useLocation } from "../src/shared/hooks/common/useLocation";
-import { useKeyboardScroll } from "../src/shared/hooks/ui/useKeyboardScroll";
-import { useAlert } from "../src/shared/hooks/common/useAlert";
 import { useImagePicker } from "../src/shared/hooks/common/useImagePicker";
+import { useAlert } from "../src/core/context/AlertContext";
 import colors from "../src/core/theme/colors";
 import spacing from "../src/core/theme/spacing";
 import {
@@ -41,7 +40,6 @@ import {
   uploadReportImage,
 } from "../src/lib/firebase/reports";
 import StyledButton from "../src/components/common/buttons/StyledButton";
-import CustomAlert from "../src/components/common/modals/CustomAlert";
 import { ReportHeader } from "../src/components/features/report-page/ReportHeader";
 import { ReportInstructions } from "../src/components/features/report-page/ReportInstructions";
 import { ImagePickerSection } from "../src/components/features/report-page/ImagePickerSection";
@@ -88,9 +86,9 @@ export default function ReportScreen() {
   // Use custom hooks for separated concerns
   const { location, locationErrorMsg, isLocationLoading, fetchLocation } =
     useLocation();
-  const { isKeyboardVisible } = useKeyboardScroll();
-  const { alertVisible, alertConfig, showAlert, hideAlert } = useAlert();
+
   const { imageUri, pickImage, handleCancelImage } = useImagePicker();
+  const { showAlert } = useAlert();
 
   const [description, setDescription] = useState("");
   const [showInstructions, setShowInstructions] = useState(false);
@@ -99,22 +97,43 @@ export default function ReportScreen() {
   const isSubmittingRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Keyboard scroll handling
+  // Keyboard scroll handling - ensure description field is visible
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
-      () => {
-        // Scroll to make description field visible when keyboard appears
+      (e) => {
         setTimeout(() => {
-          scrollViewRef.current?.scrollTo({ y: 300, animated: true });
-        }, 100);
+          if (scrollViewRef.current) {
+            // Dynamic scroll calculation based on content
+            let baseScroll = 200; // Base position for header
+
+            // Account for expanded instructions
+            if (showInstructions) {
+              baseScroll += 180; // Height of expanded instructions
+            }
+
+            // Account for image preview
+            if (imageUri) {
+              baseScroll += 220; // Height of image preview
+            }
+
+            // Ensure description field stays above keyboard with buffer
+            const keyboardHeight = e.endCoordinates.height;
+            const safeScrollPosition = Math.max(baseScroll, 400); // Minimum scroll to keep description visible
+
+            scrollViewRef.current.scrollTo({
+              y: safeScrollPosition,
+              animated: true
+            });
+          }
+        }, 150); // Slightly longer delay for better accuracy
       }
     );
 
     return () => {
       keyboardDidShowListener.remove();
     };
-  }, []);
+  }, [showInstructions, imageUri]);
 
   // Form submission logic
   const handleSubmit = async () => {
@@ -204,7 +223,6 @@ export default function ReportScreen() {
 
               <ImagePickerSection
                 imageUri={imageUri}
-                isKeyboardVisible={isKeyboardVisible}
                 onPickImage={pickImage}
                 onRemoveImage={handleCancelImage}
               />
@@ -242,13 +260,6 @@ export default function ReportScreen() {
         </View>
       </View>
 
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        buttons={alertConfig.buttons}
-        onRequestClose={hideAlert}
-      />
     </>
   );
 }

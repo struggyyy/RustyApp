@@ -1,11 +1,27 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import styled from "styled-components/native";
+
+// Internal imports
+import { useAlert } from "@/core/context/AlertContext";
+import TouchableButton from "../buttons/TouchableButton";
 import colors from "../../../core/theme/colors";
 import theme from "../../../core/theme";
-import TouchableButton from "../buttons/TouchableButton";
-
 
 interface AlertButton {
   text: string;
@@ -19,10 +35,6 @@ interface CustomAlertProps {
   message?: string;
   buttons?: AlertButton[];
   onRequestClose?: () => void;
-}
-
-interface ButtonVariant {
-  variant?: "primary" | "secondary" | "destructive" | "cancel";
 }
 
 // Styled Components
@@ -70,8 +82,8 @@ const ButtonContainer = styled.View({
   justifyContent: "center",
 });
 
-const AlertButton = styled.TouchableOpacity<ButtonVariant>(
-  (props: ButtonVariant) => ({
+const AlertButton = styled.TouchableOpacity<{ variant?: "primary" | "secondary" | "destructive" | "cancel" }>(
+  (props: { variant?: "primary" | "secondary" | "destructive" | "cancel" }) => ({
     flex: 1,
     backgroundColor:
       props.variant === "primary"
@@ -89,7 +101,7 @@ const AlertButton = styled.TouchableOpacity<ButtonVariant>(
   })
 );
 
-const AlertButtonText = styled.Text<ButtonVariant>((props: ButtonVariant) => ({
+const AlertButtonText = styled.Text<{ variant?: "primary" | "secondary" | "destructive" | "cancel" }>((props: { variant?: "primary" | "secondary" | "destructive" | "cancel" }) => ({
   color:
     props.variant === "primary" || props.variant === "destructive" || props.variant === "cancel"
       ? colors.white
@@ -98,7 +110,7 @@ const AlertButtonText = styled.Text<ButtonVariant>((props: ButtonVariant) => ({
   fontWeight: "bold",
 }));
 
-const CustomAlert: React.FC<CustomAlertProps> = ({
+const InternalAlert: React.FC<CustomAlertProps> = ({
   visible,
   title,
   message,
@@ -107,7 +119,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
 }) => {
   const getButtonVariant = (
     style?: "default" | "cancel" | "destructive"
-  ): ButtonVariant["variant"] => {
+  ): "primary" | "secondary" | "destructive" | "cancel" => {
     switch (style) {
       case "destructive":
         return "destructive";
@@ -136,7 +148,12 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
           <ButtonContainer>
             {buttons.map((button, index) => {
               const buttonVariant = getButtonVariant(button.style);
-              const handlePress = button.onPress || onRequestClose;
+              const handlePress = () => {
+                // Always hide the alert first
+                onRequestClose?.();
+                // Then execute the button's custom onPress if it exists
+                button.onPress?.();
+              };
               const buttonStyle = {
                 flex: 1,
                 backgroundColor:
@@ -153,7 +170,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
                 justifyContent: "center" as const,
                 minWidth: 100,
               };
-              
+
               return (
                 <TouchableButton
                   key={index}
@@ -170,6 +187,20 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
         </ModalContent>
       </ModalOverlay>
     </Modal>
+  );
+};
+
+const CustomAlert: React.FC = () => {
+  const { alertVisible, alertConfig, hideAlert } = useAlert();
+
+  return (
+    <InternalAlert
+      visible={alertVisible}
+      title={alertConfig.title}
+      message={alertConfig.message}
+      buttons={alertConfig.buttons}
+      onRequestClose={hideAlert}
+    />
   );
 };
 

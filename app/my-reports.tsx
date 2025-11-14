@@ -28,7 +28,6 @@ import {
 import { Report } from "../src/shared/types/reports";
 import ReportList from "../src/components/features/reports-page/ReportList";
 import theme from "../src/core/theme";
-import CustomAlert from "../src/components/common/modals/CustomAlert";
 import UserReportModalView from "../src/components/features/reports-page/UserReportModal";
 
 
@@ -82,34 +81,6 @@ export default function MyReportsScreen() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [scrollToIndex, setScrollToIndex] = useState<number | undefined>(undefined);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{
-    title: string;
-    message?: string;
-    buttons: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }>;
-  }>({ title: "", buttons: [] });
-
-  // Alert management functions
-  const showAlert = (
-    title: string,
-    message?: string,
-    buttons: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }> = [{ text: t("common.ok") }]
-  ) => {
-    setAlertConfig({ title, message, buttons });
-    setAlertVisible(true);
-  };
-
-  const hideAlert = () => {
-    setAlertVisible(false);
-  };
 
   // Function to fetch user's reports from Firebase
   const fetchReports = useCallback(async () => {
@@ -234,7 +205,6 @@ export default function MyReportsScreen() {
                   report={selectedReport}
                   onClose={handleModalClose}
                   onDelete={handleReportDelete}
-                  showAlert={showAlert}
                 />
               )}
             </View>
@@ -242,13 +212,6 @@ export default function MyReportsScreen() {
         </Modal>
       </View>
 
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        buttons={alertConfig.buttons}
-        onRequestClose={hideAlert}
-      />
     </>
   );
 }

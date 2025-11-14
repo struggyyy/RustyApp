@@ -100,7 +100,7 @@ export function MapComponent({
               fontWeight: "bold",
             }}
           >
-            {t("common.continue")}
+            {t("common.ok")}
           </Text>
         </TouchableButton>
       </MapPlaceholderView>

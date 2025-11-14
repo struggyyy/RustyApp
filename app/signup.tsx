@@ -62,6 +62,7 @@ export default function SignupScreen() {
       password: "",
       confirmPassword: "",
     },
+    t,
     onSubmit: async (values) => {
       // Custom nickname validation (2-15 characters)
       if (values.nickname.length < 2) {

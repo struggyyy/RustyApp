@@ -17,26 +17,18 @@ import { useState, useCallback } from "react";
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
 import { useLanguage } from "@/core/context/LanguageContext";
+import { useAlert } from '../../../core/context/AlertContext';
 
 interface UseProfileSettingsOptions {
-  showAlert: (
-    title: string,
-    message?: string,
-    buttons?: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }>
-  ) => void;
   t: (key: string, options?: any) => string;
 }
 
 export function useProfileSettings({
-  showAlert,
   t,
 }: UseProfileSettingsOptions) {
   const { updateUserProfile, logOut, deleteAccount, profile } = useAuth();
   const { currentLanguage, changeLanguage } = useLanguage();
+  const { showAlert } = useAlert();
 
   // Settings state
   const [notificationsEnabled, setNotificationsEnabled] = useState(

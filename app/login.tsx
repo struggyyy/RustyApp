@@ -68,6 +68,7 @@ export default function Login() {
       email: (params.email as string) || "",
       password: "",
     },
+    t,
     onSubmit: async (values) => {
       try {
         console.log("Calling useAuth logIn function for:", values.email);

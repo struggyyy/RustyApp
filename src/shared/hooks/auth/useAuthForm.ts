@@ -21,12 +21,14 @@ interface UseAuthFormOptions {
   initialValues?: Record<string, string>;
   onSubmit?: (values: Record<string, string>) => Promise<void> | void;
   validateOnChange?: boolean;
+  t?: (key: string, options?: any) => string;
 }
 
 export function useAuthForm({
   initialValues = {},
   onSubmit,
   validateOnChange = true,
+  t,
 }: UseAuthFormOptions = {}) {
   // Form state
   const [values, setValues] = useState<Record<string, string>>(initialValues);
@@ -87,30 +89,29 @@ export function useAuthForm({
 
     // Email validation
     if (values.email && !/\S+@\S+\.\S+/.test(values.email.trim())) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = t ? t("validation.invalidEmail") : "Invalid email format";
     }
 
     // Password validation (minimum length)
     if (values.password && values.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = t ? t("validation.passwordTooShort") : "Password must be at least 6 characters";
     }
 
     // Confirm password validation
     if (values.confirmPassword && values.password !== values.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = t ? t("validation.passwordMismatch") : "Passwords do not match";
     }
 
     // Required fields
     Object.keys(values).forEach((field) => {
       if (!values[field]?.trim()) {
-        const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
-        newErrors[field] = `${fieldName} is required`;
+        newErrors[field] = t ? t("validation.required") : `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
       }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [values]);
+  }, [values, t]);
 
   // Handle form submission
   const handleSubmit = useCallback(async () => {

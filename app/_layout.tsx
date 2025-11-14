@@ -29,9 +29,11 @@ import styled from "styled-components/native";
 import { AuthProvider } from "../src/core/context/AuthContext";
 import { HapticsProvider } from "../src/core/context/HapticsContext";
 import { LanguageProvider } from "../src/core/context/LanguageContext";
+import { AlertProvider } from "../src/core/context/AlertContext";
 import { useAuth } from "../src/core/context/AuthContext";
 import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
 import LoadingScreen from "../src/components/common/modals/LoadingScreen";
+import CustomAlert from "../src/components/common/modals/CustomAlert";
 import colors from "../src/core/theme/colors";
 import { useAuthNavigation } from "../src/shared/hooks/layout/useAuthNavigation";
 import { useDeepLinking } from "../src/shared/hooks/layout/useDeepLinking";
@@ -134,12 +136,15 @@ export default function RootLayout() {
         <AuthProvider>
           <LanguageProvider>
             <HapticsProvider>
-              <ExpoStatusBar
-                style="dark"
-                translucent={false}
-                backgroundColor={colors.background.primary}
-              />
-              <AuthenticatedStack />
+              <AlertProvider>
+                <ExpoStatusBar
+                  style="dark"
+                  translucent={false}
+                  backgroundColor={colors.background.primary}
+                />
+                <AuthenticatedStack />
+                <CustomAlert />
+              </AlertProvider>
             </HapticsProvider>
           </LanguageProvider>
         </AuthProvider>

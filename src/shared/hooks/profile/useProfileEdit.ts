@@ -20,23 +20,16 @@ import { ref, deleteObject } from "firebase/storage";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
+import { useAlert } from '../../../core/context/AlertContext';
 import { storage } from "@/lib/firebase/firebase";
 
-interface UseProfileManagementOptions {
-  showAlert: (
-    title: string,
-    message?: string,
-    buttons?: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }>
-  ) => void;
+interface UseProfileEditOptions {
+  t: (key: string, options?: any) => string;
 }
 
-export function useProfileManagement({
-  showAlert,
-}: UseProfileManagementOptions) {
+export function useProfileEdit({
+  t,
+}: UseProfileEditOptions) {
   // Profile editing state
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedNickname, setEditedNickname] = useState("");
@@ -45,6 +38,7 @@ export function useProfileManagement({
 
   // Auth hooks
   const { user, profile, uploadProfileImage, updateUserProfile } = useAuth();
+  const { showAlert } = useAlert();
 
   // Handle nickname change with validation
   const handleEditedNicknameChange = useCallback((text: string) => {
@@ -60,8 +54,8 @@ export function useProfileManagement({
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
         showAlert(
-          "Permission required",
-          "Camera roll permissions are required to select a photo."
+          t("common.error"),
+          t("permissions.cameraRollRequired")
         );
         return;
       }
@@ -78,9 +72,9 @@ export function useProfileManagement({
       }
     } catch (error) {
       console.error("Error picking image:", error);
-      showAlert("Error", "Failed to select image. Please try again.");
+      showAlert(t("common.error"), t("profile.imageSelectError"));
     }
-  }, [showAlert]);
+  }, [showAlert, t]);
 
   // Validate and save profile
   const handleSaveProfile = useCallback(async () => {
@@ -88,11 +82,11 @@ export function useProfileManagement({
 
     // Validate nickname length
     if (editedNickname.length < 2) {
-      showAlert("Error", "Nickname must be at least 2 characters long.");
+      showAlert(t("common.error"), t("validation.nicknameTooShort"));
       return;
     }
     if (editedNickname.length > 15) {
-      showAlert("Error", "Nickname cannot exceed 15 characters.");
+      showAlert(t("common.error"), t("validation.nicknameTooLong"));
       return;
     }
 
@@ -126,12 +120,12 @@ export function useProfileManagement({
         await updateUserProfile({ displayName: editedNickname });
       }
 
-      showAlert("Success", "Profile updated successfully.");
+      showAlert(t("common.success"), t("profile.profileUpdated"));
       setIsEditMode(false);
       setTempImageUri(null);
     } catch (error: any) {
       console.error("Update error:", error);
-      showAlert("Error", error.message || "Failed to update profile.");
+      showAlert(t("common.error"), error.message || t("profile.updateError"));
     } finally {
       setUploading(false);
     }
@@ -143,6 +137,7 @@ export function useProfileManagement({
     uploadProfileImage,
     updateUserProfile,
     showAlert,
+    t,
   ]);
 
   // Cancel edit and reset state
@@ -152,13 +147,6 @@ export function useProfileManagement({
     setEditedNickname(profile?.displayName || user?.displayName || "");
   }, [profile?.displayName, user?.displayName]);
 
-  // Initialize edited nickname when entering edit mode
-  const initializeEditMode = useCallback(() => {
-    if (isEditMode) {
-      setEditedNickname(profile?.displayName || user?.displayName || "");
-    }
-  }, [isEditMode, profile?.displayName, user?.displayName]);
-
   return {
     // State
     isEditMode,
@@ -166,13 +154,16 @@ export function useProfileManagement({
     tempImageUri,
     uploading,
 
-    // Actions
+    // Setters
     setIsEditMode,
     setEditedNickname,
+    setTempImageUri,
+    setUploading,
+
+    // Actions
     handleEditedNicknameChange,
     handleChoosePhoto,
     handleSaveProfile,
     handleCancelEdit,
-    initializeEditMode,
   };
 }

@@ -7,10 +7,10 @@ import colors from '../../../core/theme/colors';
 import { typography, spacing, shadows } from '../../../core/theme';
 import { Report, ReportStatus, reportStatuses } from '../../../shared/types/reports';
 import { deleteReport, updateReportStatus } from '../../../lib/firebase/reports';
-import CustomAlert from '../../common/modals/CustomAlert';
 import IconButton from '../../common/buttons/IconButton';
 import TouchableButton from '../../common/buttons/TouchableButton';
 import { useTranslation } from '../../../shared/hooks/common/useTranslation';
+import { useAlert } from '../../../core/context/AlertContext';
 import { getStatusTranslationKey, getStatusNoteTranslationKey } from '../../../shared/utils/statusTranslation';
 
 // Use theme shadows instead of local shadowStyles
@@ -327,21 +327,8 @@ const AdminExpandedView = ({ report, statusColor, onClose, onStatusUpdate, onDel
 const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChange, isAdmin, onDetailsPress }) => {
   const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{
-    title: string;
-    message?: string;
-    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
-  }>({ title: '', buttons: [] });
 
-  const showAlert = (title: string, message?: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [{ text: 'OK' }]) => {
-    setAlertConfig({ title, message, buttons });
-    setAlertVisible(true);
-  };
-
-  const hideAlert = () => {
-    setAlertVisible(false);
-  };
+  const { showAlert } = useAlert();
 
   const statusColor = colors.getStatusColor(report.status);
 
@@ -421,13 +408,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onDelete, onStatusChang
           )}
         </CarImageContainer>
       </CardContainer>
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        buttons={alertConfig.buttons}
-        onRequestClose={hideAlert}
-      />
+
     </>
   );
 };

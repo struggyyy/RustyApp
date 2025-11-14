@@ -20,6 +20,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal project imports
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import { useAlert } from '../../../core/context/AlertContext';
 import IconButton from "../../common/buttons/IconButton";
 import theme from "../../../core/theme";
 import { Report } from "../../../shared/types/reports";
@@ -100,24 +101,15 @@ interface UserReportModalProps {
   report: Report;
   onClose: () => void;
   onDelete: (id: string) => void;
-  showAlert: (
-    title: string,
-    message?: string,
-    buttons?: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }>
-  ) => void;
 }
 
 const UserReportModal: React.FC<UserReportModalProps> = ({
   report,
   onClose,
   onDelete,
-  showAlert,
 }) => {
   const { t } = useTranslation();
+  const { showAlert } = useAlert();
   const statusColor = theme.colors.getStatusColor(report.status);
 
   const handleDeletePress = () => {

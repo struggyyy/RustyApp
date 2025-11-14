@@ -19,23 +19,16 @@ import { useRouter } from "expo-router";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
+import { useAlert } from '../../../core/context/AlertContext';
 
 interface UseProfileActionsOptions {
-  showAlert: (
-    title: string,
-    message?: string,
-    buttons?: Array<{
-      text: string;
-      onPress?: () => void;
-      style?: "default" | "cancel" | "destructive";
-    }>
-  ) => void;
   t: (key: string, options?: any) => string;
 }
 
-export function useProfileActions({ showAlert, t }: UseProfileActionsOptions) {
+export function useProfileActions({ t }: UseProfileActionsOptions) {
   const { logOut, deleteAccount } = useAuth();
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const handleLogout = useCallback(async () => {
     try {

@@ -15,10 +15,7 @@
 import { useRef, useState } from "react";
 import { Animated } from "react-native";
 
-/**
- * Custom hook for shake animation
- * Returns animated value and trigger function
- */
+// Custom hook for shake animation
 export const useShakeAnimation = () => {
   // Animation state
   const shakeAnimation = useRef(new Animated.Value(0)).current;

@@ -23,7 +23,7 @@ const palette = {
   // Neutral grays
   neutral: {
     50: "#FFFFFF", // White backgrounds, text on dark
-    100: "#CCCCCC", // Medium gray for backgrounds and borders
+    100: "#d6d6d6ff", // Medium gray for backgrounds and borders
     200: "#9E9E9E", // Tertiary text, disabled states
     300: "#656565", // Primary text
     400: "#333333", // Dark gray text

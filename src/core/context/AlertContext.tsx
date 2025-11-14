@@ -12,7 +12,10 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import { useState } from "react";
+import React, { createContext, useContext, useState, useCallback, PropsWithChildren } from "react";
+
+// Internal imports
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
 
 export interface AlertButton {
   text: string;
@@ -26,31 +29,62 @@ export interface AlertConfig {
   buttons: AlertButton[];
 }
 
-export const useAlert = () => {
+interface AlertContextType {
+  alertVisible: boolean;
+  alertConfig: AlertConfig;
+  showAlert: (
+    title: string,
+    message?: string,
+    buttons?: AlertButton[]
+  ) => void;
+  hideAlert: () => void;
+}
+
+const AlertContext = createContext<AlertContextType | undefined>(undefined);
+
+export const useAlert = (): AlertContextType => {
+  const context = useContext(AlertContext);
+  if (!context) {
+    throw new Error("useAlert must be used within an AlertProvider");
+  }
+  return context;
+};
+
+export const AlertProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const { t } = useTranslation();
+
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     title: "",
     buttons: [],
   });
 
-  // Alert management functions
-  const showAlert = (
-    title: string,
-    message?: string,
-    buttons: AlertButton[] = [{ text: "OK" }]
-  ) => {
-    setAlertConfig({ title, message, buttons });
-    setAlertVisible(true);
-  };
+  const showAlert = useCallback(
+    (
+      title: string,
+      message?: string,
+      buttons: AlertButton[] = [{ text: t("common.ok") }]
+    ) => {
+      setAlertConfig({ title, message, buttons });
+      setAlertVisible(true);
+    },
+    [t]
+  );
 
-  const hideAlert = () => {
+  const hideAlert = useCallback(() => {
     setAlertVisible(false);
-  };
+  }, []);
 
-  return {
+  const value: AlertContextType = {
     alertVisible,
     alertConfig,
     showAlert,
     hideAlert,
   };
+
+  return (
+    <AlertContext.Provider value={value}>
+      {children}
+    </AlertContext.Provider>
+  );
 };
