@@ -13,7 +13,7 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Modal } from "react-native";
+import { View, StyleSheet, Modal, ActivityIndicator, Text } from "react-native";
 
 // External libraries
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
@@ -23,10 +23,16 @@ import { useAuth } from "../src/core/context/AuthContext";
 import { useTranslation } from "../src/shared/hooks/common/useTranslation";
 import { useAdminFilters } from "../src/shared/hooks/admin/useAdminFilters";
 import { useReportManagement } from "../src/shared/hooks/admin/useReportManagement";
-import { Report as ReportType, ReportStatus } from "../src/shared/types/reports";
+import {
+  Report as ReportType,
+  ReportStatus,
+} from "../src/shared/types/reports";
 import ReportList from "../src/components/features/reports-page/ReportList";
 import FilterPanel from "../src/components/features/admin/FilterPanel";
 import AdminReportModal from "../src/components/features/admin/AdminReportModal";
+import ReportModal from "../src/components/common/modals/ReportModal";
+import { SharedMapView } from "../src/components/common/map/SharedMapView";
+import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";
 import theme from "../src/core/theme";
 import { getStatusColor } from "../src/core/theme/colors";
 
@@ -63,7 +69,7 @@ const styles = StyleSheet.create({
   },
 });
 
-
+// Admin dashboard with conditional map/list view
 export default function AdminDashboard() {
   // Context hooks
   const { isAdmin } = useAuth();
@@ -95,9 +101,35 @@ export default function AdminDashboard() {
   // Modal state
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
+  const [showMapView, setShowMapView] = useState(false);
+  const [isMapLoading, setIsMapLoading] = useState(false);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+
+  // Shared map logic hook
+  const {
+    location,
+    locationErrorMsg,
+    isLocationLoading,
+    mapRef,
+    modalVisible,
+    selectedReports,
+    currentReportIndex,
+    fetchLocation,
+    goToMyLocation,
+    openNavigation,
+    goToPrev,
+    goToNext,
+    handleMarkerPress,
+    setModalVisible,
+    setSelectedReports,
+    setCurrentReportIndex,
+  } = useMapLogic();
 
   // Track processed report IDs to prevent duplicate modal opens
-  const [processedReportId, setProcessedReportId] = useState<string | null>(null);
+  const [processedReportId, setProcessedReportId] = useState<string | null>(
+    null
+  );
 
   // Redirect non-admin users
   useEffect(() => {
@@ -106,10 +138,22 @@ export default function AdminDashboard() {
     }
   }, [isAdmin, router]);
 
+  // Location fetching logic when map view is active
+  useEffect(() => {
+    if (showMapView && !location && !locationErrorMsg) {
+      fetchLocation();
+    }
+  }, [showMapView, location, locationErrorMsg, fetchLocation]);
+
   // Handle deep linking to specific report from notification
   useEffect(() => {
     const normalizedReportId = Array.isArray(reportId) ? reportId[0] : reportId;
-    if (normalizedReportId && reports.length > 0 && !loading && normalizedReportId !== processedReportId) {
+    if (
+      normalizedReportId &&
+      reports.length > 0 &&
+      !loading &&
+      normalizedReportId !== processedReportId
+    ) {
       const report = reports.find((r) => r.id === normalizedReportId);
       if (report) {
         setSelectedReport(report);
@@ -152,6 +196,42 @@ export default function AdminDashboard() {
     router.push("/admin-profile");
   };
 
+  // Handle map/list view toggle with loading animation
+  const handleMapPress = () => {
+    if (!showMapView) {
+      setIsMapLoading(true);
+      // Start prerendering the map immediately
+      setTimeout(() => {
+        setIsMapLoading(false);
+      }, 600); // Show loading for 600ms while map prerenders
+    }
+    setShowMapView(!showMapView);
+  };
+
+  // Handle filter panel expansion changes with loading
+  const handleFilterExpansionChange = (expanded: boolean) => {
+    if (showMapView) {
+      setIsFilterLoading(true);
+      setIsFilterExpanded(expanded);
+      // Show loading for animation duration
+      setTimeout(() => {
+        setIsFilterLoading(false);
+      }, 300); // Match typical animation duration
+    } else {
+      setIsFilterExpanded(expanded);
+    }
+  };
+
+  // Modal navigation handlers for admin map modal
+  const viewReport = () => {
+    if (selectedReports[currentReportIndex]) {
+      // For admin users, open the admin report modal instead of navigating
+      setModalVisible(false); // Close the map modal
+      setSelectedReport(selectedReports[currentReportIndex]); // Set the selected report
+      setShowReportModal(true); // Open admin modal
+    }
+  };
+
   // Don't render if not admin
   if (!isAdmin) {
     return null;
@@ -167,26 +247,100 @@ export default function AdminDashboard() {
           maxDistance={maxDistance}
           onDistanceChange={handleDistanceFilterChange}
           onProfile={handleProfilePress}
+          onMap={handleMapPress}
+          isMapView={showMapView}
+          isExpanded={isFilterExpanded}
+          onExpandedChange={handleFilterExpansionChange}
         />
-        <View style={[styles.dashboardWrapper, theme.shadows.modal]}>
-          <View style={styles.dashboardContainer}>
-            <ReportList
-              reports={filteredReports}
-              loading={loading || locationLoading}
-              error={error}
-              refreshing={refreshing}
-              isAdmin={true}
-              onRefresh={onRefresh}
-              onDelete={handleReportDelete}
-              onStatusChange={handleStatusChange}
-              loadingText={t("admin.loading")}
-              emptyText={t("admin.noReports")}
-              onDetailsPress={handleDetailsPress}
-            />
+        <View
+          style={[
+            styles.dashboardWrapper,
+            theme.shadows.modal,
+            showMapView && { borderRadius: 24, overflow: "hidden" },
+          ]}
+        >
+          <View
+            style={[
+              styles.dashboardContainer,
+              showMapView && {
+                borderRadius: 0,
+                backgroundColor: "transparent",
+                padding: 0,
+                overflow: "hidden",
+              },
+            ]}
+          >
+            {showMapView ? (
+              <>
+                {/* Always render the map underneath */}
+                <SharedMapView
+                  reports={filteredReports}
+                  location={location}
+                  locationErrorMsg={locationErrorMsg}
+                  isLocationLoading={isLocationLoading}
+                  mapRef={mapRef}
+                  onGoToMyLocation={goToMyLocation}
+                  onMarkerPress={(report) =>
+                    handleMarkerPress(report, filteredReports)
+                  }
+                />
+                {(isMapLoading || isFilterLoading) && (
+                  // Loading overlay on top of the prerendered map
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: theme.colors.background.secondary,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      zIndex: 3,
+                    }}
+                  >
+                    <ActivityIndicator
+                      size="large"
+                      color={theme.colors.primary}
+                    />
+                    <Text
+                      style={{
+                        marginTop: 16,
+                        color: theme.colors.text.primary,
+                        fontSize: 16,
+                      }}
+                    >
+                      {t("admin.loading")}
+                    </Text>
+                  </View>
+                )}
+              </>
+            ) : (
+              // Report list view
+              <ReportList
+                reports={filteredReports}
+                loading={loading || locationLoading}
+                error={error}
+                refreshing={refreshing}
+                isAdmin={true}
+                onRefresh={onRefresh}
+                onDelete={handleReportDelete}
+                onStatusChange={handleStatusChange}
+                loadingText={t("admin.loading")}
+                emptyText={t("admin.noReports")}
+                onDetailsPress={handleDetailsPress}
+              />
+            )}
           </View>
         </View>
 
-        <Modal key={showReportModal ? 'visible' : 'hidden'} visible={showReportModal} transparent animationType="fade">
+        {/* Admin report modal for detailed report management */}
+        <Modal
+          key={showReportModal ? "visible" : "hidden"}
+          visible={showReportModal}
+          transparent
+          animationType="fade"
+        >
           <View style={styles.modalOverlay}>
             <View style={[styles.modalContent, theme.shadows.modal]}>
               {selectedReport && (
@@ -201,6 +355,18 @@ export default function AdminDashboard() {
             </View>
           </View>
         </Modal>
+
+        {/* Map marker modal for quick report viewing */}
+        <ReportModal
+          visible={modalVisible}
+          report={selectedReports[currentReportIndex] || null}
+          onClose={() => setModalVisible(false)}
+          onNavigate={openNavigation}
+          onViewReport={viewReport}
+          onPrev={goToPrev}
+          onNext={goToNext}
+          hasMultiple={selectedReports.length > 1}
+        />
       </View>
     </>
   );
