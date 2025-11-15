@@ -20,7 +20,7 @@ import styled from "styled-components/native";
 // Internal imports
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
 import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
+import { typography, spacing } from "../../../core/theme";
 
 // Styled components
 const HeaderContainer = styled.View({
@@ -29,7 +29,7 @@ const HeaderContainer = styled.View({
 });
 
 const Title = styled.Text({
-  fontSize: 22,
+  fontSize: typography.fontSize.h3,
   fontWeight: "bold",
   color: colors.text.primary,
   textAlign: "center",
@@ -37,13 +37,14 @@ const Title = styled.Text({
 });
 
 const Subtitle = styled.Text({
-  fontSize: 14,
+  fontSize: typography.fontSize.body2,
   color: colors.text.tertiary,
   textAlign: "center",
   marginBottom: spacing.M,
   lineHeight: "20px",
 });
 
+// Header component for the report creation screen
 export const ReportHeader: React.FC = () => {
   const { t } = useTranslation();
 

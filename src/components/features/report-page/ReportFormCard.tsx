@@ -17,13 +17,13 @@ import React, { useRef } from "react";
 // External libraries
 import MapView from "react-native-maps";
 import { LinearGradient } from "expo-linear-gradient";
-import * as Haptics from "expo-haptics";
 import styled from "styled-components/native";
 
 // Internal imports
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import { useHaptics } from "../../../core/context/HapticsContext";
 import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
+import { typography, spacing } from "../../../core/theme";
 import { MapComponent } from "../../common/map/MapComponent";
 import { MapControls } from "../../common/map/MapControls";
 
@@ -37,7 +37,7 @@ const MainCard = styled.View({
 
 const DescriptionInput = styled.TextInput({
   padding: spacing.M,
-  fontSize: 16,
+  fontSize: typography.fontSize.body1,
   color: colors.text.primary,
   textAlignVertical: "top",
 });
@@ -69,6 +69,7 @@ interface ReportFormCardProps {
   locationErrorMsg: string | null;
 }
 
+// Main report form component combining description input and location map
 export const ReportFormCard: React.FC<ReportFormCardProps> = ({
   description,
   onDescriptionChange,
@@ -76,9 +77,39 @@ export const ReportFormCard: React.FC<ReportFormCardProps> = ({
   locationErrorMsg,
 }) => {
   const { t } = useTranslation();
+  const haptics = useHaptics();
   const mapRef = useRef<MapView>(null);
 
-  // Form input and map display
+  // Convert location format for MapComponent compatibility
+  const formattedLocation = location
+    ? {
+        coords: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          altitude: null,
+          accuracy: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: Date.now(),
+      }
+    : null;
+
+  // Handle map controls interaction
+  const handleGoToMyLocation = () => {
+    if (location && mapRef.current) {
+      const region = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.005,
+      };
+      mapRef.current.animateToRegion(region, 1000);
+    }
+  };
+
+  // Render form with description input and interactive map
   return (
     <MainCard>
       <InsetShadowGradientView
@@ -90,61 +121,21 @@ export const ReportFormCard: React.FC<ReportFormCardProps> = ({
         placeholderTextColor={colors.text.primary}
         value={description}
         onChangeText={onDescriptionChange}
-        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
+        onFocus={() => haptics.heavy()}
         multiline
         maxLength={150}
       />
 
       <MapContainer>
         <MapComponent
-          location={
-            location
-              ? {
-                  coords: {
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    altitude: null,
-                    accuracy: null,
-                    altitudeAccuracy: null,
-                    heading: null,
-                    speed: null,
-                  },
-                  timestamp: Date.now(),
-                }
-              : null
-          }
+          location={formattedLocation}
           locationErrorMsg={locationErrorMsg}
           isLocationLoading={!location && !locationErrorMsg}
           mapRef={mapRef}
         />
         <MapControls
-          location={
-            location
-              ? {
-                  coords: {
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    altitude: null,
-                    accuracy: null,
-                    altitudeAccuracy: null,
-                    heading: null,
-                    speed: null,
-                  },
-                  timestamp: Date.now(),
-                }
-              : null
-          }
-          onGoToMyLocation={() => {
-            if (location && mapRef.current) {
-              const region = {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.005,
-              };
-              mapRef.current.animateToRegion(region, 1000);
-            }
-          }}
+          location={formattedLocation}
+          onGoToMyLocation={handleGoToMyLocation}
         />
       </MapContainer>
     </MainCard>

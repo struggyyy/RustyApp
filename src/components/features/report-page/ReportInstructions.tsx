@@ -20,9 +20,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
 import { useHaptics } from "../../../core/context/HapticsContext";
 import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
+import { typography, spacing } from "../../../core/theme";
 
-// Styled components for the instruction toggle
+// Instruction toggle components for show/hide functionality
 const InstructionToggle = styled.TouchableOpacity({
   marginBottom: spacing.L,
 });
@@ -31,7 +31,7 @@ const InstructionToggleText = styled.Text({
   color: colors.primary,
   fontWeight: "bold",
   textAlign: "center",
-  fontSize: 16,
+  fontSize: typography.fontSize.body1,
 });
 
 const InstructionToggleContent = styled.View({
@@ -41,15 +41,15 @@ const InstructionToggleContent = styled.View({
   gap: spacing.XS,
 });
 
-// Styled components for the instructions display
+// Instruction display components for the detailed steps
 const InstructionsContainer = styled.View({
   width: "100%",
   backgroundColor: colors.background.primary,
-  borderRadius: 16,
+  borderRadius: spacing.radius.L,
   paddingVertical: spacing.M,
   paddingHorizontal: spacing.S,
   gap: spacing.M,
-  marginBottom: spacing.XL,
+  marginBottom: spacing.L,
 });
 
 const InstructionRow = styled.View({
@@ -71,12 +71,13 @@ const NumberBadge = styled.View({
 const NumberBadgeText = styled.Text({
   color: colors.white,
   fontWeight: "bold",
+  fontSize: typography.fontSize.body2,
 });
 
 const InstructionText = styled.Text({
   flex: 1,
   color: colors.text.primary,
-  fontSize: 14,
+  fontSize: typography.fontSize.body1,
   lineHeight: "20px",
 });
 
@@ -85,11 +86,13 @@ const PrimaryBoldText = styled.Text({
   fontWeight: "bold",
 });
 
+// Component props interface
 interface ReportInstructionsProps {
   showInstructions: boolean;
   onToggleInstructions: () => void;
 }
 
+// Interactive instructions component for report creation guidance
 export const ReportInstructions: React.FC<ReportInstructionsProps> = ({
   showInstructions,
   onToggleInstructions,
@@ -97,11 +100,13 @@ export const ReportInstructions: React.FC<ReportInstructionsProps> = ({
   const { t } = useTranslation();
   const haptics = useHaptics();
 
+  // Handle toggle with haptic feedback
   const handleToggle = () => {
     haptics.heavy();
     onToggleInstructions();
   };
 
+  // Render toggle button and conditional instructions display
   return (
     <>
       <InstructionToggle onPress={handleToggle}>

@@ -12,11 +12,18 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { createContext, useContext, useState, useCallback, PropsWithChildren } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  PropsWithChildren,
+} from "react";
 
 // Internal imports
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 
+// Alert button interface
 export interface AlertButton {
   text: string;
   onPress?: () => void;
@@ -32,24 +39,13 @@ export interface AlertConfig {
 interface AlertContextType {
   alertVisible: boolean;
   alertConfig: AlertConfig;
-  showAlert: (
-    title: string,
-    message?: string,
-    buttons?: AlertButton[]
-  ) => void;
+  showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
   hideAlert: () => void;
 }
 
 const AlertContext = createContext<AlertContextType | undefined>(undefined);
 
-export const useAlert = (): AlertContextType => {
-  const context = useContext(AlertContext);
-  if (!context) {
-    throw new Error("useAlert must be used within an AlertProvider");
-  }
-  return context;
-};
-
+// Alert provider component for managing app-wide alert dialogs
 export const AlertProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation();
 
@@ -59,6 +55,7 @@ export const AlertProvider: React.FC<PropsWithChildren> = ({ children }) => {
     buttons: [],
   });
 
+  // Show alert with customizable title, message, and buttons
   const showAlert = useCallback(
     (
       title: string,
@@ -83,8 +80,15 @@ export const AlertProvider: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   return (
-    <AlertContext.Provider value={value}>
-      {children}
-    </AlertContext.Provider>
+    <AlertContext.Provider value={value}>{children}</AlertContext.Provider>
   );
+};
+
+// Custom hook to access alert context
+export const useAlert = (): AlertContextType => {
+  const context = useContext(AlertContext);
+  if (!context) {
+    throw new Error("useAlert must be used within an AlertProvider");
+  }
+  return context;
 };

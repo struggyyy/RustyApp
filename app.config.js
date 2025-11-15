@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 export default {
   "expo": {
     "name": "Rusty",
@@ -25,6 +23,9 @@ export default {
       ],
       "config": {
         "googleMapsApiKey": process.env.GOOGLE_MAPS_API_KEY
+      },
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true
       }
     },
     "android": {

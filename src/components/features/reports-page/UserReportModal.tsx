@@ -29,6 +29,7 @@ import {
   getStatusNoteTranslationKey,
 } from "../../../shared/utils/statusTranslation";
 
+// Component styles
 const styles = StyleSheet.create({
   container: {
     maxHeight: "100%",
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Helper functions
+// Helper function for date formatting
 const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, "0")}.${String(
     date.getMonth() + 1
@@ -103,6 +104,7 @@ interface UserReportModalProps {
   onDelete: (id: string) => void;
 }
 
+// Main component for displaying detailed report view in modal
 const UserReportModal: React.FC<UserReportModalProps> = ({
   report,
   onClose,
@@ -112,6 +114,7 @@ const UserReportModal: React.FC<UserReportModalProps> = ({
   const { showAlert } = useAlert();
   const statusColor = theme.colors.getStatusColor(report.status);
 
+  // Handle report deletion with confirmation
   const handleDeletePress = () => {
     showAlert(t("reports.deleteReport"), t("reports.deleteReportConfirm"), [
       {

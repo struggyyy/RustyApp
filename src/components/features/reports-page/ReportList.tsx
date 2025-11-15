@@ -1,10 +1,29 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import React, { useRef, useEffect } from 'react';
 import { FlatList, ActivityIndicator, View, Text, RefreshControl } from 'react-native';
+
+// External libraries
 import styled from 'styled-components/native';
+
+// Internal project imports
 import ReportCard from './ReportCard';
 import { Report, ReportStatus } from '../../../shared/types/reports';
 import theme from '../../../core/theme';
 
+// Styled components for layout and messaging
 const CenteredContainer = styled.View({
   flex: 1,
   justifyContent: 'center',
@@ -17,7 +36,6 @@ const InfoText = styled.Text({
   marginTop: 10,
   textAlign: 'center',
 });
-
 
 interface ReportListProps {
   reports: Report[];
@@ -34,6 +52,7 @@ interface ReportListProps {
   scrollToIndex?: number;
 }
 
+// Main component for displaying a list of reports
 const ReportList: React.FC<ReportListProps> = ({
   reports,
   loading,
@@ -61,6 +80,7 @@ const ReportList: React.FC<ReportListProps> = ({
     }
   }, [scrollToIndex]);
 
+  // Show loading state
   if (loading && !refreshing) {
     return (
       <CenteredContainer>
@@ -70,6 +90,7 @@ const ReportList: React.FC<ReportListProps> = ({
     );
   }
 
+  // Show error state
   if (error) {
     return (
       <CenteredContainer>
@@ -78,6 +99,7 @@ const ReportList: React.FC<ReportListProps> = ({
     );
   }
 
+  // Show empty state
   if (reports.length === 0) {
     return (
       <CenteredContainer>
@@ -86,6 +108,7 @@ const ReportList: React.FC<ReportListProps> = ({
     );
   }
 
+  // Render reports list
   return (
     <FlatList
       ref={flatListRef}
@@ -95,8 +118,6 @@ const ReportList: React.FC<ReportListProps> = ({
         <ReportCard
           key={item.id}
           report={item}
-          onDelete={onDelete}
-          onStatusChange={onStatusChange}
           isAdmin={isAdmin}
           onDetailsPress={onDetailsPress ? () => onDetailsPress(item) : undefined}
         />

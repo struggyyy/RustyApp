@@ -26,7 +26,7 @@ import shadows from "../../../core/theme/shadows";
 import StyledButton from "../../common/buttons/StyledButton";
 import TouchableButton from "../../common/buttons/TouchableButton";
 
-// Styled components
+// Image preview container for displaying selected image
 const ImagePreviewContainer = styled.View({
   width: "100%",
   aspectRatio: 1.34,
@@ -43,6 +43,7 @@ const ImagePreview = styled.Image({
   height: "100%",
 });
 
+// Overlay controls for image editing/removal
 const ImageOverlayActions = styled.View({
   position: "absolute",
   top: spacing.S,
@@ -51,6 +52,7 @@ const ImageOverlayActions = styled.View({
   zIndex: 10,
 });
 
+// Button layout for image picker options
 const ButtonRow = styled.View({
   flexDirection: "row",
   justifyContent: "space-between",
@@ -67,6 +69,7 @@ interface ImagePickerSectionProps {
   onRemoveImage: () => void;
 }
 
+// Image picker component for report photo selection
 export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
   imageUri,
   isKeyboardVisible = false,
@@ -75,7 +78,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Image preview with overlay actions
+  // Render image preview with overlay controls when image is selected
   if (imageUri) {
     return !isKeyboardVisible ? (
       <ImagePreviewContainer>
@@ -97,7 +100,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
     ) : null;
   }
 
-  // Image picker buttons
+  // Render camera/gallery picker buttons when no image is selected
   return (
     <ButtonRow>
       <StyledButton
