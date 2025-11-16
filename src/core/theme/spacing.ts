@@ -23,10 +23,10 @@ const spacing = {
 
   // Border radius
   radius: {
-    XS: 4,  // Small buttons, chips
-    S: 8,   // Standard components
-    M: 16,  // Cards, modals (increased from 12px for better rounded appearance)
-    L: 20,  // Large containers (increased from 16px for better rounded appearance)
+    XS: 4, // Small buttons, chips
+    S: 8, // Standard components
+    M: 16, // Cards, modals (increased from 12px for better rounded appearance)
+    L: 20, // Large containers (increased from 16px for better rounded appearance)
     XL: 24, // Special cases, large radius
     XXL: 40, // Circular images (80px diameter)
   },
@@ -36,6 +36,7 @@ const spacing = {
     cardPadding: 16, // Standard card padding
     screenPadding: 16, // Screen edge padding
     sectionPadding: 24, // Between major sections
+    mapSectionHeightRatio: 0.33, // Map section height as fraction of screen height
   },
 
   // Component spacing - specific to UI components

@@ -19,6 +19,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Report } from "@/shared/types/reports";
 import colors from "@/core/theme/colors";
 import theme from "@/core/theme";
+import spacing from "@/core/theme/spacing";
 import TouchableButton from "@/components/common/buttons/TouchableButton";
 
 interface ProfileReportsCardProps {
@@ -27,11 +28,12 @@ interface ProfileReportsCardProps {
   t: (key: string) => string;
 }
 
+// Styles for the reports card layout
 const styles = StyleSheet.create({
   reportsCard: {
     backgroundColor: colors.background.secondary,
-    borderRadius: 24,
-    padding: 12,
+    borderRadius: spacing.radius.XL,
+    padding: spacing.S,
     marginBottom: 20,
     minHeight: 53,
     ...theme.shadows.modal,
@@ -46,6 +48,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// Main component for displaying reports card
 const ProfileReportsCard: React.FC<ProfileReportsCardProps> = ({
   reports,
   onViewAllReports,

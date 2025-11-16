@@ -23,8 +23,8 @@ import MapView, { Marker } from "react-native-maps";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import colors from "@/core/theme/colors";
 import spacing from "@/core/theme/spacing";
+import typography from "@/core/theme/typography";
 import styled from "styled-components/native";
-import { StyleSheet } from "react-native";
 import theme from "@/core/theme";
 import TouchableButton from "@/components/common/buttons/TouchableButton";
 import { MapComponent } from "@/components/common/map/MapComponent";
@@ -34,7 +34,7 @@ import { Report } from "@/shared/types/reports";
 const { height } = Dimensions.get("window");
 
 const MapSectionContainer = styled.View({
-  height: height * 0.33,
+  height: height * spacing.layout.mapSectionHeightRatio,
   borderRadius: spacing.radius.XL,
   overflow: "hidden",
   backgroundColor: colors.background.secondary,
@@ -55,7 +55,7 @@ const MyReportsButton = styled(TouchableButton)({
 const MyReportsButtonText = styled.Text({
   color: colors.text.primary,
   fontWeight: "bold",
-  fontSize: 18,
+  fontSize: typography.fontSize.h5,
   textAlign: "center",
 });
 
@@ -71,10 +71,9 @@ const InsetShadowGradientView = styled(LinearGradient)({
   left: 0,
   right: 0,
   top: 0,
-  height: spacing.M - 1, // 15px
+  height: spacing.M,
   zIndex: 2,
 });
-
 
 interface MapSectionProps {
   location: any;
@@ -87,6 +86,7 @@ interface MapSectionProps {
   onMyReportsPress: () => void;
 }
 
+// Home screen map section displaying user's location, reports, and navigation controls
 export function MapSection({
   location,
   locationErrorMsg,
@@ -101,6 +101,7 @@ export function MapSection({
 
   return (
     <MapSectionContainer>
+      {/* Conditionally show "My Reports" button when user has reports */}
       {reports.length > 0 && (
         <MyReportsButton
           onPress={onMyReportsPress}
@@ -116,6 +117,7 @@ export function MapSection({
           isLocationLoading={isLocationLoading}
           mapRef={mapRef}
         >
+          {/* Render report markers on map */}
           {reports.map((report) => (
             <Marker
               key={report.id}
@@ -127,10 +129,14 @@ export function MapSection({
             />
           ))}
         </MapComponent>
+
+        {/* Subtle gradient overlay for visual depth */}
         <InsetShadowGradientView
           colors={[colors.shadow, "transparent"]}
           pointerEvents="none"
         />
+
+        {/* Map navigation controls */}
         <MapControls
           location={location}
           onGoToMyLocation={onGoToMyLocation}

@@ -26,14 +26,16 @@ import { storage } from "@/lib/firebase/firebase";
 // Hook options interface
 interface UseProfileEditOptions {
   t: (key: string, options?: any) => string;
+  onShake?: () => void;
 }
 
 // Main hook function
-export function useProfileEdit({ t }: UseProfileEditOptions) {
+export function useProfileEdit({ t, onShake }: UseProfileEditOptions) {
   // Profile editing state
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedNickname, setEditedNickname] = useState("");
   const [tempImageUri, setTempImageUri] = useState<string | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   // Auth hooks
@@ -41,11 +43,17 @@ export function useProfileEdit({ t }: UseProfileEditOptions) {
   const { showAlert } = useAlert();
 
   // Handle nickname change with validation
-  const handleEditedNicknameChange = useCallback((text: string) => {
-    if (text.length <= 15) {
-      setEditedNickname(text);
-    }
-  }, []);
+  const handleEditedNicknameChange = useCallback(
+    (text: string) => {
+      if (text.length > editedNickname.length && editedNickname.length >= 15) {
+        onShake?.();
+      }
+      if (text.length <= 15) {
+        setEditedNickname(text);
+      }
+    },
+    [editedNickname.length, onShake]
+  );
 
   // Choose photo from library
   const handleChoosePhoto = useCallback(async () => {
@@ -66,6 +74,7 @@ export function useProfileEdit({ t }: UseProfileEditOptions) {
 
       if (!result.canceled && result.assets[0]) {
         setTempImageUri(result.assets[0].uri);
+        setImageRemoved(false); // Reset remove flag when selecting new image
       }
     } catch (error) {
       console.error("Error picking image:", error);
@@ -89,19 +98,62 @@ export function useProfileEdit({ t }: UseProfileEditOptions) {
 
     setUploading(true);
     try {
-      // Delete old profile image if it exists and we're replacing it
+      // Store old image URL for deletion after successful upload
       const oldImageUrl = profile?.profileImage || user?.photoURL;
-      if (oldImageUrl && tempImageUri) {
-        const url = new URL(oldImageUrl);
-        const path = decodeURIComponent(url.pathname.split("/o/")[1]);
-        const imageRef = ref(storage, path);
-        await deleteObject(imageRef);
-        console.log("Old profile image deleted successfully");
+      let newImageUrl: string | undefined;
+
+      // Handle image changes
+      if (tempImageUri) {
+        // Upload new profile picture
+        newImageUrl = await uploadProfileImage(user.uid, tempImageUri);
+      } else if (imageRemoved && oldImageUrl) {
+        // User explicitly removed the image - delete from Firebase and clear profile
+        try {
+          const url = new URL(oldImageUrl);
+          const path = decodeURIComponent(url.pathname.split("/o/")[1]);
+          const imageRef = ref(storage, path);
+          await deleteObject(imageRef);
+          console.log("Profile image deleted successfully");
+        } catch (deleteError: any) {
+          // Handle object-not-found errors gracefully (expected for first-time users)
+          if (deleteError.code === "storage/object-not-found") {
+            console.debug(
+              "Profile image did not exist in storage - skipping deletion"
+            );
+          } else {
+            // Log other deletion errors as warnings
+            console.warn(
+              "Could not delete profile image:",
+              deleteError.message
+            );
+          }
+        }
+        // Update profile to remove image URL
+        await updateUserProfile({ profileImage: null });
       }
 
-      // Upload new profile picture if changed (only after old image is successfully deleted)
-      if (tempImageUri) {
-        await uploadProfileImage(user.uid, tempImageUri);
+      // Safely delete old profile image only after successful upload
+      if (oldImageUrl && newImageUrl) {
+        try {
+          const url = new URL(oldImageUrl);
+          const path = decodeURIComponent(url.pathname.split("/o/")[1]);
+          const imageRef = ref(storage, path);
+          await deleteObject(imageRef);
+          console.log("Old profile image deleted successfully");
+        } catch (deleteError: any) {
+          // Handle object-not-found errors gracefully
+          if (deleteError.code === "storage/object-not-found") {
+            console.debug(
+              "Old profile image did not exist in storage - skipping deletion"
+            );
+          } else {
+            // Log other deletion errors as warnings
+            console.warn(
+              "Could not delete old profile image:",
+              deleteError.message
+            );
+          }
+        }
       }
 
       // Update display name if changed
@@ -126,16 +178,24 @@ export function useProfileEdit({ t }: UseProfileEditOptions) {
     profile,
     editedNickname,
     tempImageUri,
+    imageRemoved,
     uploadProfileImage,
     updateUserProfile,
     showAlert,
     t,
   ]);
 
+  // Handle photo removal (local state only - Firebase deletion happens on save)
+  const handleRemoveImage = useCallback(() => {
+    setTempImageUri(null);
+    setImageRemoved(true);
+  }, []);
+
   // Cancel edit and reset state
   const handleCancelEdit = useCallback(() => {
     setIsEditMode(false);
     setTempImageUri(null);
+    setImageRemoved(false);
     setEditedNickname(profile?.displayName || user?.displayName || "");
   }, [profile?.displayName, user?.displayName]);
 
@@ -144,12 +204,14 @@ export function useProfileEdit({ t }: UseProfileEditOptions) {
     isEditMode,
     editedNickname,
     tempImageUri,
+    imageRemoved,
     uploading,
 
     // Setters
     setIsEditMode,
     setEditedNickname,
     setTempImageUri,
+    setImageRemoved,
     setUploading,
 
     // Actions
@@ -157,5 +219,6 @@ export function useProfileEdit({ t }: UseProfileEditOptions) {
     handleChoosePhoto,
     handleSaveProfile,
     handleCancelEdit,
+    handleRemoveImage,
   };
 }

@@ -34,7 +34,7 @@ const CarDisplayImage = styled.Image({
   height: "100%",
 });
 
-
+// Static car image display component for the home screen
 export function CarImageCard() {
   return (
     <CarImageCardContainer style={theme.shadows.muted}>

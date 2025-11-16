@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // External libraries
-import { User } from "firebase/auth";
+import { User, updateProfile } from "firebase/auth";
 import { doc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -116,7 +116,7 @@ export const useProfileManagement = () => {
 
       // Update displayName and photoURL if present
       if (updates.displayName !== undefined || updates.photoURL !== undefined) {
-        await currentUser.updateProfile({
+        await updateProfile(currentUser, {
           displayName:
             updates.displayName !== undefined
               ? updates.displayName

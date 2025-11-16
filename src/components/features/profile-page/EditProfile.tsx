@@ -1,263 +1,227 @@
+/******************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ***************************************************************************/
+// React-specific imports
 import React, { useRef } from "react";
-import {
-  ActivityIndicator,
-  Modal,
-  StyleSheet,
-  Animated,
-} from "react-native";
+import { ActivityIndicator, Animated } from "react-native";
+
+// External libraries
 import { useAuth } from "../../../core/context/AuthContext";
 import { useHaptics } from "../../../core/context/HapticsContext";
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
+
+// Internal imports
 import styled from "styled-components/native";
 import StyledButton from "../../common/buttons/StyledButton";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import colors from "../../../core/theme/colors";
 import theme from "../../../core/theme";
-
-
-// --- STYLED COMPONENTS ---
-const Container = styled.ScrollView.attrs({
-  contentContainerStyle: {
-    paddingTop: 12,
-    paddingHorizontal: 12,
-    paddingBottom: 0, // Adjust the bottom padding to modify the amount of "bounce effect" on the bottom of the screen
-  },
-  showsVerticalScrollIndicator: false, // Hide the vertical scroll indicator
-})({
-  flex: 1,
-  backgroundColor: colors.white,
-});
+import spacing from "../../../core/theme/spacing";
 
 const ProfileCard = styled.View<{ isExpanded: boolean }>(
   (props: { isExpanded: boolean }) => ({
     backgroundColor: colors.background.secondary,
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: spacing.radius.XL,
+    padding: spacing.component.modalPadding,
     marginBottom: 12,
-    flexDirection: props.isExpanded ? 'column' : 'row',
-    alignItems: props.isExpanded ? 'stretch' : 'center',
+    flexDirection: props.isExpanded ? "column" : "row",
+    alignItems: props.isExpanded ? "stretch" : "center",
   })
 );
 
-const CollapsedProfileContent = styled.View`
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex: 1;
-  gap: 12px;
-`;
-
-const CollapsedProfileTop = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-`;
-
-const ExpandedProfileHeader = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const ExpandedProfileTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
-
-const ExpandedProfileCloseButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
-
-const ExpandedAvatarWrapper = styled.View`
-  width: 120px;
-  height: 120px;
-  border-radius: 60px;
-  background-color: ${colors.background.secondary};
-  justify-content: center;
-  align-items: center;
-  border: 5px solid ${colors.primary};
-  align-self: center;
-  margin-bottom: 4px;
-`;
-
-const ExpandedAvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-  border-radius: 60px;
-`;
-
-const ExpandedAvatarPlaceholder = styled.View`
-  width: 100%;
-  height: 100%;
-  border-radius: 60px;
-  background-color: ${colors.background.secondary};
-  justify-content: center;
-  align-items: center;
-`;
-
-const ExpandedAvatarPlaceholderText = styled.Text`
-  font-size: 40px;
-  color: ${colors.white};
-  font-weight: bold;
-`;
-
-const EditIconButton = styled.TouchableOpacity`
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: ${colors.white};
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  z-index: 5;
-  border: 4px solid ${colors.primary};
-`;
-
-const EditLabel = styled.Text`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  margin-bottom: 8px;
-  margin-top: 8px;
-`;
-
-const EditInput = styled.TextInput`
-  background-color: ${colors.white};
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 16px;
-  color: ${colors.text.primary};
-  margin-bottom: 4px;
-  border: 1px solid ${colors.background.secondary};
-`;
-
-const EmailTouchable = styled.TouchableOpacity`
-  margin-top: 12px;
-  margin-bottom: 12px;
-`;
-
-const EmailText = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.primary};
-  text-align: center;
-`;
-
-const PointsText = styled.Text`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-  margin-top: 2px;
-`;
-
-const NicknameContainer = styled.View`
-  align-items: flex-start;
-  justify-content: center;
-`;
-
-const AvatarTouchable = styled.TouchableOpacity``;
-
-const AvatarWrapper = styled.View`
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
-  background-color: ${colors.background.secondary};
-  justify-content: center;
-  align-items: center;
-  border: 5px solid ${colors.primary};
-  position: relative;
-`;
-
-const AvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-`;
-
-const AvatarPlaceholder = styled.View`
-  width: 100%;
-  height: 100%;
-  border-radius: 40px;
-  background-color: ${colors.background.secondary};
-  justify-content: center;
-  align-items: center;
-`;
-
-const AvatarPlaceholderText = styled.Text`
-  font-size: 30px;
-  color: ${colors.white};
-  font-weight: bold;
-`;
-
-const Nickname = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${colors.primary};
-  margin-bottom: 4px;
-`;
-
-const ModalOverlay = styled.View({
+const CollapsedProfileContent = styled.View({
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "stretch",
   flex: 1,
-  backgroundColor: colors.background.overlay,
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 20,
+  gap: 12,
 });
 
-const ModalContent = styled.View({
-  backgroundColor: colors.white,
-  borderRadius: 24,
-  padding: 24,
-  width: '90%',
-  maxWidth: 400,
+const CollapsedProfileTop = styled.View({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
 });
 
-const ModalHeader = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 16,
+const ExpandedProfileHeader = styled.View({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: spacing.M,
 });
 
-const ModalTitle = styled.Text({
+const ExpandedProfileTitle = styled.Text({
   fontSize: 20,
-  fontWeight: 'bold',
+  fontWeight: "bold",
   color: colors.text.primary,
 });
 
-const ModalCloseButton = styled.TouchableOpacity({
-  padding: 8,
+const ExpandedProfileCloseButton = styled.TouchableOpacity({
+  padding: spacing.S,
 });
 
-const ModalImage = styled.Image({
-  width: '100%',
-  height: 300,
-  borderRadius: 16,
-  marginBottom: 16,
+const ExpandedAvatarWrapper = styled.View({
+  width: 120,
+  height: 120,
+  borderRadius: 60,
+  backgroundColor: colors.background.secondary,
+  justifyContent: "center",
+  alignItems: "center",
+  borderWidth: 5,
+  borderColor: colors.primary,
+  alignSelf: "center",
+  marginBottom: 4,
 });
 
+const ExpandedAvatarImage = styled.Image({
+  width: "100%",
+  height: "100%",
+  borderRadius: 60,
+});
+
+const ExpandedAvatarPlaceholder = styled.View({
+  width: "100%",
+  height: "100%",
+  borderRadius: 60,
+  backgroundColor: colors.background.secondary,
+  justifyContent: "center",
+  alignItems: "center",
+});
+
+const ExpandedAvatarPlaceholderText = styled.Text({
+  fontSize: 40,
+  color: colors.white,
+  fontWeight: "bold",
+});
+
+const RemoveImageButton = styled.TouchableOpacity({
+  position: "absolute",
+  top: -5,
+  right: -5,
+  backgroundColor: colors.primary,
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 6,
+});
+
+const EditLabel = styled.Text({
+  fontSize: 14,
+  fontWeight: "bold",
+  color: colors.text.primary,
+  marginBottom: spacing.S,
+  marginTop: spacing.S,
+});
+
+const EditInput = styled.TextInput({
+  backgroundColor: colors.white,
+  borderRadius: spacing.radius.S,
+  paddingHorizontal: spacing.M,
+  paddingVertical: spacing.component.buttonPadding,
+  fontSize: 16,
+  color: colors.text.primary,
+  marginBottom: 4,
+  borderWidth: 1,
+  borderColor: colors.background.secondary,
+});
+
+const EmailTouchable = styled.TouchableOpacity({
+  marginTop: spacing.M,
+  marginBottom: spacing.M,
+});
+
+const EmailText = styled.Text({
+  fontSize: 16,
+  color: colors.text.primary,
+  textAlign: "center",
+});
+
+const PointsText = styled.Text({
+  fontSize: 14,
+  fontWeight: "bold",
+  color: colors.text.primary,
+  marginTop: 2,
+});
+
+const NicknameContainer = styled.View({
+  alignItems: "flex-start",
+  justifyContent: "center",
+});
+
+const AvatarTouchable = styled.TouchableOpacity``;
+
+const AvatarWrapper = styled.View({
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  backgroundColor: colors.background.secondary,
+  justifyContent: "center",
+  alignItems: "center",
+  borderWidth: 5,
+  borderColor: colors.primary,
+  position: "relative",
+});
+
+const AvatarImage = styled.Image({
+  width: "100%",
+  height: "100%",
+  borderRadius: 40,
+});
+
+const AvatarPlaceholder = styled.View({
+  width: "100%",
+  height: "100%",
+  borderRadius: 40,
+  backgroundColor: colors.background.secondary,
+  justifyContent: "center",
+  alignItems: "center",
+});
+
+const AvatarPlaceholderText = styled.Text({
+  fontSize: 30,
+  color: colors.white,
+  fontWeight: "bold",
+});
+
+const Nickname = styled.Text({
+  fontSize: 24,
+  fontWeight: "bold",
+  color: colors.primary,
+  marginBottom: 4,
+});
+
+// Expandable profile card component supporting image and nickname editing
 interface EditProfileProps {
-  variant: 'admin' | 'user';
+  variant: "admin" | "user";
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
   onAvatarPress?: () => void;
   onSave?: () => void;
   onCancel?: () => void;
   onChoosePhoto?: (uri: string) => void;
+  onRemoveImage?: () => void;
   onEmailPress?: () => void;
   uploading?: boolean;
   tempImageUri?: string | null;
   editedNickname?: string;
   onNicknameChange?: (text: string) => void;
-  showImageModal?: boolean;
-  onCloseImageModal?: () => void;
   profileImageUrl?: string | null;
+  imageRemoved?: boolean;
   shakeAnimation?: Animated.Value;
 }
 
@@ -269,14 +233,14 @@ const EditProfile: React.FC<EditProfileProps> = ({
   onSave,
   onCancel,
   onChoosePhoto,
+  onRemoveImage,
   onEmailPress,
   uploading = false,
   tempImageUri,
-  editedNickname = '',
+  editedNickname = "",
   onNicknameChange,
-  showImageModal = false,
-  onCloseImageModal,
   profileImageUrl,
+  imageRemoved = false,
   shakeAnimation,
 }) => {
   const { t } = useTranslation();
@@ -285,6 +249,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
 
   const shake = shakeAnimation || useRef(new Animated.Value(0)).current;
 
+  // Handle photo selection from device gallery
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -303,20 +268,24 @@ const EditProfile: React.FC<EditProfileProps> = ({
     }
   };
 
+  // Save profile changes
   const handleSave = () => {
     onSave?.();
   };
 
+  // Cancel editing and reset state
   const handleCancel = () => {
     onCancel?.();
   };
 
+  // Handle avatar press (opens image modal in collapsed state)
   const handleAvatarPress = () => {
     if (!isExpanded && profileImageUrl) {
       onAvatarPress?.();
     }
   };
 
+  // Toggle expanded/collapsed state
   const handleToggleExpanded = () => {
     onToggleExpanded?.();
   };
@@ -327,19 +296,38 @@ const EditProfile: React.FC<EditProfileProps> = ({
         {isExpanded ? (
           <>
             <ExpandedProfileHeader>
-              <ExpandedProfileTitle>{t('profile.editProfile')}</ExpandedProfileTitle>
-              <ExpandedProfileCloseButton onPress={() => { haptics.heavy(); handleCancel(); }}>
-                <MaterialIcons name="close" size={24} color={colors.text.primary} />
+              <ExpandedProfileTitle>
+                {t("profile.editProfile")}
+              </ExpandedProfileTitle>
+              <ExpandedProfileCloseButton
+                onPress={() => {
+                  haptics.heavy();
+                  handleCancel();
+                }}
+              >
+                <MaterialIcons
+                  name="close"
+                  size={24}
+                  color={colors.text.primary}
+                />
               </ExpandedProfileCloseButton>
             </ExpandedProfileHeader>
 
-            <AvatarTouchable onPress={() => { if (!uploading) { haptics.heavy(); handleChoosePhoto(); } }} disabled={uploading}>
+            <AvatarTouchable
+              onPress={() => {
+                if (!uploading) {
+                  haptics.heavy();
+                  handleChoosePhoto();
+                }
+              }}
+              disabled={uploading}
+            >
               <ExpandedAvatarWrapper>
                 {uploading ? (
                   <ActivityIndicator size="large" color={colors.white} />
                 ) : tempImageUri ? (
                   <ExpandedAvatarImage source={{ uri: tempImageUri }} />
-                ) : profileImageUrl ? (
+                ) : profileImageUrl && !imageRemoved ? (
                   <ExpandedAvatarImage source={{ uri: profileImageUrl }} />
                 ) : (
                   <ExpandedAvatarPlaceholder>
@@ -348,34 +336,58 @@ const EditProfile: React.FC<EditProfileProps> = ({
                     </ExpandedAvatarPlaceholderText>
                   </ExpandedAvatarPlaceholder>
                 )}
-                <EditIconButton onPress={() => { if (!uploading) { haptics.heavy(); handleChoosePhoto(); } }} disabled={uploading}>
-                  <MaterialIcons name="edit" size={20} color={colors.primary} />
-                </EditIconButton>
+                {/* Show remove button only when there's an image to remove and user hasn't clicked remove yet */}
+                {(tempImageUri || profileImageUrl) && !imageRemoved && (
+                  <RemoveImageButton
+                    onPress={() => {
+                      if (!uploading) {
+                        haptics.heavy();
+                        onRemoveImage?.();
+                      }
+                    }}
+                    disabled={uploading}
+                  >
+                    <MaterialIcons
+                      name="close"
+                      size={24}
+                      color={colors.white}
+                    />
+                  </RemoveImageButton>
+                )}
               </ExpandedAvatarWrapper>
             </AvatarTouchable>
 
-            <EditLabel>{t('auth.nickname')}</EditLabel>
+            <EditLabel>{t("auth.nickname")}</EditLabel>
             <Animated.View style={{ transform: [{ translateX: shake }] }}>
               <EditInput
                 value={editedNickname}
                 onChangeText={onNicknameChange}
-                placeholder={t('auth.nickname')}
+                placeholder={t("auth.nickname")}
                 placeholderTextColor={colors.text.primary}
                 editable={!uploading}
-                onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
+                onFocus={() =>
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+                }
               />
             </Animated.View>
 
-            <EmailTouchable onPress={() => { haptics.heavy(); onEmailPress?.(); }}>
-              <EmailText style={{
-                fontSize: user?.email && user.email.length > 20 ? 14 : 16
-              }}>
+            <EmailTouchable
+              onPress={() => {
+                haptics.heavy();
+                onEmailPress?.();
+              }}
+            >
+              <EmailText
+                style={{
+                  fontSize: user?.email && user.email.length > 20 ? 14 : 16,
+                }}
+              >
                 {user?.email || ""}
               </EmailText>
             </EmailTouchable>
 
             <StyledButton
-              title={uploading ? t('common.loading') : t('common.save')}
+              title={uploading ? t("common.loading") : t("common.save")}
               onPress={handleSave}
               disabled={uploading}
               loading={uploading}
@@ -387,14 +399,23 @@ const EditProfile: React.FC<EditProfileProps> = ({
             <CollapsedProfileTop>
               <NicknameContainer>
                 <Nickname style={{ marginBottom: 0 }}>
-                  {profile?.displayName || user?.displayName || t('auth.nickname')}
+                  {profile?.displayName ||
+                    user?.displayName ||
+                    t("auth.nickname")}
                 </Nickname>
-                {variant === 'user' && typeof profile?.points === 'number' && profile.points > 0 && (
-                  <PointsText>{profile.points}</PointsText>
-                )}
+                {variant === "user" &&
+                  typeof profile?.points === "number" &&
+                  profile.points > 0 && (
+                    <PointsText>{profile.points}</PointsText>
+                  )}
               </NicknameContainer>
               <AvatarTouchable
-                onPress={() => { if (!uploading) { haptics.heavy(); handleAvatarPress(); } }}
+                onPress={() => {
+                  if (!uploading) {
+                    haptics.heavy();
+                    handleAvatarPress();
+                  }
+                }}
                 disabled={uploading}
               >
                 <AvatarWrapper>
@@ -413,7 +434,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
               </AvatarTouchable>
             </CollapsedProfileTop>
             <StyledButton
-              title={t('profile.editProfile')}
+              title={t("profile.editProfile")}
               onPress={handleToggleExpanded}
               variant="secondary"
               style={{ marginBottom: 0 }}
@@ -421,23 +442,6 @@ const EditProfile: React.FC<EditProfileProps> = ({
           </CollapsedProfileContent>
         )}
       </ProfileCard>
-
-      <Modal visible={showImageModal} transparent animationType="fade">
-        <ModalOverlay>
-          <ModalContent style={theme.shadows.modal}>
-            <ModalHeader>
-              <ModalTitle>{t('profile.profilePicture')}</ModalTitle>
-              <ModalCloseButton onPress={() => { haptics.heavy(); onCloseImageModal?.(); }}>
-                <Feather name="x" size={24} color={colors.text.primary} />
-              </ModalCloseButton>
-            </ModalHeader>
-            <ModalImage
-              source={{ uri: profileImageUrl }}
-              resizeMode="contain"
-            />
-          </ModalContent>
-        </ModalOverlay>
-      </Modal>
     </>
   );
 };

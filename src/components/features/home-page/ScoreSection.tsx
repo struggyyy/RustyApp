@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // External libraries
 import { View } from "react-native";
@@ -22,6 +22,7 @@ import { useAuth } from "@/core/context/AuthContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import colors from "@/core/theme/colors";
 import spacing from "@/core/theme/spacing";
+import typography from "@/core/theme/typography";
 import styled from "styled-components/native";
 import TouchableButton from "@/components/common/buttons/TouchableButton";
 
@@ -33,13 +34,13 @@ const ScoreSectionContainer = styled.View({
 });
 
 const ScoreLabelText = styled.Text({
-  fontSize: 12,
+  fontSize: typography.fontSize.caption,
   color: colors.text.primary,
   fontWeight: "500",
 });
 
 const ScoreValueText = styled.Text({
-  fontSize: 24,
+  fontSize: typography.fontSize.h3,
   fontWeight: "bold",
   color: colors.primary,
 });
@@ -71,8 +72,8 @@ const ProfileImagePlaceholder = styled.View({
 });
 
 const ProfileImagePlaceholderText = styled.Text({
-  color: colors.text.primary,
-  fontSize: 20,
+  color: colors.white,
+  fontSize: typography.fontSize.h4,
   fontWeight: "bold",
 });
 
@@ -80,9 +81,16 @@ interface ScoreSectionProps {
   onProfilePress: () => void;
 }
 
+// Display user's score and profile button in the home screen header
 export function ScoreSection({ onProfilePress }: ScoreSectionProps) {
   const { t } = useTranslation();
   const { user, profile } = useAuth();
+  const [imageKey, setImageKey] = useState(0);
+
+  // Force image reload when profile image URL changes
+  useEffect(() => {
+    setImageKey((prev) => prev + 1);
+  }, [profile?.profileImage]);
 
   return (
     <ScoreSectionContainer>
@@ -96,11 +104,10 @@ export function ScoreSection({ onProfilePress }: ScoreSectionProps) {
         style={{ alignItems: "center" }}
       >
         <ProfileButtonView>
-          {profile?.profileImage || user?.photoURL ? (
+          {profile?.profileImage ? (
             <ProfileUserImage
-              source={{
-                uri: profile?.profileImage || user?.photoURL || undefined,
-              }}
+              key={imageKey}
+              source={{ uri: profile.profileImage }}
             />
           ) : (
             <ProfileImagePlaceholder>

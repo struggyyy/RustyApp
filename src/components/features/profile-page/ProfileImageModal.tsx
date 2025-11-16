@@ -28,6 +28,7 @@ import { Feather } from "@expo/vector-icons";
 // Internal imports
 import colors from "../../../core/theme/colors";
 import theme from "../../../core/theme";
+import spacing from "../../../core/theme/spacing";
 import { useHaptics } from "../../../core/context/HapticsContext";
 
 interface ProfileImageModalProps {
@@ -44,12 +45,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.overlayLight,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: spacing.component.modalPadding,
   },
   content: {
     backgroundColor: colors.white,
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: spacing.radius.XL,
+    padding: spacing.L,
     width: "90%",
     maxWidth: 400,
   },
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: spacing.M,
   },
   title: {
     fontSize: 20,
@@ -65,17 +66,17 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   closeButton: {
-    padding: 8,
+    padding: spacing.S,
   },
   image: {
     width: "100%",
     height: 300,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: spacing.radius.M,
+    marginBottom: spacing.M,
   },
 });
 
-
+// Main component for displaying profile image in modal
 export default function ProfileImageModal({
   visible,
   imageUrl,

@@ -1,16 +1,34 @@
+/******************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ***************************************************************************/
+// React-specific imports
 import React, { useState } from "react";
-import { Switch, Animated, StyleSheet } from "react-native";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+
+// External libraries
+import { Feather } from "@expo/vector-icons";
+
+// Internal imports
 import styled from "styled-components/native";
 import StyledButton from "../../common/buttons/StyledButton";
 import colors from "../../../core/theme/colors";
 import theme from "../../../core/theme";
+import spacing from "../../../core/theme/spacing";
 import { useHaptics } from "../../../core/context/HapticsContext";
 import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-
+import CommonSettings from "./CommonSettings";
 
 interface SettingsCardProps {
-  variant: 'admin' | 'user';
+  variant: "admin" | "user";
   notificationsEnabled: boolean;
   hapticsEnabled: boolean;
   language: string;
@@ -23,79 +41,44 @@ interface SettingsCardProps {
   onDeleteAccount?: () => void; // Only for user
 }
 
-const SettingsCard = styled.View`
-  background-color: ${colors.background.secondary};
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 12px;
-`;
+const SettingsCard = styled.View({
+  backgroundColor: colors.background.secondary,
+  borderRadius: spacing.radius.XL,
+  padding: spacing.component.modalPadding,
+  marginBottom: 12,
+});
 
-const SettingsHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-`;
+const SettingsHeader = styled.View({
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: spacing.M,
+});
 
-const SettingsTitle = styled.Text`
-  font-size: 20px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
+const SettingsTitle = styled.Text({
+  fontSize: 20,
+  fontWeight: "bold",
+  color: colors.text.primary,
+});
 
-const ExpandArrow = styled.TouchableOpacity`
-  align-items: center;
-  padding: 8px;
-  margin-top: 16px;
-`;
+const ExpandArrow = styled.TouchableOpacity({
+  alignItems: "center",
+  padding: spacing.S,
+  marginTop: spacing.M,
+});
 
-const NotificationRow = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
+const DeleteAccountButton = styled.TouchableOpacity({
+  paddingHorizontal: spacing.M,
+  paddingVertical: 8,
+  alignItems: "center",
+  marginTop: 4,
+});
 
-const NotificationLabel = styled.Text`
-  font-size: 16px;
-  color: ${colors.text.primary};
-`;
-
-const LanguageToggle = styled.TouchableOpacity`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid ${colors.background.secondary};
-  margin-bottom: 16px;
-`;
-
-const LanguageOption = styled.View<{ isSelected: boolean }>`
-  flex: 1;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-`;
-
-const LanguageText = styled.Text<{ isSelected: boolean }>`
-  font-size: 16px;
-  font-weight: ${(props: { isSelected: boolean }) => props.isSelected ? '600' : '400'};
-  color: ${(props: { isSelected: boolean }) => props.isSelected ? colors.primary : colors.text.primary};
-`;
-
-const DeleteAccountButton = styled.TouchableOpacity`
-  padding: 8px 16px;
-  align-items: center;
-  margin-top: 4px;
-`;
-
-const DeleteAccountText = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  color: ${colors.text.primary};
-`;
+const DeleteAccountText = styled.Text({
+  fontSize: 16,
+  fontWeight: "bold",
+  color: colors.text.primary,
+});
 
 const SettingsCardComponent: React.FC<SettingsCardProps> = ({
   variant,
@@ -114,48 +97,31 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
   const haptics = useHaptics();
   const { t } = useTranslation();
 
-  if (variant === 'admin') {
+  if (variant === "admin") {
     return (
       <SettingsCard style={theme.shadows.modal}>
         <SettingsHeader>
-          <SettingsTitle>{t('settings.title')}</SettingsTitle>
+          <SettingsTitle>{t("settings.title")}</SettingsTitle>
         </SettingsHeader>
-        <NotificationRow>
-          <NotificationLabel>{t('settings.enableNotifications')}</NotificationLabel>
-          <Switch
-          trackColor={{ false: colors.primary, true: colors.status.Completed }}
-            thumbColor={colors.white}
-            ios_backgroundColor={colors.primary}
-            onValueChange={(value) => { haptics.heavy(); onToggleNotifications(value); }}
-            value={notificationsEnabled}
-            disabled={isSubmitting}
-          />
-        </NotificationRow>
-        <NotificationRow>
-          <NotificationLabel>{t('settings.enableHaptics')}</NotificationLabel>
-          <Switch
-          trackColor={{ false: colors.primary, true: colors.status.Completed }}
-            thumbColor={colors.white}
-            ios_backgroundColor={colors.primary}
-            onValueChange={(value) => { haptics.heavy(); onToggleHaptics(value); }}
-            value={hapticsEnabled}
-            disabled={isSubmitting}
-          />
-        </NotificationRow>
-        <LanguageToggle onPress={() => { haptics.heavy(); onToggleLanguage(); }}>
-          <LanguageOption isSelected={language === 'en'}>
-            <LanguageText isSelected={language === 'en'}>🇬🇧 {t('settings.english')}</LanguageText>
-          </LanguageOption>
-          <LanguageOption isSelected={language === 'pl'}>
-            <LanguageText isSelected={language === 'pl'}>🇵🇱 {t('settings.polish')}</LanguageText>
-          </LanguageOption>
-        </LanguageToggle>
+        <CommonSettings
+          notificationsEnabled={notificationsEnabled}
+          hapticsEnabled={hapticsEnabled}
+          language={language}
+          isSubmitting={isSubmitting}
+          onToggleNotifications={onToggleNotifications}
+          onToggleHaptics={onToggleHaptics}
+          onToggleLanguage={onToggleLanguage}
+        />
         <StyledButton
-          title={t('auth.logout')}
+          title={t("auth.logout")}
           onPress={onLogout}
           disabled={authLoading}
           loading={authLoading && !isSubmitting}
-          style={{ backgroundColor: colors.primary, marginTop: 8, marginBottom: 0 }}
+          style={{
+            backgroundColor: colors.primary,
+            marginTop: 8,
+            marginBottom: 0,
+          }}
         />
       </SettingsCard>
     );
@@ -165,46 +131,34 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
   return (
     <SettingsCard style={theme.shadows.modal}>
       <SettingsHeader>
-        <SettingsTitle>{t('settings.title')}</SettingsTitle>
+        <SettingsTitle>{t("settings.title")}</SettingsTitle>
       </SettingsHeader>
-      <NotificationRow>
-        <NotificationLabel>{t('settings.enableNotifications')}</NotificationLabel>
-        <Switch
-          trackColor={{ false: colors.primary, true: colors.status.Completed }}
-          thumbColor={colors.white}
-          ios_backgroundColor={colors.primary}
-          onValueChange={(value) => { haptics.heavy(); onToggleNotifications(value); }}
-          value={notificationsEnabled}
-          disabled={isSubmitting}
-        />
-      </NotificationRow>
-      <NotificationRow>
-        <NotificationLabel>{t('settings.enableHaptics')}</NotificationLabel>
-        <Switch
-          trackColor={{ false: colors.primary, true: colors.status.Completed }}
-          thumbColor={colors.white}
-          ios_backgroundColor={colors.primary}
-          onValueChange={(value) => { haptics.heavy(); onToggleHaptics(value); }}
-          value={hapticsEnabled}
-          disabled={isSubmitting}
-        />
-      </NotificationRow>
-      <LanguageToggle onPress={() => { haptics.heavy(); onToggleLanguage(); }}>
-        <LanguageOption isSelected={language === 'en'}>
-          <LanguageText isSelected={language === 'en'}>🇬🇧 {t('settings.english')}</LanguageText>
-        </LanguageOption>
-        <LanguageOption isSelected={language === 'pl'}>
-          <LanguageText isSelected={language === 'pl'}>🇵🇱 {t('settings.polish')}</LanguageText>
-        </LanguageOption>
-      </LanguageToggle>
+      <CommonSettings
+        notificationsEnabled={notificationsEnabled}
+        hapticsEnabled={hapticsEnabled}
+        language={language}
+        isSubmitting={isSubmitting}
+        onToggleNotifications={onToggleNotifications}
+        onToggleHaptics={onToggleHaptics}
+        onToggleLanguage={onToggleLanguage}
+      />
       <StyledButton
-        title={t('auth.logout')}
+        title={t("auth.logout")}
         onPress={onLogout}
         disabled={authLoading}
         loading={authLoading && !isSubmitting}
-        style={{ backgroundColor: colors.primary, marginTop: 8, marginBottom: 0 }}
+        style={{
+          backgroundColor: colors.primary,
+          marginTop: 8,
+          marginBottom: 0,
+        }}
       />
-      <ExpandArrow onPress={() => { haptics.heavy(); setIsExpanded(!isExpanded); }}>
+      <ExpandArrow
+        onPress={() => {
+          haptics.heavy();
+          setIsExpanded(!isExpanded);
+        }}
+      >
         <Feather
           name={isExpanded ? "chevron-up" : "chevron-down"}
           size={24}
@@ -212,8 +166,13 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
         />
       </ExpandArrow>
       {isExpanded && onDeleteAccount && (
-        <DeleteAccountButton onPress={() => { haptics.heavy(); onDeleteAccount(); }}>
-          <DeleteAccountText>{t('profile.deleteAccount')}</DeleteAccountText>
+        <DeleteAccountButton
+          onPress={() => {
+            haptics.heavy();
+            onDeleteAccount();
+          }}
+        >
+          <DeleteAccountText>{t("profile.deleteAccount")}</DeleteAccountText>
         </DeleteAccountButton>
       )}
     </SettingsCard>
