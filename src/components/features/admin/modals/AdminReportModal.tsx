@@ -30,12 +30,13 @@ import {
   Report as ReportType,
   ReportStatus,
   reportStatuses,
-} from "../../../shared/types/reports";
-import { getStatusTranslationKey } from "../../../shared/utils/statusTranslation";
-import theme from "../../../core/theme";
-import { getStatusColor } from "../../../core/theme/colors";
-import { useHaptics } from "../../../core/context/HapticsContext";
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+} from "../../../../shared/types/reports";
+import { getStatusTranslationKey } from "../../../../shared/utils/statusTranslation";
+import { formatDate } from "../../../../shared/utils/dateUtils";
+import theme from "../../../../core/theme";
+import { getStatusColor } from "../../../../core/theme/colors";
+import { useHaptics } from "../../../../core/context/HapticsContext";
+import { useTranslation } from "../../../../shared/hooks/common/useTranslation";
 
 interface AdminReportModalProps {
   report: ReportType;
@@ -44,13 +45,6 @@ interface AdminReportModalProps {
   onStatusUpdate?: (newStatus: ReportStatus) => void;
   onDelete?: () => void;
 }
-
-// Helper function to format date
-const formatDate = (date: Date): string => {
-  return `${String(date.getDate()).padStart(2, "0")}.${String(
-    date.getMonth() + 1
-  ).padStart(2, "0")}.${date.getFullYear()}`;
-};
 
 // Styles for report details view
 const styles = StyleSheet.create({
@@ -129,6 +123,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// Admin report modal for viewing and updating report details
 export default function AdminReportModal({
   report,
   statusColor,

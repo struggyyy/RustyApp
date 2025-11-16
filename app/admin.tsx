@@ -28,8 +28,8 @@ import {
   ReportStatus,
 } from "../src/shared/types/reports";
 import ReportList from "../src/components/features/reports-page/ReportList";
-import FilterPanel from "../src/components/features/admin/FilterPanel";
-import AdminReportModal from "../src/components/features/admin/AdminReportModal";
+import FilterPanel from "../src/components/features/admin/filter-panel/FilterPanel";
+import AdminReportModal from "../src/components/features/admin/modals/AdminReportModal";
 import ReportModal from "../src/components/common/modals/ReportModal";
 import { SharedMapView } from "../src/components/common/map/SharedMapView";
 import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";

@@ -24,7 +24,7 @@ import { Report } from "../../../shared/types/reports";
 import {
   getDistance,
   openNavigation as openExternalNavigation,
-} from "../../../shared/utils/map";
+} from "../../utils/mapUtils";
 
 // Shared map logic hook for both regular map and admin map functionality
 export const useMapLogic = () => {

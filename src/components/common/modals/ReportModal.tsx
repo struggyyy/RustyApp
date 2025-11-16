@@ -8,6 +8,7 @@ import { Report } from '../../../shared/types/reports';
 import IconButton from '../buttons/IconButton';
 import TouchableButton from '../buttons/TouchableButton';
 import { useTranslation } from '../../../shared/hooks/common/useTranslation';
+import { formatDate } from '../../../shared/utils/dateUtils';
 
 
 interface ReportModalProps {
@@ -84,11 +85,6 @@ const ActionButtonText = styled.Text<{ variant?: 'primary' | 'secondary' | 'navi
   fontSize: 16,
   fontWeight: 'bold',
 }));
-
-// Helper function to format date
-const formatDate = (date: Date): string => {
-  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-};
 
 const ReportModal: React.FC<ReportModalProps> = ({ visible, report, onClose, onNavigate, onViewReport, onPrev, onNext, hasMultiple }) => {
   const { t } = useTranslation();
