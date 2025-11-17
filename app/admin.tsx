@@ -30,7 +30,7 @@ import {
 import ReportList from "../src/components/features/reports-page/ReportList";
 import FilterPanel from "../src/components/features/admin/filter-panel/FilterPanel";
 import AdminReportModal from "../src/components/features/admin/modals/AdminReportModal";
-import ReportModal from "../src/components/common/modals/ReportModal";
+import MapReportModal from "../src/components/common/modals/MapReportModal";
 import { SharedMapView } from "../src/components/common/map/SharedMapView";
 import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";
 import theme from "../src/core/theme";
@@ -357,7 +357,7 @@ export default function AdminDashboard() {
         </Modal>
 
         {/* Map marker modal for quick report viewing */}
-        <ReportModal
+        <MapReportModal
           visible={modalVisible}
           report={selectedReports[currentReportIndex] || null}
           onClose={() => setModalVisible(false)}

@@ -38,6 +38,11 @@ const styles = StyleSheet.create({
     minHeight: 53,
     ...theme.shadows.modal,
   },
+  buttonContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: spacing.XS,
+  },
   reportsTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -60,7 +65,10 @@ const ProfileReportsCard: React.FC<ProfileReportsCardProps> = ({
 
   return (
     <View style={styles.reportsCard}>
-      <TouchableButton onPress={onViewAllReports} style={theme.shadows.button}>
+      <TouchableButton
+        onPress={onViewAllReports}
+        style={[theme.shadows.button, styles.buttonContainer]}
+      >
         <Text style={styles.reportsTitle}>{t("reports.viewAllReports")}</Text>
       </TouchableButton>
     </View>

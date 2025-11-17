@@ -38,6 +38,7 @@ const StyledInput = styled.TextInput.attrs({
   fontSize: theme.typography.fontSize.input,
 }));
 
+// Auth input component with error styling and forwardRef
 export const AuthInput = forwardRef<TextInput, AuthInputProps>(
   ({ hasError, ...props }, ref) => {
     return <StyledInput ref={ref} hasError={hasError} {...props} />;

@@ -22,7 +22,7 @@ import { useAuth } from "../src/core/context/AuthContext";
 import { useTranslation } from "../src/shared/hooks/common/useTranslation";
 import { getReportsByUserId } from "../src/lib/firebase/reports";
 import { Report } from "../src/shared/types/reports";
-import ReportModal from "../src/components/common/modals/ReportModal";
+import MapReportModal from "../src/components/common/modals/MapReportModal";
 import { SharedMapView } from "../src/components/common/map/SharedMapView";
 import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";
 import colors from "../src/core/theme/colors";
@@ -135,7 +135,7 @@ function MapScreenComponent() {
           />
         </MapWrapperView>
       </MapSection>
-      <ReportModal
+      <MapReportModal
         visible={modalVisible}
         report={selectedReports[currentReportIndex] || null}
         onClose={() => setModalVisible(false)}

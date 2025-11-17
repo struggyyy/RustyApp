@@ -24,20 +24,28 @@ interface AuthButtonProps {
   onPress: () => void;
   isDisabled?: boolean;
   isLoading?: boolean;
+  variant?: "primary" | "secondary";
 }
 
-const StyledButton = styled.TouchableOpacity<AuthButtonProps>(
-  (props: AuthButtonProps) => ({
-    backgroundColor: props.isDisabled
+const StyledButton = styled.TouchableOpacity.attrs<{
+  isDisabled: boolean;
+  isLoading: boolean;
+  variant: "primary" | "secondary";
+}>((props) => ({
+  disabled: props.isDisabled || props.isLoading,
+}))`
+  background-color: ${(props) =>
+    props.variant === "secondary"
+      ? theme.colors.text.primary
+      : props.isDisabled
       ? theme.colors.background.secondary
-      : theme.colors.primary,
-    borderRadius: theme.spacing.M,
-    padding: theme.spacing.M,
-    alignItems: "center",
-    marginTop: theme.spacing.S,
-    opacity: props.isDisabled || props.isLoading ? 0.6 : 1,
-  })
-);
+      : theme.colors.primary};
+  border-radius: ${theme.spacing.M}px;
+  padding: ${theme.spacing.M}px;
+  align-items: center;
+  margin-top: ${theme.spacing.S}px;
+  opacity: ${(props) => (props.isDisabled || props.isLoading ? 0.6 : 1)};
+`;
 
 const ButtonText = styled.Text({
   color: theme.colors.text.inverse,
@@ -51,17 +59,20 @@ const ButtonContent = styled.View({
   gap: theme.spacing.S,
 });
 
+// Main auth button component with loading and variant support
 export function AuthButton({
   title,
   onPress,
   isDisabled = false,
   isLoading = false,
+  variant = "primary",
 }: AuthButtonProps) {
   return (
     <StyledButton
       onPress={onPress}
       isDisabled={isDisabled}
-      disabled={isDisabled || isLoading}
+      isLoading={isLoading}
+      variant={variant}
     >
       <ButtonContent>
         {isLoading && (

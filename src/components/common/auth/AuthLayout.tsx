@@ -49,12 +49,15 @@ interface AuthLayoutProps {
   title: string;
   children: React.ReactNode;
   showLanguageSwitcher?: boolean;
+  options?: Partial<React.ComponentProps<typeof Stack.Screen>['options']>;
 }
 
+// Main layout component for auth screens with header and language switcher
 export function AuthLayout({
   title,
   children,
   showLanguageSwitcher = true,
+  options = {},
 }: AuthLayoutProps) {
   const { t, i18n } = useTranslation();
   const headerHeight = useHeaderHeight();
@@ -67,7 +70,7 @@ export function AuthLayout({
 
   return (
     <>
-      <Stack.Screen options={{ title: t(title) }} />
+      <Stack.Screen options={{ title: t(title), ...options }} />
       <StyledKeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={headerHeight}

@@ -33,25 +33,16 @@ import { useAlert } from "@/core/context/AlertContext";
 import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
 import { useProfileEdit } from "@/shared/hooks/profile/useProfileEdit";
 import { useProfileSettings } from "@/shared/hooks/profile/useProfileSettings";
-import { useProfileActions } from "@/shared/hooks/profile/useProfileActions";
-import { Report } from "@/shared/types/reports";
-import { getReportsByUserId } from "@/lib/firebase/reports";
 import colors from "@/core/theme/colors";
 import EditProfile from "@/components/features/profile-page/EditProfile";
 import SettingsCard from "@/components/features/profile-page/SettingsCard";
 import ProfileImageModal from "@/components/features/profile-page/ProfileImageModal";
-import ProfileReportsCard from "@/components/features/profile-page/ProfileReportsCard";
 
 // Styles using StyleSheet for performance
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: colors.white,
-  },
-  scrollContent: {
-    paddingTop: 12,
-    paddingHorizontal: 12,
-    paddingBottom: 18, // Adjusted for reports card
   },
   scrollContentAdmin: {
     paddingTop: 12,
@@ -65,15 +56,7 @@ const styles = StyleSheet.create({
   },
 });
 
-interface ProfilePageProps {
-  variant: "user" | "admin";
-  onViewAllReports?: () => void;
-}
-
-const ProfilePage: React.FC<ProfilePageProps> = ({
-  variant,
-  onViewAllReports,
-}) => {
+const AdminProfilePage: React.FC = () => {
   // Authentication and context hooks
   const { user, profile, initialLoading, logOut, updateUserProfile } =
     useAuth();
@@ -84,7 +67,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
   // UI state
   const [refreshing, setRefreshing] = useState(false);
-  const [reports, setReports] = useState<Report[]>([]);
   const [showImageModal, setShowImageModal] = useState(false);
 
   const { shakeAnimation, triggerShake } = useShakeAnimation();
@@ -115,10 +97,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     handleToggleHaptics,
     handleToggleLanguage,
   } = useProfileSettings({ t });
-
-  const { handleLogout, handleDeleteAccount } = useProfileActions({
-    t,
-  });
 
   // Admin-specific profile save handler
   const handleAdminSaveProfile = useCallback(async () => {
@@ -167,34 +145,19 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     t,
   ]);
 
-  // Reports state (only for user)
-  const fetchReports = useCallback(async () => {
-    if (!user || variant !== "user") return;
-    try {
-      const userReports = await getReportsByUserId(user.uid);
-      setReports(userReports);
-    } catch (error) {
-      console.error("Failed to fetch reports:", error);
-    }
-  }, [user, variant]);
-
-  // Pull-to-refresh handler (admin only)
+  // Pull-to-refresh handler
   const onRefresh = useCallback(async () => {
-    if (variant !== "admin") return;
     setRefreshing(true);
-    await fetchReports();
+    // Note: No reports to fetch for admin
     setRefreshing(false);
-  }, [fetchReports, variant]);
+  }, []);
 
   // Effects
   useEffect(() => {
     if (!initialLoading && !user) {
       if (router) router.replace("/login");
     }
-    if (user && variant === "user") {
-      fetchReports();
-    }
-  }, [initialLoading, user, router, fetchReports, variant]);
+  }, [initialLoading, user, router]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -212,10 +175,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
   // Computed values
   const profileImageUrl = profile?.profileImage;
-  const language =
-    variant === "admin" ? currentLanguage : profile?.language || "en";
-  const isSubmittingFinal =
-    variant === "admin" ? isSubmitting || isChanging : isSubmitting;
+  const language = currentLanguage;
+  const isSubmittingFinal = isSubmitting || isChanging;
 
   // Handlers
   const handleAvatarPress = () => setShowImageModal(true);
@@ -227,11 +188,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     if (!nicknameChanged && !imageChanged && !imageRemoved) {
       handleCancelEdit();
     } else {
-      if (variant === "admin") {
-        handleAdminSaveProfile();
-      } else {
-        handleSaveProfile();
-      }
+      handleAdminSaveProfile();
     }
   };
 
@@ -248,11 +205,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
   // Loading screen
   if (initialLoading) {
-    const title =
-      variant === "admin" ? t("admin.profileTitle") : t("profile.title");
     return (
       <>
-        <Stack.Screen options={{ title }} />
+        <Stack.Screen options={{ title: t("admin.profileTitle") }} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -260,35 +215,31 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     );
   }
 
-  const scrollContentStyle =
-    variant === "admin" ? styles.scrollContentAdmin : styles.scrollContent;
-  const refreshControl =
-    variant === "admin" ? (
-      <RefreshControl
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-        colors={[colors.primary]}
-        tintColor={colors.primary}
-      />
-    ) : undefined;
+  const refreshControl = (
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      colors={[colors.primary]}
+      tintColor={colors.primary}
+    />
+  );
 
   return (
     <>
-      {variant === "admin" && <StatusBar barStyle="dark-content" />}
+      <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
-          title:
-            variant === "admin" ? t("admin.profileTitle") : t("profile.title"),
+          title: t("admin.profileTitle"),
         }}
       />
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={scrollContentStyle}
+        contentContainerStyle={styles.scrollContentAdmin}
         showsVerticalScrollIndicator={false}
         refreshControl={refreshControl}
       >
         <EditProfile
-          variant={variant}
+          variant="admin"
           isExpanded={isEditMode}
           onToggleExpanded={() => setIsEditMode(true)}
           onAvatarPress={handleAvatarPress}
@@ -309,16 +260,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         <ProfileImageModal
           visible={showImageModal}
           imageUrl={profileImageUrl}
-          title={
-            variant === "admin"
-              ? t("admin.profilePicture")
-              : t("profile.profilePicture")
-          }
+          title={t("admin.profilePicture")}
           onClose={handleCloseImageModal}
         />
 
         <SettingsCard
-          variant={variant}
+          variant="admin"
           notificationsEnabled={notificationsEnabled}
           hapticsEnabled={hapticsEnabled}
           language={language}
@@ -327,20 +274,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           onToggleNotifications={handleToggleNotifications}
           onToggleHaptics={handleToggleHaptics}
           onToggleLanguage={handleToggleLanguage}
-          onLogout={variant === "admin" ? handleLogoutAdmin : handleLogout}
-          onDeleteAccount={variant === "user" ? handleDeleteAccount : undefined}
+          onLogout={handleLogoutAdmin}
+          onDeleteAccount={undefined}
         />
-
-        {variant === "user" && onViewAllReports && (
-          <ProfileReportsCard
-            reports={reports}
-            onViewAllReports={onViewAllReports}
-            t={t}
-          />
-        )}
       </ScrollView>
     </>
   );
 };
 
-export default ProfilePage;
+export default AdminProfilePage;

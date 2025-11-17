@@ -15,8 +15,8 @@
 import React from "react";
 
 // Internal imports
-import ProfilePage from "../src/components/common/profile-page/ProfilePage";
+import AdminProfilePage from "../src/components/features/admin/profile-page/AdminProfilePage";
 
 export default function AdminProfile() {
-  return <ProfilePage variant="admin" />;
+  return <AdminProfilePage />;
 }

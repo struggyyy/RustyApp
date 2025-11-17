@@ -18,15 +18,12 @@ import React from "react";
 import { useRouter } from "expo-router";
 
 // Internal imports
-import ProfilePage from "../src/components/common/profile-page/ProfilePage";
+import UserProfilePage from "../src/components/features/profile-page/UserProfilePage";
 
 export default function Profile() {
   const router = useRouter();
 
   return (
-    <ProfilePage
-      variant="user"
-      onViewAllReports={() => router.push("/my-reports")}
-    />
+    <UserProfilePage onViewAllReports={() => router.push("/my-reports")} />
   );
 }

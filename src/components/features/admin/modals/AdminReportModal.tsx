@@ -70,9 +70,11 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 8,
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    flexGrow: 0,
-    flexShrink: 1,
+    paddingBottom: theme.spacing.M,
   },
   date: {
     fontSize: 18,
@@ -174,7 +176,7 @@ export default function AdminReportModal({
       {/* Scrollable content */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={styles.scrollContent}
+        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
         <Text style={[styles.date, { color: statusColor }]}>

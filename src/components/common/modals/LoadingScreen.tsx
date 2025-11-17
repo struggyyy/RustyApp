@@ -11,9 +11,9 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
-// React specific imports
+// React-specific imports
 import React from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 
 // Internal imports
 import colors from "../../../core/theme/colors";
@@ -22,11 +22,20 @@ interface LoadingScreenProps {
   color?: string;
 }
 
+// Loading screen styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
   color = colors.primary,
 }) => {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={styles.container}>
       <ActivityIndicator size="large" color={color} />
     </View>
   );

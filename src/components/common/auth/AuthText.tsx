@@ -25,6 +25,7 @@ interface AuthLinkProps {
   disabled?: boolean;
 }
 
+// Title component for auth screens
 export const AuthTitle = styled.Text({
   fontSize: theme.typography.fontSize.h1,
   fontWeight: "bold",
@@ -33,6 +34,7 @@ export const AuthTitle = styled.Text({
   color: theme.colors.text.primary,
 });
 
+// Subtitle component for auth screens
 export const AuthSubtitle = styled.Text({
   fontSize: theme.typography.fontSize.body1,
   marginBottom: theme.spacing.XL,
@@ -40,6 +42,7 @@ export const AuthSubtitle = styled.Text({
   color: theme.colors.text.primary,
 });
 
+// Error text component for validation messages
 export const AuthErrorText = styled.Text({
   color: theme.colors.error,
   marginBottom: theme.spacing.M,
@@ -47,6 +50,7 @@ export const AuthErrorText = styled.Text({
   fontSize: theme.typography.fontSize.body1,
 });
 
+// Link text component with press handling
 export const AuthLink = styled.Text<AuthLinkProps>((props: AuthLinkProps) => ({
   color: props.disabled ? theme.colors.text.tertiary : theme.colors.primary,
   fontSize: theme.typography.fontSize.body2,
@@ -55,6 +59,7 @@ export const AuthLink = styled.Text<AuthLinkProps>((props: AuthLinkProps) => ({
   marginTop: theme.spacing.L,
 }));
 
+// Touchable link button component
 export const AuthLinkButton = ({
   children,
   onPress,

@@ -13,14 +13,11 @@
  ************************************************************************** */
 // React-specific imports
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import styled from "styled-components/native";
+import { Modal, View, Text, StyleSheet } from "react-native";
 
 // Internal imports
 import { useAlert } from "@/core/context/AlertContext";
 import TouchableButton from "../buttons/TouchableButton";
-import colors from "../../../core/theme/colors";
 import theme from "../../../core/theme";
 
 interface AlertButton {
@@ -37,79 +34,86 @@ interface CustomAlertProps {
   onRequestClose?: () => void;
 }
 
-// Styled Components
-const ModalOverlay = styled.View({
-  flex: 1,
-  backgroundColor: colors.background.overlay,
-  justifyContent: "center",
-  alignItems: "center",
-  padding: 20,
-});
-
-const ModalContent = styled.View({
-  backgroundColor: colors.white,
-  borderRadius: 24,
-  padding: 24,
-  width: "90%",
-  maxWidth: 400,
-});
-
-const ModalHeader = styled.View({
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: 16,
-});
-
-const ModalTitle = styled.Text({
-  fontSize: 20,
-  fontWeight: "bold",
-  color: colors.text.primary,
-  textAlign: "center",
-});
-
-const ModalMessage = styled.Text({
-  fontSize: 16,
-  color: colors.text.primary,
-  lineHeight: "24px",
-  marginBottom: 24,
-  textAlign: "center",
-});
-
-const ButtonContainer = styled.View({
-  flexDirection: "row",
-  gap: 12,
-  justifyContent: "center",
-});
-
-const AlertButton = styled.TouchableOpacity<{ variant?: "primary" | "secondary" | "destructive" | "cancel" }>(
-  (props: { variant?: "primary" | "secondary" | "destructive" | "cancel" }) => ({
+// Alert component styles
+const styles = StyleSheet.create({
+  overlay: {
     flex: 1,
-    backgroundColor:
-      props.variant === "primary"
-        ? colors.primary
-        : props.variant === "destructive"
-        ? colors.primary
-        : props.variant === "cancel"
-        ? colors.text.primary
-        : colors.background.secondary,
-    padding: 14,
-    borderRadius: 20,
+    backgroundColor: theme.colors.background.overlay,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: theme.spacing.M,
+  },
+  content: {
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.spacing.radius.XL,
+    padding: theme.spacing.M,
+    width: "90%",
+    maxWidth: 400,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: theme.spacing.S,
+  },
+  title: {
+    fontSize: theme.typography.fontSize.h5,
+    fontWeight: "bold",
+    color: theme.colors.text.primary,
+    textAlign: "center",
+  },
+  message: {
+    fontSize: theme.typography.fontSize.body1,
+    color: theme.colors.text.primary,
+    lineHeight: 24,
+    marginBottom: theme.spacing.M,
+    textAlign: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: theme.spacing.S,
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+  button: {
+    minWidth: 100,
+    paddingVertical: theme.spacing.component.buttonPadding,
+    paddingHorizontal: 16,
+    borderRadius: theme.spacing.radius.L,
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 100,
-  })
-);
+  },
+  buttonPrimary: {
+    backgroundColor: theme.colors.primary,
+  },
+  buttonSecondary: {
+    backgroundColor: theme.colors.background.secondary,
+  },
+  buttonDestructive: {
+    backgroundColor: theme.colors.primary,
+  },
+  buttonCancel: {
+    backgroundColor: theme.colors.text.primary,
+  },
+  buttonText: {
+    fontSize: theme.typography.fontSize.body1,
+    fontWeight: "bold",
+  },
+  buttonTextPrimary: {
+    color: theme.colors.white,
+  },
+  buttonTextSecondary: {
+    color: theme.colors.text.primary,
+  },
+  buttonTextDestructive: {
+    color: theme.colors.white,
+  },
+  buttonTextCancel: {
+    color: theme.colors.white,
+  },
+});
 
-const AlertButtonText = styled.Text<{ variant?: "primary" | "secondary" | "destructive" | "cancel" }>((props: { variant?: "primary" | "secondary" | "destructive" | "cancel" }) => ({
-  color:
-    props.variant === "primary" || props.variant === "destructive" || props.variant === "cancel"
-      ? colors.white
-      : colors.text.primary,
-  fontSize: 16,
-  fontWeight: "bold",
-}));
-
+// Internal alert component for displaying modal alerts
 const InternalAlert: React.FC<CustomAlertProps> = ({
   visible,
   title,
@@ -130,6 +134,22 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
     }
   };
 
+  const getButtonStyle = (variant: "primary" | "secondary" | "destructive" | "cancel") => [
+    styles.button,
+    variant === "primary" && styles.buttonPrimary,
+    variant === "secondary" && styles.buttonSecondary,
+    variant === "destructive" && styles.buttonDestructive,
+    variant === "cancel" && styles.buttonCancel,
+  ];
+
+  const getButtonTextStyle = (variant: "primary" | "secondary" | "destructive" | "cancel") => [
+    styles.buttonText,
+    variant === "primary" && styles.buttonTextPrimary,
+    variant === "secondary" && styles.buttonTextSecondary,
+    variant === "destructive" && styles.buttonTextDestructive,
+    variant === "cancel" && styles.buttonTextCancel,
+  ];
+
   return (
     <Modal
       visible={visible}
@@ -137,55 +157,37 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
       animationType="fade"
       onRequestClose={onRequestClose}
     >
-      <ModalOverlay>
-        <ModalContent style={theme.shadows.modal}>
-          <ModalHeader>
-            <ModalTitle>{title}</ModalTitle>
-          </ModalHeader>
+      <View style={styles.overlay}>
+        <View style={[styles.content, theme.shadows.modal]}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{title}</Text>
+          </View>
 
-          {message && <ModalMessage>{message}</ModalMessage>}
+          {message && <Text style={styles.message}>{message}</Text>}
 
-          <ButtonContainer>
+          <View style={styles.buttonContainer}>
             {buttons.map((button, index) => {
               const buttonVariant = getButtonVariant(button.style);
               const handlePress = () => {
-                // Always hide the alert first
                 onRequestClose?.();
-                // Then execute the button's custom onPress if it exists
                 button.onPress?.();
-              };
-              const buttonStyle = {
-                flex: 1,
-                backgroundColor:
-                  buttonVariant === "primary"
-                    ? colors.primary
-                    : buttonVariant === "destructive"
-                    ? colors.primary
-                    : buttonVariant === "cancel"
-                    ? colors.text.primary
-                    : colors.background.secondary,
-                padding: 14,
-                borderRadius: 20,
-                alignItems: "center" as const,
-                justifyContent: "center" as const,
-                minWidth: 100,
               };
 
               return (
                 <TouchableButton
                   key={index}
-                  onPress={handlePress || (() => {})}
-                  style={buttonStyle}
+                  onPress={handlePress}
+                  style={getButtonStyle(buttonVariant)}
                 >
-                  <AlertButtonText variant={buttonVariant}>
+                  <Text style={getButtonTextStyle(buttonVariant)}>
                     {button.text}
-                  </AlertButtonText>
+                  </Text>
                 </TouchableButton>
               );
             })}
-          </ButtonContainer>
-        </ModalContent>
-      </ModalOverlay>
+          </View>
+        </View>
+      </View>
     </Modal>
   );
 };
