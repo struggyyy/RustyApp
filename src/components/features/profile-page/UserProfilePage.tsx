@@ -13,7 +13,13 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useState, useEffect, useCallback } from "react";
-import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native";
 
 // External libraries
 import { Stack, useRouter } from "expo-router";
@@ -68,6 +74,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({
   // UI state
   const [reports, setReports] = useState<Report[]>([]);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { shakeAnimation, triggerShake } = useShakeAnimation();
 
@@ -111,6 +118,13 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({
       console.error("Failed to fetch reports:", error);
     }
   }, [user]);
+
+  // Pull-to-refresh handler
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchReports();
+    setRefreshing(false);
+  }, [fetchReports]);
 
   // Effects
   useEffect(() => {
@@ -180,6 +194,14 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
       >
         <EditProfile
           variant="user"

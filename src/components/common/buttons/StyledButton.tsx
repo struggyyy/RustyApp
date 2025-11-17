@@ -14,7 +14,6 @@
 // React-specific imports
 import React from "react";
 import {
-  StyleSheet,
   ActivityIndicator,
   StyleProp,
   ViewStyle,
@@ -25,9 +24,11 @@ import styled from "styled-components/native";
 
 // Internal imports
 import theme from "../../../core/theme";
+import spacing from "../../../core/theme/spacing";
+import typography from "../../../core/theme/typography";
 import { useHaptics } from "../../../core/context/HapticsContext";
 
-
+// Component props interface
 interface StyledButtonProps {
   onPress: () => void;
   title: string;
@@ -39,6 +40,7 @@ interface StyledButtonProps {
   textColor?: string;
 }
 
+// Primary button styled component with conditional styling
 const ButtonTouchable = styled.TouchableOpacity<{
   isDisabled: boolean;
   variant: "primary" | "secondary";
@@ -49,21 +51,22 @@ const ButtonTouchable = styled.TouchableOpacity<{
       : props.isDisabled
       ? theme.colors.primary
       : theme.colors.primary,
-  borderRadius: 16,
-  padding: 16,
+  borderRadius: spacing.radius.M,
+  padding: spacing.M,
   alignItems: "center",
-  marginBottom: 24,
+  marginBottom: spacing.L,
   width: "100%",
   opacity: props.isDisabled ? 0.3 : 1,
 }));
 
-const ButtonLabel = styled.Text<{ textColor?: string }>`
-  color: ${(props: { textColor?: string }) =>
-    props.textColor || theme.colors.white};
-  font-size: 18px;
-  font-weight: bold;
-`;
+// Button text styled component
+const ButtonLabel = styled.Text<{ textColor?: string }>((props) => ({
+  color: props.textColor || theme.colors.white,
+  fontSize: typography.fontSize.h5,
+  fontWeight: "bold",
+}));
 
+// Main styled button component with loading and variant support
 const StyledButton: React.FC<StyledButtonProps> = ({
   onPress,
   title,
@@ -75,6 +78,7 @@ const StyledButton: React.FC<StyledButtonProps> = ({
 }) => {
   const haptics = useHaptics();
 
+  // Handle press with haptic feedback and loading check
   const handlePress = () => {
     if (!disabled && !loading) {
       haptics.heavy();

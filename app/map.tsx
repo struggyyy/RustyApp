@@ -125,13 +125,18 @@ function MapScreenComponent() {
       <MapSection>
         <MapWrapperView>
           <SharedMapView
-            reports={reports}
+            markers={reports.map((report) => ({
+              id: report.id,
+              latitude: report.location.latitude,
+              longitude: report.location.longitude,
+              pinColor: colors.primary,
+              onPress: () => handleMarkerPress(report, reports),
+            }))}
             location={location}
             locationErrorMsg={locationErrorMsg}
             isLocationLoading={isLocationLoading}
             mapRef={mapRef}
             onGoToMyLocation={goToMyLocation}
-            onMarkerPress={(report) => handleMarkerPress(report, reports)}
           />
         </MapWrapperView>
       </MapSection>

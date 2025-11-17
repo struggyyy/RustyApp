@@ -122,8 +122,6 @@ export default function AdminDashboard() {
     goToNext,
     handleMarkerPress,
     setModalVisible,
-    setSelectedReports,
-    setCurrentReportIndex,
   } = useMapLogic();
 
   // Track processed report IDs to prevent duplicate modal opens
@@ -274,15 +272,18 @@ export default function AdminDashboard() {
               <>
                 {/* Always render the map underneath */}
                 <SharedMapView
-                  reports={filteredReports}
+                  markers={filteredReports.map((report) => ({
+                    id: report.id,
+                    latitude: report.location.latitude,
+                    longitude: report.location.longitude,
+                    pinColor: theme.colors.primary,
+                    onPress: () => handleMarkerPress(report, filteredReports),
+                  }))}
                   location={location}
                   locationErrorMsg={locationErrorMsg}
                   isLocationLoading={isLocationLoading}
                   mapRef={mapRef}
                   onGoToMyLocation={goToMyLocation}
-                  onMarkerPress={(report) =>
-                    handleMarkerPress(report, filteredReports)
-                  }
                 />
                 {(isMapLoading || isFilterLoading) && (
                   // Loading overlay on top of the prerendered map

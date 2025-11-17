@@ -22,40 +22,46 @@ import * as Haptics from "expo-haptics";
 import i18n from "../../../core/i18n/i18n";
 import theme from "../../../core/theme";
 import colors from "../../../core/theme/colors";
+import spacing from "../../../core/theme/spacing";
+import typography from "../../../core/theme/typography";
 
+// Component styles using StyleSheet for performance
 const styles = StyleSheet.create({
   switcherContainer: {
     position: "absolute",
-    top: 16,
-    right: 16,
+    top: spacing.M,
+    right: spacing.M,
     zIndex: 100,
   },
   languageButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
+    gap: spacing.XS,
+    paddingHorizontal: spacing.component.buttonPadding,
+    paddingVertical: spacing.S,
+    borderRadius: spacing.radius.L,
     backgroundColor: colors.background.semiTransparent,
   },
   flagText: {
     fontSize: 20,
   },
   languageText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.body2,
     fontWeight: "600",
     color: colors.text.dark,
   },
 });
 
+// Component props interface
 interface LanguageSwitcherProps {
   onLanguageChange?: (language: "en" | "pl") => void;
 }
 
+// Language switcher component for auth screens
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   onLanguageChange,
 }) => {
+  // Current language state synced with i18n
   const [currentLanguage, setCurrentLanguage] = React.useState<"en" | "pl">(
     i18n.language as "en" | "pl"
   );
@@ -73,6 +79,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     };
   }, []);
 
+  // Handle language change with haptic feedback
   const handleLanguageChange = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const newLanguage = currentLanguage === "en" ? "pl" : "en";
@@ -80,7 +87,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     onLanguageChange?.(newLanguage);
   };
 
-  // Show the opposite language (the one you can switch TO)
+  // Display opposite language for switching
   const displayLanguage = currentLanguage === "en" ? "pl" : "en";
   const flag = displayLanguage === "en" ? "🇬🇧" : "🇵🇱";
   const label = displayLanguage === "en" ? "English" : "Polski";

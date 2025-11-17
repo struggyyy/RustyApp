@@ -1,11 +1,29 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import React from "react";
-import { StyleProp, ViewStyle, StyleSheet } from "react-native";
+import { StyleProp, ViewStyle } from "react-native";
+
+// External libraries
 import styled from "styled-components/native";
+
+// Internal imports
 import { useHaptics } from "../../../core/context/HapticsContext";
 import colors from "../../../core/theme/colors";
 import theme from "../../../core/theme";
 
-
+// Component props interface
 interface FloatingActionButtonProps {
   onPress: () => void;
   disabled?: boolean;
@@ -15,12 +33,14 @@ interface FloatingActionButtonProps {
   children: React.ReactNode;
 }
 
+// Styled component props interface
 interface StyledProps {
   size: number;
   backgroundColor?: string;
   disabled: boolean;
 }
 
+// Floating action button styled component
 const FloatingButtonContainer = styled.TouchableOpacity<StyledProps>((props: StyledProps) => ({
   width: props.size,
   height: props.size,
@@ -28,9 +48,9 @@ const FloatingButtonContainer = styled.TouchableOpacity<StyledProps>((props: Sty
   backgroundColor: props.disabled ? colors.text.primary : (props.backgroundColor || colors.background.semiTransparent),
   justifyContent: "center",
   alignItems: "center",
-  // Remove shadow properties from styled-components - apply via style prop
 }));
 
+// Main floating action button component
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   onPress,
   disabled = false,
@@ -41,6 +61,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
 }) => {
   const haptics = useHaptics();
 
+  // Handle press with haptic feedback
   const handlePress = () => {
     if (!disabled) {
       haptics.heavy();

@@ -26,6 +26,10 @@ export interface MapControlsProps {
   onGoToMyLocation: () => void;
   showExpandMap?: boolean;
   onExpandMap?: () => void;
+  myLocationIcon?: keyof typeof MaterialIcons.glyphMap;
+  expandIcon?: keyof typeof MaterialIcons.glyphMap;
+  myLocationStyle?: any;
+  expandStyle?: any;
 }
 
 export function MapControls({
@@ -33,6 +37,10 @@ export function MapControls({
   onGoToMyLocation,
   showExpandMap = false,
   onExpandMap,
+  myLocationIcon = "my-location",
+  expandIcon = "fullscreen",
+  myLocationStyle = { position: "absolute", bottom: 20, right: 20 },
+  expandStyle = { position: "absolute", bottom: 20, left: 20 },
 }: MapControlsProps) {
   if (!location) {
     return null;
@@ -42,16 +50,16 @@ export function MapControls({
     <>
       <FloatingActionButton
         onPress={onGoToMyLocation}
-        style={{ position: "absolute", bottom: 20, right: 20 }}
+        style={myLocationStyle}
       >
-        <MaterialIcons name="my-location" size={24} color={colors.primary} />
+        <MaterialIcons name={myLocationIcon} size={24} color={colors.primary} />
       </FloatingActionButton>
       {showExpandMap && onExpandMap && (
         <FloatingActionButton
           onPress={onExpandMap}
-          style={{ position: "absolute", bottom: 20, left: 20 }}
+          style={expandStyle}
         >
-          <MaterialIcons name="fullscreen" size={24} color={colors.primary} />
+          <MaterialIcons name={expandIcon} size={24} color={colors.primary} />
         </FloatingActionButton>
       )}
     </>

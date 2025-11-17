@@ -1,20 +1,42 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2025, @struggyyy                    *
+ *                                                                         *
+ *                             Project: Rusty                              *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+// React-specific imports
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
+
+// External libraries
 import { MaterialIcons } from "@expo/vector-icons";
+
+// Internal imports
 import { useHaptics } from "../../../core/context/HapticsContext";
 import colors from "../../../core/theme/colors";
+import spacing from "../../../core/theme/spacing";
 
+// Component props interface
 interface HeaderBackButtonProps {
   onPress: () => void;
   disabled?: boolean;
 }
 
+// Header back button component
 const HeaderBackButton: React.FC<HeaderBackButtonProps> = ({
   onPress,
   disabled = false,
 }) => {
   const haptics = useHaptics();
 
+  // Handle press with haptic feedback
   const handlePress = () => {
     if (!disabled) {
       haptics.heavy();
@@ -38,10 +60,11 @@ const HeaderBackButton: React.FC<HeaderBackButtonProps> = ({
   );
 };
 
+// Button container styles
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.M,
+    paddingVertical: spacing.S,
     justifyContent: "center",
     alignItems: "center",
   },

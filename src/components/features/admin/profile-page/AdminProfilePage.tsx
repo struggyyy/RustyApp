@@ -19,7 +19,6 @@ import {
   ScrollView,
   ActivityIndicator,
   StatusBar,
-  RefreshControl,
 } from "react-native";
 
 // External libraries
@@ -66,7 +65,6 @@ const AdminProfilePage: React.FC = () => {
   const router = useRouter();
 
   // UI state
-  const [refreshing, setRefreshing] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
   const { shakeAnimation, triggerShake } = useShakeAnimation();
@@ -145,13 +143,6 @@ const AdminProfilePage: React.FC = () => {
     t,
   ]);
 
-  // Pull-to-refresh handler
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    // Note: No reports to fetch for admin
-    setRefreshing(false);
-  }, []);
-
   // Effects
   useEffect(() => {
     if (!initialLoading && !user) {
@@ -215,15 +206,6 @@ const AdminProfilePage: React.FC = () => {
     );
   }
 
-  const refreshControl = (
-    <RefreshControl
-      refreshing={refreshing}
-      onRefresh={onRefresh}
-      colors={[colors.primary]}
-      tintColor={colors.primary}
-    />
-  );
-
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -236,7 +218,6 @@ const AdminProfilePage: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContentAdmin}
         showsVerticalScrollIndicator={false}
-        refreshControl={refreshControl}
       >
         <EditProfile
           variant="admin"

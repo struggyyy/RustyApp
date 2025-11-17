@@ -16,7 +16,6 @@ import React from "react";
 
 // External libraries
 import { Text, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 // Internal imports
@@ -32,6 +31,7 @@ const StyledMapView = styled(MapView)({
   height: "100%",
 });
 
+// Placeholder view for loading and error states
 const MapPlaceholderView = styled.View({
   flex: 1,
   justifyContent: "center",
@@ -57,18 +57,20 @@ export interface MapComponentProps {
   locationErrorMsg: string | null;
   isLocationLoading: boolean;
   mapRef: React.RefObject<MapView | null>;
-  children?: React.ReactNode; // Allow custom markers/content
+  onLocationErrorAction?: () => void; // Configurable action for location error
+  children?: React.ReactNode;
 }
 
+// Generic map component with configurable error handling
 export function MapComponent({
   location,
   locationErrorMsg,
   isLocationLoading,
   mapRef,
+  onLocationErrorAction,
   children,
 }: MapComponentProps) {
   const { t } = useTranslation();
-  const router = useRouter();
 
   if (isLocationLoading) {
     return (
@@ -83,26 +85,28 @@ export function MapComponent({
     return (
       <MapPlaceholderView>
         <MapErrorText>{locationErrorMsg}</MapErrorText>
-        <TouchableButton
-          onPress={() => router.replace("/")}
-          style={{
-            marginTop: spacing.S,
-            padding: spacing.S,
-            backgroundColor: colors.primary,
-            borderRadius: spacing.radius.S,
-            alignItems: "center",
-          }}
-        >
-          <Text
+        {onLocationErrorAction && (
+          <TouchableButton
+            onPress={onLocationErrorAction}
             style={{
-              color: colors.text.tertiary,
-              textAlign: "center",
-              fontWeight: "bold",
+              marginTop: spacing.S,
+              padding: spacing.S,
+              backgroundColor: colors.primary,
+              borderRadius: spacing.radius.S,
+              alignItems: "center",
             }}
           >
-            {t("common.ok")}
-          </Text>
-        </TouchableButton>
+            <Text
+              style={{
+                color: colors.text.tertiary,
+                textAlign: "center",
+                fontWeight: "bold",
+              }}
+            >
+              {t("common.ok")}
+            </Text>
+          </TouchableButton>
+        )}
       </MapPlaceholderView>
     );
   }

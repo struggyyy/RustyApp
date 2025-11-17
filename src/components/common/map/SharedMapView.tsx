@@ -21,63 +21,74 @@ import { LinearGradient } from "expo-linear-gradient";
 
 // Internal imports
 import { useHaptics } from "../../../core/context/HapticsContext";
-import { Report } from "../../../shared/types/reports";
 import { MapComponent } from "./MapComponent";
 import { MapControls } from "./MapControls";
 import theme from "../../../core/theme";
 
-interface SharedMapViewProps {
-  reports: Report[];
+export interface MarkerData {
+  id: string;
+  latitude: number;
+  longitude: number;
+  title?: string;
+  description?: string;
+  pinColor?: string;
+  onPress?: () => void;
+}
+
+export interface SharedMapViewProps {
+  markers?: MarkerData[];
   location: any;
   locationErrorMsg: string | null;
   isLocationLoading: boolean;
   mapRef: React.RefObject<MapView | null>;
   onGoToMyLocation: () => void;
-  onMarkerPress: (report: Report) => void;
+  onLocationErrorAction?: () => void;
   showControls?: boolean;
   showGradient?: boolean;
+  containerStyle?: any;
 }
 
-// Shared map view component for consistent map rendering across the app
+// Generic map view component with customizable markers and controls
 export const SharedMapView: React.FC<SharedMapViewProps> = ({
-  reports,
+  markers = [],
   location,
   locationErrorMsg,
   isLocationLoading,
   mapRef,
   onGoToMyLocation,
-  onMarkerPress,
+  onLocationErrorAction,
   showControls = true,
   showGradient = true,
+  containerStyle = { flex: 1, borderRadius: 24, overflow: "hidden" },
 }) => {
   const haptics = useHaptics();
 
   return (
-    <View style={{ flex: 1, borderRadius: 24, overflow: "hidden" }}>
+    <View style={containerStyle}>
       <MapComponent
         location={location}
         locationErrorMsg={locationErrorMsg}
         isLocationLoading={isLocationLoading}
         mapRef={mapRef}
+        onLocationErrorAction={onLocationErrorAction}
       >
-        {reports.map((report) => (
+        {markers.map((marker) => (
           <Marker
-            key={report.id}
+            key={marker.id}
             coordinate={{
-              latitude: report.location.latitude,
-              longitude: report.location.longitude,
+              latitude: marker.latitude,
+              longitude: marker.longitude,
             }}
-            pinColor={theme.colors.primary}
-            onPress={() => {
-              haptics.heavy();
-              onMarkerPress(report);
-            }}
+            pinColor={marker.pinColor || theme.colors.primary}
+            title={marker.title}
+            description={marker.description}
+            onPress={marker.onPress}
           />
         ))}
       </MapComponent>
       {showGradient && (
         <LinearGradient
-          colors={["rgba(0,0,0,0.15)", "transparent"]}
+          colors={[theme.colors.shadow, "transparent"]}
           pointerEvents="none"
           style={{
             position: "absolute",
