@@ -35,10 +35,7 @@ import { useImagePicker } from "../src/shared/hooks/common/useImagePicker";
 import { useAlert } from "../src/core/context/AlertContext";
 import colors from "../src/core/theme/colors";
 import spacing from "../src/core/theme/spacing";
-import {
-  createReport,
-  uploadReportImage,
-} from "../src/lib/firebase/reports";
+import { createReport, uploadReportImage } from "../src/lib/firebase/reports";
 import StyledButton from "../src/components/common/buttons/StyledButton";
 import { ReportHeader } from "../src/components/features/report-page/ReportHeader";
 import { ReportInstructions } from "../src/components/features/report-page/ReportInstructions";
@@ -90,8 +87,10 @@ export default function ReportScreen() {
   const { imageUri, pickImage, handleCancelImage } = useImagePicker();
 
   // Wrapper functions for report image picking (landscape aspect ratio)
-  const pickImageFromCamera = () => pickImage(true, { aspect: [4, 3], quality: 0.5 });
-  const pickImageFromLibrary = () => pickImage(false, { aspect: [4, 3], quality: 0.5 });
+  const pickImageFromCamera = () =>
+    pickImage(true, { aspect: [4, 3], quality: 0.5 });
+  const pickImageFromLibrary = () =>
+    pickImage(false, { aspect: [4, 3], quality: 0.5 });
 
   // Combined pickImage function for ImagePickerSection interface
   const handlePickImage = (useCamera: boolean) => {
@@ -135,7 +134,7 @@ export default function ReportScreen() {
 
             scrollViewRef.current.scrollTo({
               y: safeScrollPosition,
-              animated: true
+              animated: true,
             });
           }
         }, 150); // Slightly longer delay for better accuracy
@@ -198,7 +197,8 @@ export default function ReportScreen() {
     !!imageUri &&
     !!description.trim() &&
     description.trim().length >= 5 &&
-    description.trim().length <= 150;
+    description.trim().length <= 150 &&
+    !!location;
 
   return (
     <>
@@ -271,7 +271,6 @@ export default function ReportScreen() {
           />
         </View>
       </View>
-
     </>
   );
 }

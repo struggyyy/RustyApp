@@ -96,6 +96,16 @@ export const ReportFormCard: React.FC<ReportFormCardProps> = ({
       }
     : null;
 
+  // Compute region for dynamic map updates
+  const region = location
+    ? {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.01,
+      }
+    : undefined;
+
   // Handle map controls interaction
   const handleGoToMyLocation = () => {
     if (location && mapRef.current) {
@@ -132,6 +142,7 @@ export const ReportFormCard: React.FC<ReportFormCardProps> = ({
           locationErrorMsg={locationErrorMsg}
           isLocationLoading={!location && !locationErrorMsg}
           mapRef={mapRef}
+          region={region}
         />
         <MapControls
           location={formattedLocation}

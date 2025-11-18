@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 
 // External libraries
 import { Stack, useRouter, useFocusEffect } from "expo-router";
+import { ScrollView, RefreshControl } from "react-native";
 
 // Internal imports
 import { useAuth } from "../src/core/context/AuthContext";
@@ -25,6 +26,7 @@ import { Report } from "../src/shared/types/reports";
 import MapReportModal from "../src/components/common/modals/MapReportModal";
 import { SharedMapView } from "../src/components/common/map/SharedMapView";
 import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";
+import { useMapRegion } from "../src/shared/hooks/map/useMapRegion";
 import colors from "../src/core/theme/colors";
 import spacing from "../src/core/theme/spacing";
 import styled from "styled-components/native";
@@ -87,7 +89,21 @@ function MapScreenComponent() {
     setModalVisible,
   } = useMapLogic();
 
-  // Reports fetching logic
+  // State for map region to handle dynamic updates
+  const mapRegion = useMapRegion(location, reports);
+
+  // Refresh state
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Refresh handler for pull-to-refresh
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([
+      fetchLocation(),
+      fetchReports(),
+    ]);
+    setRefreshing(false);
+  };
   const fetchReports = async () => {
     if (user) {
       try {
@@ -102,6 +118,11 @@ function MapScreenComponent() {
   useEffect(() => {
     fetchLocation();
   }, [fetchLocation]);
+
+  // Fetch reports on mount and focus
+  useEffect(() => {
+    fetchReports();
+  }, [user]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -124,20 +145,34 @@ function MapScreenComponent() {
     <StyledContainer>
       <MapSection>
         <MapWrapperView>
-          <SharedMapView
-            markers={reports.map((report) => ({
-              id: report.id,
-              latitude: report.location.latitude,
-              longitude: report.location.longitude,
-              pinColor: colors.primary,
-              onPress: () => handleMarkerPress(report, reports),
-            }))}
-            location={location}
-            locationErrorMsg={locationErrorMsg}
-            isLocationLoading={isLocationLoading}
-            mapRef={mapRef}
-            onGoToMyLocation={goToMyLocation}
-          />
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flex: 1 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                colors={[colors.primary]}
+                tintColor={colors.primary}
+              />
+            }
+          >
+            <SharedMapView
+              markers={reports.map((report) => ({
+                id: report.id,
+                latitude: report.location.latitude,
+                longitude: report.location.longitude,
+                pinColor: colors.primary,
+                onPress: () => handleMarkerPress(report, reports),
+              }))}
+              location={location}
+              locationErrorMsg={locationErrorMsg}
+              isLocationLoading={isLocationLoading}
+              mapRef={mapRef}
+              onGoToMyLocation={goToMyLocation}
+              region={mapRegion}
+            />
+          </ScrollView>
         </MapWrapperView>
       </MapSection>
       <MapReportModal

@@ -180,6 +180,8 @@
     "confirmLocation": "Confirm Location",
     "locationPermissionRequired": "Location permission is required to show your location on the map. Please enable location services and pull to refresh.",
     "locationError": "Current location is unavailable. Make sure that location services are enabled.",
+    "locationPermissionDenied": "Location permission was denied. You can enable it in app settings or use pull to refresh to try again.",
+    "locationServicesDisabled": "Location services are disabled on your device. Please enable them in device settings to use location features.",
     "addMarker": "Add Marker",
     "removeMarker": "Remove Marker",
     "pinLocation": "Pin Location",

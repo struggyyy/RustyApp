@@ -46,6 +46,12 @@ export interface SharedMapViewProps {
   showControls?: boolean;
   showGradient?: boolean;
   containerStyle?: any;
+  region?: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  };
 }
 
 // Generic map view component with customizable markers and controls
@@ -60,6 +66,7 @@ export const SharedMapView: React.FC<SharedMapViewProps> = ({
   showControls = true,
   showGradient = true,
   containerStyle = { flex: 1, borderRadius: 24, overflow: "hidden" },
+  region,
 }) => {
   const haptics = useHaptics();
 
@@ -71,6 +78,7 @@ export const SharedMapView: React.FC<SharedMapViewProps> = ({
         isLocationLoading={isLocationLoading}
         mapRef={mapRef}
         onLocationErrorAction={onLocationErrorAction}
+        region={region}
       >
         {markers.map((marker) => (
           <Marker

@@ -13,7 +13,7 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Modal, ActivityIndicator, Text } from "react-native";
+import { View, StyleSheet, Modal, ActivityIndicator, Text, ScrollView, RefreshControl } from "react-native";
 
 // External libraries
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
@@ -23,6 +23,7 @@ import { useAuth } from "../src/core/context/AuthContext";
 import { useTranslation } from "../src/shared/hooks/common/useTranslation";
 import { useAdminFilters } from "../src/shared/hooks/admin/useAdminFilters";
 import { useReportManagement } from "../src/shared/hooks/admin/useReportManagement";
+import { useMapRegion } from "../src/shared/hooks/map/useMapRegion";
 import {
   Report as ReportType,
   ReportStatus,
@@ -102,6 +103,8 @@ export default function AdminDashboard() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
   const [showMapView, setShowMapView] = useState(false);
+
+  // State for loading and filter expansion
   const [isMapLoading, setIsMapLoading] = useState(false);
   const [isFilterLoading, setIsFilterLoading] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
@@ -123,6 +126,9 @@ export default function AdminDashboard() {
     handleMarkerPress,
     setModalVisible,
   } = useMapLogic();
+
+  // State for map region to handle dynamic updates
+  const mapRegion = useMapRegion(location, filteredReports);
 
   // Track processed report IDs to prevent duplicate modal opens
   const [processedReportId, setProcessedReportId] = useState<string | null>(
@@ -206,6 +212,11 @@ export default function AdminDashboard() {
     setShowMapView(!showMapView);
   };
 
+  // Refresh handler for map view
+  const handleMapRefresh = async () => {
+    await fetchLocation(); // Force retry location (useMapLogic always forces)
+  };
+
   // Handle filter panel expansion changes with loading
   const handleFilterExpansionChange = (expanded: boolean) => {
     if (showMapView) {
@@ -253,7 +264,7 @@ export default function AdminDashboard() {
         <View
           style={[
             styles.dashboardWrapper,
-            theme.shadows.modal,
+            !showMapView && theme.shadows.modal,
             showMapView && { borderRadius: 24, overflow: "hidden" },
           ]}
         >
@@ -271,20 +282,34 @@ export default function AdminDashboard() {
             {showMapView ? (
               <>
                 {/* Always render the map underneath */}
-                <SharedMapView
-                  markers={filteredReports.map((report) => ({
-                    id: report.id,
-                    latitude: report.location.latitude,
-                    longitude: report.location.longitude,
-                    pinColor: theme.colors.primary,
-                    onPress: () => handleMarkerPress(report, filteredReports),
-                  }))}
-                  location={location}
-                  locationErrorMsg={locationErrorMsg}
-                  isLocationLoading={isLocationLoading}
-                  mapRef={mapRef}
-                  onGoToMyLocation={goToMyLocation}
-                />
+                <ScrollView
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ flex: 1 }}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={isLocationLoading}
+                      onRefresh={handleMapRefresh}
+                      colors={[theme.colors.primary]}
+                      tintColor={theme.colors.primary}
+                    />
+                  }
+                >
+                  <SharedMapView
+                    markers={filteredReports.map((report) => ({
+                      id: report.id,
+                      latitude: report.location.latitude,
+                      longitude: report.location.longitude,
+                      pinColor: theme.colors.primary,
+                      onPress: () => handleMarkerPress(report, filteredReports),
+                    }))}
+                    location={location}
+                    locationErrorMsg={locationErrorMsg}
+                    isLocationLoading={isLocationLoading}
+                    mapRef={mapRef}
+                    onGoToMyLocation={goToMyLocation}
+                    region={mapRegion}
+                  />
+                </ScrollView>
                 {(isMapLoading || isFilterLoading) && (
                   // Loading overlay on top of the prerendered map
                   <View

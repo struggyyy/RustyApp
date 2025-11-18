@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 
 // External libraries
 import { StatusBar, ActivityIndicator, RefreshControl } from "react-native";
@@ -24,6 +24,7 @@ import { useAuth } from "@/core/context/AuthContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useLocation } from "@/shared/hooks/common/useLocation";
 import { useReports } from "@/shared/hooks/reports/useReports";
+import { useMapRegion } from "@/shared/hooks/map/useMapRegion";
 import { ScoreSection } from "@/components/features/home-page/ScoreSection";
 import { CarImageCard } from "@/components/features/home-page/CarImageCard";
 import { MapSection } from "@/components/features/home-page/MapSection";
@@ -80,6 +81,14 @@ function HomeScreenComponent() {
 
   const mapRef = useRef<MapView>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Use the custom hook for map region management
+  const mapRegion = useMapRegion(location, reports);
+
+  // Fetch reports immediately on mount
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
 
   // Fetch reports when component mounts or focuses
   useFocusEffect(
@@ -168,6 +177,7 @@ function HomeScreenComponent() {
           onGoToMyLocation={goToMyLocation}
           onExpandMap={goToMap}
           onMyReportsPress={goToMyReports}
+          region={mapRegion}
         />
       </ContentView>
     </StyledContainer>

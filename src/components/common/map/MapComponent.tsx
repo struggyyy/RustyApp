@@ -15,7 +15,7 @@
 import React from "react";
 
 // External libraries
-import { Text, ActivityIndicator } from "react-native";
+import { ActivityIndicator } from "react-native";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 // Internal imports
@@ -23,7 +23,6 @@ import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import colors from "@/core/theme/colors";
 import spacing from "@/core/theme/spacing";
 import styled from "styled-components/native";
-import TouchableButton from "@/components/common/buttons/TouchableButton";
 
 const StyledMapView = styled(MapView)({
   flex: 1,
@@ -36,7 +35,7 @@ const MapPlaceholderView = styled.View({
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: colors.background.primary,
+  backgroundColor: colors.background.secondary,
 });
 
 const LoadingMapText = styled.Text({
@@ -58,16 +57,21 @@ export interface MapComponentProps {
   isLocationLoading: boolean;
   mapRef: React.RefObject<MapView | null>;
   onLocationErrorAction?: () => void; // Configurable action for location error
+  region?: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  };
   children?: React.ReactNode;
 }
 
 // Generic map component with configurable error handling
 export function MapComponent({
   location,
-  locationErrorMsg,
   isLocationLoading,
   mapRef,
-  onLocationErrorAction,
+  region,
   children,
 }: MapComponentProps) {
   const { t } = useTranslation();
@@ -81,37 +85,7 @@ export function MapComponent({
     );
   }
 
-  if (locationErrorMsg && !location) {
-    return (
-      <MapPlaceholderView>
-        <MapErrorText>{locationErrorMsg}</MapErrorText>
-        {onLocationErrorAction && (
-          <TouchableButton
-            onPress={onLocationErrorAction}
-            style={{
-              marginTop: spacing.S,
-              padding: spacing.S,
-              backgroundColor: colors.primary,
-              borderRadius: spacing.radius.S,
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{
-                color: colors.text.tertiary,
-                textAlign: "center",
-                fontWeight: "bold",
-              }}
-            >
-              {t("common.ok")}
-            </Text>
-          </TouchableButton>
-        )}
-      </MapPlaceholderView>
-    );
-  }
-
-  if (!location) {
+  if (!region) {
     return (
       <MapPlaceholderView>
         <MapErrorText>{t("map.locationError")}</MapErrorText>
@@ -123,13 +97,8 @@ export function MapComponent({
     <StyledMapView
       provider={PROVIDER_GOOGLE}
       ref={mapRef}
-      initialRegion={{
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.01,
-      }}
-      showsUserLocation={true}
+      region={region}
+      showsUserLocation={!!location}
       showsMyLocationButton={false}
       toolbarEnabled={false}
     >

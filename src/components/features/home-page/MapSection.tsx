@@ -84,6 +84,12 @@ interface MapSectionProps {
   onGoToMyLocation: () => void;
   onExpandMap: () => void;
   onMyReportsPress: () => void;
+  region?: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  };
 }
 
 // Home screen map section displaying user's location, reports, and navigation controls
@@ -96,6 +102,7 @@ export function MapSection({
   onGoToMyLocation,
   onExpandMap,
   onMyReportsPress,
+  region,
 }: MapSectionProps) {
   const { t } = useTranslation();
 
@@ -116,6 +123,7 @@ export function MapSection({
           locationErrorMsg={locationErrorMsg}
           isLocationLoading={isLocationLoading}
           mapRef={mapRef}
+          region={region}
         >
           {/* Render report markers on map */}
           {reports.map((report) => (

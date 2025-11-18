@@ -16,7 +16,6 @@ import { useState, useCallback, useEffect } from "react";
 
 // External libraries
 import * as Location from "expo-location";
-import { AppState, AppStateStatus } from "react-native";
 
 // Internal imports
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
@@ -48,12 +47,47 @@ export function useLocation(): UseLocationReturn {
       setLocationErrorMsg(null);
 
       try {
-        // Request location permissions
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
+        // Check current permission status without prompting
+        const currentPermissions =
+          await Location.getForegroundPermissionsAsync();
+
+        let permissionGranted = false;
+
+        if (currentPermissions.status === "granted") {
+          permissionGranted = true;
+        } else if (currentPermissions.status === "denied") {
+          if (!forceRetry) {
+            setLocation(null); // Clear location when denied
+            setLocationErrorMsg(t("map.locationPermissionDenied"));
+            return;
+          }
+          // Force retry: request permissions again
+          const { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== "granted") {
+            setLocation(null); // Clear location if still denied
+            setLocationErrorMsg(t("map.locationPermissionRequired"));
+            return;
+          }
+          permissionGranted = true;
+        } else {
+          // Undetermined: request permissions
+          const { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== "granted") {
+            setLocation(null); // Clear location if denied
+            setLocationErrorMsg(t("map.locationPermissionRequired"));
+            return;
+          }
+          permissionGranted = true;
+        }
+
+        if (!permissionGranted) {
+          // This shouldn't happen, but just in case
           setLocationErrorMsg(t("map.locationPermissionRequired"));
           return;
         }
+
+        // Short delay to allow system to update after permission grant
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Get last known location first for performance
         let currentLocation = await Location.getLastKnownPositionAsync({});
@@ -66,32 +100,22 @@ export function useLocation(): UseLocationReturn {
 
         setLocation(currentLocation);
       } catch (error: any) {
-        console.error("Location Error:", error.message);
-        setLocationErrorMsg(error.message || t("map.locationError"));
+        setLocation(null); // Clear location on error
+        if (
+          error.message &&
+          error.message.includes("unsatisfied device settings")
+        ) {
+          setLocationErrorMsg(t("map.locationServicesDisabled"));
+        } else {
+          console.error("Location Error:", error.message);
+          setLocationErrorMsg(error.message || t("map.locationError"));
+        }
       } finally {
         setIsLocationLoading(false);
       }
     },
-    [location, locationErrorMsg, t]
+    [location, t]
   );
-
-  // Retry location fetch when app becomes active
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === "active") {
-        fetchLocation(true);
-      }
-    };
-
-    const subscription = AppState.addEventListener(
-      "change",
-      handleAppStateChange
-    );
-
-    return () => {
-      subscription.remove();
-    };
-  }, [fetchLocation]);
 
   // Initial location fetch
   useEffect(() => {

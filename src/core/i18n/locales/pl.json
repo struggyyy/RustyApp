@@ -180,6 +180,8 @@
     "confirmLocation": "Potwierdź lokalizację",
     "locationPermissionRequired": "Uprawnienia do lokalizacji są wymagane do korzystania z tej funkcji.",
     "locationError": "Nie udało się uzyskać lokalizacji.",
+    "locationPermissionDenied": "Uprawnienia do lokalizacji zostały odrzucone. Możesz je włączyć w ustawieniach aplikacji lub przeciągnąć w dół ekranu aby wygenerować ponowne zapytanie o użycie lokalizacji.",
+    "locationServicesDisabled": "Usługi lokalizacji są wyłączone na Twoim urządzeniu. Włącz je w ustawieniach urządzenia, aby korzystać z funkcji lokalizacji.",
     "addMarker": "Dodaj znacznik",
     "removeMarker": "Usuń znacznik",
     "pinLocation": "Przypnij lokalizację",

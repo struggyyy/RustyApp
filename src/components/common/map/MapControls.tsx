@@ -42,18 +42,16 @@ export function MapControls({
   myLocationStyle = { position: "absolute", bottom: 20, right: 20 },
   expandStyle = { position: "absolute", bottom: 20, left: 20 },
 }: MapControlsProps) {
-  if (!location) {
-    return null;
-  }
-
   return (
     <>
-      <FloatingActionButton
-        onPress={onGoToMyLocation}
-        style={myLocationStyle}
-      >
-        <MaterialIcons name={myLocationIcon} size={24} color={colors.primary} />
-      </FloatingActionButton>
+      {location && (
+        <FloatingActionButton
+          onPress={onGoToMyLocation}
+          style={myLocationStyle}
+        >
+          <MaterialIcons name={myLocationIcon} size={24} color={colors.primary} />
+        </FloatingActionButton>
+      )}
       {showExpandMap && onExpandMap && (
         <FloatingActionButton
           onPress={onExpandMap}
