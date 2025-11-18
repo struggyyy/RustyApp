@@ -169,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
         } catch (fetchError: any) {
+          console.error("Profile loading error:", fetchError);
           if (isMounted) {
             setError(fetchError.message || "Failed to load profile data.");
             setProfile(null);

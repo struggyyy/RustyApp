@@ -43,6 +43,9 @@ export default function SignupScreen() {
   const passwordInputRef = useRef<TextInput | null>(null);
   const confirmPasswordInputRef = useRef<TextInput | null>(null);
 
+  // Flag to prevent double navigation
+  const hasNavigatedRef = useRef(false);
+
   // Shake animation for nickname validation
   const { shakeAnimation, triggerShake } = useShakeAnimation();
 
@@ -95,10 +98,13 @@ export default function SignupScreen() {
 
         if (newUser) {
           console.log("Signup successful, navigating to verification screen.");
-          router.replace({
-            pathname: "/verify-email",
-            params: { email: values.email },
-          });
+          if (!hasNavigatedRef.current) {
+            hasNavigatedRef.current = true;
+            router.replace({
+              pathname: "/verify-email",
+              params: { email: values.email },
+            });
+          }
         } else {
           console.log("Signup failed (error likely set in context).");
         }

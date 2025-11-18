@@ -58,19 +58,37 @@ export default function VerifyEmailScreen() {
 
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
+  const [lastResendTime, setLastResendTime] = useState<number>(0);
 
   const emailToVerify = (params.email as string) || user?.email;
 
   const handleResendVerification = async () => {
+    // Prevent rapid clicking - minimum 10 seconds between requests
+    const now = Date.now();
+    const timeSinceLastResend = now - lastResendTime;
+    const minDelay = 10000; // 10 seconds
+
+    if (timeSinceLastResend < minDelay) {
+      setResendMessage(t("auth.verificationRateLimit"));
+      return;
+    }
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsResending(true);
     setResendMessage("");
+    setLastResendTime(now);
+
     try {
       await sendVerificationEmail();
       setResendMessage(t("auth.emailSentSuccess"));
     } catch (err: any) {
-      setResendMessage(t("auth.verificationError"));
       console.error("Resend Error:", err);
+      // Check for specific error messages
+      if (err.message?.includes("Too many verification emails sent")) {
+        setResendMessage(t("auth.verificationRateLimit"));
+      } else {
+        setResendMessage(t("auth.verificationError"));
+      }
     } finally {
       setIsResending(false);
     }
@@ -94,7 +112,6 @@ export default function VerifyEmailScreen() {
   return (
     <AuthLayout
       title="Email Verification"
-      showLanguageSwitcher={false}
       options={{ headerLeft: null }}
     >
       <AuthTitle>{t("auth.verifyEmailTitle")}</AuthTitle>
@@ -104,7 +121,6 @@ export default function VerifyEmailScreen() {
           {" "}
           {emailToVerify || t("auth.email")}
         </EmailHighlightText>
-        .
       </AuthSubtitle>
 
       {resendMessage && (

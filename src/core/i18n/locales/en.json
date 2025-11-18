@@ -54,6 +54,7 @@
     "passwordResetError": "Password reset failed.",
     "logoutError": "Logout failed.",
     "verificationError": "Failed to resend verification email.",
+    "verificationRateLimit": "Too many verification emails sent. Please wait a few minutes before trying again.",
     "emailRequired": "Please enter your email address",
     "passwordRequired": "Please enter your password",
     "nicknameRequired": "Nickname is required.",

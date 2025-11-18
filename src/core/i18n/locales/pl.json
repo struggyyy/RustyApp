@@ -54,6 +54,7 @@
     "passwordResetError": "Resetowanie hasła nie powiodło się.",
     "logoutError": "Wylogowanie nie powiodło się.",
     "verificationError": "Nie udało się ponownie wysłać emaila weryfikacyjnego.",
+    "verificationRateLimit": "Wysłano zbyt wiele emaili weryfikacyjnych. Poczekaj kilka minut przed ponowną próbą.",
     "emailRequired": "Wprowadź swój adres email",
     "passwordRequired": "Wprowadź swoje hasło",
     "nicknameRequired": "Nick jest wymagany.",
@@ -70,7 +71,7 @@
     "backToLogin": "Powrót do logowania",
     "verifyEmailTitle": "Zweryfikuj swój email",
     "verifyEmailMessage": "Wysłaliśmy link weryfikacyjny na Twój email. Sprawdź skrzynkę odbiorczą i kliknij link, aby zweryfikować konto.",
-    "resendEmail": "Wyślij ponownie email",
+    "resendEmail": "Wyślij ponownie",
     "emailSentSuccess": "Email wysłany pomyślnie!",
     "signInWithEmailLink": "Zaloguj się za pomocą linku email",
     "emailForSignIn": "Email do logowania"

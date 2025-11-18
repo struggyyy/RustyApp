@@ -50,7 +50,7 @@ const ForgotPasswordText = styled.Text({
 export default function Login() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const { logIn, user, initialLoading } = useAuth();
+  const { logIn, user, initialLoading, error: authError } = useAuth();
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
 
@@ -167,9 +167,12 @@ export default function Login() {
       </ForgotPasswordButton>
 
       {(touched.email && errors.email) ||
-      (touched.password && errors.password) ? (
+      (touched.password && errors.password) ||
+      authError ? (
         <AuthErrorText>
-          {touched.email && errors.email
+          {authError
+            ? authError
+            : touched.email && errors.email
             ? errors.email
             : touched.password && errors.password
             ? errors.password

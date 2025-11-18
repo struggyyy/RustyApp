@@ -160,6 +160,14 @@ export const useAuthActions = () => {
         "[useAuthActions] Failed to resend verification email:",
         error
       );
+
+      // Handle specific Firebase errors
+      if (error.code === "auth/too-many-requests") {
+        throw new Error(
+          "Too many verification emails sent. Please wait a few minutes before trying again."
+        );
+      }
+
       throw new Error(
         "Failed to resend verification email. Please try again later."
       );
