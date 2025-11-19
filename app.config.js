@@ -56,6 +56,9 @@ export default {
           ]
         }
       ]
+      //Uncomment for the production version for the push 
+      //],
+      //"googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro"
@@ -65,7 +68,7 @@ export default {
         "projectId": "4efc6c8c-f689-49a0-844d-846ef14a0e67"
       }
     },
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "plugins": [
       "expo-router",
       [

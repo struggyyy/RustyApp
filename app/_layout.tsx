@@ -131,7 +131,7 @@ function AuthenticatedStack() {
         headerTransparent: false,
         contentStyle: { backgroundColor: colors.background.primary },
         headerTintColor: colors.text.primary,
-        headerLeft: () => <HeaderBackButton onPress={() => router.back()} />,
+        headerLeft: () => router.canGoBack() ? <HeaderBackButton onPress={() => router.back()} /> : null,
       }}
     >
       {screens}
