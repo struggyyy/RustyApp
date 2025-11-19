@@ -67,6 +67,7 @@ export default {
     },
     "newArchEnabled": true,
     "plugins": [
+      "expo-router",
       [
         "expo-location",
         {
