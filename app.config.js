@@ -55,10 +55,8 @@ export default {
             "DEFAULT"
           ]
         }
-      ]
-      //Uncomment for the production version for the push 
-      //],
-      //"googleServicesFile": "./google-services.json"
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro"
