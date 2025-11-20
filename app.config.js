@@ -1,3 +1,4 @@
+// Dummy comment for git
 export default {
   "expo": {
     "name": "Rusty",
