@@ -16,6 +16,9 @@ export default {
     "assetBundlePatterns": [
       "**/*"
     ],
+    "updates": {
+      "url": "https://u.expo.dev/4efc6c8c-f689-49a0-844d-846ef14a0e67"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.rusty",
