@@ -65,9 +65,6 @@ export default {
       ],
       "googleServicesFile": "./google-services.json"
     },
-    "web": {
-      "bundler": "metro"
-    },
     "extra": {
       "eas": {
         "projectId": "4efc6c8c-f689-49a0-844d-846ef14a0e67"
