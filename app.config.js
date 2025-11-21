@@ -3,6 +3,10 @@ export default {
   "expo": {
     "name": "Rusty",
     "slug": "Rusty",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "scheme": "rusty",
     "version": "1.0.0",
     "orientation": "portrait",
