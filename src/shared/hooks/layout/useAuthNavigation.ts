@@ -25,7 +25,8 @@ export const useAuthNavigation = () => {
   const segments = useSegments();
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
-  const [profileLoadTimeout, setProfileLoadTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [profileLoadTimeout, setProfileLoadTimeout] =
+    useState<NodeJS.Timeout | null>(null);
 
   // Identify current route types
   const isAuthRoute =
@@ -48,6 +49,15 @@ export const useAuthNavigation = () => {
     if (profileLoadTimeout) {
       clearTimeout(profileLoadTimeout);
       setProfileLoadTimeout(null);
+    }
+
+    // Handle profile loading error - redirect to login to allow re-authentication
+    if (user && error) {
+      if (!isAuthRoute) {
+        router.replace("/login");
+      }
+      setIsReady(true);
+      return;
     }
 
     // Apply routing rules based on authentication state
@@ -87,8 +97,23 @@ export const useAuthNavigation = () => {
     } else if (user && user.emailVerified && !isAdmin && isAdminRoute) {
       router.replace("/home");
       // Case 5: Admin user not on admin route -> redirect to admin (only after profile is loaded).
-    } else if (user && user.emailVerified && isAdmin && profileLoaded && !isAdminRoute) {
+    } else if (
+      user &&
+      user.emailVerified &&
+      isAdmin &&
+      profileLoaded &&
+      !isAdminRoute
+    ) {
       router.replace("/admin");
+      // Case 6: Regular user on Index -> redirect to home
+    } else if (
+      user &&
+      user.emailVerified &&
+      !isAdmin &&
+      profileLoaded &&
+      ((segments.length as number) === 0 || segments[0] === "index")
+    ) {
+      router.replace("/home");
     }
 
     setIsReady(true);
@@ -99,10 +124,20 @@ export const useAuthNavigation = () => {
         clearTimeout(profileLoadTimeout);
       }
     };
-  }, [user, initialLoading, segments, router, isAdmin, profileLoaded, error, profileLoadTimeout]);
+  }, [
+    user,
+    initialLoading,
+    segments,
+    router,
+    isAdmin,
+    profileLoaded,
+    error,
+    profileLoadTimeout,
+  ]);
 
   // Determine if loading screen should be shown
-  const shouldShowLoading = !isReady || (user && !profileLoaded && !isAuthRoute && !isVerifyEmailRoute);
+  const shouldShowLoading =
+    !isReady || (user && !profileLoaded && !isAuthRoute && !isVerifyEmailRoute);
 
   // Check if user is trying to access admin routes without permission
   const isAdminRouteAccessDenied =
