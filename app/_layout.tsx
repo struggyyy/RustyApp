@@ -31,7 +31,7 @@ import { LanguageProvider } from "../src/core/context/LanguageContext";
 import { AlertProvider } from "../src/core/context/AlertContext";
 import { useAuth } from "../src/core/context/AuthContext";
 import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
-import LoadingScreen from "../src/components/common/modals/LoadingScreen";
+import { SplashTransition } from "../src/components/common/layout/SplashTransition";
 import CustomAlert from "../src/components/common/modals/CustomAlert";
 import colors from "../src/core/theme/colors";
 import { useAuthNavigation } from "../src/shared/hooks/layout/useAuthNavigation";
@@ -57,41 +57,39 @@ function AuthenticatedStack() {
 
   // Handle notification responses (when user taps on a notification)
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const data = response.notification.request.content.data;
-      if (data && data.type === 'new_report' && data.reportId) {
-        // Navigate to admin page with specific report to open modal
-        router.navigate(`/admin?reportId=${data.reportId}`);
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const data = response.notification.request.content.data;
+        if (data && data.type === "new_report" && data.reportId) {
+          // Navigate to admin page with specific report to open modal
+          router.navigate(`/admin?reportId=${data.reportId}`);
+        }
       }
-    });
+    );
 
     return () => subscription.remove();
   }, [router]);
 
-  // Show loading screen during authentication checks
-  if (shouldShowLoading) {
-    return <LoadingScreen />;
-  }
-
-  // Prevent non-admin users from accessing admin routes
-  if (isAdminRouteAccessDenied) {
-    return <LoadingScreen />;
-  }
-
   // Stack navigator configuration for authenticated screens
   const screens = [
-    ...(profileLoaded && isAdmin ? [
-      <Stack.Screen
-        key="admin"
-        name="admin"
-        options={{
-          title: "Admin",
-          headerBackVisible: false,
-          headerLeft: undefined,
-        }}
-      />,
-      <Stack.Screen key="admin-profile" name="admin-profile" options={{ title: "Admin Profile" }} />
-    ] : []),
+    ...(profileLoaded && isAdmin
+      ? [
+          <Stack.Screen
+            key="admin"
+            name="admin"
+            options={{
+              title: "Admin",
+              headerBackVisible: false,
+              headerLeft: undefined,
+            }}
+          />,
+          <Stack.Screen
+            key="admin-profile"
+            name="admin-profile"
+            options={{ title: "Admin Profile" }}
+          />,
+        ]
+      : []),
     <Stack.Screen
       key="home"
       name="home"
@@ -123,19 +121,26 @@ function AuthenticatedStack() {
     />,
   ];
 
+  const isLoading = shouldShowLoading || !!isAdminRouteAccessDenied;
+
   return (
-    <Stack
-      screenOptions={{
-        statusBarStyle: "dark",
-        headerStyle: { backgroundColor: colors.background.primary },
-        headerTransparent: false,
-        contentStyle: { backgroundColor: colors.background.primary },
-        headerTintColor: colors.text.primary,
-        headerLeft: () => router.canGoBack() ? <HeaderBackButton onPress={() => router.back()} /> : null,
-      }}
-    >
-      {screens}
-    </Stack>
+    <SplashTransition isLoading={isLoading}>
+      <Stack
+        screenOptions={{
+          statusBarStyle: "dark",
+          headerStyle: { backgroundColor: colors.background.primary },
+          headerTransparent: false,
+          contentStyle: { backgroundColor: colors.background.primary },
+          headerTintColor: colors.text.primary,
+          headerLeft: () =>
+            router.canGoBack() ? (
+              <HeaderBackButton onPress={() => router.back()} />
+            ) : null,
+        }}
+      >
+        {screens}
+      </Stack>
+    </SplashTransition>
   );
 }
 
