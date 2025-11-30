@@ -13,35 +13,81 @@
  ************************************************************************** */
 // React-specific imports
 import React, { forwardRef } from "react";
-import { TextInput, TextInputProps } from "react-native";
+import {
+  TextInput,
+  TextInputProps,
+  ViewStyle,
+  StyleProp,
+  Animated,
+} from "react-native";
+
+// External libraries
+import styled from "styled-components/native";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 // Internal imports
-import styled from "styled-components/native";
 import theme from "@/core/theme";
 
 interface AuthInputProps extends TextInputProps {
   hasError?: boolean;
+  rightIcon?: keyof typeof Ionicons.glyphMap;
+  onRightIconPress?: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const StyledInput = styled.TextInput.attrs({
+const InputContainer = styled(Animated.View)<{ hasError?: boolean }>(
+  ({ hasError }) => ({
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.background.primary,
+    borderRadius: theme.spacing.M,
+    marginBottom: theme.spacing.M,
+    borderWidth: 1,
+    borderColor: hasError ? theme.colors.error : theme.colors.border.default,
+    paddingHorizontal: theme.spacing.M,
+  })
+);
+
+const StyledTextInput = styled.TextInput.attrs({
   placeholderTextColor: theme.colors.text.tertiary,
-})<AuthInputProps>((props: AuthInputProps) => ({
-  backgroundColor: theme.colors.background.primary,
-  borderRadius: theme.spacing.M,
-  padding: theme.spacing.M,
-  marginBottom: theme.spacing.M,
-  borderWidth: 1,
-  borderColor: props.hasError
-    ? theme.colors.error
-    : theme.colors.border.default,
+})({
+  flex: 1,
+  paddingVertical: theme.spacing.M,
   color: theme.colors.text.primary,
   fontSize: theme.typography.fontSize.input,
-}));
+});
 
-// Auth input component with error styling and forwardRef
+const IconContainer = styled.TouchableOpacity({
+  padding: theme.spacing.XS,
+});
+
+// Auth input component with error styling, icons, and forwardRef
 export const AuthInput = forwardRef<TextInput, AuthInputProps>(
-  ({ hasError, ...props }, ref) => {
-    return <StyledInput ref={ref} hasError={hasError} {...props} />;
+  (
+    { hasError, rightIcon, onRightIconPress, containerStyle, ...props },
+    ref
+  ) => {
+    return (
+      <InputContainer hasError={hasError} style={containerStyle}>
+        <StyledTextInput ref={ref} {...props} />
+        {rightIcon && (
+          <IconContainer
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              onRightIconPress && onRightIconPress();
+            }}
+            disabled={!onRightIconPress}
+          >
+            <Ionicons
+              name={rightIcon}
+              size={24}
+              color={theme.colors.text.tertiary}
+            />
+          </IconContainer>
+        )}
+      </InputContainer>
+    );
   }
 );
 

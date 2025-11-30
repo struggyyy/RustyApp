@@ -36,7 +36,7 @@ export default function ForgotPassword() {
   const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { resetPassword } = useAuth();
+  const { resetPassword, error: authError, clearError } = useAuth();
 
   // Form state management with validation
   const {
@@ -79,7 +79,10 @@ export default function ForgotPassword() {
       <AuthInput
         placeholder={t("auth.email")}
         value={values.email}
-        onChangeText={handleChange("email")}
+        onChangeText={(text) => {
+          handleChange("email")(text);
+          if (authError) clearError();
+        }}
         onBlur={handleBlur("email")}
         keyboardType="email-address"
         autoCapitalize="none"

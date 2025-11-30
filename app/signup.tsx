@@ -17,6 +17,7 @@ import { TextInput, Keyboard, Animated } from "react-native";
 
 // External libraries
 import { useRouter, useLocalSearchParams } from "expo-router";
+import * as Haptics from "expo-haptics";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
@@ -25,20 +26,19 @@ import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
 import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
 import { AuthLayout } from "@/components/common/auth/AuthLayout";
 import { AuthInput } from "@/components/common/auth/AuthInput";
+import { AuthErrorCard } from "@/components/common/auth/AuthErrorCard";
 import { AuthButton } from "@/components/common/auth/AuthButton";
 import {
   AuthTitle,
   AuthSubtitle,
-  AuthErrorText,
   AuthLinkButton,
 } from "@/components/common/auth/AuthText";
 import i18n from "@/core/i18n/i18n";
-import * as Haptics from "expo-haptics";
 
 export default function SignupScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const { signUp } = useAuth();
+  const { signUp, error: authError, clearError } = useAuth();
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
   const confirmPasswordInputRef = useRef<TextInput | null>(null);
@@ -70,21 +70,21 @@ export default function SignupScreen() {
       // Custom nickname validation (2-15 characters)
       if (values.nickname.length < 2) {
         triggerShake();
-        throw new Error(t("validation.nicknameTooShort"));
+        throw new Error("validation.nicknameTooShort");
       }
       if (values.nickname.length > 15) {
         triggerShake();
-        throw new Error(t("validation.nicknameTooLong"));
+        throw new Error("validation.nicknameTooLong");
       }
 
       // Password confirmation validation
       if (values.password !== values.confirmPassword) {
-        throw new Error(t("validation.passwordMismatch"));
+        throw new Error("validation.passwordMismatch");
       }
 
       // Email validation
       if (!values.email.includes("@")) {
-        throw new Error(t("validation.invalidEmail"));
+        throw new Error("validation.invalidEmail");
       }
 
       try {
@@ -97,7 +97,6 @@ export default function SignupScreen() {
         );
 
         if (newUser) {
-          console.log("Signup successful, navigating to verification screen.");
           if (!hasNavigatedRef.current) {
             hasNavigatedRef.current = true;
             router.replace({
@@ -105,12 +104,9 @@ export default function SignupScreen() {
               params: { email: values.email },
             });
           }
-        } else {
-          console.log("Signup failed (error likely set in context).");
         }
       } catch (err: any) {
-        console.error("Signup handler error:", err);
-        throw new Error(err.message || t("validation.unexpectedError"));
+        throw new Error(err.message || "validation.unexpectedError");
       }
     },
   });
@@ -119,6 +115,7 @@ export default function SignupScreen() {
   const handleNicknameChange = (text: string) => {
     if (text.length <= 15) {
       handleChange("nickname")(text);
+      if (authError) clearError();
     } else {
       triggerShake();
     }
@@ -154,7 +151,10 @@ export default function SignupScreen() {
       <AuthInput
         placeholder={t("auth.email")}
         value={values.email}
-        onChangeText={handleChange("email")}
+        onChangeText={(text) => {
+          handleChange("email")(text);
+          if (authError) clearError();
+        }}
         onBlur={handleBlur("email")}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -169,7 +169,10 @@ export default function SignupScreen() {
         ref={passwordInputRef}
         placeholder={t("auth.password")}
         value={values.password}
-        onChangeText={handleChange("password")}
+        onChangeText={(text) => {
+          handleChange("password")(text);
+          if (authError) clearError();
+        }}
         onBlur={handleBlur("password")}
         secureTextEntry
         autoCapitalize="none"
@@ -184,7 +187,10 @@ export default function SignupScreen() {
         ref={confirmPasswordInputRef}
         placeholder={t("auth.confirmPassword")}
         value={values.confirmPassword}
-        onChangeText={handleChange("confirmPassword")}
+        onChangeText={(text) => {
+          handleChange("confirmPassword")(text);
+          if (authError) clearError();
+        }}
         onBlur={handleBlur("confirmPassword")}
         secureTextEntry
         autoCapitalize="none"
@@ -195,22 +201,20 @@ export default function SignupScreen() {
         editable={!isSubmitting}
       />
 
-      {(touched.nickname && errors.nickname) ||
-      (touched.email && errors.email) ||
-      (touched.password && errors.password) ||
-      (touched.confirmPassword && errors.confirmPassword) ? (
-        <AuthErrorText>
-          {touched.nickname && errors.nickname
-            ? errors.nickname
-            : touched.email && errors.email
-            ? errors.email
-            : touched.password && errors.password
-            ? errors.password
-            : touched.confirmPassword && errors.confirmPassword
-            ? errors.confirmPassword
-            : ""}
-        </AuthErrorText>
-      ) : null}
+      <AuthErrorCard
+        error={
+          (touched.nickname && errors.nickname
+            ? t(errors.nickname)
+            : undefined) ||
+          (touched.email && errors.email ? t(errors.email) : undefined) ||
+          (touched.password && errors.password
+            ? t(errors.password)
+            : undefined) ||
+          (touched.confirmPassword && errors.confirmPassword
+            ? t(errors.confirmPassword)
+            : undefined)
+        }
+      />
 
       <AuthButton
         title={t("auth.signup")}

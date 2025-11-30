@@ -81,7 +81,10 @@
     "resendEmail": "Wyślij ponownie",
     "emailSentSuccess": "Email wysłany pomyślnie!",
     "signInWithEmailLink": "Zaloguj się za pomocą linku email",
-    "emailForSignIn": "Email do logowania"
+    "emailForSignIn": "Email do logowania",
+    "signInLinkError": "Nie udało się zalogować za pomocą linku email.",
+    "signInEmailNotFound": "Nie znaleziono emaila do logowania. Spróbuj ponownie.",
+    "networkError": "Błąd sieci. Sprawdź połączenie z internetem."
   },
   "profile": {
     "title": "Twój profil",
@@ -266,6 +269,8 @@
     "nicknameTooShort": "Nick musi mieć co najmniej 2 znaki.",
     "nicknameTooLong": "Nick nie może być dłuższy niż 15 znaków.",
     "passwordMismatch": "Hasła nie pasują do siebie.",
-    "unexpectedError": "Wystąpił nieoczekiwany błąd."
+    "unexpectedError": "Wystąpił nieoczekiwany błąd.",
+    "emailRequired": "Email jest wymagany.",
+    "passwordRequired": "Hasło jest wymagane."
   }
 }

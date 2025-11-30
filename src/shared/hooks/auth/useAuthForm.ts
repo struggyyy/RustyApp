@@ -89,14 +89,20 @@ export function useAuthForm({
     const newErrors: Record<string, string> = {};
 
     // Email validation
-    if (values.email && !/\S+@\S+\.\S+/.test(values.email.trim())) {
+    if (!values.email?.trim()) {
+      newErrors.email = t ? t("validation.emailRequired") : "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(values.email.trim())) {
       newErrors.email = t
         ? t("validation.invalidEmail")
         : "Invalid email format";
     }
 
-    // Password validation (minimum length)
-    if (values.password && values.password.length < 6) {
+    // Password validation
+    if (!values.password) {
+      newErrors.password = t
+        ? t("validation.passwordRequired")
+        : "Password is required";
+    } else if (values.password.length < 6) {
       newErrors.password = t
         ? t("validation.passwordTooShort")
         : "Password must be at least 6 characters";
@@ -109,9 +115,9 @@ export function useAuthForm({
         : "Passwords do not match";
     }
 
-    // Required fields validation
+    // Required fields validation (generic fallback for other fields)
     Object.keys(values).forEach((field) => {
-      if (!values[field]?.trim()) {
+      if (field !== "email" && field !== "password" && !values[field]?.trim()) {
         newErrors[field] = t
           ? t("validation.required")
           : `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
@@ -151,7 +157,7 @@ export function useAuthForm({
       await onSubmit?.(trimmedValues);
     } catch (error) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      console.error("Form submission error:", error);
+      console.log("Form submission error (expected for validation):", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -168,7 +174,14 @@ export function useAuthForm({
       });
       setErrors(newErrors);
     }
-  }, [values, validateOnChange]); // Removed 'errors' to prevent infinite loop
+  }, [values, validateOnChange]);
+
+  // Re-validate when translation function changes
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      validate();
+    }
+  }, [t, validate]);
 
   return {
     // Form state

@@ -81,7 +81,10 @@
     "resendEmail": "Resend Email",
     "emailSentSuccess": "Email sent successfully!",
     "signInWithEmailLink": "Sign in with Email Link",
-    "emailForSignIn": "Email for Sign In"
+    "emailForSignIn": "Email for Sign In",
+    "signInLinkError": "Failed to sign in with email link.",
+    "signInEmailNotFound": "Sign-in email not found. Please try again.",
+    "networkError": "Network error. Please check your internet connection."
   },
   "profile": {
     "title": "Your Profile",
@@ -266,6 +269,8 @@
     "nicknameTooShort": "Nickname must be at least 2 characters.",
     "nicknameTooLong": "Nickname cannot be longer than 15 characters.",
     "passwordMismatch": "Passwords do not match.",
-    "unexpectedError": "An unexpected error occurred."
+    "unexpectedError": "An unexpected error occurred.",
+    "emailRequired": "Email is required.",
+    "passwordRequired": "Password is required."
   }
 }

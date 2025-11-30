@@ -64,6 +64,7 @@ interface AuthContextType {
   loading: boolean;
   initialLoading: boolean;
   error: string | null;
+  clearError: () => void;
   isAdmin: boolean;
   profileLoaded: boolean;
   signUp: (
@@ -105,6 +106,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const clearError = () => setError(null);
+
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [profileLoaded, setProfileLoaded] = useState<boolean>(false);
 
@@ -211,7 +215,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const newUser = await performSignUp(email, password, nickname, language);
+      const newUser = await performSignUp(email, password);
       if (newUser) {
         const newProfile = await createInitialProfile(
           newUser,
@@ -446,6 +450,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       loading,
       initialLoading,
       error,
+      clearError,
       isAdmin,
       profileLoaded,
       signUp,

@@ -11,7 +11,7 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
-// External libraries
+// External imports
 import {
   User,
   createUserWithEmailAndPassword,
@@ -23,19 +23,17 @@ import {
   signInWithEmailLink as firebaseSignInWithEmailLink,
   UserCredential,
 } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Internal imports
 import { auth } from "../../../lib/firebase/firebase";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Hook for authentication actions (signup, login, logout, password reset, etc.)
 export const useAuthActions = () => {
   // Sign up new user with email and password
   const signUp = async (
     email: string,
-    password: string,
-    nickname: string,
-    language?: "en" | "pl"
+    password: string
   ): Promise<User | null> => {
     try {
       console.log(`[useAuthActions] Attempting sign up for: ${email}`);
@@ -59,25 +57,27 @@ export const useAuthActions = () => {
           "[useAuthActions] Failed to send verification email:",
           verificationError
         );
-        throw new Error(
-          "Signup successful, but failed to send verification email. Please try logging in and resending."
-        );
+        throw new Error("auth.verificationError");
       }
 
       return newUser; // Return new user
     } catch (e: any) {
-      console.error("[useAuthActions] Sign up error:", e.code, e.message);
+      console.log(
+        "[useAuthActions] Sign up error (expected):",
+        e.code,
+        e.message
+      );
       // Map specific errors
       if (e.code === "auth/email-already-in-use") {
-        throw new Error(
-          "This email address is already registered. Try logging in?"
-        );
+        throw new Error("auth.emailAlreadyInUse");
       } else if (e.code === "auth/weak-password") {
-        throw new Error("Password is too weak (minimum 6 characters).");
+        throw new Error("auth.weakPassword");
       } else if (e.code === "auth/invalid-email") {
-        throw new Error("Please enter a valid email address.");
+        throw new Error("auth.invalidEmail");
+      } else if (e.code === "auth/network-request-failed") {
+        throw new Error("auth.networkError");
       } else {
-        throw new Error(e.message || "Sign up failed. Please try again.");
+        throw new Error(e.message || "auth.signupError");
       }
     }
   };
@@ -90,26 +90,26 @@ export const useAuthActions = () => {
         "[useAuthActions] Login request successful. Waiting for auth state change."
       );
     } catch (e: any) {
-      console.error("[useAuthActions] Login error:", e.code, e.message);
+      console.log(
+        "[useAuthActions] Login error (expected):",
+        e.code,
+        e.message
+      );
       // Map specific errors
       if (
         e.code === "auth/user-not-found" ||
         e.code === "auth/invalid-credential" ||
         e.code === "auth/wrong-password"
       ) {
-        throw new Error(
-          "Invalid email or password. Please try again or sign up."
-        );
+        throw new Error("auth.loginError");
       } else if (e.code === "auth/invalid-email") {
-        throw new Error("Please enter a valid email address.");
+        throw new Error("auth.invalidEmail");
       } else if (e.code === "auth/too-many-requests") {
-        throw new Error(
-          "Access temporarily disabled due to too many failed login attempts. Please reset your password or try again later."
-        );
+        throw new Error("auth.tooManyRequests");
+      } else if (e.code === "auth/network-request-failed") {
+        throw new Error("auth.networkError");
       } else {
-        throw new Error(
-          e.message || "Login failed. Please check your credentials."
-        );
+        throw new Error(e.message || "auth.loginFailed");
       }
     }
   };
@@ -121,8 +121,8 @@ export const useAuthActions = () => {
       await signOut(auth);
       console.log("[useAuthActions] Logout successful.");
     } catch (e: any) {
-      console.error("[useAuthActions] Logout error:", e);
-      throw new Error(e.message || "Logout failed.");
+      console.log("[useAuthActions] Logout error:", e);
+      throw new Error(e.message || "auth.logoutError");
     }
   };
 
@@ -133,8 +133,8 @@ export const useAuthActions = () => {
       await sendPasswordResetEmail(auth, email);
       console.log("[useAuthActions] Password reset email sent.");
     } catch (e: any) {
-      console.error("[useAuthActions] Password reset error:", e);
-      throw new Error(e.message || "Password reset failed.");
+      console.log("[useAuthActions] Password reset error:", e);
+      throw new Error(e.message || "auth.passwordResetError");
     }
   };
 
@@ -142,7 +142,7 @@ export const useAuthActions = () => {
   const sendVerificationEmail = async (): Promise<void> => {
     const targetUser = auth.currentUser;
     if (!targetUser) {
-      throw new Error("No user is currently logged in.");
+      throw new Error("auth.userNotFound");
     }
     if (targetUser.emailVerified) {
       console.log("[useAuthActions] Email already verified.");
@@ -153,21 +153,17 @@ export const useAuthActions = () => {
       await sendEmailVerification(targetUser);
       console.log("[useAuthActions] Verification email resent successfully.");
     } catch (error: any) {
-      console.error(
+      console.log(
         "[useAuthActions] Failed to resend verification email:",
         error
       );
 
       // Handle specific Firebase errors
       if (error.code === "auth/too-many-requests") {
-        throw new Error(
-          "Too many verification emails sent. Please wait a few minutes before trying again."
-        );
+        throw new Error("auth.verificationRateLimit");
       }
 
-      throw new Error(
-        "Failed to resend verification email. Please try again later."
-      );
+      throw new Error("auth.verificationError");
     }
   };
 
@@ -192,8 +188,8 @@ export const useAuthActions = () => {
       await AsyncStorage.setItem("emailForSignIn", email);
       console.log("[useAuthActions] Sign-in link sent successfully.");
     } catch (e: any) {
-      console.error("[useAuthActions] Error sending sign-in link:", e);
-      throw new Error(e.message || "Failed to send sign-in link.");
+      console.log("[useAuthActions] Error sending sign-in link:", e);
+      throw new Error(e.message || "auth.signInLinkError");
     }
   };
 
@@ -204,8 +200,7 @@ export const useAuthActions = () => {
     if (isSignInWithEmailLink(auth, url)) {
       let email = await AsyncStorage.getItem("emailForSignIn");
       if (!email) {
-        const message =
-          "Sign-in email not found. Please try the sign-in process again on this device.";
+        const message = "auth.signInEmailNotFound";
         console.error(message);
         throw new Error(message);
       }
@@ -222,8 +217,8 @@ export const useAuthActions = () => {
         );
         await AsyncStorage.removeItem("emailForSignIn");
       } catch (e: any) {
-        console.error("[useAuthActions] Error signing in with email link:", e);
-        throw new Error(e.message || "Failed to sign in with email link.");
+        console.log("[useAuthActions] Error signing in with email link:", e);
+        throw new Error(e.message || "auth.signInLinkError");
       }
     }
   };
