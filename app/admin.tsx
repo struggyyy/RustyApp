@@ -13,13 +13,22 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Modal, ActivityIndicator, Text, ScrollView, RefreshControl } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Modal,
+  ActivityIndicator,
+  Text,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 
 // External libraries
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
 import { useAuth } from "../src/core/context/AuthContext";
+import { useLayout } from "../src/core/context/LayoutContext";
 import { useTranslation } from "../src/shared/hooks/common/useTranslation";
 import { useAdminFilters } from "../src/shared/hooks/admin/useAdminFilters";
 import { useReportManagement } from "../src/shared/hooks/admin/useReportManagement";
@@ -141,6 +150,17 @@ export default function AdminDashboard() {
       router.replace("/home");
     }
   }, [isAdmin, router]);
+
+  const { setAdminDataReady } = useLayout();
+
+  // Signal admin data readiness
+  useEffect(() => {
+    if (!loading) {
+      setAdminDataReady(true);
+    } else {
+      setAdminDataReady(false);
+    }
+  }, [loading, setAdminDataReady]);
 
   // Location fetching logic when map view is active
   useEffect(() => {

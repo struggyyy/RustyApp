@@ -46,6 +46,16 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
   const scale = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
+  // Reset state when loading starts again (e.g. Admin Redirect)
+  useEffect(() => {
+    if (isLoading && isAnimationFinished) {
+      setIsAnimationFinished(false);
+      setIsAppReady(false);
+      scale.setValue(0);
+      opacity.setValue(1);
+    }
+  }, [isLoading, isAnimationFinished, scale, opacity]);
+
   useEffect(() => {
     if (!isLoading && !isAppReady) {
       // Loading just finished, mount the app
@@ -77,37 +87,34 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
     }
   }, [isLoading, isAppReady, scale, opacity]);
 
-  // If animation is done, just render the app
-  if (isAnimationFinished) {
-    return <>{children}</>;
-  }
-
   return (
     <View style={styles.container}>
-      {/* Render App underneath if ready */}
-      {isAppReady && <View style={StyleSheet.absoluteFill}>{children}</View>}
+      {/* Render App underneath immediately to allow loading */}
+      <View style={StyleSheet.absoluteFill}>{children}</View>
 
-      <Animated.View style={[styles.overlay, { opacity }]}>
-        {/* The Spinner - rendered first so it gets covered by the circle */}
-        <ActivityIndicator size="large" color={colors.primary} />
+      {!isAnimationFinished && (
+        <Animated.View style={[styles.overlay, { opacity }]}>
+          {/* The Spinner - rendered first so it gets covered by the circle */}
+          <ActivityIndicator size="large" color={colors.primary} />
 
-        {/* Expanding Red Circle */}
-        <Animated.View
-          style={[
-            styles.circle,
-            {
-              transform: [
-                {
-                  scale: scale.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, MAX_SCALE],
-                  }),
-                },
-              ],
-            },
-          ]}
-        />
-      </Animated.View>
+          {/* Expanding Red Circle */}
+          <Animated.View
+            style={[
+              styles.circle,
+              {
+                transform: [
+                  {
+                    scale: scale.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, MAX_SCALE],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        </Animated.View>
+      )}
     </View>
   );
 };

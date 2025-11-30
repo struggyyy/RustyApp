@@ -147,7 +147,6 @@ function HomeScreenComponent() {
 
   return (
     <StyledContainer>
-      <StatusBar barStyle="dark-content" />
       <Stack.Screen options={{ title: t("home.title") }} />
       <ContentView
         refreshControl={

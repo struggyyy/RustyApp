@@ -29,6 +29,7 @@ import { AuthProvider } from "../src/core/context/AuthContext";
 import { HapticsProvider } from "../src/core/context/HapticsContext";
 import { LanguageProvider } from "../src/core/context/LanguageContext";
 import { AlertProvider } from "../src/core/context/AlertContext";
+import { LayoutProvider } from "../src/core/context/LayoutContext";
 import { useAuth } from "../src/core/context/AuthContext";
 import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
 import { SplashTransition } from "../src/components/common/layout/SplashTransition";
@@ -157,10 +158,12 @@ export default function RootLayout() {
               <AlertProvider>
                 <ExpoStatusBar
                   style="dark"
-                  translucent={false}
-                  backgroundColor={colors.background.primary}
+                  translucent={true}
+                  backgroundColor="transparent"
                 />
-                <AuthenticatedStack />
+                <LayoutProvider>
+                  <AuthenticatedStack />
+                </LayoutProvider>
                 <CustomAlert />
               </AlertProvider>
             </HapticsProvider>

@@ -19,6 +19,7 @@ import { useRouter, useSegments } from "expo-router";
 
 // Internal imports
 import { useAuth } from "../../../core/context/AuthContext";
+import { useLayout } from "../../../core/context/LayoutContext";
 
 export const useAuthNavigation = () => {
   const { user, initialLoading, isAdmin, profileLoaded, error } = useAuth();
@@ -135,9 +136,31 @@ export const useAuthNavigation = () => {
     profileLoadTimeout,
   ]);
 
+  const { isMapReady, isAdminDataReady } = useLayout();
+
+  // Check if we are in the process of redirecting an admin to the admin page
+  const isRedirectingToAdmin =
+    user && isAdmin && profileLoaded && !isAdminRoute;
+
+  // Check if we are waiting for map to load on home screen (regular users only)
+  const isWaitingForMap =
+    user &&
+    !isAdmin &&
+    profileLoaded &&
+    ((segments.length as number) === 0 || segments[0] === "index") &&
+    !isMapReady;
+
+  // Check if we are waiting for admin data to load (admin users only)
+  const isWaitingForAdminData =
+    user && isAdmin && profileLoaded && isAdminRoute && !isAdminDataReady;
+
   // Determine if loading screen should be shown
   const shouldShowLoading =
-    !isReady || (user && !profileLoaded && !isAuthRoute && !isVerifyEmailRoute);
+    !isReady ||
+    (user && !profileLoaded && !isAuthRoute && !isVerifyEmailRoute) ||
+    isRedirectingToAdmin ||
+    isWaitingForMap ||
+    isWaitingForAdminData;
 
   // Check if user is trying to access admin routes without permission
   const isAdminRouteAccessDenied =

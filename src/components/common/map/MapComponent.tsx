@@ -19,6 +19,7 @@ import { ActivityIndicator } from "react-native";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 // Internal imports
+import { useLayout } from "@/core/context/LayoutContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import colors from "@/core/theme/colors";
 import spacing from "@/core/theme/spacing";
@@ -76,7 +77,20 @@ export function MapComponent({
 }: MapComponentProps) {
   const { t } = useTranslation();
 
-  if (isLocationLoading) {
+  const { setMapReady } = useLayout();
+
+  // Signal map readiness based on location loading state
+  React.useEffect(() => {
+    if (!isLocationLoading) {
+      setMapReady(true);
+    } else {
+      setMapReady(false);
+    }
+  }, [isLocationLoading, setMapReady]);
+
+  // Only show full-screen loader if we don't have a region to show yet
+  // This prevents the map from flickering to a gray box during background refreshes
+  if (isLocationLoading && !region) {
     return (
       <MapPlaceholderView>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -101,6 +115,12 @@ export function MapComponent({
       showsUserLocation={!!location}
       showsMyLocationButton={false}
       toolbarEnabled={false}
+      onMapReady={() => {
+        // Double check readiness on map load
+        if (!isLocationLoading) {
+          setMapReady(true);
+        }
+      }}
     >
       {children}
     </StyledMapView>
