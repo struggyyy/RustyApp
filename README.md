@@ -17,7 +17,7 @@
 
 ## 📱 How to Use
 
-1.  **Create an Account**: Sign up using your email or Google account.
+1.  **Create an Account**: Sign up using your email.
 2.  **Spot a Car**: Look for abandoned vehicles in your area (e.g., flat tires, broken windows, long-term parking).
 3.  **Submit a Report**:
     - Tap the **"Report a Car"** button.
