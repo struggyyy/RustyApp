@@ -27,7 +27,7 @@ import { useTranslation } from "@/shared/hooks/common/useTranslation";
 export interface AlertButton {
   text: string;
   onPress?: () => void;
-  style?: "default" | "cancel" | "destructive";
+  style?: "default" | "cancel" | "destructive" | "success";
 }
 
 export interface AlertConfig {

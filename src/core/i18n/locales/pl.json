@@ -22,7 +22,9 @@
     "no": "Nie",
     "more": "Więcej",
     "navigate": "Nawiguj",
-    "seeDetails": "Zobacz więcej"
+    "seeDetails": "Zobacz więcej",
+    "exitApp": "Wyjdź z aplikacji",
+    "exitAppConfirm": "Czy na pewno chcesz wyjść z aplikacji?"
   },
   "auth": {
     "login": "Zaloguj się",

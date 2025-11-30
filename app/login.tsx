@@ -13,13 +13,14 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useRef, useEffect } from "react";
-import { TextInput, Keyboard } from "react-native";
+import { TextInput, Keyboard, BackHandler } from "react-native";
 
 // External libraries
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
+import { useAlert } from "@/core/context/AlertContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
 import { AuthLayout } from "@/components/common/auth/AuthLayout";
@@ -51,6 +52,7 @@ export default function Login() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
   const { logIn, user, initialLoading, error: authError } = useAuth();
+  const { showAlert } = useAlert();
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
 
@@ -111,6 +113,37 @@ export default function Login() {
       );
     }
   }, [user, initialLoading]);
+
+  // Handle back button press
+  useEffect(() => {
+    const backAction = () => {
+      // If we are on the login screen, we want to exit the app instead of going back
+      // to a potentially protected screen (like home or profile) if the user just logged out.
+      if (!user) {
+        showAlert(t("common.exitApp"), t("common.exitAppConfirm"), [
+          {
+            text: t("common.cancel"),
+            style: "cancel",
+            onPress: () => {},
+          },
+          {
+            text: t("common.yes"),
+            style: "success",
+            onPress: () => BackHandler.exitApp(),
+          },
+        ]);
+        return true;
+      }
+      return false;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [user, t, showAlert]);
 
   // Navigation handlers
   const goToSignUp = () => {

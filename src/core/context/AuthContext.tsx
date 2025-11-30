@@ -73,7 +73,7 @@ interface AuthContextType {
     language?: "en" | "pl"
   ) => Promise<User | null>;
   logIn: (email: string, password: string) => Promise<void>;
-  logOut: (router: any) => Promise<void>;
+  logOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   sendVerificationEmail: () => Promise<void>;
   signInWithEmailLink: (email: string) => Promise<void>;
@@ -246,12 +246,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Sign out current user and navigate to login
-  const logOut = async (router: any) => {
+  const logOut = async () => {
     // Sign out the current user and navigate to the login page
     setLoading(true);
     setError(null);
     try {
-      await performLogOut(router);
+      await performLogOut();
     } catch (e: any) {
       setError(e.message);
       throw e;

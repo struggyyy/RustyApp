@@ -98,7 +98,7 @@ export default function VerifyEmailScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log("[VerifyEmail] Logging out before navigating to login...");
     try {
-      await logOut(router);
+      await logOut();
       console.log(
         "[VerifyEmail] Logout successful. Navigating to login screen..."
       );

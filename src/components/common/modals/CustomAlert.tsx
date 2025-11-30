@@ -23,7 +23,7 @@ import theme from "../../../core/theme";
 interface AlertButton {
   text: string;
   onPress?: () => void;
-  style?: "default" | "cancel" | "destructive";
+  style?: "default" | "cancel" | "destructive" | "success";
 }
 
 interface CustomAlertProps {
@@ -111,6 +111,12 @@ const styles = StyleSheet.create({
   buttonTextCancel: {
     color: theme.colors.white,
   },
+  buttonSuccess: {
+    backgroundColor: theme.colors.status.Completed,
+  },
+  buttonTextSuccess: {
+    color: theme.colors.white,
+  },
 });
 
 // Internal alert component for displaying modal alerts
@@ -122,32 +128,40 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
   onRequestClose,
 }) => {
   const getButtonVariant = (
-    style?: "default" | "cancel" | "destructive"
-  ): "primary" | "secondary" | "destructive" | "cancel" => {
+    style?: "default" | "cancel" | "destructive" | "success"
+  ): "primary" | "secondary" | "destructive" | "cancel" | "success" => {
     switch (style) {
       case "destructive":
         return "destructive";
       case "cancel":
         return "cancel";
+      case "success":
+        return "success";
       default:
         return buttons.length === 1 ? "primary" : "secondary";
     }
   };
 
-  const getButtonStyle = (variant: "primary" | "secondary" | "destructive" | "cancel") => [
+  const getButtonStyle = (
+    variant: "primary" | "secondary" | "destructive" | "cancel" | "success"
+  ) => [
     styles.button,
     variant === "primary" && styles.buttonPrimary,
     variant === "secondary" && styles.buttonSecondary,
     variant === "destructive" && styles.buttonDestructive,
     variant === "cancel" && styles.buttonCancel,
+    variant === "success" && styles.buttonSuccess,
   ];
 
-  const getButtonTextStyle = (variant: "primary" | "secondary" | "destructive" | "cancel") => [
+  const getButtonTextStyle = (
+    variant: "primary" | "secondary" | "destructive" | "cancel" | "success"
+  ) => [
     styles.buttonText,
     variant === "primary" && styles.buttonTextPrimary,
     variant === "secondary" && styles.buttonTextSecondary,
     variant === "destructive" && styles.buttonTextDestructive,
     variant === "cancel" && styles.buttonTextCancel,
+    variant === "success" && styles.buttonTextSuccess,
   ];
 
   return (

@@ -22,7 +22,9 @@
     "no": "No",
     "more": "More",
     "navigate": "Navigate",
-    "seeDetails": "See Details"
+    "seeDetails": "See Details",
+    "exitApp": "Exit App",
+    "exitAppConfirm": "Are you sure you want to exit the app?"
   },
   "auth": {
     "login": "Login",

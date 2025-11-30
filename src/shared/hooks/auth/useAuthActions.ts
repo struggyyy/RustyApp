@@ -115,14 +115,11 @@ export const useAuthActions = () => {
   };
 
   // Sign out current user
-  const logOut = async (router: any) => {
+  const logOut = async () => {
     try {
       console.log("[useAuthActions] Attempting logout...");
       await signOut(auth);
       console.log("[useAuthActions] Logout successful.");
-      if (router) {
-        router.replace("/login");
-      }
     } catch (e: any) {
       console.error("[useAuthActions] Logout error:", e);
       throw new Error(e.message || "Logout failed.");
