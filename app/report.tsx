@@ -267,6 +267,7 @@ export default function ReportScreen() {
             onPress={handleSubmit}
             disabled={!isFormReady || isSubmitting}
             loading={isSubmitting}
+            loadingText={t("reports.submittingReport")}
             variant="primary"
           />
         </View>

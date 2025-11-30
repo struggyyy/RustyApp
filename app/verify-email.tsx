@@ -110,10 +110,7 @@ export default function VerifyEmailScreen() {
   };
 
   return (
-    <AuthLayout
-      title="Email Verification"
-      options={{ headerLeft: null }}
-    >
+    <AuthLayout title="Email Verification" options={{ headerLeft: null }}>
       <AuthTitle>{t("auth.verifyEmailTitle")}</AuthTitle>
       <AuthSubtitle>
         {t("auth.verifyEmailMessage")}
@@ -130,7 +127,8 @@ export default function VerifyEmailScreen() {
       <AuthButton
         title={t("auth.resendEmail")}
         onPress={handleResendVerification}
-        isLoading={isResending}
+        loading={isResending}
+        loadingText={t("auth.sending")}
         variant="secondary"
       />
 

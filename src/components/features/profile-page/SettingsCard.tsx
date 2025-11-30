@@ -117,6 +117,7 @@ const SettingsCardComponent: React.FC<SettingsCardProps> = ({
           onPress={onLogout}
           disabled={authLoading}
           loading={authLoading && !isSubmitting}
+          loadingText={t("auth.loggingOut")}
           style={{
             backgroundColor: colors.primary,
             marginTop: 8,

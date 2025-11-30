@@ -215,7 +215,9 @@ export default function SignupScreen() {
       <AuthButton
         title={t("auth.signup")}
         onPress={handleSubmit}
-        isLoading={isSubmitting}
+        loading={isSubmitting}
+        loadingText={t("auth.signingUp")}
+        isDisabled={isSubmitting}
       />
 
       <AuthLinkButton onPress={goToLogin}>

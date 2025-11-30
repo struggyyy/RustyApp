@@ -96,7 +96,9 @@ export default function ForgotPassword() {
       <AuthButton
         title={t("auth.sendResetLink")}
         onPress={handleSubmit}
-        isLoading={isSubmitting}
+        loading={isSubmitting}
+        loadingText={t("auth.sending")}
+        isDisabled={isSubmitting}
       />
 
       <AuthLinkButton onPress={goToLogin}>

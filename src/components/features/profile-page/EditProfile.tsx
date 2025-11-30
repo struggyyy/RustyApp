@@ -391,6 +391,7 @@ const EditProfile: React.FC<EditProfileProps> = ({
               onPress={handleSave}
               disabled={uploading}
               loading={uploading}
+              loadingText={t("common.saving")}
               style={{ marginTop: 16, marginBottom: 0 }}
             />
           </>

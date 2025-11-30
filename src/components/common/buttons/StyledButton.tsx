@@ -13,11 +13,7 @@
  ************************************************************************** */
 // React-specific imports
 import React from "react";
-import {
-  ActivityIndicator,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import { ActivityIndicator, StyleProp, ViewStyle } from "react-native";
 
 // External libraries
 import styled from "styled-components/native";
@@ -34,6 +30,7 @@ interface StyledButtonProps {
   title: string;
   disabled?: boolean;
   loading?: boolean;
+  loadingText?: string;
   isWeb?: boolean;
   variant?: "primary" | "secondary";
   style?: StyleProp<ViewStyle>;
@@ -72,6 +69,7 @@ const StyledButton: React.FC<StyledButtonProps> = ({
   title,
   disabled = false,
   loading = false,
+  loadingText,
   variant = "primary",
   style,
   textColor,
@@ -92,13 +90,16 @@ const StyledButton: React.FC<StyledButtonProps> = ({
       disabled={disabled || loading}
       isDisabled={disabled || loading}
       variant={variant}
-      style={[theme.shadows.button, style]}
+      style={[
+        theme.shadows.button,
+        style,
+        { flexDirection: "row", justifyContent: "center", gap: spacing.S },
+      ]}
     >
-      {loading ? (
-        <ActivityIndicator color={theme.colors.white} />
-      ) : (
-        <ButtonLabel textColor={textColor}>{title}</ButtonLabel>
-      )}
+      {loading && <ActivityIndicator color={theme.colors.white} />}
+      <ButtonLabel textColor={textColor}>
+        {loading && loadingText ? loadingText : title}
+      </ButtonLabel>
     </ButtonTouchable>
   );
 };

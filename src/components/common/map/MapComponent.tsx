@@ -94,7 +94,7 @@ export function MapComponent({
     return (
       <MapPlaceholderView>
         <ActivityIndicator size="large" color={colors.primary} />
-        <LoadingMapText>{t("common.loading")}</LoadingMapText>
+        <LoadingMapText>{t("map.loadingMapData")}</LoadingMapText>
       </MapPlaceholderView>
     );
   }

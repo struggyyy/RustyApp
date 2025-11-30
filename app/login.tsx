@@ -183,7 +183,9 @@ export default function Login() {
       <AuthButton
         title={t("auth.login")}
         onPress={handleSubmit}
-        isLoading={isSubmitting}
+        loading={isSubmitting}
+        loadingText={t("auth.loggingIn")}
+        isDisabled={isSubmitting}
       />
 
       <AuthLinkButton onPress={goToSignUp}>
