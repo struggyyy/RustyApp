@@ -10,12 +10,12 @@ export default {
     "scheme": "rusty",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/CAR.png",
+    "icon": "./assets/AppIcon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/CAR.png",
+      "image": "./assets/LogoIcon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#BD5151"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -41,8 +41,8 @@ export default {
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/CAR.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/LogoIcon.png",
+        "backgroundColor": "#BD5151"
       },
       "package": "com.anonymous.rusty",
       "config": {
@@ -86,8 +86,8 @@ export default {
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/CAR.png",
-          "color": "#ffffff",
+          "icon": "./assets/LogoIcon.png",
+          "color": "#BD5151",
           "defaultChannel": "default"
         }
       ]
