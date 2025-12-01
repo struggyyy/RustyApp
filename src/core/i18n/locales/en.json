@@ -55,7 +55,7 @@
     "weakPassword": "Password is too weak (minimum 6 characters).",
     "invalidEmail": "Please enter a valid email address.",
     "emailAlreadyInUse": "This email address is already registered. Try logging in?",
-    "tooManyRequests": "Access temporarily disabled due to too many failed login attempts. Please reset your password or try again later.",
+    "tooManyRequests": "Access temporarily disabled due to too many attempts. Please try again later.",
     "verificationSent": "Verification email sent.",
     "passwordResetSent": "Link for password reset was sent to your email.",
     "passwordResetError": "Password reset failed.",
@@ -84,7 +84,8 @@
     "emailForSignIn": "Email for Sign In",
     "signInLinkError": "Failed to sign in with email link.",
     "signInEmailNotFound": "Sign-in email not found. Please try again.",
-    "networkError": "Network error. Please check your internet connection."
+    "networkError": "Network error. Please check your internet connection.",
+    "cooldownMessage": "Please wait {{seconds}}s before trying again."
   },
   "profile": {
     "title": "Your Profile",

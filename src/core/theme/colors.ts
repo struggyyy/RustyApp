@@ -100,6 +100,8 @@ const colors = {
 
   // Error states
   error: palette.error,
+  success: palette.status.Completed,
+  info: palette.status.Submitted,
 
   // Utility
   white: palette.neutral[50],

@@ -38,7 +38,7 @@ export function useProfileActions({ t }: UseProfileActionsOptions) {
   // Logout handler
   const handleLogout = useCallback(async () => {
     try {
-      await logOut(router);
+      await logOut();
     } catch (error: any) {
       showAlert(t("auth.logoutError"), error.message || t("auth.logoutError"));
     }
@@ -62,7 +62,7 @@ export function useProfileActions({ t }: UseProfileActionsOptions) {
           try {
             await deleteAccount();
             showAlert(t("common.success"), t("profile.deleteAccountSuccess"), [
-              { text: t("common.ok"), onPress: () => router.replace("/login") },
+              { text: t("common.ok") },
             ]);
           } catch (error: any) {
             console.error("Account deletion failed:", error);

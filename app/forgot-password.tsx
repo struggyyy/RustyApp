@@ -28,9 +28,9 @@ import { AuthButton } from "@/components/common/auth/AuthButton";
 import {
   AuthTitle,
   AuthSubtitle,
-  AuthErrorText,
   AuthLinkButton,
 } from "@/components/common/auth/AuthText";
+import { AuthErrorCard } from "@/components/common/auth/AuthErrorCard";
 import * as Haptics from "expo-haptics";
 
 export default function ForgotPassword() {
@@ -96,9 +96,15 @@ export default function ForgotPassword() {
         hasError={!!(touched.email && errors.email)}
       />
 
-      {touched.email && errors.email ? (
-        <AuthErrorText>{errors.email}</AuthErrorText>
-      ) : null}
+      <AuthErrorCard
+        error={
+          authError
+            ? t(authError)
+            : touched.email && errors.email
+            ? errors.email
+            : undefined
+        }
+      />
 
       <AuthButton
         title={t("auth.sendResetLink")}

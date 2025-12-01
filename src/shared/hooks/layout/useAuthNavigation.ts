@@ -69,8 +69,8 @@ export const useAuthNavigation = () => {
     } else if (
       user &&
       !user.emailVerified &&
-      !isAuthRoute &&
-      !isVerifyEmailRoute
+      !isVerifyEmailRoute &&
+      segments[0] !== "forgot-password"
     ) {
       router.replace("/verify-email");
       // Case 3: Logged in and verified, but currently on an auth/verify route -> redirect to correct home screen.

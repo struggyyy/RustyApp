@@ -55,9 +55,9 @@
     "weakPassword": "Hasło jest zbyt słabe (minimum 6 znaków).",
     "invalidEmail": "Wprowadź prawidłowy adres email.",
     "emailAlreadyInUse": "Ten adres email jest już zarejestrowany. Spróbuj się zalogować?",
-    "tooManyRequests": "Dostęp tymczasowo zablokowany z powodu zbyt wielu nieudanych prób logowania. Zresetuj hasło lub spróbuj ponownie później.",
+    "tooManyRequests": "Dostęp tymczasowo zablokowany z powodu zbyt wielu prób. Spróbuj ponownie później.",
     "verificationSent": "Email weryfikacyjny wysłany.",
-    "passwordResetSent": "Link do resetowania hasła został wysłany na twój email.",
+    "passwordResetSent": "Link do resetowania hasła został wysłany na podany email.",
     "passwordResetError": "Resetowanie hasła nie powiodło się.",
     "logoutError": "Wylogowanie nie powiodło się.",
     "verificationError": "Nie udało się ponownie wysłać emaila weryfikacyjnego.",
@@ -84,7 +84,8 @@
     "emailForSignIn": "Email do logowania",
     "signInLinkError": "Nie udało się zalogować za pomocą linku email.",
     "signInEmailNotFound": "Nie znaleziono emaila do logowania. Spróbuj ponownie.",
-    "networkError": "Błąd sieci. Sprawdź połączenie z internetem."
+    "networkError": "Błąd sieci. Sprawdź połączenie z internetem.",
+    "cooldownMessage": "Poczekaj {{seconds}}s przed ponowną próbą."
   },
   "profile": {
     "title": "Twój profil",

@@ -96,15 +96,7 @@ export default function SignupScreen() {
           currentLanguage
         );
 
-        if (newUser) {
-          if (!hasNavigatedRef.current) {
-            hasNavigatedRef.current = true;
-            router.replace({
-              pathname: "/verify-email",
-              params: { email: values.email },
-            });
-          }
-        }
+        // Navigation is handled by useAuthNavigation hook
       } catch (err: any) {
         throw new Error(err.message || "validation.unexpectedError");
       }

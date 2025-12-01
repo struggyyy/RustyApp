@@ -22,6 +22,7 @@ import * as Haptics from "expo-haptics";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
+import { auth } from "@/lib/firebase/firebase";
 import { useAlert } from "@/core/context/AlertContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
@@ -91,6 +92,15 @@ export default function Login() {
     onSubmit: async (values) => {
       try {
         await logIn(values.email, values.password);
+
+        // Check verification status immediately
+        if (auth.currentUser && !auth.currentUser.emailVerified) {
+          router.replace({
+            pathname: "/verify-email",
+            params: { email: values.email, reason: "login" },
+          });
+          return;
+        }
       } catch (err: any) {
         // Trigger shake on failure (opposite directions)
         triggerEmailShake();

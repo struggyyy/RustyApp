@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // External libraries
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -23,6 +23,7 @@ import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { AuthLayout } from "@/components/common/auth/AuthLayout";
 import { AuthButton } from "@/components/common/auth/AuthButton";
 import { AuthTitle, AuthSubtitle } from "@/components/common/auth/AuthText";
+import { AuthErrorCard } from "@/components/common/auth/AuthErrorCard";
 import * as Haptics from "expo-haptics";
 
 // Styled Components (minimal, for specific elements)
@@ -57,37 +58,63 @@ export default function VerifyEmailScreen() {
   const router = useRouter();
 
   const [isResending, setIsResending] = useState(false);
-  const [resendMessage, setResendMessage] = useState("");
-  const [lastResendTime, setLastResendTime] = useState<number>(0);
+  const [feedbackKey, setFeedbackKey] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+
+  // Cooldown timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (cooldown > 0) {
+      interval = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [cooldown]);
 
   const emailToVerify = (params.email as string) || user?.email;
+  const reason = params.reason as string;
+
+  useEffect(() => {
+    if (reason === "login") {
+      setFeedbackKey("auth.emailNotVerified");
+      setIsError(true);
+    }
+  }, [reason]);
 
   const handleResendVerification = async () => {
-    // Prevent rapid clicking - minimum 10 seconds between requests
-    const now = Date.now();
-    const timeSinceLastResend = now - lastResendTime;
-    const minDelay = 10000; // 10 seconds
-
-    if (timeSinceLastResend < minDelay) {
-      setResendMessage(t("auth.verificationRateLimit"));
+    if (cooldown > 0) {
+      setFeedbackKey("auth.cooldownMessage");
+      setIsError(false); // Info message, not error
       return;
     }
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsResending(true);
-    setResendMessage("");
-    setLastResendTime(now);
+    setFeedbackKey("");
 
     try {
       await sendVerificationEmail();
-      setResendMessage(t("auth.emailSentSuccess"));
+      setFeedbackKey("auth.emailSentSuccess");
+      setIsError(false);
+
+      const nextAttempts = attempts + 1;
+      setAttempts(nextAttempts);
+
+      // Start cooldown only after 2nd attempt
+      if (nextAttempts >= 2) {
+        setCooldown(60);
+      }
     } catch (err: any) {
       console.error("Resend Error:", err);
+      setIsError(true);
       // Check for specific error messages
-      if (err.message?.includes("Too many verification emails sent")) {
-        setResendMessage(t("auth.verificationRateLimit"));
+      if (err.message) {
+        setFeedbackKey(err.message);
       } else {
-        setResendMessage(t("auth.verificationError"));
+        setFeedbackKey("auth.verificationError");
       }
     } finally {
       setIsResending(false);
@@ -96,15 +123,10 @@ export default function VerifyEmailScreen() {
 
   const goToLogin = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log("[VerifyEmail] Logging out before navigating to login...");
     try {
       await logOut();
-      console.log(
-        "[VerifyEmail] Logout successful. Navigating to login screen..."
-      );
       router.replace({ pathname: "/login", params: { email: emailToVerify } });
     } catch (err: any) {
-      console.error("[VerifyEmail] Logout failed:", err);
       // Could show an alert here, but keeping it simple
     }
   };
@@ -120,9 +142,18 @@ export default function VerifyEmailScreen() {
         </EmailHighlightText>
       </AuthSubtitle>
 
-      {resendMessage && (
-        <FeedbackText isError={false}>{resendMessage}</FeedbackText>
-      )}
+      {feedbackKey ? (
+        <AuthErrorCard
+          error={t(feedbackKey, { seconds: cooldown })}
+          type={
+            isError
+              ? "error"
+              : feedbackKey === "auth.emailSentSuccess"
+              ? "success"
+              : "info"
+          }
+        />
+      ) : null}
 
       <AuthButton
         title={t("auth.resendEmail")}
@@ -130,6 +161,7 @@ export default function VerifyEmailScreen() {
         loading={isResending}
         loadingText={t("auth.sending")}
         variant="secondary"
+        isDisabled={isResending || cooldown > 0}
       />
 
       <AuthButton title={t("auth.backToLogin")} onPress={goToLogin} />
