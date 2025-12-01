@@ -19,6 +19,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
+import { useAlert } from "@/core/context/AlertContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
 import { AuthLayout } from "@/components/common/auth/AuthLayout";
@@ -34,6 +35,7 @@ import * as Haptics from "expo-haptics";
 
 export default function ForgotPassword() {
   const { t } = useTranslation();
+  const { showAlert } = useAlert();
   const router = useRouter();
   const params = useLocalSearchParams();
   const { resetPassword, error: authError, clearError } = useAuth();
@@ -55,7 +57,9 @@ export default function ForgotPassword() {
     onSubmit: async (values) => {
       try {
         await resetPassword(values.email);
-        // Success handled by showing alert in the component
+        showAlert(t("common.success"), t("auth.passwordResetSent"), [
+          { text: "OK", onPress: goToLogin },
+        ]);
       } catch (err: any) {
         throw new Error(err.message || t("auth.passwordResetError"));
       }

@@ -89,30 +89,41 @@ export function useAuthForm({
     const newErrors: Record<string, string> = {};
 
     // Email validation
-    if (!values.email?.trim()) {
-      newErrors.email = t ? t("validation.emailRequired") : "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(values.email.trim())) {
-      newErrors.email = t
-        ? t("validation.invalidEmail")
-        : "Invalid email format";
+    if ("email" in values) {
+      if (!values.email?.trim()) {
+        newErrors.email = t
+          ? t("validation.emailRequired")
+          : "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(values.email.trim())) {
+        newErrors.email = t
+          ? t("validation.invalidEmail")
+          : "Invalid email format";
+      }
     }
 
     // Password validation
-    if (!values.password) {
-      newErrors.password = t
-        ? t("validation.passwordRequired")
-        : "Password is required";
-    } else if (values.password.length < 6) {
-      newErrors.password = t
-        ? t("validation.passwordTooShort")
-        : "Password must be at least 6 characters";
+    if ("password" in values) {
+      if (!values.password) {
+        newErrors.password = t
+          ? t("validation.passwordRequired")
+          : "Password is required";
+      } else if (values.password.length < 6) {
+        newErrors.password = t
+          ? t("validation.passwordTooShort")
+          : "Password must be at least 6 characters";
+      }
     }
 
     // Confirm password validation
-    if (values.confirmPassword && values.password !== values.confirmPassword) {
-      newErrors.confirmPassword = t
-        ? t("validation.passwordMismatch")
-        : "Passwords do not match";
+    if ("confirmPassword" in values) {
+      if (
+        values.confirmPassword &&
+        values.password !== values.confirmPassword
+      ) {
+        newErrors.confirmPassword = t
+          ? t("validation.passwordMismatch")
+          : "Passwords do not match";
+      }
     }
 
     // Required fields validation (generic fallback for other fields)

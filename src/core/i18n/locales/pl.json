@@ -57,7 +57,7 @@
     "emailAlreadyInUse": "Ten adres email jest już zarejestrowany. Spróbuj się zalogować?",
     "tooManyRequests": "Dostęp tymczasowo zablokowany z powodu zbyt wielu nieudanych prób logowania. Zresetuj hasło lub spróbuj ponownie później.",
     "verificationSent": "Email weryfikacyjny wysłany.",
-    "passwordResetSent": "Email resetowania hasła wysłany.",
+    "passwordResetSent": "Link do resetowania hasła został wysłany na twój email.",
     "passwordResetError": "Resetowanie hasła nie powiodło się.",
     "logoutError": "Wylogowanie nie powiodło się.",
     "verificationError": "Nie udało się ponownie wysłać emaila weryfikacyjnego.",

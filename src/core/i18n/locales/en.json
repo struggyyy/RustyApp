@@ -57,7 +57,7 @@
     "emailAlreadyInUse": "This email address is already registered. Try logging in?",
     "tooManyRequests": "Access temporarily disabled due to too many failed login attempts. Please reset your password or try again later.",
     "verificationSent": "Verification email sent.",
-    "passwordResetSent": "Password reset email sent.",
+    "passwordResetSent": "Link for password reset was sent to your email.",
     "passwordResetError": "Password reset failed.",
     "logoutError": "Logout failed.",
     "verificationError": "Failed to resend verification email.",
