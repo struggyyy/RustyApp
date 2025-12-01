@@ -95,7 +95,9 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
       {!isAnimationFinished && (
         <Animated.View style={[styles.overlay, { opacity }]}>
           {/* The Spinner - rendered first so it gets covered by the circle */}
-          <ActivityIndicator size="large" color={colors.primary} />
+          {!isAppReady && (
+            <ActivityIndicator size="large" color={colors.primary} />
+          )}
 
           {/* Expanding Red Circle */}
           <Animated.View
