@@ -13,6 +13,7 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // External libraries
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -35,15 +36,6 @@ const EmailHighlightText = styled.Text({
   color: theme.colors.primary,
 });
 
-const FeedbackText = styled.Text<{ isError?: boolean }>(
-  ({ isError }: { isError?: boolean }) => ({
-    color: isError ? theme.colors.error : theme.colors.primary,
-    marginBottom: theme.spacing.M,
-    textAlign: "center",
-    fontWeight: "bold",
-  })
-);
-
 const InfoText = styled.Text({
   fontSize: theme.typography.fontSize.caption,
   color: theme.colors.text.tertiary,
@@ -61,21 +53,64 @@ export default function VerifyEmailScreen() {
   const [feedbackKey, setFeedbackKey] = useState("");
   const [isError, setIsError] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-  const [attempts, setAttempts] = useState(0);
+
+  const emailToVerify = (params.email as string) || user?.email;
+  const reason = params.reason as string;
 
   // Cooldown timer effect
+  useEffect(() => {
+    const loadCooldown = async () => {
+      if (!emailToVerify) return;
+      try {
+        // Normalize email to ensure consistency
+        const normalizedEmail = emailToVerify.trim().toLowerCase();
+        const key = `emailResendCooldownExpiry_${normalizedEmail}`;
+        const expiryString = await AsyncStorage.getItem(key);
+
+        if (expiryString) {
+          const expiryTime = parseInt(expiryString, 10);
+          const now = Date.now();
+          if (expiryTime > now) {
+            const remaining = Math.ceil((expiryTime - now) / 1000);
+            setCooldown(remaining);
+          } else {
+            // Expired, clean up
+            await AsyncStorage.removeItem(key);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load cooldown", e);
+      }
+    };
+
+    loadCooldown();
+  }, [emailToVerify]);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (cooldown > 0) {
       interval = setInterval(() => {
-        setCooldown((prev) => prev - 1);
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            // Cleanup when timer hits 0
+            if (emailToVerify) {
+              const normalizedEmail = emailToVerify.trim().toLowerCase();
+              AsyncStorage.removeItem(
+                `emailResendCooldownExpiry_${normalizedEmail}`
+              ).catch(console.error);
+            }
+            // Clear message if it's the cooldown message
+            setFeedbackKey((prevKey) =>
+              prevKey === "auth.cooldownMessage" ? "" : prevKey
+            );
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [cooldown]);
-
-  const emailToVerify = (params.email as string) || user?.email;
-  const reason = params.reason as string;
+  }, [cooldown, emailToVerify]);
 
   useEffect(() => {
     if (reason === "login") {
@@ -100,15 +135,38 @@ export default function VerifyEmailScreen() {
       setFeedbackKey("auth.emailSentSuccess");
       setIsError(false);
 
-      const nextAttempts = attempts + 1;
-      setAttempts(nextAttempts);
+      // Start 60s cooldown immediately after success
+      const COOLDOWN_SECONDS = 60;
+      setCooldown(COOLDOWN_SECONDS);
 
-      // Start cooldown only after 2nd attempt
-      if (nextAttempts >= 2) {
-        setCooldown(60);
+      if (emailToVerify) {
+        const normalizedEmail = emailToVerify.trim().toLowerCase();
+        const expiryTime = Date.now() + COOLDOWN_SECONDS * 1000;
+        await AsyncStorage.setItem(
+          `emailResendCooldownExpiry_${normalizedEmail}`,
+          expiryTime.toString()
+        );
       }
     } catch (err: any) {
       console.error("Resend Error:", err);
+
+      // Handle rate limit specifically - treat as if cooldown started
+      if (err.message === "auth.verificationRateLimit") {
+        const COOLDOWN_SECONDS = 60;
+        setCooldown(COOLDOWN_SECONDS);
+        if (emailToVerify) {
+          const normalizedEmail = emailToVerify.trim().toLowerCase();
+          const expiryTime = Date.now() + COOLDOWN_SECONDS * 1000;
+          AsyncStorage.setItem(
+            `emailResendCooldownExpiry_${normalizedEmail}`,
+            expiryTime.toString()
+          );
+        }
+        setFeedbackKey("auth.cooldownMessage");
+        setIsError(false);
+        return;
+      }
+
       setIsError(true);
       // Check for specific error messages
       if (err.message) {
@@ -161,7 +219,7 @@ export default function VerifyEmailScreen() {
         loading={isResending}
         loadingText={t("auth.sending")}
         variant="secondary"
-        isDisabled={isResending || cooldown > 0}
+        isDisabled={isResending}
       />
 
       <AuthButton title={t("auth.backToLogin")} onPress={goToLogin} />

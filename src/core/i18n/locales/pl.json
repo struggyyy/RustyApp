@@ -85,7 +85,7 @@
     "signInLinkError": "Nie udało się zalogować za pomocą linku email.",
     "signInEmailNotFound": "Nie znaleziono emaila do logowania. Spróbuj ponownie.",
     "networkError": "Błąd sieci. Sprawdź połączenie z internetem.",
-    "cooldownMessage": "Poczekaj {{seconds}}s przed ponowną próbą."
+    "cooldownMessage": "Poczekaj {{seconds}}s i spróbuj ponownie."
   },
   "profile": {
     "title": "Twój profil",

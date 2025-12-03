@@ -19,6 +19,7 @@ import React, {
   useState,
   ReactNode,
 } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Internal imports
 import { useAuth } from "./AuthContext";
@@ -48,22 +49,41 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   const [currentLanguage, setCurrentLanguage] = useState<Language>("en");
   const [isChanging, setIsChanging] = useState(false);
 
-  // Initialize language from user profile or default to English
+  // Initialize language from storage or user profile
   useEffect(() => {
-    if (profile?.language) {
-      const profileLang = profile.language as Language;
-      if (profileLang === "en" || profileLang === "pl") {
-        setCurrentLanguage(profileLang);
-        i18n.changeLanguage(profileLang);
+    const initLanguage = async () => {
+      try {
+        // 1. Check profile first (highest priority if logged in)
+        if (profile?.language) {
+          const profileLang = profile.language as Language;
+          if (profileLang === "en" || profileLang === "pl") {
+            setCurrentLanguage(profileLang);
+            await i18n.changeLanguage(profileLang);
+            // Sync to storage
+            await AsyncStorage.setItem("appLanguage", profileLang);
+            return;
+          }
+        }
+
+        // 2. Check AsyncStorage (if no profile or not logged in)
+        const storedLang = await AsyncStorage.getItem("appLanguage");
+        if (storedLang === "en" || storedLang === "pl") {
+          setCurrentLanguage(storedLang as Language);
+          await i18n.changeLanguage(storedLang);
+        } else {
+          // 3. Default to English
+          setCurrentLanguage("en");
+          await i18n.changeLanguage("en");
+        }
+      } catch (error) {
+        console.error("Failed to initialize language:", error);
       }
-    } else {
-      // Default to English if no language in profile
-      setCurrentLanguage("en");
-      i18n.changeLanguage("en");
-    }
+    };
+
+    initLanguage();
   }, [profile?.language]);
 
-  // Change language and persist to user profile
+  // Change language and persist to storage and user profile
   const changeLanguage = async (language: Language) => {
     if (language === currentLanguage) return;
 
@@ -75,11 +95,24 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
       // Update local state
       setCurrentLanguage(language);
 
-      // Update Firebase profile
-      await updateUserProfile({ language });
+      // Update AsyncStorage
+      await AsyncStorage.setItem("appLanguage", language);
+
+      // Update Firebase profile (if logged in)
+      if (profile) {
+        try {
+          await updateUserProfile({ language });
+        } catch (profileError) {
+          console.warn(
+            "Failed to update profile language (user might be offline or unauthenticated):",
+            profileError
+          );
+          // Don't throw here, as changing language locally is successful
+        }
+      }
     } catch (error) {
       console.error("Failed to change language:", error);
-      // Revert i18next if Firebase update failed
+      // Revert i18next if critical failure
       await i18n.changeLanguage(currentLanguage);
       throw error;
     } finally {
