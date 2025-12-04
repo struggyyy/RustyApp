@@ -13,38 +13,25 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Modal,
-  ActivityIndicator,
-  Text,
-  ScrollView,
-  RefreshControl,
-} from "react-native";
+import { View, StyleSheet, Modal } from "react-native";
 
 // External libraries
-import { Stack, useRouter, useLocalSearchParams } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 
 // Internal imports
-import { useAuth } from "../src/core/context/AuthContext";
-import { useLayout } from "../src/core/context/LayoutContext";
-import { useTranslation } from "../src/shared/hooks/common/useTranslation";
-import { useAdminFilters } from "../src/shared/hooks/admin/useAdminFilters";
-import { useReportManagement } from "../src/shared/hooks/admin/useReportManagement";
-import { useMapRegion } from "../src/shared/hooks/map/useMapRegion";
-import {
-  Report as ReportType,
-  ReportStatus,
-} from "../src/shared/types/reports";
-import ReportList from "../src/components/features/reports-page/ReportList";
-import FilterPanel from "../src/components/features/admin/filter-panel/FilterPanel";
-import AdminReportModal from "../src/components/features/admin/modals/AdminReportModal";
-import MapReportModal from "../src/components/common/modals/MapReportModal";
-import { SharedMapView } from "../src/components/common/map/SharedMapView";
-import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";
-import theme from "../src/core/theme";
-import { getStatusColor } from "../src/core/theme/colors";
+import { useAuth } from "@context/AuthContext";
+import { useLayout } from "@context/LayoutContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useAdminFilters } from "@/shared/hooks/admin/useAdminFilters";
+import { useReportManagement } from "@/shared/hooks/admin/useReportManagement";
+import { useAdminDeepLinking } from "@/shared/hooks/admin/useAdminDeepLinking";
+import { Report as ReportType, ReportStatus } from "@/shared/types/reports";
+import FilterPanel from "@components/features/admin/filter-panel/FilterPanel";
+import AdminReportModal from "@components/features/admin/modals/AdminReportModal";
+import AdminMapView from "@components/features/admin/dashboard/AdminMapView";
+import AdminListView from "@components/features/admin/dashboard/AdminListView";
+import theme from "@theme/index";
+import { getStatusColor } from "@theme/colors";
 
 // Styles for layout
 const styles = StyleSheet.create({
@@ -85,7 +72,6 @@ export default function AdminDashboard() {
   const { isAdmin } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
-  const { reportId } = useLocalSearchParams();
 
   // Report management hook
   const {
@@ -118,32 +104,6 @@ export default function AdminDashboard() {
   const [isFilterLoading, setIsFilterLoading] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
-  // Shared map logic hook
-  const {
-    location,
-    locationErrorMsg,
-    isLocationLoading,
-    mapRef,
-    modalVisible,
-    selectedReports,
-    currentReportIndex,
-    fetchLocation,
-    goToMyLocation,
-    openNavigation,
-    goToPrev,
-    goToNext,
-    handleMarkerPress,
-    setModalVisible,
-  } = useMapLogic();
-
-  // State for map region to handle dynamic updates
-  const mapRegion = useMapRegion(location, filteredReports);
-
-  // Track processed report IDs to prevent duplicate modal opens
-  const [processedReportId, setProcessedReportId] = useState<string | null>(
-    null
-  );
-
   // Redirect non-admin users
   useEffect(() => {
     if (!isAdmin) {
@@ -161,35 +121,6 @@ export default function AdminDashboard() {
       setAdminDataReady(false);
     }
   }, [loading, setAdminDataReady]);
-
-  // Location fetching logic when map view is active
-  useEffect(() => {
-    if (showMapView && !location && !locationErrorMsg) {
-      fetchLocation();
-    }
-  }, [showMapView, location, locationErrorMsg, fetchLocation]);
-
-  // Handle deep linking to specific report from notification
-  useEffect(() => {
-    const normalizedReportId = Array.isArray(reportId) ? reportId[0] : reportId;
-    if (
-      normalizedReportId &&
-      reports.length > 0 &&
-      !loading &&
-      normalizedReportId !== processedReportId
-    ) {
-      const report = reports.find((r) => r.id === normalizedReportId);
-      if (report) {
-        setSelectedReport(report);
-        setShowReportModal(true);
-        setProcessedReportId(normalizedReportId);
-        // Clear URL param after opening the modal with a small delay
-        setTimeout(() => {
-          router.setParams({});
-        }, 100);
-      }
-    }
-  }, [reportId, reports, loading, router, processedReportId]);
 
   // Modal handlers
   const handleModalClose = () => {
@@ -216,6 +147,14 @@ export default function AdminDashboard() {
     setShowReportModal(true);
   };
 
+  // Handle deep linking for admin reports
+  useAdminDeepLinking({
+    reports,
+    loading,
+    onOpenReport: handleDetailsPress,
+  });
+
+  // Navigation handler
   const handleProfilePress = () => {
     router.push("/admin-profile");
   };
@@ -232,11 +171,6 @@ export default function AdminDashboard() {
     setShowMapView(!showMapView);
   };
 
-  // Refresh handler for map view
-  const handleMapRefresh = async () => {
-    await fetchLocation(); // Force retry location (useMapLogic always forces)
-  };
-
   // Handle filter panel expansion changes with loading
   const handleFilterExpansionChange = (expanded: boolean) => {
     if (showMapView) {
@@ -248,16 +182,6 @@ export default function AdminDashboard() {
       }, 300); // Match typical animation duration
     } else {
       setIsFilterExpanded(expanded);
-    }
-  };
-
-  // Modal navigation handlers for admin map modal
-  const viewReport = () => {
-    if (selectedReports[currentReportIndex]) {
-      // For admin users, open the admin report modal instead of navigating
-      setModalVisible(false); // Close the map modal
-      setSelectedReport(selectedReports[currentReportIndex]); // Set the selected report
-      setShowReportModal(true); // Open admin modal
     }
   };
 
@@ -300,80 +224,20 @@ export default function AdminDashboard() {
             ]}
           >
             {showMapView ? (
-              <>
-                {/* Always render the map underneath */}
-                <ScrollView
-                  style={{ flex: 1 }}
-                  contentContainerStyle={{ flex: 1 }}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={isLocationLoading}
-                      onRefresh={handleMapRefresh}
-                      colors={[theme.colors.primary]}
-                      tintColor={theme.colors.primary}
-                    />
-                  }
-                >
-                  <SharedMapView
-                    markers={filteredReports.map((report) => ({
-                      id: report.id,
-                      latitude: report.location.latitude,
-                      longitude: report.location.longitude,
-                      pinColor: theme.colors.primary,
-                      onPress: () => handleMarkerPress(report, filteredReports),
-                    }))}
-                    location={location}
-                    locationErrorMsg={locationErrorMsg}
-                    isLocationLoading={isLocationLoading}
-                    mapRef={mapRef}
-                    onGoToMyLocation={goToMyLocation}
-                    region={mapRegion}
-                  />
-                </ScrollView>
-                {(isMapLoading || isFilterLoading) && (
-                  // Loading overlay on top of the prerendered map
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: theme.colors.background.secondary,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      zIndex: 3,
-                    }}
-                  >
-                    <ActivityIndicator
-                      size="large"
-                      color={theme.colors.primary}
-                    />
-                    <Text
-                      style={{
-                        marginTop: 16,
-                        color: theme.colors.text.primary,
-                        fontSize: 16,
-                      }}
-                    >
-                      {t("admin.loading")}
-                    </Text>
-                  </View>
-                )}
-              </>
+              <AdminMapView
+                filteredReports={filteredReports}
+                onViewReport={handleDetailsPress}
+                isLoading={isMapLoading || isFilterLoading}
+              />
             ) : (
-              // Report list view
-              <ReportList
+              <AdminListView
                 reports={filteredReports}
                 loading={loading || locationLoading}
                 error={error}
                 refreshing={refreshing}
-                isAdmin={true}
                 onRefresh={onRefresh}
                 onDelete={handleReportDelete}
                 onStatusChange={handleStatusChange}
-                loadingText={t("admin.loading")}
-                emptyText={t("admin.noReports")}
                 onDetailsPress={handleDetailsPress}
               />
             )}
@@ -401,18 +265,6 @@ export default function AdminDashboard() {
             </View>
           </View>
         </Modal>
-
-        {/* Map marker modal for quick report viewing */}
-        <MapReportModal
-          visible={modalVisible}
-          report={selectedReports[currentReportIndex] || null}
-          onClose={() => setModalVisible(false)}
-          onNavigate={openNavigation}
-          onViewReport={viewReport}
-          onPrev={goToPrev}
-          onNext={goToNext}
-          hasMultiple={selectedReports.length > 1}
-        />
       </View>
     </>
   );

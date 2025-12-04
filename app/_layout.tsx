@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // React specific imports
-import React, { useEffect } from "react";
+import React from "react";
 
 // External libraries
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -22,29 +22,20 @@ import {
   initialWindowMetrics,
 } from "react-native-safe-area-context";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import styled from "styled-components/native";
-
 // Internal imports
-import { AuthProvider } from "../src/core/context/AuthContext";
-import { HapticsProvider } from "../src/core/context/HapticsContext";
-import { LanguageProvider } from "../src/core/context/LanguageContext";
-import { AlertProvider } from "../src/core/context/AlertContext";
-import { LayoutProvider } from "../src/core/context/LayoutContext";
-import { useAuth } from "../src/core/context/AuthContext";
-import HeaderBackButton from "../src/components/common/buttons/HeaderBackButton";
-import { SplashTransition } from "../src/components/common/layout/SplashTransition";
-import CustomAlert from "../src/components/common/modals/CustomAlert";
-import colors from "../src/core/theme/colors";
-import { useAuthNavigation } from "../src/shared/hooks/layout/useAuthNavigation";
-import { useDeepLinking } from "../src/shared/hooks/layout/useDeepLinking";
-import "../src/core/i18n/i18n"; // Initialize i18n
-import * as Notifications from "expo-notifications";
-
-// Styled components
-const StyledSafeAreaProvider = styled(SafeAreaProvider)`
-  flex: 1;
-  background-color: ${colors.background.primary};
-`;
+import { AuthProvider, useAuth } from "@context/AuthContext";
+import { HapticsProvider } from "@context/HapticsContext";
+import { LanguageProvider } from "@context/LanguageContext";
+import { AlertProvider } from "@context/AlertContext";
+import { LayoutProvider } from "@context/LayoutContext";
+import HeaderBackButton from "@components/common/buttons/HeaderBackButton";
+import { SplashTransition } from "@components/common/layout/SplashTransition";
+import CustomAlert from "@components/common/modals/CustomAlert";
+import colors from "@theme/colors";
+import { useAuthNavigation } from "@/shared/hooks/layout/useAuthNavigation";
+import { useDeepLinking } from "@/shared/hooks/layout/useDeepLinking";
+import { useNotificationNavigation } from "@/shared/hooks/layout/useNotificationNavigation";
+import "@/core/i18n/i18n"; // Initialize i18n
 
 // Main authenticated navigation component
 function AuthenticatedStack() {
@@ -54,22 +45,10 @@ function AuthenticatedStack() {
   // Custom hooks for authentication navigation and deep linking
   const { shouldShowLoading, isAdminRouteAccessDenied } = useAuthNavigation();
   const { isAdmin, profileLoaded } = useAuth();
+
+  // Initialize deep linking and notification listeners
   useDeepLinking();
-
-  // Handle notification responses (when user taps on a notification)
-  useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const data = response.notification.request.content.data;
-        if (data && data.type === "new_report" && data.reportId) {
-          // Navigate to admin page with specific report to open modal
-          router.navigate(`/admin?reportId=${data.reportId}`);
-        }
-      }
-    );
-
-    return () => subscription.remove();
-  }, [router]);
+  useNotificationNavigation();
 
   // Stack navigator configuration for authenticated screens
   const screens = [
@@ -151,7 +130,10 @@ export default function RootLayout() {
     <GestureHandlerRootView
       style={{ flex: 1, backgroundColor: colors.background.primary }}
     >
-      <StyledSafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <SafeAreaProvider
+        initialMetrics={initialWindowMetrics}
+        style={{ flex: 1, backgroundColor: colors.background.primary }}
+      >
         <AuthProvider>
           <LanguageProvider>
             <HapticsProvider>
@@ -169,7 +151,7 @@ export default function RootLayout() {
             </HapticsProvider>
           </LanguageProvider>
         </AuthProvider>
-      </StyledSafeAreaProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
