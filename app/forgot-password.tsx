@@ -13,9 +13,10 @@
  ************************************************************************** */
 // React-specific imports
 import React from "react";
+import { Animated } from "react-native";
 
 // External libraries
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
@@ -25,6 +26,7 @@ import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
 import { AuthLayout } from "@/components/common/auth/AuthLayout";
 import { AuthInput } from "@/components/common/auth/AuthInput";
 import { AuthButton } from "@/components/common/auth/AuthButton";
+import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
 import {
   AuthTitle,
   AuthSubtitle,
@@ -40,6 +42,16 @@ export default function ForgotPassword() {
   const params = useLocalSearchParams();
   const { resetPassword, error: authError, clearError } = useAuth();
 
+  // Clear errors when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      clearError();
+    }, [clearError])
+  );
+
+  // Animation value for shake effect
+  const { shakeAnimation, triggerShake } = useShakeAnimation();
+
   // Form state management with validation
   const {
     values,
@@ -54,6 +66,7 @@ export default function ForgotPassword() {
       email: (params.email as string) || "",
     },
     t,
+    onValidationFailed: triggerShake,
     onSubmit: async (values) => {
       try {
         await resetPassword(values.email);
@@ -80,21 +93,23 @@ export default function ForgotPassword() {
       <AuthTitle>{t("auth.forgotPasswordTitle")}</AuthTitle>
       <AuthSubtitle>{t("auth.forgotPasswordSubtitle")}</AuthSubtitle>
 
-      <AuthInput
-        placeholder={t("auth.email")}
-        value={values.email}
-        onChangeText={(text) => {
-          handleChange("email")(text);
-          if (authError) clearError();
-        }}
-        onBlur={handleBlur("email")}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        returnKeyType="go"
-        onSubmitEditing={handleSubmit}
-        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-        hasError={!!(touched.email && errors.email)}
-      />
+      <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
+        <AuthInput
+          placeholder={t("auth.email")}
+          value={values.email}
+          onChangeText={(text) => {
+            handleChange("email")(text);
+            if (authError) clearError();
+          }}
+          onBlur={handleBlur("email")}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          returnKeyType="go"
+          onSubmitEditing={handleSubmit}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          hasError={!!(touched.email && errors.email)}
+        />
+      </Animated.View>
 
       <AuthErrorCard
         error={

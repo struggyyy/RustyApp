@@ -272,6 +272,7 @@
     "passwordMismatch": "Hasła nie pasują do siebie.",
     "unexpectedError": "Wystąpił nieoczekiwany błąd.",
     "emailRequired": "Email jest wymagany.",
-    "passwordRequired": "Hasło jest wymagane."
+    "passwordRequired": "Hasło jest wymagane.",
+    "passwordComplexity": "Hasło musi zawierać co najmniej jedną wielką literę i jedną cyfrę."
   }
 }

@@ -23,6 +23,8 @@ interface UseAuthFormOptions {
   onSubmit?: (values: Record<string, string>) => Promise<void> | void;
   validateOnChange?: boolean;
   t?: (key: string, options?: any) => string;
+  onValidationFailed?: () => void;
+  validateCustom?: (values: Record<string, string>) => Record<string, string>;
 }
 
 export function useAuthForm({
@@ -30,6 +32,8 @@ export function useAuthForm({
   onSubmit,
   validateOnChange = true,
   t,
+  onValidationFailed,
+  validateCustom,
 }: UseAuthFormOptions = {}) {
   // Form state management
   const [values, setValues] = useState<Record<string, string>>(initialValues);
@@ -51,8 +55,12 @@ export function useAuthForm({
       setValues((prev) => ({ ...prev, [field]: value }));
 
       // Clear error when user starts typing
-      if (errors[field] && validateOnChange) {
-        setErrors((prev) => ({ ...prev, [field]: "" }));
+      if ((errors[field] || errors.submit) && validateOnChange) {
+        setErrors((prev) => {
+          const newErrors = { ...prev, [field]: "" };
+          if (newErrors.submit) delete newErrors.submit;
+          return newErrors;
+        });
       }
     },
     [errors, validateOnChange]
@@ -86,6 +94,15 @@ export function useAuthForm({
 
   // Validate form (basic validation - can be extended)
   const validate = useCallback(() => {
+    if (validateCustom) {
+      const customErrors = validateCustom(values);
+      setErrors((prev) => ({
+        ...customErrors,
+        ...(prev.submit ? { submit: prev.submit } : {}),
+      }));
+      return Object.keys(customErrors).length === 0;
+    }
+
     const newErrors: Record<string, string> = {};
 
     // Email validation
@@ -135,9 +152,12 @@ export function useAuthForm({
       }
     });
 
-    setErrors(newErrors);
+    setErrors((prev) => ({
+      ...newErrors,
+      ...(prev.submit ? { submit: prev.submit } : {}),
+    }));
     return Object.keys(newErrors).length === 0;
-  }, [values, t]);
+  }, [values, t, validateCustom]);
 
   // Handle form submission with validation
   const handleSubmit = useCallback(async () => {
@@ -153,6 +173,7 @@ export function useAuthForm({
     // Validate before submission
     if (!validate()) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      onValidationFailed?.();
       return;
     }
 
@@ -166,13 +187,17 @@ export function useAuthForm({
         setValues(trimmedValues); // Update the form state with trimmed email
       }
       await onSubmit?.(trimmedValues);
-    } catch (error) {
+    } catch (error: any) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      console.log("Form submission error (expected for validation):", error);
+      console.log("Form submission error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        submit: error.message || "validation.unexpectedError",
+      }));
     } finally {
       setIsSubmitting(false);
     }
-  }, [values, isSubmitting, validate, onSubmit]);
+  }, [values, isSubmitting, validate, onSubmit, onValidationFailed]);
 
   // Clear errors when values change
   useEffect(() => {

@@ -141,6 +141,13 @@ export default function Login() {
     }
   }, [user, initialLoading]);
 
+  // Clear errors when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      clearError();
+    }, [clearError])
+  );
+
   // Handle back button press
   useFocusEffect(
     React.useCallback(() => {

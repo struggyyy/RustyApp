@@ -228,7 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return newUser;
     } catch (e: any) {
       setError(e.message);
-      return null;
+      throw e;
     } finally {
       setLoading(false);
     }

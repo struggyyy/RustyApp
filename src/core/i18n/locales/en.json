@@ -272,6 +272,7 @@
     "passwordMismatch": "Passwords do not match.",
     "unexpectedError": "An unexpected error occurred.",
     "emailRequired": "Email is required.",
-    "passwordRequired": "Password is required."
+    "passwordRequired": "Password is required.",
+    "passwordComplexity": "Password must contain at least one uppercase letter and one number."
   }
 }
