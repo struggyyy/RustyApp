@@ -179,7 +179,7 @@ export function useAuthForm({
 
     setIsSubmitting(true);
     try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       // Trim email before submitting
       const trimmedValues = { ...values };
       if (trimmedValues.email) {

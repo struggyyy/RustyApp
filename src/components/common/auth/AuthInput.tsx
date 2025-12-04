@@ -74,7 +74,7 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(
         {rightIcon && (
           <IconContainer
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
               onRightIconPress && onRightIconPress();
             }}
             disabled={!onRightIconPress}

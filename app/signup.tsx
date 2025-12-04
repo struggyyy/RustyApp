@@ -20,19 +20,19 @@ import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 // Internal imports
-import { useAuth } from "@/core/context/AuthContext";
+import { useAuth } from "@context/AuthContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
 import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
-import { AuthLayout } from "@/components/common/auth/AuthLayout";
-import { AuthInput } from "@/components/common/auth/AuthInput";
-import { AuthErrorCard } from "@/components/common/auth/AuthErrorCard";
-import { AuthButton } from "@/components/common/auth/AuthButton";
+import { AuthLayout } from "@components/common/auth/AuthLayout";
+import { AuthInput } from "@components/common/auth/AuthInput";
+import { AuthErrorCard } from "@components/common/auth/AuthErrorCard";
+import { AuthButton } from "@components/common/auth/AuthButton";
 import {
   AuthTitle,
   AuthSubtitle,
   AuthLinkButton,
-} from "@/components/common/auth/AuthText";
+} from "@components/common/auth/AuthText";
 import i18n from "@/core/i18n/i18n";
 
 export default function SignupScreen() {
@@ -42,9 +42,6 @@ export default function SignupScreen() {
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
   const confirmPasswordInputRef = useRef<TextInput | null>(null);
-
-  // Flag to prevent double navigation
-  const hasNavigatedRef = useRef(false);
 
   // Clear errors when screen comes into focus
   useFocusEffect(
@@ -80,9 +77,6 @@ export default function SignupScreen() {
     handleBlur,
     handleSubmit,
     setFieldValue,
-    setFieldError,
-    setFieldTouched,
-    validate,
   } = useAuthForm({
     initialValues: {
       nickname: "",
@@ -157,7 +151,6 @@ export default function SignupScreen() {
   // Custom submit handler to check validation before submitting
   const handleSignupPress = () => {
     // Trigger animations based on current values (validation is handled by hook)
-
     // Nickname shake
     if (
       !values.nickname ||
@@ -197,7 +190,7 @@ export default function SignupScreen() {
 
   // Navigation handler
   const goToLogin = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Keyboard.dismiss();
     router.replace("/login");
   };
@@ -206,7 +199,6 @@ export default function SignupScreen() {
     <AuthLayout title="auth.signup">
       <AuthTitle>{t("auth.signupTitle")}</AuthTitle>
       <AuthSubtitle>{t("auth.signupSubtitle")}</AuthSubtitle>
-
       <Animated.View style={{ transform: [{ translateX: nicknameShakeAnim }] }}>
         <AuthInput
           placeholder={t("auth.nickname")}
@@ -216,14 +208,13 @@ export default function SignupScreen() {
           autoCapitalize="words"
           returnKeyType="next"
           onSubmitEditing={() => passwordInputRef.current?.focus()}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           hasError={!!(touched.nickname && errors.nickname)}
           editable={!isSubmitting}
           rightIcon={values.nickname ? "close-circle" : undefined}
           onRightIconPress={() => setFieldValue("nickname", "")}
         />
       </Animated.View>
-
       <Animated.View style={{ transform: [{ translateX: emailShakeAnim }] }}>
         <AuthInput
           placeholder={t("auth.email")}
@@ -237,14 +228,13 @@ export default function SignupScreen() {
           autoCapitalize="none"
           returnKeyType="next"
           onSubmitEditing={() => passwordInputRef.current?.focus()}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           hasError={!!(touched.email && errors.email)}
           editable={!isSubmitting}
           rightIcon={values.email ? "close-circle" : undefined}
           onRightIconPress={() => setFieldValue("email", "")}
         />
       </Animated.View>
-
       <Animated.View
         style={{
           transform: [
@@ -270,14 +260,13 @@ export default function SignupScreen() {
           autoCapitalize="none"
           returnKeyType="next"
           onSubmitEditing={() => confirmPasswordInputRef.current?.focus()}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           hasError={!!(touched.password && errors.password)}
           editable={!isSubmitting}
           rightIcon={isPasswordVisible ? "eye-off" : "eye"}
           onRightIconPress={() => setIsPasswordVisible(!isPasswordVisible)}
         />
       </Animated.View>
-
       <Animated.View style={{ transform: [{ translateX: passwordShakeAnim }] }}>
         <AuthInput
           ref={confirmPasswordInputRef}
@@ -292,7 +281,7 @@ export default function SignupScreen() {
           autoCapitalize="none"
           returnKeyType="go"
           onSubmitEditing={handleSignupPress}
-          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
           hasError={!!(touched.confirmPassword && errors.confirmPassword)}
           editable={!isSubmitting}
           rightIcon={isConfirmPasswordVisible ? "eye-off" : "eye"}
@@ -301,7 +290,6 @@ export default function SignupScreen() {
           }
         />
       </Animated.View>
-
       <AuthErrorCard
         error={
           (touched.nickname && errors.nickname
@@ -317,7 +305,6 @@ export default function SignupScreen() {
           (errors.submit ? t(errors.submit) : undefined)
         }
       />
-
       <AuthButton
         title={t("auth.signup")}
         onPress={handleSignupPress}
@@ -325,7 +312,6 @@ export default function SignupScreen() {
         loadingText={t("auth.signingUp")}
         isDisabled={isSubmitting}
       />
-
       <AuthLinkButton onPress={goToLogin}>
         {t("auth.alreadyHaveAccount")}
       </AuthLinkButton>

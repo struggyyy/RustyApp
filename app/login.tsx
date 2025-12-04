@@ -13,39 +13,47 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useRef, useEffect } from "react";
-import { TextInput, Keyboard, BackHandler } from "react-native";
+import {
+  TextInput,
+  Keyboard,
+  BackHandler,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from "react-native";
 
 // External libraries
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
-import styled from "styled-components/native";
 import * as Haptics from "expo-haptics";
 
 // Internal imports
-import { useAuth } from "@/core/context/AuthContext";
+import { useAuth } from "@context/AuthContext";
 import { auth } from "@/lib/firebase/firebase";
-import { useAlert } from "@/core/context/AlertContext";
+import { useAlert } from "@context/AlertContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useAuthForm } from "@/shared/hooks/auth/useAuthForm";
 import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
-import { AuthLayout } from "@/components/common/auth/AuthLayout";
-import { AuthInput } from "@/components/common/auth/AuthInput";
-import { AuthErrorCard } from "@/components/common/auth/AuthErrorCard";
-import { AuthButton } from "@/components/common/auth/AuthButton";
+import { AuthLayout } from "@components/common/auth/AuthLayout";
+import { AuthInput } from "@components/common/auth/AuthInput";
+import { AuthErrorCard } from "@components/common/auth/AuthErrorCard";
+import { AuthButton } from "@components/common/auth/AuthButton";
 import {
   AuthTitle,
   AuthSubtitle,
   AuthLinkButton,
-} from "@/components/common/auth/AuthText";
-import theme from "@/core/theme";
+} from "@components/common/auth/AuthText";
+import theme from "@theme/index";
 
-const ForgotPasswordButton = styled.TouchableOpacity({
-  alignSelf: "flex-end",
-  marginBottom: theme.spacing.M,
-});
-
-const ForgotPasswordText = styled.Text({
-  color: theme.colors.primary,
-  fontSize: theme.typography.fontSize.body2,
+// Styles
+const styles = StyleSheet.create({
+  forgotPasswordButton: {
+    alignSelf: "flex-end",
+    marginBottom: theme.spacing.M,
+  },
+  forgotPasswordText: {
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSize.body2,
+  },
 });
 
 export default function Login() {
@@ -183,7 +191,7 @@ export default function Login() {
 
   // Navigation handlers
   const goToSignUp = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Keyboard.dismiss();
     router.push({
       pathname: "/signup",
@@ -192,7 +200,7 @@ export default function Login() {
   };
 
   const goToForgotPassword = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     Keyboard.dismiss();
     router.push({
       pathname: "/forgot-password",
@@ -204,7 +212,6 @@ export default function Login() {
     <AuthLayout title="auth.login">
       <AuthTitle>{t("auth.welcomeBack")}</AuthTitle>
       <AuthSubtitle>{t("auth.loginSubtitle")}</AuthSubtitle>
-
       <AuthInput
         placeholder={t("auth.email")}
         value={values.email}
@@ -217,7 +224,7 @@ export default function Login() {
         autoCapitalize="none"
         returnKeyType="next"
         onSubmitEditing={() => passwordInputRef.current?.focus()}
-        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
         hasError={!!(touched.email && errors.email)}
         rightIcon={values.email ? "close-circle" : undefined}
         onRightIconPress={() => setFieldValue("email", "")}
@@ -225,7 +232,6 @@ export default function Login() {
           transform: [{ translateX: emailShakeAnim }],
         }}
       />
-
       <AuthInput
         ref={passwordInputRef}
         placeholder={t("auth.password")}
@@ -238,7 +244,7 @@ export default function Login() {
         secureTextEntry={!isPasswordVisible}
         returnKeyType="go"
         onSubmitEditing={handleLoginPress}
-        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
         hasError={!!(touched.password && errors.password)}
         rightIcon={isPasswordVisible ? "eye-off" : "eye"}
         onRightIconPress={() => setIsPasswordVisible(!isPasswordVisible)}
@@ -253,11 +259,14 @@ export default function Login() {
           ],
         }}
       />
-
-      <ForgotPasswordButton onPress={goToForgotPassword}>
-        <ForgotPasswordText>{t("auth.forgotPassword")}</ForgotPasswordText>
-      </ForgotPasswordButton>
-
+      <TouchableOpacity
+        style={styles.forgotPasswordButton}
+        onPress={goToForgotPassword}
+      >
+        <Text style={styles.forgotPasswordText}>
+          {t("auth.forgotPassword")}
+        </Text>
+      </TouchableOpacity>
       <AuthErrorCard
         error={
           authError
@@ -268,7 +277,6 @@ export default function Login() {
                 : undefined)
         }
       />
-
       <AuthButton
         title={t("auth.login")}
         onPress={handleLoginPress}
@@ -276,7 +284,6 @@ export default function Login() {
         loadingText={t("auth.loggingIn")}
         isDisabled={isSubmitting}
       />
-
       <AuthLinkButton onPress={goToSignUp}>
         {t("auth.dontHaveAccount")}
       </AuthLinkButton>
