@@ -12,24 +12,18 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { StatusBar, StyleSheet, Modal, View, Text } from "react-native";
 
 // External libraries
-import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { Stack, useFocusEffect } from "expo-router";
 
 // Internal project imports
-import { useAuth } from "../src/core/context/AuthContext";
-import { useTranslation } from "../src/shared/hooks/common/useTranslation";
-import {
-  getReportsByUserId,
-  deleteReport,
-} from "../src/lib/firebase/reports";
-import { Report } from "../src/shared/types/reports";
-import ReportList from "../src/components/features/reports-page/ReportList";
-import theme from "../src/core/theme";
-import UserReportModalView from "../src/components/features/reports-page/UserReportModal";
-
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useMyReports } from "@/shared/hooks/reports/useMyReports";
+import ReportList from "@components/features/reports-page/ReportList";
+import UserReportModalView from "@components/features/reports-page/UserReportModal";
+import theme from "@theme/index";
 
 // Main screen styles
 const styles = StyleSheet.create({
@@ -70,108 +64,30 @@ const styles = StyleSheet.create({
 
 // Main component for user's reports page
 export default function MyReportsScreen() {
-  // State management for reports, loading, and UI
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { reportId } = useLocalSearchParams();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [scrollToIndex, setScrollToIndex] = useState<number | undefined>(undefined);
 
-  // Function to fetch user's reports from Firebase
-  const fetchReports = useCallback(async () => {
-    if (!user) {
-      setLoading(false);
-      setRefreshing(false);
-      setError(t("auth.emailRequired"));
-      return;
-    }
-
-    try {
-      setError(null);
-      const userReports = await getReportsByUserId(user.uid);
-      setReports(userReports);
-    } catch (err) {
-      setError(t("reports.deleteReportError"));
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [user]);
+  // Use custom hook for logic
+  const {
+    reports,
+    loading,
+    error,
+    refreshing,
+    onRefresh,
+    handleReportDelete,
+    showReportModal,
+    selectedReport,
+    scrollToIndex,
+    handleModalClose,
+    handleDetailsPress,
+    fetchReports,
+  } = useMyReports();
 
   // Fetch reports when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
       fetchReports();
     }, [fetchReports])
   );
-
-  // Handle deep linking to specific report
-  useEffect(() => {
-    if (reportId && reports.length > 0 && !loading) {
-      const reportIndex = reports.findIndex((report) => report.id === reportId);
-      if (reportIndex !== -1) {
-        const report = reports[reportIndex];
-        setSelectedReport(report);
-        setScrollToIndex(reportIndex);
-
-        // Delay modal opening to prevent flash and ensure smooth transition
-        setTimeout(() => {
-          setShowReportModal(true);
-        }, 250);
-      }
-    }
-  }, [reportId, reports, loading]);
-
-  // Handle pull-to-refresh
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchReports();
-  }, [fetchReports]);
-
-  // Close report modal and reset state
-  const handleModalClose = () => {
-    setShowReportModal(false);
-    setSelectedReport(null);
-    setScrollToIndex(undefined);
-  };
-
-  // Open report details modal
-  const handleDetailsPress = (report: Report) => {
-    const reportIndex = reports.findIndex((r) => r.id === report.id);
-    setSelectedReport(report);
-    setShowReportModal(true);
-    if (reportIndex !== -1) {
-      setScrollToIndex(reportIndex);
-    }
-  };
-
-  // Delete report from Firebase and update local state
-  const handleReportDelete = async (deletedReportId: string) => {
-    try {
-      // Find the report to get its imageUrl
-      const reportToDelete = reports.find(
-        (report) => report.id === deletedReportId
-      );
-      if (reportToDelete) {
-        // Delete from Firebase
-        await deleteReport(deletedReportId, reportToDelete.imageUrl);
-      }
-      // Update local state
-      setReports((prevReports) =>
-        prevReports.filter((report) => report.id !== deletedReportId)
-      );
-    } catch (error) {
-      console.error("Error deleting report:", error);
-      // Optionally show an error message to the user
-    }
-  };
 
   // Render the main UI
   return (
@@ -211,7 +127,6 @@ export default function MyReportsScreen() {
           </View>
         </Modal>
       </View>
-
     </>
   );
 }

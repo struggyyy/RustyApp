@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -24,23 +24,21 @@ import {
 } from "react-native";
 
 // External libraries
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Internal imports
-import { useAuth } from "../src/core/context/AuthContext";
-import { useTranslation } from "../src/shared/hooks/common/useTranslation";
-import { useLocation } from "../src/shared/hooks/common/useLocation";
-import { useImagePicker } from "../src/shared/hooks/common/useImagePicker";
-import { useAlert } from "../src/core/context/AlertContext";
-import colors from "../src/core/theme/colors";
-import spacing from "../src/core/theme/spacing";
-import { createReport, uploadReportImage } from "../src/lib/firebase/reports";
-import StyledButton from "../src/components/common/buttons/StyledButton";
-import { ReportHeader } from "../src/components/features/report-page/ReportHeader";
-import { ReportInstructions } from "../src/components/features/report-page/ReportInstructions";
-import { ImagePickerSection } from "../src/components/features/report-page/ImagePickerSection";
-import { ReportFormCard } from "../src/components/features/report-page/ReportFormCard";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useLocation } from "@/shared/hooks/common/useLocation";
+import { useImagePicker } from "@/shared/hooks/common/useImagePicker";
+import { useReportForm } from "@/shared/hooks/reports/useReportForm";
+import colors from "@theme/colors";
+import spacing from "@theme/spacing";
+import StyledButton from "@components/common/buttons/StyledButton";
+import { ReportHeader } from "@components/features/report-page/ReportHeader";
+import { ReportInstructions } from "@components/features/report-page/ReportInstructions";
+import { ImagePickerSection } from "@components/features/report-page/ImagePickerSection";
+import { ReportFormCard } from "@components/features/report-page/ReportFormCard";
 
 // Styles
 const styles = StyleSheet.create({
@@ -75,8 +73,6 @@ const styles = StyleSheet.create({
 
 export default function ReportScreen() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -85,6 +81,16 @@ export default function ReportScreen() {
     useLocation();
 
   const { imageUri, pickImage, handleCancelImage } = useImagePicker();
+
+  const {
+    description,
+    setDescription,
+    showInstructions,
+    setShowInstructions,
+    isSubmitting,
+    handleSubmit,
+    isFormReady,
+  } = useReportForm();
 
   // Wrapper functions for report image picking (landscape aspect ratio)
   const pickImageFromCamera = () =>
@@ -100,13 +106,6 @@ export default function ReportScreen() {
       pickImageFromLibrary();
     }
   };
-
-  const { showAlert } = useAlert();
-
-  const [description, setDescription] = useState("");
-  const [showInstructions, setShowInstructions] = useState(false);
-  const isSubmittingRef = useRef(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Keyboard scroll handling - ensure description field is visible
   useEffect(() => {
@@ -129,7 +128,6 @@ export default function ReportScreen() {
             }
 
             // Ensure description field stays above keyboard with buffer
-            const keyboardHeight = e.endCoordinates.height;
             const safeScrollPosition = Math.max(baseScroll, 400); // Minimum scroll to keep description visible
 
             scrollViewRef.current.scrollTo({
@@ -137,7 +135,7 @@ export default function ReportScreen() {
               animated: true,
             });
           }
-        }, 150); // Slightly longer delay for better accuracy
+        }, 150);
       }
     );
 
@@ -145,60 +143,6 @@ export default function ReportScreen() {
       keyboardDidShowListener.remove();
     };
   }, [showInstructions, imageUri]);
-
-  // Form submission logic
-  const handleSubmit = async () => {
-    if (isSubmittingRef.current) return;
-
-    if (
-      !user ||
-      !imageUri ||
-      !location ||
-      !description.trim() ||
-      description.trim().length < 5 ||
-      description.trim().length > 150
-    ) {
-      showAlert(t("common.error"), t("reports.descriptionRequired"));
-      return;
-    }
-
-    isSubmittingRef.current = true;
-    setIsSubmitting(true);
-
-    try {
-      const reportId = `report_${Date.now()}`;
-      const imageUrl = await uploadReportImage(imageUri, user.uid, reportId);
-
-      await createReport({
-        userId: user.uid,
-        userEmail: user.email || "Unknown User",
-        imageUrl,
-        description,
-        location: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
-      });
-
-      showAlert(t("common.success"), t("reports.reportSubmittedSuccess"), [
-        { text: t("common.ok"), onPress: () => router.replace("/my-reports") },
-      ]);
-    } catch (error) {
-      console.error("Report submission error:", error);
-      showAlert(t("common.error"), t("reports.deleteReportError"));
-      // On failure, release the lock and reset the button to allow another attempt.
-      isSubmittingRef.current = false;
-      setIsSubmitting(false);
-    }
-  };
-
-  // Form validation
-  const isFormReady =
-    !!imageUri &&
-    !!description.trim() &&
-    description.trim().length >= 5 &&
-    description.trim().length <= 150 &&
-    !!location;
 
   return (
     <>
@@ -264,8 +208,8 @@ export default function ReportScreen() {
         >
           <StyledButton
             title={t("common.submit")}
-            onPress={handleSubmit}
-            disabled={!isFormReady || isSubmitting}
+            onPress={() => handleSubmit(imageUri, location)}
+            disabled={!isFormReady(imageUri, location) || isSubmitting}
             loading={isSubmitting}
             loadingText={t("reports.submittingReport")}
             variant="primary"
