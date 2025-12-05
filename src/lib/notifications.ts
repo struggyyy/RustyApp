@@ -24,8 +24,8 @@ import {
 } from "firebase/firestore";
 
 // Internal imports
-import { db } from "../lib/firebase/firebase";
-import { translate, translateStatus } from "../shared/utils/serverTranslations";
+import { db } from "@/lib/firebase/firebase";
+import { translate, translateStatus } from "@/shared/utils/serverTranslations";
 
 // Configure notification handler
 Notifications.setNotificationHandler({

@@ -15,10 +15,10 @@
 import { useState, useEffect, useCallback } from "react";
 
 // Internal imports
-import { Report as ReportType, ReportStatus } from "../../types/reports";
-import { useAuth } from "../../../core/context/AuthContext";
-import { useLocation } from "../common/useLocation";
-import { getDistance } from "../../utils/mapUtils";
+import { Report as ReportType, ReportStatus } from "@/shared/types/reports";
+import { useAuth } from "@/core/context/AuthContext";
+import { useLocation } from "@/shared/hooks/common/useLocation";
+import { getDistance } from "@/shared/utils/mapUtils";
 
 export function useAdminFilters(reports: ReportType[]) {
   // Get user profile and location from hooks

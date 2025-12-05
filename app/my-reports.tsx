@@ -18,7 +18,7 @@ import { StatusBar, StyleSheet, Modal, View, Text } from "react-native";
 // External libraries
 import { Stack, useFocusEffect } from "expo-router";
 
-// Internal project imports
+// Internal imports
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useMyReports } from "@/shared/hooks/reports/useMyReports";
 import ReportList from "@/components/features/user/reports-page/ReportList";

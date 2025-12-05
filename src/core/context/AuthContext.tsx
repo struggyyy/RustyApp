@@ -25,13 +25,13 @@ import React, {
 import { User, onAuthStateChanged } from "firebase/auth";
 
 // Internal imports
-import { auth, db } from "../../lib/firebase/firebase";
+import { auth, db } from "@/lib/firebase/firebase";
 import { getDoc, doc } from "firebase/firestore";
-import { ReportStatus } from "../../shared/types/reports";
-import { usePushNotifications } from "../../shared/hooks/auth/usePushNotifications";
-import { useProfileManagement } from "../../shared/hooks/profile/useProfileManagement";
-import { useAuthActions } from "../../shared/hooks/auth/useAuthActions";
-import { useAccountDeletion } from "../../shared/hooks/auth/useAccountDeletion";
+import { ReportStatus } from "@/shared/types/reports";
+import { usePushNotifications } from "@/shared/hooks/auth/usePushNotifications";
+import { useProfileManagement } from "@/shared/hooks/profile/useProfileManagement";
+import { useAuthActions } from "@/shared/hooks/auth/useAuthActions";
+import { useAccountDeletion } from "@/shared/hooks/auth/useAccountDeletion";
 
 // Define the shape of the user profile data stored in Firestore
 export interface UserProfile {

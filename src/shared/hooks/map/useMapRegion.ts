@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
 import { LocationObject } from "expo-location";
 
 // Internal imports
-import { Report } from "../../types/reports";
+import { Report } from "@/shared/types/reports";
 
 // Default fallback coordinates (Cracow, Poland) ;)
 const FALLBACK_REGION = {
@@ -56,8 +56,7 @@ export const useMapRegion = (
       });
     } else if (reports.length > 0) {
       // If no location but reports exist, randomly select a report location
-      const randomReport =
-        reports[Math.floor(Math.random() * reports.length)];
+      const randomReport = reports[Math.floor(Math.random() * reports.length)];
       setMapRegion({
         latitude: randomReport.location.latitude,
         longitude: randomReport.location.longitude,

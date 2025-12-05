@@ -17,9 +17,9 @@ import { doc, writeBatch } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 
 // Internal imports
-import { db, storage } from "../../../lib/firebase/firebase";
-import { getReportsByUserId } from "../../../lib/firebase/reports";
-import { UserProfile } from "../../../core/context/AuthContext";
+import { db, storage } from "@/lib/firebase/firebase";
+import { getReportsByUserId } from "@/lib/firebase/reports";
+import { UserProfile } from "@/core/context/AuthContext";
 
 // Hook for account deletion functionality
 export const useAccountDeletion = () => {

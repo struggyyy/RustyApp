@@ -19,9 +19,9 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 
 // Internal imports
-import { useAuth } from "@context/AuthContext";
+import { useAuth } from "@/core/context/AuthContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
-import { useAlert } from "@context/AlertContext";
+import { useAlert } from "@/core/context/AlertContext";
 import { createReport, uploadReportImage } from "@/lib/firebase/reports";
 
 export function useReportForm() {

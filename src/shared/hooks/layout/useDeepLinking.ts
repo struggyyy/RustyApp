@@ -19,7 +19,7 @@ import { useRouter } from "expo-router";
 import * as Linking from "expo-linking";
 
 // Internal imports
-import { useAuth } from "../../../core/context/AuthContext";
+import { useAuth } from "@/core/context/AuthContext";
 
 export const useDeepLinking = () => {
   const { handleSignInWithLink } = useAuth();

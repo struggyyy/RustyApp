@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
-import { ReportStatus } from "../../shared/types/reports";
+import { ReportStatus } from "@/shared/types/reports";
 
 // Base color palette
 const palette = {

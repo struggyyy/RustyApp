@@ -12,12 +12,12 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
-import { UserProfile } from "../../../core/context/AuthContext";
+import { UserProfile } from "@/core/context/AuthContext";
 import {
   requestNotificationPermissions,
   getPushToken,
   storePushToken,
-} from "../../../lib/notifications";
+} from "@/lib/notifications";
 
 // Hook for managing push notification registration
 export const usePushNotifications = () => {

@@ -11,7 +11,6 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
-
 // Date formatting utilities
 export const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, "0")}.${String(

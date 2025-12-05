@@ -12,9 +12,9 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
-import en from "../../core/i18n/locales/en.json";
-import pl from "../../core/i18n/locales/pl.json";
-import { ReportStatus } from "../types/reports";
+import en from "@/core/i18n/locales/en.json";
+import pl from "@/core/i18n/locales/pl.json";
+import { ReportStatus } from "@/shared/types/reports";
 
 const translations = {
   en,

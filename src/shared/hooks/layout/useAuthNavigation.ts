@@ -18,8 +18,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useSegments } from "expo-router";
 
 // Internal imports
-import { useAuth } from "../../../core/context/AuthContext";
-import { useLayout } from "../../../core/context/LayoutContext";
+import { useAuth } from "@/core/context/AuthContext";
+import { useLayout } from "@/core/context/LayoutContext";
 
 export const useAuthNavigation = () => {
   const { user, initialLoading, isAdmin, profileLoaded, error } = useAuth();

@@ -12,7 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
-import { ReportStatus } from "../types/reports";
+import { ReportStatus } from "@/shared/types/reports";
 
 // Maps report status values to translation keys
 export const getStatusTranslationKey = (

@@ -37,11 +37,11 @@ import {
 
 // Internal imports
 import { db, storage } from "./firebase";
-import { Report, ReportStatus } from "../../shared/types/reports";
+import { Report, ReportStatus } from "@/shared/types/reports";
 import {
   sendReportStatusNotification,
   sendNewReportNotification,
-} from "../notifications";
+} from "@/lib/notifications";
 
 // Upload report image to Firebase Storage
 export const uploadReportImage = (

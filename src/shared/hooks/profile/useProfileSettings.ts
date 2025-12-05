@@ -17,7 +17,7 @@ import { useState, useCallback } from "react";
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
 import { useLanguage } from "@/core/context/LanguageContext";
-import { useAlert } from "../../../core/context/AlertContext";
+import { useAlert } from "@/core/context/AlertContext";
 
 // Hook options interface
 interface UseProfileSettingsOptions {

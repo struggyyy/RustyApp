@@ -18,12 +18,12 @@ import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 
 // Internal imports
-import { Report as ReportType, ReportStatus } from "../../types/reports";
+import { Report as ReportType, ReportStatus } from "@/shared/types/reports";
 import {
   getAllReports,
   updateReportStatus,
   deleteReport,
-} from "../../../lib/firebase/reports";
+} from "@/lib/firebase/reports";
 
 export function useReportManagement(isAdmin: boolean) {
   // Report data state

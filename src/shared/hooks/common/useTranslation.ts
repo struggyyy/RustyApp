@@ -15,7 +15,7 @@
 import { useCallback, useState, useEffect } from "react";
 
 // Internal imports
-import i18n from "../../../core/i18n/i18n";
+import i18n from "@/core/i18n/i18n";
 
 export const useTranslation = () => {
   // Track language changes to trigger re-renders

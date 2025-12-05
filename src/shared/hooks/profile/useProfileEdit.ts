@@ -20,7 +20,7 @@ import { ref, deleteObject } from "firebase/storage";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
-import { useAlert } from "../../../core/context/AlertContext";
+import { useAlert } from "@/core/context/AlertContext";
 import { storage } from "@/lib/firebase/firebase";
 
 // Hook options interface

@@ -26,7 +26,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Internal imports
-import { auth } from "../../../lib/firebase/firebase";
+import { auth } from "@/lib/firebase/firebase";
 
 // Hook for authentication actions (signup, login, logout, password reset, etc.)
 export const useAuthActions = () => {

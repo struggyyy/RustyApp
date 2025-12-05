@@ -18,13 +18,13 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import MapView, { Region } from "react-native-maps";
 
 // Internal imports
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-import { useLocation } from "../common/useLocation";
-import { Report } from "../../../shared/types/reports";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useLocation } from "@/shared/hooks/common/useLocation";
+import { Report } from "@/shared/types/reports";
 import {
   getDistance,
   openNavigation as openExternalNavigation,
-} from "../../utils/mapUtils";
+} from "@/shared/utils/mapUtils";
 
 // Shared map logic hook for both regular map and admin map functionality
 export const useMapLogic = () => {

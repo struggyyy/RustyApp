@@ -19,7 +19,7 @@ import { useRouter } from "expo-router";
 
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
-import { useAlert } from "../../../core/context/AlertContext";
+import { useAlert } from "@/core/context/AlertContext";
 
 // Hook options interface
 interface UseProfileActionsOptions {

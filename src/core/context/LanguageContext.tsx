@@ -23,7 +23,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Internal imports
 import { useAuth } from "./AuthContext";
-import i18n from "../i18n/i18n";
+import i18n from "@/core/i18n/i18n";
 
 type Language = "en" | "pl";
 
