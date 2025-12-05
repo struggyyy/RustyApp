@@ -13,33 +13,31 @@
  ************************************************************************** */
 // React-specific imports
 import React from "react";
-
-// External libraries
-import { ActivityIndicator } from "react-native";
-import styled from "styled-components/native";
+import { ActivityIndicator, Text, View, StyleSheet } from "react-native";
 
 // Internal imports
-import colors from "../src/core/theme/colors";
+import colors from "@theme/colors";
 
-// Styled Components
-const StyledContainer = styled.View({
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: colors.background.primary,
-});
-
-const LoadingText = styled.Text({
-  marginTop: 10,
-  color: colors.text.primary,
+// Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.background.primary,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: colors.text.primary,
+  },
 });
 
 // Initial loading screen while auth guard determines navigation
 export default function Index() {
   return (
-    <StyledContainer>
+    <View style={styles.container}>
       <ActivityIndicator size="large" color={colors.primary} />
-      <LoadingText>Loading...</LoadingText>
-    </StyledContainer>
+      <Text style={styles.loadingText}>Loading...</Text>
+    </View>
   );
 }

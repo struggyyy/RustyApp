@@ -117,8 +117,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!loading) {
       setAdminDataReady(true);
-    } else {
-      setAdminDataReady(false);
     }
   }, [loading, setAdminDataReady]);
 

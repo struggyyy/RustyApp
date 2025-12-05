@@ -37,7 +37,7 @@ export function useReports(): UseReportsReturn {
         const userReports = await getReportsByUserId(user.uid);
         setReports(userReports);
       } catch (err) {
-        console.error("Failed to fetch reports:", err);
+        // Silently fail
       }
     }
   }, [user]);

@@ -29,6 +29,7 @@ import { useMapRegion } from "@/shared/hooks/map/useMapRegion";
 import { Report as ReportType } from "@/shared/types/reports";
 import theme from "@theme/index";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useHaptics } from "@/core/context/HapticsContext";
 
 interface AdminMapViewProps {
   filteredReports: ReportType[];
@@ -42,6 +43,7 @@ export default function AdminMapView({
   isLoading = false,
 }: AdminMapViewProps) {
   const { t } = useTranslation();
+  const { heavy } = useHaptics();
   const [isMapLoading, setIsMapLoading] = useState(true);
 
   // Shared map logic hook
@@ -113,7 +115,10 @@ export default function AdminMapView({
             latitude: report.location.latitude,
             longitude: report.location.longitude,
             pinColor: theme.colors.primary,
-            onPress: () => handleMarkerPress(report, filteredReports),
+            onPress: () => {
+              heavy();
+              handleMarkerPress(report, filteredReports);
+            },
           }))}
           location={location}
           locationErrorMsg={locationErrorMsg}

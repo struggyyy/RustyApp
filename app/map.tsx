@@ -13,44 +13,48 @@
  ************************************************************************** */
 // React-specific imports
 import React, { useEffect, useState } from "react";
+import { View, ScrollView, RefreshControl, StyleSheet } from "react-native";
 
 // External libraries
 import { Stack, useRouter, useFocusEffect } from "expo-router";
-import { ScrollView, RefreshControl } from "react-native";
 
 // Internal imports
-import { useAuth } from "../src/core/context/AuthContext";
-import { useTranslation } from "../src/shared/hooks/common/useTranslation";
-import { getReportsByUserId } from "../src/lib/firebase/reports";
-import { Report } from "../src/shared/types/reports";
-import MapReportModal from "../src/components/common/modals/MapReportModal";
-import { SharedMapView } from "../src/components/common/map/SharedMapView";
-import { useMapLogic } from "../src/shared/hooks/map/useMapLogic";
-import { useMapRegion } from "../src/shared/hooks/map/useMapRegion";
-import colors from "../src/core/theme/colors";
-import spacing from "../src/core/theme/spacing";
-import styled from "styled-components/native";
+import { useHaptics } from "@context/HapticsContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useReports } from "@/shared/hooks/reports/useReports";
+import { useMapLogic } from "@/shared/hooks/map/useMapLogic";
+import { useMapRegion } from "@/shared/hooks/map/useMapRegion";
+import MapReportModal from "@components/common/modals/MapReportModal";
+import { SharedMapView } from "@components/common/map/SharedMapView";
+import colors from "@theme/colors";
+import spacing from "@theme/spacing";
 
-// Styled Components Definitions
-const StyledContainer = styled.View({
-  flex: 1,
-  backgroundColor: colors.background.primary,
-  padding: spacing.L,
-});
-
-const MapSection = styled.View({
-  flex: 1,
-  borderRadius: spacing.radius.XL,
-  overflow: "hidden",
-  backgroundColor: colors.background.secondary,
-  position: "relative",
-});
-
-const MapWrapperView = styled.View({
-  flex: 1,
-  overflow: "hidden",
-  borderRadius: spacing.radius.M,
-  backgroundColor: colors.background.primary,
+// Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background.primary,
+    padding: spacing.L,
+  },
+  mapSection: {
+    flex: 1,
+    borderRadius: spacing.radius.XL,
+    overflow: "hidden",
+    backgroundColor: colors.background.secondary,
+    position: "relative",
+  },
+  mapWrapper: {
+    flex: 1,
+    overflow: "hidden",
+    borderRadius: spacing.radius.M,
+    backgroundColor: colors.background.primary,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flex: 1,
+  },
 });
 
 export default function MapScreen() {
@@ -64,12 +68,11 @@ export default function MapScreen() {
 }
 
 function MapScreenComponent() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
   const router = useRouter();
+  const { heavy } = useHaptics();
 
-  // Reports state
-  const [reports, setReports] = useState<Report[]>([]);
+  // Reports state using shared hook
+  const { reports, fetchReports } = useReports();
 
   // Shared map logic hook
   const {
@@ -98,21 +101,8 @@ function MapScreenComponent() {
   // Refresh handler for pull-to-refresh
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([
-      fetchLocation(),
-      fetchReports(),
-    ]);
+    await Promise.all([fetchLocation(), fetchReports()]);
     setRefreshing(false);
-  };
-  const fetchReports = async () => {
-    if (user) {
-      try {
-        const userReports = await getReportsByUserId(user.uid);
-        setReports(userReports);
-      } catch (err) {
-        console.error("Failed to fetch reports:", err);
-      }
-    }
   };
 
   useEffect(() => {
@@ -122,12 +112,12 @@ function MapScreenComponent() {
   // Fetch reports on mount and focus
   useEffect(() => {
     fetchReports();
-  }, [user]);
+  }, [fetchReports]);
 
   useFocusEffect(
     React.useCallback(() => {
       fetchReports();
-    }, [user])
+    }, [fetchReports])
   );
 
   // Modal navigation handlers
@@ -142,12 +132,12 @@ function MapScreenComponent() {
 
   // Main component render
   return (
-    <StyledContainer>
-      <MapSection>
-        <MapWrapperView>
+    <View style={styles.container}>
+      <View style={styles.mapSection}>
+        <View style={styles.mapWrapper}>
           <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flex: 1 }}
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -163,7 +153,10 @@ function MapScreenComponent() {
                 latitude: report.location.latitude,
                 longitude: report.location.longitude,
                 pinColor: colors.primary,
-                onPress: () => handleMarkerPress(report, reports),
+                onPress: () => {
+                  heavy();
+                  handleMarkerPress(report, reports);
+                },
               }))}
               location={location}
               locationErrorMsg={locationErrorMsg}
@@ -173,8 +166,8 @@ function MapScreenComponent() {
               region={mapRegion}
             />
           </ScrollView>
-        </MapWrapperView>
-      </MapSection>
+        </View>
+      </View>
       <MapReportModal
         visible={modalVisible}
         report={selectedReports[currentReportIndex] || null}
@@ -185,6 +178,6 @@ function MapScreenComponent() {
         onNext={goToNext}
         hasMultiple={selectedReports.length > 1}
       />
-    </StyledContainer>
+    </View>
   );
 }
