@@ -19,11 +19,11 @@ import { FontAwesome } from "@expo/vector-icons";
 import styled from "styled-components/native";
 
 // Internal imports
-import { colors, typography, spacing, shadows } from "../../../core/theme";
-import { Report, ReportStatus } from "../../../shared/types/reports";
-import TouchableButton from "../../common/buttons/TouchableButton";
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-import { getStatusTranslationKey } from "../../../shared/utils/statusTranslation";
+import { colors, typography, spacing, shadows } from "@theme/index";
+import { Report } from "@/shared/types/reports";
+import HapticButton from "@/components/common/buttons/HapticButton";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { getStatusTranslationKey } from "@/shared/utils/statusTranslation";
 
 // Component props and types
 interface ReportCardProps {
@@ -132,7 +132,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
           <ReportStatusText color={statusColor}>
             {t(getStatusTranslationKey(report.status))}
           </ReportStatusText>
-          <TouchableButton
+          <HapticButton
             onPress={() => onDetailsPress?.(report)}
             style={{
               backgroundColor: colors.text.primary,
@@ -144,7 +144,7 @@ const ReportCard: React.FC<ReportCardProps> = ({
             }}
           >
             <DetailsButtonText>{t("common.seeDetails")}</DetailsButtonText>
-          </TouchableButton>
+          </HapticButton>
         </ReportInfo>
         <CarImageContainer>
           <CollapsedCarImage source={{ uri: report.imageUrl }} />

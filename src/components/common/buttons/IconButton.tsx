@@ -19,9 +19,9 @@ import { StyleProp, ViewStyle } from "react-native";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useHaptics } from "../../../core/context/HapticsContext";
-import colors from "../../../core/theme/colors";
-import theme from "../../../core/theme";
+import { useHaptics } from "@context/HapticsContext";
+import colors from "@theme/colors";
+import theme from "@theme/index";
 
 // Component props interface
 interface IconButtonProps {
@@ -44,14 +44,18 @@ interface IconButtonContainerProps {
 }
 
 // Icon button styled component
-const IconButtonContainer = styled.TouchableOpacity<IconButtonContainerProps>((props: IconButtonContainerProps) => ({
-  width: props.size,
-  height: props.size,
-  borderRadius: props.size / 2,
-  backgroundColor: props.disabled ? colors.text.tertiary : (props.backgroundColor || "transparent"),
-  justifyContent: "center",
-  alignItems: "center",
-}));
+const IconButtonContainer = styled.TouchableOpacity<IconButtonContainerProps>(
+  (props: IconButtonContainerProps) => ({
+    width: props.size,
+    height: props.size,
+    borderRadius: props.size / 2,
+    backgroundColor: props.disabled
+      ? colors.text.tertiary
+      : props.backgroundColor || "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+  })
+);
 
 // Main icon button component
 const IconButton: React.FC<IconButtonProps> = ({
@@ -76,9 +80,7 @@ const IconButton: React.FC<IconButtonProps> = ({
   };
 
   // Apply shadow styles conditionally
-  const containerStyle = withShadow
-    ? [style, theme.shadows.button]
-    : style;
+  const containerStyle = withShadow ? [style, theme.shadows.button] : style;
 
   return (
     <IconButtonContainer

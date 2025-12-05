@@ -19,11 +19,11 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal imports
-import { ReportStatus } from "../../../../shared/types/reports";
-import theme from "../../../../core/theme";
-import { useTranslation } from "../../../../shared/hooks/common/useTranslation";
-import { getStatusTranslationKey } from "../../../../shared/utils/statusTranslation";
-import { useHaptics } from "../../../../core/context/HapticsContext";
+import { ReportStatus } from "@/shared/types/reports";
+import theme from "@theme/index";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { getStatusTranslationKey } from "@/shared/utils/statusTranslation";
+import { useHaptics } from "@context/HapticsContext";
 import MapViewToggleButton from "./MapViewToggleButton";
 import ProfileButton from "./ProfileButton";
 

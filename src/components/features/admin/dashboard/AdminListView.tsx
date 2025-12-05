@@ -15,7 +15,7 @@
 import React from "react";
 
 // Internal imports
-import ReportList from "@components/features/reports-page/ReportList";
+import ReportList from "@/components/features/user/reports-page/ReportList";
 import { Report as ReportType, ReportStatus } from "@/shared/types/reports";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 

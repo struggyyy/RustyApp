@@ -20,10 +20,9 @@ import MapView, { Marker } from "react-native-maps";
 import { LinearGradient } from "expo-linear-gradient";
 
 // Internal imports
-import { useHaptics } from "../../../core/context/HapticsContext";
 import { MapComponent } from "./MapComponent";
 import { MapControls } from "./MapControls";
-import theme from "../../../core/theme";
+import theme from "@theme/index";
 
 export interface MarkerData {
   id: string;
@@ -68,8 +67,6 @@ export const SharedMapView: React.FC<SharedMapViewProps> = ({
   containerStyle = { flex: 1, borderRadius: 24, overflow: "hidden" },
   region,
 }) => {
-  const haptics = useHaptics();
-
   return (
     <View style={containerStyle}>
       <MapComponent

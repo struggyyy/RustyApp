@@ -33,9 +33,9 @@ import { useShakeAnimation } from "@/shared/hooks/ui/useShakeAnimation";
 import { useProfileEdit } from "@/shared/hooks/profile/useProfileEdit";
 import { useProfileSettings } from "@/shared/hooks/profile/useProfileSettings";
 import colors from "@/core/theme/colors";
-import EditProfile from "@/components/features/profile-page/EditProfile";
-import SettingsCard from "@/components/features/profile-page/SettingsCard";
-import ProfileImageModal from "@/components/features/profile-page/ProfileImageModal";
+import EditProfile from "@/components/features/user/profile-page/EditProfile";
+import SettingsCard from "@/components/features/user/profile-page/SettingsCard";
+import ProfileImageModal from "@/components/features/user/profile-page/ProfileImageModal";
 
 // Styles using StyleSheet for performance
 const styles = StyleSheet.create({
@@ -185,7 +185,7 @@ const AdminProfilePage: React.FC = () => {
 
   const handleLogoutAdmin = async () => {
     try {
-      await logOut(router);
+      await logOut();
     } catch (error: any) {
       showAlert(t("auth.logoutError"), error.message || t("auth.logoutError"));
     }

@@ -19,10 +19,10 @@ import { ActivityIndicator, StyleProp, ViewStyle } from "react-native";
 import styled from "styled-components/native";
 
 // Internal imports
-import theme from "../../../core/theme";
-import spacing from "../../../core/theme/spacing";
-import typography from "../../../core/theme/typography";
-import { useHaptics } from "../../../core/context/HapticsContext";
+import theme from "@theme/index";
+import spacing from "@theme/spacing";
+import typography from "@theme/typography";
+import { useHaptics } from "@context/HapticsContext";
 
 // Component props interface
 interface StyledButtonProps {

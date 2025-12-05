@@ -22,7 +22,7 @@ import {
 } from "react-native";
 
 // Internal imports
-import colors from "../../../core/theme/colors";
+import colors from "@theme/colors";
 
 const { width, height } = Dimensions.get("window");
 // Calculate diameter to cover the screen from center

@@ -18,9 +18,9 @@ import React from "react";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-import colors from "../../../core/theme/colors";
-import { typography, spacing } from "../../../core/theme";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import colors from "@theme/colors";
+import { typography, spacing } from "@theme/index";
 
 // Styled components
 const HeaderContainer = styled.View({

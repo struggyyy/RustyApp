@@ -35,10 +35,10 @@ import { useReportForm } from "@/shared/hooks/reports/useReportForm";
 import colors from "@theme/colors";
 import spacing from "@theme/spacing";
 import StyledButton from "@components/common/buttons/StyledButton";
-import { ReportHeader } from "@components/features/report-page/ReportHeader";
-import { ReportInstructions } from "@components/features/report-page/ReportInstructions";
-import { ImagePickerSection } from "@components/features/report-page/ImagePickerSection";
-import { ReportFormCard } from "@components/features/report-page/ReportFormCard";
+import { ReportHeader } from "@/components/features/user/report-page/ReportHeader";
+import { ReportInstructions } from "@/components/features/user/report-page/ReportInstructions";
+import { ImagePickerSection } from "@/components/features/user/report-page/ImagePickerSection";
+import { ReportFormCard } from "@/components/features/user/report-page/ReportFormCard";
 
 // Styles
 const styles = StyleSheet.create({

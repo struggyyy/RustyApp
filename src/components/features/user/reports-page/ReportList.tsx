@@ -12,29 +12,29 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React, { useRef, useEffect } from 'react';
-import { FlatList, ActivityIndicator, View, Text, RefreshControl } from 'react-native';
+import React, { useRef, useEffect } from "react";
+import { FlatList, ActivityIndicator, RefreshControl } from "react-native";
 
 // External libraries
-import styled from 'styled-components/native';
+import styled from "styled-components/native";
 
-// Internal project imports
-import ReportCard from './ReportCard';
-import { Report, ReportStatus } from '../../../shared/types/reports';
-import theme from '../../../core/theme';
+// Internal imports
+import ReportCard from "./ReportCard";
+import { Report, ReportStatus } from "@/shared/types/reports";
+import theme from "@theme/index";
 
 // Styled components for layout and messaging
 const CenteredContainer = styled.View({
   flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
+  justifyContent: "center",
+  alignItems: "center",
 });
 
 const InfoText = styled.Text({
   fontSize: 18,
   color: theme.colors.text.tertiary,
   marginTop: 10,
-  textAlign: 'center',
+  textAlign: "center",
 });
 
 interface ReportListProps {
@@ -60,10 +60,8 @@ const ReportList: React.FC<ReportListProps> = ({
   refreshing,
   isAdmin,
   onRefresh,
-  onDelete,
-  onStatusChange,
-  loadingText = 'Loading reports...',
-  emptyText = 'No reports found.',
+  loadingText = "Loading reports...",
+  emptyText = "No reports found.",
   onDetailsPress,
   scrollToIndex,
 }) => {
@@ -71,7 +69,11 @@ const ReportList: React.FC<ReportListProps> = ({
 
   // Scroll to specific index when scrollToIndex changes
   useEffect(() => {
-    if (scrollToIndex !== undefined && scrollToIndex >= 0 && flatListRef.current) {
+    if (
+      scrollToIndex !== undefined &&
+      scrollToIndex >= 0 &&
+      flatListRef.current
+    ) {
       flatListRef.current.scrollToIndex({
         index: scrollToIndex,
         animated: true,
@@ -119,7 +121,9 @@ const ReportList: React.FC<ReportListProps> = ({
           key={item.id}
           report={item}
           isAdmin={isAdmin}
-          onDetailsPress={onDetailsPress ? () => onDetailsPress(item) : undefined}
+          onDetailsPress={
+            onDetailsPress ? () => onDetailsPress(item) : undefined
+          }
         />
       )}
       contentContainerStyle={{ paddingTop: 13 }}
@@ -133,7 +137,7 @@ const ReportList: React.FC<ReportListProps> = ({
       }
       fadingEdgeLength={15}
       showsVerticalScrollIndicator={false}
-      getItemLayout={(data, index) => ({
+      getItemLayout={(_, index) => ({
         length: 150,
         offset: 150 * index,
         index,

@@ -19,12 +19,12 @@ import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
-import shadows from "../../../core/theme/shadows";
-import StyledButton from "../../common/buttons/StyledButton";
-import TouchableButton from "../../common/buttons/TouchableButton";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import colors from "@theme/colors";
+import spacing from "@theme/spacing";
+import shadows from "@theme/shadows";
+import StyledButton from "@components/common/buttons/StyledButton";
+import HapticButton from "@/components/common/buttons/HapticButton";
 
 // Image preview container for displaying selected image
 const ImagePreviewContainer = styled.View({
@@ -84,7 +84,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
       <ImagePreviewContainer>
         <ImagePreview source={{ uri: imageUri }} />
         <ImageOverlayActions>
-          <TouchableButton
+          <HapticButton
             style={{
               backgroundColor: colors.background.overlay,
               borderRadius: spacing.radius.L,
@@ -94,7 +94,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
             onPress={onRemoveImage}
           >
             <Ionicons name="close" size={24} color="white" />
-          </TouchableButton>
+          </HapticButton>
         </ImageOverlayActions>
       </ImagePreviewContainer>
     ) : null;
@@ -109,7 +109,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
         variant="secondary"
         style={{ flex: 1, marginRight: 10, marginBottom: 0 }}
       />
-      <TouchableButton
+      <HapticButton
         style={{
           backgroundColor: colors.background.secondary,
           width: 60,
@@ -122,7 +122,7 @@ export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
         onPress={() => onPickImage(false)}
       >
         <Ionicons name="image-outline" size={24} color={colors.text.primary} />
-      </TouchableButton>
+      </HapticButton>
     </ButtonRow>
   );
 };

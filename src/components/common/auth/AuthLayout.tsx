@@ -21,9 +21,9 @@ import { useHeaderHeight } from "@react-navigation/elements";
 
 // Internal imports
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
-import LanguageSwitcher from "@/components/common/buttons/LanguageSwitcher";
+import LanguageSwitcher from "@components/common/buttons/LanguageSwitcher";
 import styled from "styled-components/native";
-import theme from "@/core/theme";
+import theme from "@theme/index";
 
 // Styled Components
 const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView)({
@@ -49,7 +49,7 @@ interface AuthLayoutProps {
   title: string;
   children: React.ReactNode;
   showLanguageSwitcher?: boolean;
-  options?: Partial<React.ComponentProps<typeof Stack.Screen>['options']>;
+  options?: Partial<React.ComponentProps<typeof Stack.Screen>["options"]>;
 }
 
 // Main layout component for auth screens with header and language switcher

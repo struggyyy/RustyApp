@@ -11,37 +11,51 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
+
 // React-specific imports
 import React from "react";
+import { TouchableOpacity, StyleProp, ViewStyle } from "react-native";
 
 // Internal imports
-import styled from "styled-components/native";
-import colors from "@/core/theme/colors";
-import spacing from "@/core/theme/spacing";
-import theme from "@/core/theme";
+import { useHaptics } from "@context/HapticsContext";
 
-const CarImageCardContainer = styled.View({
-  width: "100%",
-  aspectRatio: 1.3,
-  backgroundColor: colors.background.secondary,
-  borderRadius: spacing.L,
-  marginBottom: spacing.L,
-  overflow: "hidden",
-});
-
-const CarDisplayImage = styled.Image({
-  width: "100%",
-  height: "100%",
-});
-
-// Static car image display component for the home screen
-export function CarImageCard() {
-  return (
-    <CarImageCardContainer style={theme.shadows.muted}>
-      <CarDisplayImage
-        source={require("../../../../assets/images/car-image.png")}
-        resizeMode="cover"
-      />
-    </CarImageCardContainer>
-  );
+// Component props interface
+interface HapticButtonProps {
+  onPress: () => void;
+  disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
+  children: React.ReactNode;
+  activeOpacity?: number;
 }
+
+// Basic touchable button wrapper with haptic feedback
+const HapticButton: React.FC<HapticButtonProps> = ({
+  onPress,
+  disabled = false,
+  style,
+  children,
+  activeOpacity = 0.7,
+}) => {
+  const haptics = useHaptics();
+
+  // Handle press with haptic feedback
+  const handlePress = () => {
+    if (!disabled) {
+      haptics.heavy();
+      onPress();
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={handlePress}
+      disabled={disabled}
+      style={style}
+      activeOpacity={activeOpacity}
+    >
+      {children}
+    </TouchableOpacity>
+  );
+};
+
+export default HapticButton;

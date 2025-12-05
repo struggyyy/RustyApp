@@ -30,13 +30,13 @@ import {
   Report as ReportType,
   ReportStatus,
   reportStatuses,
-} from "../../../../shared/types/reports";
-import { getStatusTranslationKey } from "../../../../shared/utils/statusTranslation";
-import { formatDate } from "../../../../shared/utils/dateUtils";
-import theme from "../../../../core/theme";
-import { getStatusColor } from "../../../../core/theme/colors";
-import { useHaptics } from "../../../../core/context/HapticsContext";
-import { useTranslation } from "../../../../shared/hooks/common/useTranslation";
+} from "@/shared/types/reports";
+import { getStatusTranslationKey } from "@/shared/utils/statusTranslation";
+import { formatDate } from "@/shared/utils/dateUtils";
+import theme from "@theme/index";
+import { getStatusColor } from "@theme/colors";
+import { useHaptics } from "@context/HapticsContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
 
 interface AdminReportModalProps {
   report: ReportType;

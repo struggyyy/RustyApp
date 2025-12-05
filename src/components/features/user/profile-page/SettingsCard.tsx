@@ -19,12 +19,12 @@ import { Feather } from "@expo/vector-icons";
 
 // Internal imports
 import styled from "styled-components/native";
-import StyledButton from "../../common/buttons/StyledButton";
-import colors from "../../../core/theme/colors";
-import theme from "../../../core/theme";
-import spacing from "../../../core/theme/spacing";
-import { useHaptics } from "../../../core/context/HapticsContext";
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import StyledButton from "@components/common/buttons/StyledButton";
+import colors from "@theme/colors";
+import theme from "@theme/index";
+import spacing from "@theme/spacing";
+import { useHaptics } from "@context/HapticsContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import CommonSettings from "./CommonSettings";
 
 interface SettingsCardProps {

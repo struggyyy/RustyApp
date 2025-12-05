@@ -18,7 +18,7 @@ import React from "react";
 import { useRouter } from "expo-router";
 
 // Internal imports
-import UserProfilePage from "@components/features/profile-page/UserProfilePage";
+import UserProfilePage from "@/components/features/user/profile-page/UserProfilePage";
 
 export default function Profile(): React.ReactElement {
   const router = useRouter();

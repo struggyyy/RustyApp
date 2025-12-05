@@ -26,7 +26,7 @@ import spacing from "@/core/theme/spacing";
 import typography from "@/core/theme/typography";
 import styled from "styled-components/native";
 import theme from "@/core/theme";
-import TouchableButton from "@/components/common/buttons/TouchableButton";
+import HapticButton from "@/components/common/buttons/HapticButton";
 import { MapComponent } from "@/components/common/map/MapComponent";
 import { MapControls } from "@/components/common/map/MapControls";
 import { Report } from "@/shared/types/reports";
@@ -41,7 +41,7 @@ const MapSectionContainer = styled.View({
   position: "relative",
 });
 
-const MyReportsButton = styled(TouchableButton)({
+const MyReportsButton = styled(HapticButton)({
   position: "absolute",
   top: spacing.M,
   left: spacing.M,

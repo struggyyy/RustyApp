@@ -20,7 +20,7 @@ import { Report } from "@/shared/types/reports";
 import colors from "@/core/theme/colors";
 import theme from "@/core/theme";
 import spacing from "@/core/theme/spacing";
-import TouchableButton from "@/components/common/buttons/TouchableButton";
+import HapticButton from "@/components/common/buttons/HapticButton";
 
 interface ProfileReportsCardProps {
   reports: Report[];
@@ -65,12 +65,12 @@ const ProfileReportsCard: React.FC<ProfileReportsCardProps> = ({
 
   return (
     <View style={styles.reportsCard}>
-      <TouchableButton
+      <HapticButton
         onPress={onViewAllReports}
         style={[theme.shadows.button, styles.buttonContainer]}
       >
         <Text style={styles.reportsTitle}>{t("reports.viewAllReports")}</Text>
-      </TouchableButton>
+      </HapticButton>
     </View>
   );
 };

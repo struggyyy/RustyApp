@@ -21,8 +21,8 @@ import { Stack, useFocusEffect } from "expo-router";
 // Internal project imports
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useMyReports } from "@/shared/hooks/reports/useMyReports";
-import ReportList from "@components/features/reports-page/ReportList";
-import UserReportModalView from "@components/features/reports-page/UserReportModal";
+import ReportList from "@/components/features/user/reports-page/ReportList";
+import UserReportModalView from "@/components/features/user/reports-page/UserReportModal";
 import theme from "@theme/index";
 
 // Main screen styles

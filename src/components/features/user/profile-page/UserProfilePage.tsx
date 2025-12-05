@@ -35,10 +35,10 @@ import { useProfileActions } from "@/shared/hooks/profile/useProfileActions";
 import { Report } from "@/shared/types/reports";
 import { getReportsByUserId } from "@/lib/firebase/reports";
 import colors from "@/core/theme/colors";
-import EditProfile from "@/components/features/profile-page/EditProfile";
-import SettingsCard from "@/components/features/profile-page/SettingsCard";
-import ProfileImageModal from "@/components/features/profile-page/ProfileImageModal";
-import ProfileReportsCard from "@/components/features/profile-page/ProfileReportsCard";
+import EditProfile from "@/components/features/user/profile-page/EditProfile";
+import SettingsCard from "@/components/features/user/profile-page/SettingsCard";
+import ProfileImageModal from "@/components/features/user/profile-page/ProfileImageModal";
+import ProfileReportsCard from "@/components/features/user/profile-page/ProfileReportsCard";
 
 // Styles using StyleSheet for performance
 const styles = StyleSheet.create({

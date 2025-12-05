@@ -24,7 +24,7 @@ import colors from "@/core/theme/colors";
 import spacing from "@/core/theme/spacing";
 import typography from "@/core/theme/typography";
 import styled from "styled-components/native";
-import TouchableButton from "@/components/common/buttons/TouchableButton";
+import HapticButton from "@/components/common/buttons/HapticButton";
 
 const ScoreSectionContainer = styled.View({
   flexDirection: "row",
@@ -98,7 +98,7 @@ export function ScoreSection({ onProfilePress }: ScoreSectionProps) {
         <ScoreLabelText>{t("home.yourScore")}</ScoreLabelText>
         <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
       </View>
-      <TouchableButton
+      <HapticButton
         onPress={onProfilePress}
         disabled={!user}
         style={{ alignItems: "center" }}
@@ -117,7 +117,7 @@ export function ScoreSection({ onProfilePress }: ScoreSectionProps) {
             </ProfileImagePlaceholder>
           )}
         </ProfileButtonView>
-      </TouchableButton>
+      </HapticButton>
     </ScoreSectionContainer>
   );
 }

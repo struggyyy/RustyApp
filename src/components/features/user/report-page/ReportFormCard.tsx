@@ -20,12 +20,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-import { useHaptics } from "../../../core/context/HapticsContext";
-import colors from "../../../core/theme/colors";
-import { typography, spacing } from "../../../core/theme";
-import { MapComponent } from "../../common/map/MapComponent";
-import { MapControls } from "../../common/map/MapControls";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useHaptics } from "@context/HapticsContext";
+import colors from "@theme/colors";
+import { typography, spacing } from "@theme/index";
+import { MapComponent } from "@components/common/map/MapComponent";
+import { MapControls } from "@components/common/map/MapControls";
 
 // Styled components
 const MainCard = styled.View({

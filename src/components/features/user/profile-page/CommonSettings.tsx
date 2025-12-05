@@ -17,10 +17,10 @@ import { Switch } from "react-native";
 
 // Internal imports
 import styled from "styled-components/native";
-import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
-import { useHaptics } from "../../../core/context/HapticsContext";
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+import colors from "@theme/colors";
+import spacing from "@theme/spacing";
+import { useHaptics } from "@context/HapticsContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
 
 interface CommonSettingsProps {
   notificationsEnabled: boolean;

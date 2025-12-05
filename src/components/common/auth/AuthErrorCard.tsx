@@ -19,7 +19,7 @@ import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 
 // Internal imports
-import theme from "@/core/theme";
+import theme from "@theme/index";
 
 interface AuthErrorCardProps {
   error: string | null | undefined;

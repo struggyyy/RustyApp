@@ -11,55 +11,37 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
-
 // React-specific imports
 import React from "react";
-import {
-  TouchableOpacity,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
 
 // Internal imports
-import { useHaptics } from "../../../core/context/HapticsContext";
+import styled from "styled-components/native";
+import colors from "@/core/theme/colors";
+import spacing from "@/core/theme/spacing";
+import theme from "@/core/theme";
 
-// Component props interface
-interface TouchableButtonProps {
-  onPress: () => void;
-  disabled?: boolean;
-  style?: StyleProp<ViewStyle>;
-  children: React.ReactNode;
-  activeOpacity?: number;
-}
+const CarImageCardContainer = styled.View({
+  width: "100%",
+  aspectRatio: 1.3,
+  backgroundColor: colors.background.secondary,
+  borderRadius: spacing.L,
+  marginBottom: spacing.L,
+  overflow: "hidden",
+});
 
-// Basic touchable button wrapper with haptic feedback
-const TouchableButton: React.FC<TouchableButtonProps> = ({
-  onPress,
-  disabled = false,
-  style,
-  children,
-  activeOpacity = 0.7,
-}) => {
-  const haptics = useHaptics();
+const CarDisplayImage = styled.Image({
+  width: "100%",
+  height: "100%",
+});
 
-  // Handle press with haptic feedback
-  const handlePress = () => {
-    if (!disabled) {
-      haptics.heavy();
-      onPress();
-    }
-  };
-
+// Static car image display component for the home screen
+export function CarImageCard() {
   return (
-    <TouchableOpacity
-      onPress={handlePress}
-      disabled={disabled}
-      style={style}
-      activeOpacity={activeOpacity}
-    >
-      {children}
-    </TouchableOpacity>
+    <CarImageCardContainer style={theme.shadows.muted}>
+      <CarDisplayImage
+        source={require("@assets/images/car-image.png")}
+        resizeMode="cover"
+      />
+    </CarImageCardContainer>
   );
-};
-
-export default TouchableButton;
+}

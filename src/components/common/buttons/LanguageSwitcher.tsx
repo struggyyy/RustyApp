@@ -19,11 +19,11 @@ import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 
 // Internal imports
-import i18n from "../../../core/i18n/i18n";
-import theme from "../../../core/theme";
-import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
-import typography from "../../../core/theme/typography";
+import i18n from "@/core/i18n/i18n";
+import theme from "@theme/index";
+import colors from "@theme/colors";
+import spacing from "@theme/spacing";
+import typography from "@theme/typography";
 
 // Component styles using StyleSheet for performance
 const styles = StyleSheet.create({

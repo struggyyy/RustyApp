@@ -27,7 +27,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
 // Internal imports
-import theme from "@/core/theme";
+import theme from "@theme/index";
 
 interface AuthInputProps extends TextInputProps {
   hasError?: boolean;

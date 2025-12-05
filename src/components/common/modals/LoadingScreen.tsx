@@ -16,7 +16,7 @@ import React from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 
 // Internal imports
-import colors from "../../../core/theme/colors";
+import colors from "@theme/colors";
 
 interface LoadingScreenProps {
   color?: string;

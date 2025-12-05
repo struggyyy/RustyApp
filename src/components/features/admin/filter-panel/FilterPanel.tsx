@@ -16,10 +16,10 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 
 // Internal imports
-import { ReportStatus } from "../../../../shared/types/reports";
-import theme from "../../../../core/theme";
-import { useAuth } from "../../../../core/context/AuthContext";
-import { useHaptics } from "../../../../core/context/HapticsContext";
+import { ReportStatus } from "@/shared/types/reports";
+import theme from "@theme/index";
+import { useAuth } from "@context/AuthContext";
+import { useHaptics } from "@context/HapticsContext";
 import CollapsedFilterView from "./CollapsedFilterView";
 import ExpandedFilterView from "./ExpandedFilterView";
 

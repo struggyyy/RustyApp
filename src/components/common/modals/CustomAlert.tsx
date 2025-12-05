@@ -16,9 +16,9 @@ import React from "react";
 import { Modal, View, Text, StyleSheet } from "react-native";
 
 // Internal imports
-import { useAlert } from "@/core/context/AlertContext";
-import TouchableButton from "../buttons/TouchableButton";
-import theme from "../../../core/theme";
+import { useAlert } from "@context/AlertContext";
+import HapticButton from "@/components/common/buttons/HapticButton";
+import theme from "@theme/index";
 
 interface AlertButton {
   text: string;
@@ -188,7 +188,7 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
               };
 
               return (
-                <TouchableButton
+                <HapticButton
                   key={index}
                   onPress={handlePress}
                   style={getButtonStyle(buttonVariant)}
@@ -196,7 +196,7 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
                   <Text style={getButtonTextStyle(buttonVariant)}>
                     {button.text}
                   </Text>
-                </TouchableButton>
+                </HapticButton>
               );
             })}
           </View>

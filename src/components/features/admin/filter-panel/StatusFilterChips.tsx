@@ -16,11 +16,11 @@ import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 
 // Internal imports
-import { ReportStatus, reportStatuses } from "../../../../shared/types/reports";
-import theme from "../../../../core/theme";
-import { useHaptics } from "../../../../core/context/HapticsContext";
-import { useTranslation } from "../../../../shared/hooks/common/useTranslation";
-import { getStatusTranslationKey } from "../../../../shared/utils/statusTranslation";
+import { ReportStatus, reportStatuses } from "@/shared/types/reports";
+import theme from "@theme/index";
+import { useHaptics } from "@context/HapticsContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { getStatusTranslationKey } from "@/shared/utils/statusTranslation";
 
 interface StatusFilterChipsProps {
   selectedStatuses: ReportStatus[];

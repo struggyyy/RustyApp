@@ -12,21 +12,20 @@
  *                                                                         *
  ************************************************************************** */
 // React-specific imports
-import React from 'react';
-import { Modal, StyleSheet, View, Text, Image } from 'react-native';
+import React from "react";
+import { Modal, StyleSheet, View, Text, Image } from "react-native";
 
 // External libraries
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal imports
-import { Report } from '../../../shared/types/reports';
-import { getStatusColor } from '../../../core/theme/colors';
-import theme from '../../../core/theme';
-import IconButton from '../buttons/IconButton';
-import TouchableButton from '../buttons/TouchableButton';
-import { useTranslation } from '../../../shared/hooks/common/useTranslation';
-import { formatDate } from '../../../shared/utils/dateUtils';
-
+import { Report } from "@/shared/types/reports";
+import { getStatusColor } from "@theme/colors";
+import theme from "@theme/index";
+import IconButton from "@components/common/buttons/IconButton";
+import HapticButton from "@/components/common/buttons/HapticButton";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { formatDate } from "@/shared/utils/dateUtils";
 
 interface MapReportModalProps {
   visible: boolean;
@@ -44,49 +43,49 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: theme.colors.background.overlay,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: theme.spacing.M,
   },
   content: {
     backgroundColor: theme.colors.white,
     borderRadius: theme.spacing.radius.XL,
     padding: theme.spacing.M,
-    width: '90%',
+    width: "90%",
     maxWidth: 400,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: theme.spacing.XS,
   },
   title: {
     fontSize: theme.typography.fontSize.h5,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: theme.colors.text.primary,
   },
   dateText: {
     fontSize: theme.typography.fontSize.h4,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: theme.colors.text.primary,
     marginBottom: theme.spacing.S,
-    textAlign: 'left',
+    textAlign: "left",
   },
   image: {
-    width: '100%',
+    width: "100%",
     height: 180,
     borderRadius: theme.spacing.radius.L,
     marginBottom: theme.spacing.S,
   },
   navigationView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: theme.spacing.S,
   },
   actionButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: theme.spacing.S,
     marginTop: theme.spacing.S,
   },
@@ -95,9 +94,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.text.primary,
     padding: theme.spacing.component.buttonPadding,
     borderRadius: theme.spacing.radius.L,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
     gap: theme.spacing.S,
   },
   navigateButton: {
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     fontSize: theme.typography.fontSize.body1,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: theme.colors.white,
   },
 });
@@ -134,17 +133,23 @@ const MapReportModal: React.FC<MapReportModalProps> = ({
       <View style={styles.overlay}>
         <View style={[styles.content, theme.shadows.modal]}>
           <View style={styles.header}>
-            <Text style={styles.title}>{t('reports.reportDetails')}</Text>
+            <Text style={styles.title}>{t("reports.reportDetails")}</Text>
             <IconButton
               onPress={onClose}
               size={40}
               backgroundColor="transparent"
             >
-              <MaterialIcons name="close" size={24} color={theme.colors.text.primary} />
+              <MaterialIcons
+                name="close"
+                size={24}
+                color={theme.colors.text.primary}
+              />
             </IconButton>
           </View>
 
-          <Text style={[styles.dateText, { color: getStatusColor(report.status) }]}>
+          <Text
+            style={[styles.dateText, { color: getStatusColor(report.status) }]}
+          >
             {formatDate(report.createdAt.toDate())}
           </Text>
 
@@ -161,35 +166,49 @@ const MapReportModal: React.FC<MapReportModalProps> = ({
                 size={40}
                 backgroundColor="transparent"
               >
-                <MaterialIcons name="chevron-left" size={30} color={theme.colors.text.primary} />
+                <MaterialIcons
+                  name="chevron-left"
+                  size={30}
+                  color={theme.colors.text.primary}
+                />
               </IconButton>
               <IconButton
                 onPress={onNext || (() => {})}
                 size={40}
                 backgroundColor="transparent"
               >
-                <MaterialIcons name="chevron-right" size={30} color={theme.colors.text.primary} />
+                <MaterialIcons
+                  name="chevron-right"
+                  size={30}
+                  color={theme.colors.text.primary}
+                />
               </IconButton>
             </View>
           )}
 
           <View style={styles.actionButtons}>
             {onViewReport && (
-              <TouchableButton
+              <HapticButton
                 onPress={onViewReport}
                 style={styles.actionButton}
               >
-                <Text style={styles.actionButtonText}>{t('common.more')}</Text>
-              </TouchableButton>
+                <Text style={styles.actionButtonText}>{t("common.more")}</Text>
+              </HapticButton>
             )}
             {onNavigate && (
-              <TouchableButton
+              <HapticButton
                 onPress={onNavigate}
                 style={[styles.actionButton, styles.navigateButton]}
               >
-                <MaterialIcons name="navigation" size={20} color={theme.colors.white} />
-                <Text style={styles.actionButtonText}>{t('common.navigate')}</Text>
-              </TouchableButton>
+                <MaterialIcons
+                  name="navigation"
+                  size={20}
+                  color={theme.colors.white}
+                />
+                <Text style={styles.actionButtonText}>
+                  {t("common.navigate")}
+                </Text>
+              </HapticButton>
             )}
           </View>
         </View>

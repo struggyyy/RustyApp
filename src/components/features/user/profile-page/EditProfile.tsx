@@ -16,19 +16,20 @@ import React, { useRef } from "react";
 import { ActivityIndicator, Animated } from "react-native";
 
 // External libraries
-import { useAuth } from "../../../core/context/AuthContext";
-import { useHaptics } from "../../../core/context/HapticsContext";
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
+// External libraries
+import { useAuth } from "@context/AuthContext";
+import { useHaptics } from "@context/HapticsContext";
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
 
 // Internal imports
 import styled from "styled-components/native";
-import StyledButton from "../../common/buttons/StyledButton";
+import StyledButton from "@components/common/buttons/StyledButton";
 import { MaterialIcons } from "@expo/vector-icons";
-import colors from "../../../core/theme/colors";
-import theme from "../../../core/theme";
-import spacing from "../../../core/theme/spacing";
+import colors from "@theme/colors";
+import theme from "@theme/index";
+import spacing from "@theme/spacing";
 
 const ProfileCard = styled.View<{ isExpanded: boolean }>(
   (props: { isExpanded: boolean }) => ({

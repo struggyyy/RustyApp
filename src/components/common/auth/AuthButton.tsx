@@ -15,8 +15,8 @@
 import React from "react";
 
 // Internal imports
-import theme from "@/core/theme";
-import StyledButton from "../buttons/StyledButton";
+import theme from "@theme/index";
+import StyledButton from "@components/common/buttons/StyledButton";
 
 interface AuthButtonProps {
   title: string;

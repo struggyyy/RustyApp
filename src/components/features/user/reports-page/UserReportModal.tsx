@@ -18,16 +18,16 @@ import { View, ScrollView, Image, StyleSheet, Text } from "react-native";
 // External libraries
 import { MaterialIcons } from "@expo/vector-icons";
 
-// Internal project imports
-import { useTranslation } from "../../../shared/hooks/common/useTranslation";
-import { useAlert } from '../../../core/context/AlertContext';
-import IconButton from "../../common/buttons/IconButton";
-import theme from "../../../core/theme";
-import { Report } from "../../../shared/types/reports";
+// Internal imports
+import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { useAlert } from "@context/AlertContext";
+import IconButton from "@components/common/buttons/IconButton";
+import theme from "@theme/index";
+import { Report } from "@/shared/types/reports";
 import {
   getStatusTranslationKey,
   getStatusNoteTranslationKey,
-} from "../../../shared/utils/statusTranslation";
+} from "@/shared/utils/statusTranslation";
 
 // Component styles
 const styles = StyleSheet.create({

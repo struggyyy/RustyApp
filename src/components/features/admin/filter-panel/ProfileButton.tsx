@@ -16,8 +16,8 @@ import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 
 // Internal imports
-import theme from "../../../../core/theme";
-import { useHaptics } from "../../../../core/context/HapticsContext";
+import theme from "@theme/index";
+import { useHaptics } from "@context/HapticsContext";
 
 interface ProfileButtonProps {
   userEmail?: string | null;

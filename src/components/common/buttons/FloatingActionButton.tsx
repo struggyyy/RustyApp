@@ -19,9 +19,9 @@ import { StyleProp, ViewStyle } from "react-native";
 import styled from "styled-components/native";
 
 // Internal imports
-import { useHaptics } from "../../../core/context/HapticsContext";
-import colors from "../../../core/theme/colors";
-import theme from "../../../core/theme";
+import { useHaptics } from "@context/HapticsContext";
+import colors from "@theme/colors";
+import theme from "@theme/index";
 
 // Component props interface
 interface FloatingActionButtonProps {
@@ -41,14 +41,18 @@ interface StyledProps {
 }
 
 // Floating action button styled component
-const FloatingButtonContainer = styled.TouchableOpacity<StyledProps>((props: StyledProps) => ({
-  width: props.size,
-  height: props.size,
-  borderRadius: props.size / 2,
-  backgroundColor: props.disabled ? colors.text.primary : (props.backgroundColor || colors.background.semiTransparent),
-  justifyContent: "center",
-  alignItems: "center",
-}));
+const FloatingButtonContainer = styled.TouchableOpacity<StyledProps>(
+  (props: StyledProps) => ({
+    width: props.size,
+    height: props.size,
+    borderRadius: props.size / 2,
+    backgroundColor: props.disabled
+      ? colors.text.primary
+      : props.backgroundColor || colors.background.semiTransparent,
+    justifyContent: "center",
+    alignItems: "center",
+  })
+);
 
 // Main floating action button component
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({

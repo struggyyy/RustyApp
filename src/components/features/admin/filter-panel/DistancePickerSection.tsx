@@ -16,7 +16,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 // Internal imports
-import theme from "../../../../core/theme";
+import theme from "@theme/index";
 import CustomWheelPicker from "./CustomWheelPicker";
 
 interface DistancePickerSectionProps {

@@ -19,9 +19,9 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Internal imports
-import { useHaptics } from "../../../core/context/HapticsContext";
-import colors from "../../../core/theme/colors";
-import spacing from "../../../core/theme/spacing";
+import { useHaptics } from "@context/HapticsContext";
+import colors from "@theme/colors";
+import spacing from "@theme/spacing";
 
 // Component props interface
 interface HeaderBackButtonProps {

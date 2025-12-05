@@ -17,7 +17,7 @@ import { Text } from "react-native";
 
 // Internal imports
 import styled from "styled-components/native";
-import theme from "@/core/theme";
+import theme from "@theme/index";
 
 interface AuthLinkProps {
   children: React.ReactNode;
