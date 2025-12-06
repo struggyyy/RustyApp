@@ -12,6 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // External libraries
+import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import {
   doc,
@@ -46,7 +47,13 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
 // Get push token
 export const getPushToken = async (): Promise<string | null> => {
   try {
-    const { data: token } = await Notifications.getExpoPushTokenAsync();
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ||
+      Constants.manifest2?.extra?.eas?.projectId;
+
+    const { data: token } = await Notifications.getExpoPushTokenAsync({
+      projectId,
+    });
     return token;
   } catch (error) {
     console.error("Error getting push token:", error);
