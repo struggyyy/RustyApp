@@ -14,6 +14,7 @@
 // External libraries
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import { Alert } from "react-native";
 import {
   doc,
   updateDoc,
@@ -52,7 +53,9 @@ export const getPushToken = async (): Promise<string | null> => {
       (Constants.manifest as any)?.extra?.eas?.projectId;
 
     if (!projectId) {
-      console.error("Project ID not found in Expo config");
+      const msg = "Project ID not found in Expo config";
+      console.error(msg);
+      Alert.alert("Debug Error", msg);
     }
 
     const { data: token } = await Notifications.getExpoPushTokenAsync({
@@ -61,6 +64,10 @@ export const getPushToken = async (): Promise<string | null> => {
     return token;
   } catch (error: any) {
     console.error("Error getting push token:", error);
+    Alert.alert(
+      "Debug Token Error",
+      `Msg: ${error.message}\nCode: ${error.code}`
+    );
     return null;
   }
 };
