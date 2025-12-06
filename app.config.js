@@ -1,4 +1,4 @@
-// Dummy comment for git
+// Dummy comment for git sync
 export default {
   expo: {
     name: "Rusty",
