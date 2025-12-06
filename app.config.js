@@ -82,6 +82,14 @@ export default {
           defaultChannel: "default",
         },
       ],
+      [
+        "expo-build-properties",
+        {
+          android: {
+            enableShrinkCodeInReleaseBuilds: true,
+          },
+        },
+      ],
     ],
   },
 };
