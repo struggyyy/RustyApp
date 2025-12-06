@@ -28,6 +28,13 @@ export const useNotificationNavigation = () => {
         if (data && data.type === "new_report" && data.reportId) {
           // Navigate to admin page with specific report to open modal
           router.navigate(`/admin?reportId=${data.reportId}`);
+        } else if (
+          data &&
+          data.type === "report_status_updated" &&
+          data.reportId
+        ) {
+          // Navigate to my reports page with specific report to open modal
+          router.navigate(`/my-reports?reportId=${data.reportId}`);
         }
       }
     );

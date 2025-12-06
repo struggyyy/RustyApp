@@ -10,7 +10,7 @@ export default {
     icon: "./assets/AppIcon.png",
     userInterfaceStyle: "light",
     splash: {
-      image: "./assets/LogoIcon.png",
+      image: "./assets/AdaptiveIcon.png",
       resizeMode: "contain",
       backgroundColor: "#BD5151",
     },
@@ -34,7 +34,7 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/LogoIcon.png",
+        foregroundImage: "./assets/AdaptiveIcon.png",
         backgroundColor: "#BD5151",
       },
       package: "com.anonymous.rusty",
@@ -77,7 +77,7 @@ export default {
       [
         "expo-notifications",
         {
-          icon: "./assets/LogoIcon.png",
+          icon: "./assets/NotificationIcon.png",
           color: "#BD5151",
           defaultChannel: "default",
         },
