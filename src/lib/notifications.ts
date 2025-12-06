@@ -78,7 +78,8 @@ export const sendPushNotification = async (
   pushToken: string,
   title: string,
   body: string,
-  data?: any
+  data?: any,
+  imageUrl?: string
 ): Promise<void> => {
   const message = {
     to: pushToken,
@@ -86,6 +87,10 @@ export const sendPushNotification = async (
     title,
     body,
     data: data || {},
+    ...(imageUrl && {
+      image: imageUrl, // Android BigPicture
+      attachments: [{ url: imageUrl }], // iOS Rich Push
+    }),
   };
 
   try {
@@ -117,7 +122,8 @@ export const sendReportStatusNotification = async (
   reportId: string,
   oldStatus: string,
   newStatus: string,
-  language: "en" | "pl" = "en"
+  language: "en" | "pl" = "en",
+  imageUrl?: string
 ): Promise<void> => {
   const title = translate("notifications.reportStatusUpdated", language);
   const translatedOldStatus = translateStatus(oldStatus, language);
@@ -133,12 +139,13 @@ export const sendReportStatusNotification = async (
     newStatus,
   };
 
-  await sendPushNotification(pushToken, title, body, data);
+  await sendPushNotification(pushToken, title, body, data, imageUrl);
 };
 
 // Send notification for new report submission to all admins
 export const sendNewReportNotification = async (
   reportId: string,
+  imageUrl: string,
   language: "en" | "pl" = "en"
 ): Promise<void> => {
   try {
@@ -166,7 +173,7 @@ export const sendNewReportNotification = async (
           `[sendNewReportNotification] Sending notification to admin ${doc.id}...`
         );
         adminNotifications.push(
-          sendPushNotification(pushToken, title, body, data)
+          sendPushNotification(pushToken, title, body, data, imageUrl)
         );
       }
     });

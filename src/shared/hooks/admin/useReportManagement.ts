@@ -99,7 +99,8 @@ export function useReportManagement(isAdmin: boolean) {
           reportId,
           report.userId,
           report.status,
-          newStatus
+          newStatus,
+          report.imageUrl
         );
       }
       setReports((prevReports) =>

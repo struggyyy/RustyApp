@@ -138,7 +138,7 @@ export const createReport = async (reportData: {
       console.log(
         `[createReport] Sending new report notification to admins for report ${docRef.id}...`
       );
-      await sendNewReportNotification(docRef.id);
+      await sendNewReportNotification(docRef.id, reportData.imageUrl);
       console.log(`[createReport] New report notification sent successfully`);
     } catch (notificationError) {
       console.error(
@@ -213,7 +213,8 @@ export const updateReportStatus = async (
   reportId: string,
   userId: string,
   currentStatus: ReportStatus,
-  newStatus: ReportStatus
+  newStatus: ReportStatus,
+  imageUrl?: string
 ): Promise<void> => {
   if (currentStatus === newStatus) return; // No change, do nothing
 
@@ -287,7 +288,8 @@ export const updateReportStatus = async (
             reportId,
             currentStatus,
             newStatus,
-            userLanguage
+            userLanguage,
+            imageUrl
           );
           console.log(
             `[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`
