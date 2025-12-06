@@ -12,6 +12,7 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
+import { Alert } from "react-native";
 import { UserProfile } from "@/core/context/AuthContext";
 import {
   requestNotificationPermissions,
@@ -27,63 +28,40 @@ export const usePushNotifications = () => {
     userId: string
   ) => {
     try {
-      console.log(
-        "[usePushNotifications] Starting push notification registration for user:",
-        userId
-      );
-      console.log(
-        "[usePushNotifications] User notification preferences:",
-        userProfile.notificationPreferences
-      );
-
       // Check if push notifications are enabled
       if (userProfile.notificationPreferences?.push !== false) {
-        // Default to true if not set
-        console.log(
-          "[usePushNotifications] Push notifications enabled, requesting permissions..."
-        );
         const hasPermission = await requestNotificationPermissions();
-        console.log(
-          "[usePushNotifications] Permission granted:",
-          hasPermission
-        );
 
         if (hasPermission) {
-          console.log("[usePushNotifications] Getting push token...");
           const token = await getPushToken();
-          console.log(
-            "[usePushNotifications] Push token obtained:",
-            token ? token.substring(0, 20) + "..." : "null"
-          );
 
           if (token && token !== userProfile.pushToken) {
-            console.log("[usePushNotifications] Storing new push token...");
-            await storePushToken(userId, token);
-            console.log(
-              "[usePushNotifications] Push token stored successfully."
-            );
-          } else if (token === userProfile.pushToken) {
-            console.log(
-              "[usePushNotifications] Push token already up to date."
-            );
+            try {
+              await storePushToken(userId, token);
+              Alert.alert("Debug", "Push Token SAVED to Database!");
+            } catch (dbError: any) {
+              Alert.alert(
+                "Debug DB Error",
+                `Failed to save token: ${dbError.message}`
+              );
+              console.error("[usePushNotifications] DB Error:", dbError);
+            }
+          } else if (token) {
+            // Token exists but matches profile, or some other case
+            // Alert.alert("Debug", "Token already up to date");
           } else {
-            console.log("[usePushNotifications] No token to store.");
+            Alert.alert("Debug", "Token was null");
           }
         } else {
-          console.log(
-            "[usePushNotifications] Push notification permission denied."
-          );
+          Alert.alert("Debug", "Notification Permissions DENIED");
         }
-      } else {
-        console.log(
-          "[usePushNotifications] Push notifications disabled in user preferences."
-        );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         "[usePushNotifications] Error registering for push notifications:",
         error
       );
+      Alert.alert("Debug Flow Error", error.message);
     }
   };
 
