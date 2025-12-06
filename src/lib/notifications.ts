@@ -49,14 +49,21 @@ export const getPushToken = async (): Promise<string | null> => {
   try {
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId ||
-      Constants.manifest2?.extra?.eas?.projectId;
+      Constants.manifest2?.extra?.eas?.projectId ||
+      "4efc6c8c-f689-49a0-844d-846ef14a0e67"; // Hardcoded fallback
+
+    if (!projectId) {
+      console.error("Project ID not found in Constants");
+    }
 
     const { data: token } = await Notifications.getExpoPushTokenAsync({
       projectId,
     });
     return token;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error getting push token:", error);
+    // Alert for debugging in production build
+    alert(`Push Token Error: ${error.message}`);
     return null;
   }
 };
