@@ -57,7 +57,7 @@ export function useReportForm() {
     setIsSubmitting(true);
 
     try {
-      const reportId = `report_${Date.now()}`;
+      const reportId = `report_${Date.now()}.jpg`;
       const imageUrl = await uploadReportImage(imageUri, user.uid, reportId);
 
       await createReport({
