@@ -252,7 +252,11 @@
     "locationPermission": "Uprawnienia do lokalizacji są wymagane do dostępu do Twojej lokalizacji.",
     "notificationPermission": "Uprawnienia do powiadomień są wymagane do otrzymywania aktualizacji.",
     "goToSettings": "Przejdź do ustawień",
-    "later": "Później"
+    "later": "Później",
+    "featureComingSoon": {
+      "title": "Funkcja dostępna wkrótce",
+      "message": "Obecnie pracujemy nad rozbudowanym systemem rankingowym oraz atrakcyjnym programem wymiany punktów. Bądźcie czujni, nowości nadchodzą!"
+    }
   },
   "permissions": {
     "cameraRollRequired": "Uprawnienia do galerii są wymagane do wyboru zdjęcia."

@@ -14,9 +14,6 @@
 // React-specific imports
 import React, { useState, useEffect } from "react";
 
-// External libraries
-import { View } from "react-native";
-
 // Internal imports
 import { useAuth } from "@/core/context/AuthContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
@@ -79,10 +76,14 @@ const ProfileImagePlaceholderText = styled.Text({
 
 interface ScoreSectionProps {
   onProfilePress: () => void;
+  onScorePress: () => void;
 }
 
 // Display user's score and profile button in the home screen header
-export function ScoreSection({ onProfilePress }: ScoreSectionProps) {
+export function ScoreSection({
+  onProfilePress,
+  onScorePress,
+}: ScoreSectionProps) {
   const { t } = useTranslation();
   const { user, profile } = useAuth();
   const [imageKey, setImageKey] = useState(0);
@@ -94,10 +95,10 @@ export function ScoreSection({ onProfilePress }: ScoreSectionProps) {
 
   return (
     <ScoreSectionContainer>
-      <View>
+      <HapticButton onPress={onScorePress}>
         <ScoreLabelText>{t("home.yourScore")}</ScoreLabelText>
         <ScoreValueText>{profile?.points ?? 0}</ScoreValueText>
-      </View>
+      </HapticButton>
       <HapticButton
         onPress={onProfilePress}
         disabled={!user}

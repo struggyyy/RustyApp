@@ -252,7 +252,11 @@
     "locationPermission": "Location permission is required to access your location.",
     "notificationPermission": "Notification permission is required to receive updates.",
     "goToSettings": "Go to Settings",
-    "later": "Later"
+    "later": "Later",
+    "featureComingSoon": {
+      "title": "Feature Coming Soon",
+      "message": "We are currently developing a comprehensive leaderboard system and exciting rewards program for your community points. Stay tuned for these upcoming features!"
+    }
   },
   "permissions": {
     "cameraRollRequired": "Camera roll permissions are required to select a photo."

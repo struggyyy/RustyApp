@@ -31,6 +31,7 @@ import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import { useLocation } from "@/shared/hooks/common/useLocation";
 import { useReports } from "@/shared/hooks/reports/useReports";
 import { useMapRegion } from "@/shared/hooks/map/useMapRegion";
+import { useAlert } from "@/core/context/AlertContext";
 import { ScoreSection } from "@/components/features/user/home-page/ScoreSection";
 import { CarImageCard } from "@/components/features/user/home-page/CarImageCard";
 import { MapSection } from "@/components/features/user/home-page/MapSection";
@@ -75,6 +76,7 @@ function HomeScreenComponent() {
   const { t } = useTranslation();
   const { initialLoading } = useAuth();
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   // Use extracted hooks for location and reports management
   const { location, locationErrorMsg, isLocationLoading, fetchLocation } =
@@ -137,6 +139,13 @@ function HomeScreenComponent() {
     router.push("/map");
   };
 
+  const handleScorePress = () => {
+    showAlert(
+      t("alerts.featureComingSoon.title"),
+      t("alerts.featureComingSoon.message")
+    );
+  };
+
   if (initialLoading) {
     return (
       <>
@@ -164,7 +173,10 @@ function HomeScreenComponent() {
           />
         }
       >
-        <ScoreSection onProfilePress={goToProfile} />
+        <ScoreSection
+          onProfilePress={goToProfile}
+          onScorePress={handleScorePress}
+        />
 
         <CarImageCard />
 
