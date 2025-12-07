@@ -38,6 +38,7 @@ export default {
         backgroundColor: "#BD5151",
       },
       package: "com.anonymous.rusty",
+      softwareKeyboardLayoutMode: "pan",
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,
