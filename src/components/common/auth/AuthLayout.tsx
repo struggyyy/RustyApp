@@ -72,7 +72,7 @@ export function AuthLayout({
     <>
       <Stack.Screen options={{ title: t(title), ...options }} />
       <StyledKeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={headerHeight}
       >
         <FormContainer>{children}</FormContainer>
