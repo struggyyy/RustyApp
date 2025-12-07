@@ -138,7 +138,7 @@ export const createReport = async (reportData: {
       console.log(
         `[createReport] Sending new report notification to admins for report ${docRef.id}...`
       );
-      await sendNewReportNotification(docRef.id, reportData.imageUrl);
+      await sendNewReportNotification(docRef.id);
       console.log(`[createReport] New report notification sent successfully`);
     } catch (notificationError) {
       console.error(
@@ -288,8 +288,7 @@ export const updateReportStatus = async (
             reportId,
             currentStatus,
             newStatus,
-            userLanguage,
-            imageUrl
+            userLanguage
           );
           console.log(
             `[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`

@@ -87,8 +87,7 @@ export const sendPushNotification = async (
   pushToken: string,
   title: string,
   body: string,
-  data?: any,
-  imageUrl?: string
+  data?: any
 ): Promise<void> => {
   const message = {
     to: pushToken,
@@ -96,10 +95,6 @@ export const sendPushNotification = async (
     title,
     body,
     data: data || {},
-    ...(imageUrl && {
-      image: imageUrl, // Android BigPicture
-      attachments: [{ url: imageUrl }], // iOS Rich Push
-    }),
   };
 
   try {
@@ -129,8 +124,7 @@ export const sendReportStatusNotification = async (
   reportId: string,
   oldStatus: string,
   newStatus: string,
-  language: "en" | "pl" = "en",
-  imageUrl?: string
+  language: "en" | "pl" = "en"
 ): Promise<void> => {
   const title = translate("notifications.reportStatusUpdated", language);
   const translatedOldStatus = translateStatus(oldStatus, language);
@@ -146,18 +140,14 @@ export const sendReportStatusNotification = async (
     newStatus,
   };
 
-  await sendPushNotification(pushToken, title, body, data, imageUrl);
+  await sendPushNotification(pushToken, title, body, data);
 };
 
 // Send notification for new report submission to all admins
 export const sendNewReportNotification = async (
-  reportId: string,
-  imageUrl: string,
-  language: "en" | "pl" = "en"
+  reportId: string
 ): Promise<void> => {
   try {
-    const title = translate("notifications.newReportSubmitted", language);
-    const body = translate("notifications.newReportNotification", language);
     const data = {
       type: "new_report",
       reportId,
@@ -174,10 +164,19 @@ export const sendNewReportNotification = async (
       const adminData = doc.data();
       const pushToken = adminData.pushToken;
       const pushEnabled = adminData.notificationPreferences?.push !== false;
+      const adminLanguage = (adminData.language as "en" | "pl") || "en";
 
       if (pushToken && pushEnabled) {
+        const title = translate(
+          "notifications.newReportSubmitted",
+          adminLanguage
+        );
+        const body = translate(
+          "notifications.newReportNotification",
+          adminLanguage
+        );
         adminNotifications.push(
-          sendPushNotification(pushToken, title, body, data, imageUrl)
+          sendPushNotification(pushToken, title, body, data)
         );
       }
     });
