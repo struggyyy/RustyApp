@@ -12,7 +12,6 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
-import { Alert } from "react-native";
 import { UserProfile } from "@/core/context/AuthContext";
 import {
   requestNotificationPermissions,
@@ -36,32 +35,15 @@ export const usePushNotifications = () => {
           const token = await getPushToken();
 
           if (token && token !== userProfile.pushToken) {
-            try {
-              await storePushToken(userId, token);
-              Alert.alert("Debug", "Push Token SAVED to Database!");
-            } catch (dbError: any) {
-              Alert.alert(
-                "Debug DB Error",
-                `Failed to save token: ${dbError.message}`
-              );
-              console.error("[usePushNotifications] DB Error:", dbError);
-            }
-          } else if (token) {
-            // Token exists but matches profile, or some other case
-            // Alert.alert("Debug", "Token already up to date");
-          } else {
-            Alert.alert("Debug", "Token was null");
+            await storePushToken(userId, token);
           }
-        } else {
-          Alert.alert("Debug", "Notification Permissions DENIED");
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(
         "[usePushNotifications] Error registering for push notifications:",
         error
       );
-      Alert.alert("Debug Flow Error", error.message);
     }
   };
 

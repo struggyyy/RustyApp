@@ -14,7 +14,6 @@
 // External libraries
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
-import { Alert } from "react-native";
 import {
   doc,
   updateDoc,
@@ -53,9 +52,7 @@ export const getPushToken = async (): Promise<string | null> => {
       (Constants.manifest as any)?.extra?.eas?.projectId;
 
     if (!projectId) {
-      const msg = "Project ID not found in Expo config";
-      console.error(msg);
-      Alert.alert("Debug Error", msg);
+      console.error("Project ID not found in Expo config");
     }
 
     const { data: token } = await Notifications.getExpoPushTokenAsync({
@@ -64,10 +61,6 @@ export const getPushToken = async (): Promise<string | null> => {
     return token;
   } catch (error: any) {
     console.error("Error getting push token:", error);
-    Alert.alert(
-      "Debug Token Error",
-      `Msg: ${error.message}\nCode: ${error.code}`
-    );
     return null;
   }
 };
@@ -83,7 +76,6 @@ export const storePushToken = async (
       pushToken: token,
       updatedAt: serverTimestamp(),
     });
-    console.log("Push token stored successfully");
   } catch (error) {
     console.error("Error storing push token:", error);
     throw error;
@@ -125,8 +117,6 @@ export const sendPushNotification = async (
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    console.log("Push notification sent successfully");
   } catch (error) {
     console.error("Error sending push notification:", error);
     throw error;
@@ -186,9 +176,6 @@ export const sendNewReportNotification = async (
       const pushEnabled = adminData.notificationPreferences?.push !== false;
 
       if (pushToken && pushEnabled) {
-        console.log(
-          `[sendNewReportNotification] Sending notification to admin ${doc.id}...`
-        );
         adminNotifications.push(
           sendPushNotification(pushToken, title, body, data, imageUrl)
         );
@@ -197,13 +184,6 @@ export const sendNewReportNotification = async (
 
     if (adminNotifications.length > 0) {
       await Promise.all(adminNotifications);
-      console.log(
-        `[sendNewReportNotification] Sent new report notification to ${adminNotifications.length} admins`
-      );
-    } else {
-      console.log(
-        "[sendNewReportNotification] No admins found with push tokens enabled"
-      );
     }
   } catch (error) {
     console.error(
