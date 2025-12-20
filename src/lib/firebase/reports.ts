@@ -42,6 +42,12 @@ import {
   sendReportStatusNotification,
   sendNewReportNotification,
 } from "@/lib/notifications";
+import {
+  IS_MOCK_MODE,
+  MOCK_REPORT,
+  MOCK_REPORTS,
+  MOCK_REPORT_IMAGE_URL,
+} from "@/config/mockConfig";
 
 // Upload report image to Firebase Storage
 export const uploadReportImage = (
@@ -49,6 +55,12 @@ export const uploadReportImage = (
   userId: string,
   fileName: string
 ): Promise<string> => {
+  if (IS_MOCK_MODE) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(MOCK_REPORT_IMAGE_URL), 1000);
+    });
+  }
+
   return new Promise(async (resolve, reject) => {
     try {
       console.log("uploadReportImage: Starting upload process for:", imageUri);
@@ -116,6 +128,8 @@ export const createReport = async (reportData: {
   location: { latitude: number; longitude: number };
   imageUrl: string;
 }): Promise<Report> => {
+  // if (IS_MOCK_MODE) { ... } // REMOVED to allow real submission to Firestore even in mock mode
+
   try {
     const docRef = await addDoc(collection(db, "reports"), {
       userId: reportData.userId,
@@ -169,6 +183,9 @@ export const createReport = async (reportData: {
 
 // Fetch all reports submitted by a specific user
 export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
+  // If in mock mode, we don't return early anymore. We fetch real reports too.
+  // if (IS_MOCK_MODE) { return MOCK_REPORTS; }
+
   try {
     const reportsRef = collection(db, "reports");
     const q = query(
@@ -184,6 +201,10 @@ export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
       reports.push({ id: doc.id, ...doc.data() } as Report);
     });
 
+    if (IS_MOCK_MODE) {
+      return [...reports, ...MOCK_REPORTS];
+    }
+
     return reports;
   } catch (error) {
     console.error("Error fetching user reports:", error);
@@ -193,6 +214,8 @@ export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
 
 // Delete image from Firebase Storage
 export const deleteReportImage = async (imageUrl: string) => {
+  if (IS_MOCK_MODE) return;
+
   if (!imageUrl) return; // Do nothing if the URL is not provided
 
   try {
@@ -216,6 +239,9 @@ export const updateReportStatus = async (
   newStatus: ReportStatus,
   imageUrl?: string
 ): Promise<void> => {
+  if (IS_MOCK_MODE) {
+    return new Promise((resolve) => setTimeout(resolve, 500));
+  }
   if (currentStatus === newStatus) return; // No change, do nothing
 
   const reportDocRef = doc(db, "reports", reportId);
@@ -325,6 +351,8 @@ export const updateReportStatus = async (
 
 // Fetch all reports for admin use
 export const getAllReports = async (): Promise<Report[]> => {
+  // if (IS_MOCK_MODE) { return MOCK_REPORTS; }
+
   try {
     const reportsRef = collection(db, "reports");
     const q = query(reportsRef, orderBy("createdAt", "desc"));
@@ -335,6 +363,10 @@ export const getAllReports = async (): Promise<Report[]> => {
       reports.push({ id: doc.id, ...doc.data() } as Report);
     });
 
+    if (IS_MOCK_MODE) {
+      return [...reports, ...MOCK_REPORTS];
+    }
+
     return reports;
   } catch (error) {
     console.error("Error fetching all reports:", error);
@@ -344,6 +376,12 @@ export const getAllReports = async (): Promise<Report[]> => {
 
 // Delete report and associated image
 export const deleteReport = async (reportId: string, imageUrl: string) => {
+  // In Mock Mode, only fake the deletion if it's one of the static mock reports.
+  // Real reports submitted during the demo should be deletable from Firestore.
+  if (IS_MOCK_MODE && reportId.startsWith("mock-report-")) {
+    return new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
   if (!reportId) {
     throw new Error("Report ID is required to delete a report.");
   }

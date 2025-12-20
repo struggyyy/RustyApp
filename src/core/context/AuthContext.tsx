@@ -32,6 +32,7 @@ import { usePushNotifications } from "@/shared/hooks/auth/usePushNotifications";
 import { useProfileManagement } from "@/shared/hooks/profile/useProfileManagement";
 import { useAuthActions } from "@/shared/hooks/auth/useAuthActions";
 import { useAccountDeletion } from "@/shared/hooks/auth/useAccountDeletion";
+import { IS_MOCK_MODE, MOCK_USER_POINTS } from "@/config/mockConfig";
 
 // Define the shape of the user profile data stored in Firestore
 export interface UserProfile {
@@ -161,6 +162,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setIsAdmin(true);
               } else {
                 setIsAdmin(false);
+              }
+
+              // Mock Mode Points Override
+              if (IS_MOCK_MODE && IS_MOCK_MODE === true) {
+                setProfile((prev) =>
+                  prev ? { ...prev, points: MOCK_USER_POINTS } : prev
+                );
               }
 
               registerForPushNotifications(userProfile, firebaseUser.uid);

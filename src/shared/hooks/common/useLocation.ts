@@ -19,6 +19,7 @@ import * as Location from "expo-location";
 
 // Internal imports
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
+import { IS_MOCK_MODE, MOCK_LOCATION } from "@/config/mockConfig";
 
 export interface UseLocationReturn {
   location: Location.LocationObject | null;
@@ -38,6 +39,16 @@ export function useLocation(): UseLocationReturn {
   // Fetch current location with permission handling
   const fetchLocation = useCallback(
     async (forceRetry = false) => {
+      // Mock Mode Check
+      if (IS_MOCK_MODE) {
+        setIsLocationLoading(true);
+        setTimeout(() => {
+          setLocation(MOCK_LOCATION);
+          setIsLocationLoading(false);
+        }, 500); // Simulate brief loading
+        return;
+      }
+
       // Skip if we already have location and not forcing retry
       if (!forceRetry && location && !locationErrorMsg) {
         return;

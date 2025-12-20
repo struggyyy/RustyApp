@@ -16,7 +16,7 @@ import React from "react";
 
 // External libraries
 import { ActivityIndicator } from "react-native";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 
 // Internal imports
 import { useLayout } from "@/core/context/LayoutContext";
@@ -24,6 +24,7 @@ import { useTranslation } from "@/shared/hooks/common/useTranslation";
 import colors from "@/core/theme/colors";
 import spacing from "@/core/theme/spacing";
 import styled from "styled-components/native";
+import { IS_MOCK_MODE } from "@/config/mockConfig";
 
 const StyledMapView = styled(MapView)({
   flex: 1,
@@ -51,6 +52,23 @@ const MapErrorText = styled.Text({
   textAlign: "center",
   padding: spacing.M,
 });
+
+// Custom User Location Dot Styles
+const UserLocationMarker = styled.View({
+  width: 20,
+  height: 20,
+  borderRadius: 10,
+  backgroundColor: colors.primary, // Using primary color (likely a shade of blue/orange) or hardcode to system blue
+  borderWidth: 3,
+  borderColor: "white",
+  shadowColor: "black",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.3,
+  shadowRadius: 2,
+  elevation: 3,
+});
+
+// Halo removed as per request
 
 export interface MapComponentProps {
   location: any;
@@ -112,7 +130,7 @@ export function MapComponent({
       provider={PROVIDER_GOOGLE}
       ref={mapRef}
       region={region}
-      showsUserLocation={!!location}
+      showsUserLocation={!IS_MOCK_MODE && !!location}
       showsMyLocationButton={false}
       toolbarEnabled={false}
       onMapReady={() => {
@@ -123,6 +141,19 @@ export function MapComponent({
       }}
     >
       {children}
+      {IS_MOCK_MODE && location && (
+        <Marker
+          coordinate={{
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          }}
+          anchor={{ x: 0.5, y: 0.5 }} // Center the marker
+          title="My Location"
+          zIndex={999} // Ensure it stays on top
+        >
+          <UserLocationMarker style={{ backgroundColor: "#4285F4" }} />
+        </Marker>
+      )}
     </StyledMapView>
   );
 }

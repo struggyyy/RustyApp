@@ -17,6 +17,9 @@ import { useState } from "react";
 // External libraries
 import * as ImagePicker from "expo-image-picker";
 
+// Internal imports
+import { IS_MOCK_MODE, MOCK_REPORT_IMAGE_URL } from "@/config/mockConfig";
+
 // Configuration options for image picker
 interface ImagePickerOptions {
   aspect?: [number, number];
@@ -32,6 +35,13 @@ export const useImagePicker = () => {
     useCamera: boolean,
     options: ImagePickerOptions = {}
   ) => {
+    // MOCK MODE: Bypass native picker to prevent crashes/reloads during demo
+    // and force the requested VW Bus image.
+    if (IS_MOCK_MODE) {
+      setImageUri(MOCK_REPORT_IMAGE_URL);
+      return;
+    }
+
     // Default configuration
     const {
       aspect = [4, 3], // Default aspect ratio
