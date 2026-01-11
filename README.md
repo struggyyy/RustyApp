@@ -2,6 +2,25 @@
 
 **Rusty** is a mobile application designed to gamify civic engagement by empowering users to report abandoned vehicles in their neighborhoods. By identifying and reporting these vehicles, you contribute to cleaner, safer streets while tracking your personal impact.
 
+<p align="center">
+  <table style="width: 100%; table-layout: fixed;">
+    <tr>
+      <td align="center"><img src="./assets/images/readme/Home.png" width="180" alt="Home Page" /></td>
+      <td align="center"><img src="./assets/images/readme/Report.png" width="180" alt="Report Form" /></td>
+      <td align="center"><img src="./assets/images/readme/FilledReport.png" width="180" alt="Filled Report Form" /></td>
+      <td align="center"><img src="./assets/images/readme/MyReports.png" width="180" alt="My Reports Page" /></td>
+      <td align="center"><img src="./assets/images/readme/ReportCard.png" width="180" alt="Report Card" /></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Home</b></td>
+      <td align="center"><b>Report</b></td>
+      <td align="center"><b>Filled in Report</b></td>
+      <td align="center"><b>My Reports</b></td>
+      <td align="center"><b>Report Card</b></td>
+    </tr>
+  </table>
+</p>
+
 ---
 
 ## 🌟 Features
