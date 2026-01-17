@@ -6,7 +6,7 @@ export default {
     platforms: ["ios", "android"],
     scheme: "rusty",
     version: "1.0.0",
-    orientation: "portrait",
+    orientation: "default",
     icon: "./assets/AppIcon.png",
     userInterfaceStyle: "light",
     splash: {

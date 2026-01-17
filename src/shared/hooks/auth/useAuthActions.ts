@@ -1,6 +1,6 @@
 /** *************************************************************************
  *                                                                         *
- *                       Copyright (c) 2025, @struggyyy                    *
+ *                       Copyright (c) 2026, @struggyyy                    *
  *                                                                         *
  *                             Project: Rusty                              *
  *                                                                         *
@@ -23,7 +23,7 @@ import {
   signInWithEmailLink as firebaseSignInWithEmailLink,
   UserCredential,
 } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 // Internal imports
 import { auth } from "@/lib/firebase/firebase";
@@ -33,13 +33,13 @@ export const useAuthActions = () => {
   // Sign up new user with email and password
   const signUp = async (
     email: string,
-    password: string
+    password: string,
   ): Promise<User | null> => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const newUser = userCredential.user;
 
@@ -49,7 +49,7 @@ export const useAuthActions = () => {
       } catch (verificationError: any) {
         console.error(
           "[useAuthActions] Failed to send verification email:",
-          verificationError
+          verificationError,
         );
         throw new Error("auth.verificationError");
       }
@@ -164,7 +164,7 @@ export const useAuthActions = () => {
 
     try {
       await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      await AsyncStorage.setItem("emailForSignIn", email);
+      await SecureStore.setItemAsync("emailForSignIn", email);
     } catch (e: any) {
       throw new Error(e.message || "auth.signInLinkError");
     }
@@ -175,7 +175,7 @@ export const useAuthActions = () => {
     const { isSignInWithEmailLink } = await import("firebase/auth");
 
     if (isSignInWithEmailLink(auth, url)) {
-      let email = await AsyncStorage.getItem("emailForSignIn");
+      let email = await SecureStore.getItemAsync("emailForSignIn");
       if (!email) {
         const message = "auth.signInEmailNotFound";
         console.error(message);
@@ -185,7 +185,7 @@ export const useAuthActions = () => {
       try {
         const userCredential: UserCredential =
           await firebaseSignInWithEmailLink(auth, email, url);
-        await AsyncStorage.removeItem("emailForSignIn");
+        await SecureStore.deleteItemAsync("emailForSignIn");
       } catch (e: any) {
         throw new Error(e.message || "auth.signInLinkError");
       }
