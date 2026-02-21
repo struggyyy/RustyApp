@@ -120,4 +120,4 @@ Follow these steps to get the app running:
 
 ---
 
-**Copyright © 2025 @struggyyy. All Rights Reserved.**
+**Copyright © 2026 @struggyyy. All Rights Reserved.**
