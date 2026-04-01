@@ -10,12 +10,19 @@ web-build/
 expo-env.d.ts
 
 # Native
+android/
+ios/
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.pem
+*.cer
+*.der
+*.crt
+debug.keystore
 
 # Metro
 .metro-health-check*
@@ -38,10 +45,18 @@ yarn-error.*
 # environment variables
 .env
 .env.*
+!.env.example
 firebase-service-account.json
+google-services.json
+GoogleService-Info.plist
 
 app-example
 
 # Firebase Rules
 firestore.rules
 storage.rules
+
+# Fastlane / CI
+fastlane/report.xml
+fastlane/screenshots
+fastlane/gc_keys.json
