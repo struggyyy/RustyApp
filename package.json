@@ -63,7 +63,8 @@
     "node-forge": "^1.3.11",
     "picomatch": "^4.0.3",
     "yaml": "^2.8.3",
-    "brace-expansion": "^2.0.1"
+    "brace-expansion": "^2.0.1",
+    "@xmldom/xmldom": "^0.8.12"
   },
   "private": true
 }
