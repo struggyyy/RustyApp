@@ -60,3 +60,6 @@ storage.rules
 fastlane/report.xml
 fastlane/screenshots
 fastlane/gc_keys.json
+
+# Local Roadmap
+FUTURE IMPROVEMENTS.md
