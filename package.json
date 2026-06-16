@@ -64,7 +64,7 @@
     "picomatch": "^4.0.3",
     "yaml": "^2.8.3",
     "brace-expansion": "^2.0.1",
-    "protobufjs": "^8.2.0",
+    "protobufjs": "^8.6.3",
     "@protobufjs/utf8": "^1.1.1",
     "@xmldom/xmldom": "^0.9.10",
     "fast-uri": "^3.1.1",
