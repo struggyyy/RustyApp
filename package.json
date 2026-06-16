@@ -44,7 +44,7 @@
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^7.29.7",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.1.10",
@@ -54,7 +54,10 @@
     "typescript": "^5.8.3"
   },
   "overrides": {
-    "tar": "^7.5.11",
+    "tar": "^7.5.16",
+    "form-data": "^4.0.6",
+    "js-yaml": "^4.1.2",
+    "ws": "^8.21.0",
     "minimatch": "^10.2.3",
     "@tootallnate/once": "^3.0.1",
     "undici": "^6.24.1",
