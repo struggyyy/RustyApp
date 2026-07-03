@@ -1,5 +1,7 @@
 # RustyApp 🚗
 
+[![License: Proprietary](https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge&logo=github)](LICENSE.md)
+
 **Rusty** is a mobile application designed to gamify civic engagement by empowering users to report abandoned vehicles in their neighborhoods. By identifying and reporting these vehicles, you contribute to cleaner, safer streets while tracking your personal impact.
 
 <p align="center">
@@ -99,9 +101,12 @@ npx expo start
 
 ---
 
-## 📄 License
+## 🧪 Testing & Quality
 
-This project is proprietary and confidential. All rights reserved. See the [LICENSE.md](LICENSE.md) file for details.
+We use **Jest** for automated testing to maintain application stability.
+
+- **Run Tests**: `npm run test`
+- **Watch Tests**: `npm run test:watch`
 
 ---
 
