@@ -2,7 +2,7 @@
 
 [![License: Proprietary](https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge&logo=github)](LICENSE.md)
 
-**Rusty** is a mobile application designed to gamify civic engagement by empowering users to report abandoned vehicles in their neighborhoods. By identifying and reporting these vehicles, you contribute to cleaner, safer streets while tracking your personal impact.
+**RustyApp** is the official mobile application for the **Rusty** ecosystem. It is designed to gamify civic engagement by empowering users to report abandoned vehicles in their neighborhoods. By identifying and reporting these vehicles, you contribute to cleaner, safer streets while tracking your personal impact.
 
 <p align="center">
   <table style="width: 100%; table-layout: fixed;">
@@ -91,22 +91,23 @@ npx expo start
 
 ## 🛠️ Tech Stack
 
-- **Language**: TypeScript (v5.8)
-- **Framework**: React Native (v0.81) via [Expo](https://expo.dev/) (v54)
-- **Routing**: [Expo Router](https://docs.expo.dev/router/introduction/) (v6)
-- **Backend**: Firebase (v11) (Authentication, Firestore, Storage)
-- **Maps**: `react-native-maps` (v1.20) (Google Maps Provider)
-- **Styling**: `styled-components` (v6)
-- **Internationalization**: `i18next` (v25)
+- **Framework**: [React Native 0.81](https://reactnative.dev/) via [Expo 54](https://expo.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Routing**: [Expo Router 6](https://docs.expo.dev/router/introduction/)
+- **Backend**: [Firebase 11](https://firebase.google.com/) (Auth, Firestore, Storage)
+- **Maps**: [React Native Maps](https://github.com/react-native-maps/react-native-maps) (Google Maps)
+- **Styling**: [Styled Components 6](https://styled-components.com/)
+- **Internationalization**: [i18next](https://www.i18next.com/)
+- **Testing**: [Jest](https://jestjs.io/) & [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
 
 ---
 
 ## 🧪 Testing & Quality
 
-We use **Jest** for automated testing to maintain application stability.
+We maintain code reliability and high standards through Jest unit and integration testing.
 
-- **Run Tests**: `npm run test`
-- **Watch Tests**: `npm run test:watch`
+- **Run Tests**: `npm run test` (Jest test suite)
+- **Watch Tests**: `npm run test:watch` (Jest test runner in watch mode)
 
 ---
 
