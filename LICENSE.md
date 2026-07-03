@@ -1,7 +1,9 @@
-Copyright (c) 2026, @struggyyy
+# Proprietary License ⚖️
 
-Project: RustyApp
-All Rights Reserved
+**Project: RustyApp**  
+**Copyright (c) 2026 @struggyyy. All Rights Reserved.**
+
+---
 
 This repository contains the proprietary source code, underlying concepts, ideas, and documentation which are the exclusive property of @struggyyy.
 
