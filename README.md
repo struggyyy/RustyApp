@@ -109,14 +109,6 @@ We maintain code reliability and high standards through Jest unit and integratio
 - **Run Tests**: `npm run test` (Jest test suite)
 - **Watch Tests**: `npm run test:watch` (Jest test runner in watch mode)
 
----
-
-## 🧪 Testing & Quality
-
-We use **Jest** for automated testing to maintain application stability.
-
-- **Run Tests**: `npm run test`
-- **Watch Tests**: `npm run test:watch`
 
 ---
 
