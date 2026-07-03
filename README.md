@@ -111,4 +111,13 @@ We maintain code reliability and high standards through Jest unit and integratio
 
 ---
 
+## 🧪 Testing & Quality
+
+We use **Jest** for automated testing to maintain application stability.
+
+- **Run Tests**: `npm run test`
+- **Watch Tests**: `npm run test:watch`
+
+---
+
 **Copyright © 2026 @struggyyy. All Rights Reserved.**
