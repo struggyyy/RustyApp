@@ -1,6 +1,21 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act } from "@testing-library/react-native";
-import { useReportForm } from "../useReportForm";
 
+// Internal imports
+import { useReportForm } from "../useReportForm";
 import { createReport, uploadReportImage } from "@/lib/firebase/reports";
 
 // Mocks
@@ -73,12 +88,12 @@ describe("useReportForm", () => {
         description: "Valid description",
         imageUrl: "uploaded-image-url",
         location: { latitude: 10, longitude: 10 },
-      })
+      }),
     );
     expect(mockShowAlert).toHaveBeenCalledWith(
       expect.anything(),
       "reports.reportSubmittedSuccess",
-      expect.anything()
+      expect.anything(),
     );
   });
 
@@ -93,7 +108,7 @@ describe("useReportForm", () => {
     expect(uploadReportImage).not.toHaveBeenCalled();
     expect(mockShowAlert).toHaveBeenCalledWith(
       expect.anything(),
-      "reports.descriptionRequired"
+      "reports.descriptionRequired",
     );
   });
 });

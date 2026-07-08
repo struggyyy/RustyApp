@@ -88,7 +88,7 @@ export const HapticsProvider: React.FC<HapticsProviderProps> = ({
   };
 
   const impactCustom = (
-    style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium
+    style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium,
   ) => {
     if (isEnabled) {
       Haptics.impactAsync(style);
@@ -104,7 +104,7 @@ export const HapticsProvider: React.FC<HapticsProviderProps> = ({
       impactCustom,
       isEnabled,
     }),
-    [isEnabled]
+    [isEnabled],
   );
 
   return (

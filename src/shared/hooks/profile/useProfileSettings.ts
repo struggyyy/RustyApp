@@ -32,10 +32,10 @@ export function useProfileSettings({ t }: UseProfileSettingsOptions) {
 
   // Settings state
   const [notificationsEnabled, setNotificationsEnabled] = useState(
-    profile?.notificationPreferences?.push ?? true
+    profile?.notificationPreferences?.push ?? true,
   );
   const [hapticsEnabled, setHapticsEnabled] = useState(
-    profile?.notificationPreferences?.haptics ?? true
+    profile?.notificationPreferences?.haptics ?? true,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,7 +56,7 @@ export function useProfileSettings({ t }: UseProfileSettingsOptions) {
       } catch (error: any) {
         showAlert(
           t("common.error"),
-          error.message || t("settings.settingsError")
+          error.message || t("settings.settingsError"),
         );
         setNotificationsEnabled(!value); // Revert on error
       } finally {
@@ -69,7 +69,7 @@ export function useProfileSettings({ t }: UseProfileSettingsOptions) {
       hapticsEnabled,
       showAlert,
       t,
-    ]
+    ],
   );
 
   const handleToggleHaptics = useCallback(
@@ -88,7 +88,7 @@ export function useProfileSettings({ t }: UseProfileSettingsOptions) {
       } catch (error: any) {
         showAlert(
           t("common.error"),
-          error.message || t("settings.settingsError")
+          error.message || t("settings.settingsError"),
         );
         setHapticsEnabled(!value); // Revert on error
       } finally {
@@ -101,7 +101,7 @@ export function useProfileSettings({ t }: UseProfileSettingsOptions) {
       profile?.notificationPreferences?.email,
       showAlert,
       t,
-    ]
+    ],
   );
 
   // Language toggle handler
@@ -114,12 +114,12 @@ export function useProfileSettings({ t }: UseProfileSettingsOptions) {
         t("settings.languageSetTo", {
           language:
             newLanguage === "en" ? t("settings.english") : t("settings.polish"),
-        })
+        }),
       );
     } catch (error: any) {
       showAlert(
         t("common.error"),
-        error.message || t("settings.settingsError")
+        error.message || t("settings.settingsError"),
       );
     }
   }, [currentLanguage, changeLanguage, showAlert, t]);

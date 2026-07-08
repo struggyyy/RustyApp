@@ -1,10 +1,26 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act } from "@testing-library/react-native";
+
+// Internal imports
 import { useAuthForm } from "../useAuthForm";
 
 describe("useAuthForm", () => {
   it("initializes with default values", () => {
     const { result } = renderHook(() =>
-      useAuthForm({ initialValues: { email: "" } })
+      useAuthForm({ initialValues: { email: "" } }),
     );
     expect(result.current.values).toEqual({ email: "" });
     expect(result.current.errors).toEqual({});
@@ -12,7 +28,7 @@ describe("useAuthForm", () => {
 
   it("updates values on change", () => {
     const { result } = renderHook(() =>
-      useAuthForm({ initialValues: { email: "" } })
+      useAuthForm({ initialValues: { email: "" } }),
     );
 
     act(() => {
@@ -24,7 +40,7 @@ describe("useAuthForm", () => {
 
   it("validates required fields", async () => {
     const { result } = renderHook(() =>
-      useAuthForm({ initialValues: { email: "", password: "" } })
+      useAuthForm({ initialValues: { email: "", password: "" } }),
     );
 
     await act(async () => {
@@ -37,7 +53,7 @@ describe("useAuthForm", () => {
 
   it("validates email format", async () => {
     const { result } = renderHook(() =>
-      useAuthForm({ initialValues: { email: "invalid-email" } })
+      useAuthForm({ initialValues: { email: "invalid-email" } }),
     );
 
     await act(async () => {
@@ -53,7 +69,7 @@ describe("useAuthForm", () => {
       useAuthForm({
         initialValues: { email: "test@example.com", password: "password123" },
         onSubmit,
-      })
+      }),
     );
 
     await act(async () => {
@@ -72,7 +88,7 @@ describe("useAuthForm", () => {
       useAuthForm({
         initialValues: { email: "", password: "" },
         onSubmit,
-      })
+      }),
     );
 
     await act(async () => {

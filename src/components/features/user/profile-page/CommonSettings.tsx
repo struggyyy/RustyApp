@@ -63,7 +63,7 @@ const LanguageOption = styled.View<{ isSelected: boolean }>(
     justifyContent: "center",
     alignItems: "center",
     gap: spacing.S,
-  })
+  }),
 );
 
 const LanguageText = styled.Text<{ isSelected: boolean }>(
@@ -71,7 +71,7 @@ const LanguageText = styled.Text<{ isSelected: boolean }>(
     fontSize: 16,
     fontWeight: props.isSelected ? "600" : "400",
     color: props.isSelected ? colors.primary : colors.text.primary,
-  })
+  }),
 );
 
 // Common settings component shared between admin and user variants

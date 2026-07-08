@@ -34,7 +34,7 @@ export const useAdminDeepLinking = ({
   const router = useRouter();
   const { reportId } = useLocalSearchParams();
   const [processedReportId, setProcessedReportId] = useState<string | null>(
-    null
+    null,
   );
 
   // Effect to handle report ID from URL parameters

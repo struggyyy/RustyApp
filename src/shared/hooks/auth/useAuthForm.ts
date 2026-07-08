@@ -63,7 +63,7 @@ export function useAuthForm({
         });
       }
     },
-    [errors, validateOnChange]
+    [errors, validateOnChange],
   );
 
   // Set validation error for field
@@ -81,7 +81,7 @@ export function useAuthForm({
     (field: string) => (value: string) => {
       setFieldValue(field, value);
     },
-    [setFieldValue]
+    [setFieldValue],
   );
 
   // Handle input blur events
@@ -89,7 +89,7 @@ export function useAuthForm({
     (field: string) => () => {
       setFieldTouched(field, true);
     },
-    [setFieldTouched]
+    [setFieldTouched],
   );
 
   // Validate form (basic validation - can be extended)
@@ -164,10 +164,13 @@ export function useAuthForm({
     if (isSubmitting) return;
 
     // Mark all fields as touched for validation
-    const allTouched = Object.keys(values).reduce((acc, field) => {
-      acc[field] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
+    const allTouched = Object.keys(values).reduce(
+      (acc, field) => {
+        acc[field] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
     setTouched(allTouched);
 
     // Validate before submission

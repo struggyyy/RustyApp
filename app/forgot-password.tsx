@@ -46,7 +46,7 @@ export default function ForgotPassword() {
   useFocusEffect(
     React.useCallback(() => {
       clearError();
-    }, [clearError])
+    }, [clearError]),
   );
 
   // Animation value for shake effect
@@ -114,8 +114,8 @@ export default function ForgotPassword() {
           authError
             ? t(authError)
             : touched.email && errors.email
-            ? errors.email
-            : undefined
+              ? errors.email
+              : undefined
         }
       />
       <AuthButton

@@ -60,12 +60,12 @@ export const AlertProvider: React.FC<PropsWithChildren> = ({ children }) => {
     (
       title: string,
       message?: string,
-      buttons: AlertButton[] = [{ text: t("common.ok") }]
+      buttons: AlertButton[] = [{ text: t("common.ok") }],
     ) => {
       setAlertConfig({ title, message, buttons });
       setAlertVisible(true);
     },
-    [t]
+    [t],
   );
 
   const hideAlert = useCallback(() => {

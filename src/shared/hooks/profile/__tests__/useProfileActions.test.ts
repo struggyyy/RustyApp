@@ -1,4 +1,20 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act } from "@testing-library/react-native";
+
+// Internal imports
 import { useProfileActions } from "../useProfileActions";
 
 // Mocks
@@ -54,7 +70,7 @@ describe("useProfileActions", () => {
           text: "common.delete",
           style: "destructive",
         }),
-      ])
+      ]),
     );
   });
 
@@ -102,7 +118,7 @@ describe("useProfileActions", () => {
     expect(mockShowAlert).toHaveBeenLastCalledWith(
       expect.anything(),
       "profile.deleteAccountAuthRequired",
-      expect.anything()
+      expect.anything(),
     );
   });
 });

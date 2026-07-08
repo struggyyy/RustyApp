@@ -1,4 +1,26 @@
-import { renderHook } from "@testing-library/react-native";
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *                                                                         *
+ *                              Project: Rusty                             *
+ *                                                                         *
+ *                         All Rights Reserved                             *
+ *                                                                         *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *                                                                         *
+ ************************************************************************** */
+
+// External imports
+import { renderHook, act } from "@testing-library/react-native";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+
+// Internal imports
 import { useAuthActions } from "../useAuthActions";
 
 // Mock Firebase
@@ -23,12 +45,6 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
   removeItem: jest.fn(),
 }));
-
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
 
 describe("useAuthActions", () => {
   beforeEach(() => {
@@ -69,7 +85,7 @@ describe("useAuthActions", () => {
     const { result } = renderHook(() => useAuthActions());
 
     await expect(
-      result.current.signUp("taken@example.com", "password123")
+      result.current.signUp("taken@example.com", "password123"),
     ).rejects.toThrow("auth.emailAlreadyInUse");
   });
 });

@@ -51,7 +51,7 @@ const FloatingButtonContainer = styled.TouchableOpacity<StyledProps>(
       : props.backgroundColor || colors.background.semiTransparent,
     justifyContent: "center",
     alignItems: "center",
-  })
+  }),
 );
 
 // Main floating action button component

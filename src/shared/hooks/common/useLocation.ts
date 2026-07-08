@@ -31,7 +31,7 @@ export interface UseLocationReturn {
 export function useLocation(): UseLocationReturn {
   const { t } = useTranslation();
   const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
+    null,
   );
   const [locationErrorMsg, setLocationErrorMsg] = useState<string | null>(null);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
@@ -125,7 +125,7 @@ export function useLocation(): UseLocationReturn {
         setIsLocationLoading(false);
       }
     },
-    [location, t]
+    [location, t],
   );
 
   // Initial location fetch

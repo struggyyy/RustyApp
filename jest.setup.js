@@ -1,5 +1,5 @@
+/* global jest */
 // Basic mock for libraries that might be used across the app
-// You can add more specific mocks here as needed
 
 jest.mock("expo-font", () => ({
   isLoaded: jest.fn(() => true),

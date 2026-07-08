@@ -68,7 +68,7 @@ export const getPushToken = async (): Promise<string | null> => {
 // Store push token in user profile
 export const storePushToken = async (
   userId: string,
-  token: string
+  token: string,
 ): Promise<void> => {
   try {
     const userDocRef = doc(db, "users", userId);
@@ -87,7 +87,7 @@ export const sendPushNotification = async (
   pushToken: string,
   title: string,
   body: string,
-  data?: any
+  data?: any,
 ): Promise<void> => {
   const message = {
     to: pushToken,
@@ -124,7 +124,7 @@ export const sendReportStatusNotification = async (
   reportId: string,
   oldStatus: string,
   newStatus: string,
-  language: "en" | "pl" = "en"
+  language: "en" | "pl" = "en",
 ): Promise<void> => {
   const title = translate("notifications.reportStatusUpdated", language);
   const translatedOldStatus = translateStatus(oldStatus, language);
@@ -145,7 +145,7 @@ export const sendReportStatusNotification = async (
 
 // Send notification for new report submission to all admins
 export const sendNewReportNotification = async (
-  reportId: string
+  reportId: string,
 ): Promise<void> => {
   try {
     const data = {
@@ -169,14 +169,14 @@ export const sendNewReportNotification = async (
       if (pushToken && pushEnabled) {
         const title = translate(
           "notifications.newReportSubmitted",
-          adminLanguage
+          adminLanguage,
         );
         const body = translate(
           "notifications.newReportNotification",
-          adminLanguage
+          adminLanguage,
         );
         adminNotifications.push(
-          sendPushNotification(pushToken, title, body, data)
+          sendPushNotification(pushToken, title, body, data),
         );
       }
     });
@@ -187,7 +187,7 @@ export const sendNewReportNotification = async (
   } catch (error) {
     console.error(
       "[sendNewReportNotification] Error sending new report notifications:",
-      error
+      error,
     );
     throw error;
   }

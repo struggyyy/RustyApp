@@ -100,8 +100,8 @@ export default function VerifyEmailScreen() {
             isError
               ? "error"
               : feedbackKey === "auth.emailSentSuccess"
-              ? "success"
-              : "info"
+                ? "success"
+                : "info"
           }
         />
       ) : null}

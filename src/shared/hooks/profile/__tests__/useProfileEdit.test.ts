@@ -1,6 +1,22 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act } from "@testing-library/react-native";
-import { useProfileEdit } from "../useProfileEdit";
 import * as ImagePicker from "expo-image-picker";
+
+// Internal imports
+import { useProfileEdit } from "../useProfileEdit";
 
 // Mocks
 const mockUpdateUserProfile = jest.fn();
@@ -100,7 +116,7 @@ describe("useProfileEdit", () => {
     expect(mockUpdateUserProfile).not.toHaveBeenCalled();
     expect(mockShowAlert).toHaveBeenCalledWith(
       expect.anything(),
-      "validation.nicknameTooShort"
+      "validation.nicknameTooShort",
     );
   });
 });

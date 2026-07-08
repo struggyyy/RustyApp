@@ -182,7 +182,7 @@ const CustomWheelPicker: React.FC<CustomWheelPickerProps> = ({
         }
       }, 200); // Wait 200ms after scroll events stop for smoother feel
     },
-    [itemHeight, options.length]
+    [itemHeight, options.length],
   ); // Only depend on stable values
 
   // Cleanup timeout on unmount

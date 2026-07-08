@@ -153,7 +153,7 @@ export default function Login() {
   useFocusEffect(
     React.useCallback(() => {
       clearError();
-    }, [clearError])
+    }, [clearError]),
   );
 
   // Handle back button press
@@ -182,11 +182,11 @@ export default function Login() {
 
       const backHandler = BackHandler.addEventListener(
         "hardwareBackPress",
-        backAction
+        backAction,
       );
 
       return () => backHandler.remove();
-    }, [user, t, showAlert])
+    }, [user, t, showAlert]),
   );
 
   // Navigation handlers

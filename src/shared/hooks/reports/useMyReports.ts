@@ -35,7 +35,7 @@ export function useMyReports() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [scrollToIndex, setScrollToIndex] = useState<number | undefined>(
-    undefined
+    undefined,
   );
 
   // Handle pull-to-refresh
@@ -49,13 +49,13 @@ export function useMyReports() {
   const handleReportDelete = async (deletedReportId: string) => {
     try {
       const reportToDelete = reports.find(
-        (report) => report.id === deletedReportId
+        (report) => report.id === deletedReportId,
       );
       if (reportToDelete) {
         await deleteReport(deletedReportId, reportToDelete.imageUrl);
       }
       setReports((prevReports) =>
-        prevReports.filter((report) => report.id !== deletedReportId)
+        prevReports.filter((report) => report.id !== deletedReportId),
       );
     } catch (error) {}
   };

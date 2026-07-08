@@ -1,6 +1,6 @@
 /** *************************************************************************
  *                                                                         *
- *                       Copyright (c) 2025, @struggyyy                    *
+ *                       Copyright (c) 2026, @struggyyy                    *
  *                                                                         *
  *                             Project: Rusty                              *
  *                                                                         *
@@ -11,9 +11,28 @@
  *              or intended publication of such source code.               *
  *                                                                         *
  ************************************************************************** */
-// Date formatting utilities
-export const formatDate = (date: Date): string => {
-  return `${String(date.getDate()).padStart(2, "0")}.${String(
-    date.getMonth() + 1,
-  ).padStart(2, "0")}.${date.getFullYear()}`;
-};
+// Internal imports
+import { ReportStatus } from "@/shared/types/reports";
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  displayName?: string | null;
+  phoneNumber?: string | null;
+  profileImage?: string | null;
+  createdAt: any;
+  updatedAt?: any;
+  role?: "user" | "admin";
+  notificationPreferences?: {
+    email: boolean;
+    push: boolean;
+    haptics: boolean;
+  };
+  pushToken?: string;
+  language?: string;
+  points?: number;
+  adminPreferences?: {
+    selectedStatuses?: ReportStatus[];
+    maxDistance?: number;
+  };
+}

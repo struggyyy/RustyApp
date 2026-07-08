@@ -45,7 +45,7 @@ const CardContainer = styled.View<CardContainerProps>(
     marginBottom: spacing.M,
     flexDirection: props.isExpanded ? "column" : "row",
     alignItems: props.isExpanded ? "stretch" : "center",
-  })
+  }),
 );
 
 const ReportInfo = styled.View({
@@ -68,7 +68,7 @@ const ReportStatusText = styled.Text<StatusTextProps>(
     fontSize: typography.fontSize.h6,
     color: props.color,
     marginBottom: spacing.M,
-  })
+  }),
 );
 
 const CarImageContainer = styled.View({
@@ -95,7 +95,7 @@ const StatusIndicatorText = styled.Text<StatusTextProps>(
     fontWeight: "bold",
     color: props.color,
     marginTop: spacing.S,
-  })
+  }),
 );
 
 // Button text component
@@ -108,7 +108,7 @@ const DetailsButtonText = styled.Text({
 // Helper functions
 const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, "0")}.${String(
-    date.getMonth() + 1
+    date.getMonth() + 1,
   ).padStart(2, "0")}.${date.getFullYear()}`;
 };
 

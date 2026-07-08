@@ -99,7 +99,7 @@ function HomeScreenComponent() {
   useFocusEffect(
     useCallback(() => {
       fetchReports();
-    }, [fetchReports])
+    }, [fetchReports]),
   );
 
   const onRefresh = useCallback(async () => {
@@ -142,7 +142,7 @@ function HomeScreenComponent() {
   const handleScorePress = () => {
     showAlert(
       t("alerts.featureComingSoon.title"),
-      t("alerts.featureComingSoon.message")
+      t("alerts.featureComingSoon.message"),
     );
   };
 

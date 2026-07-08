@@ -128,7 +128,7 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
   onRequestClose,
 }) => {
   const getButtonVariant = (
-    style?: "default" | "cancel" | "destructive" | "success"
+    style?: "default" | "cancel" | "destructive" | "success",
   ): "primary" | "secondary" | "destructive" | "cancel" | "success" => {
     switch (style) {
       case "destructive":
@@ -143,7 +143,7 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
   };
 
   const getButtonStyle = (
-    variant: "primary" | "secondary" | "destructive" | "cancel" | "success"
+    variant: "primary" | "secondary" | "destructive" | "cancel" | "success",
   ) => [
     styles.button,
     variant === "primary" && styles.buttonPrimary,
@@ -154,7 +154,7 @@ const InternalAlert: React.FC<CustomAlertProps> = ({
   ];
 
   const getButtonTextStyle = (
-    variant: "primary" | "secondary" | "destructive" | "cancel" | "success"
+    variant: "primary" | "secondary" | "destructive" | "cancel" | "success",
   ) => [
     styles.buttonText,
     variant === "primary" && styles.buttonTextPrimary,

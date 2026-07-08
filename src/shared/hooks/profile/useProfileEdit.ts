@@ -52,7 +52,7 @@ export function useProfileEdit({ t, onShake }: UseProfileEditOptions) {
         setEditedNickname(text);
       }
     },
-    [editedNickname.length, onShake]
+    [editedNickname.length, onShake],
   );
 
   // Choose photo from library
@@ -118,13 +118,13 @@ export function useProfileEdit({ t, onShake }: UseProfileEditOptions) {
           // Handle object-not-found errors gracefully (expected for first-time users)
           if (deleteError.code === "storage/object-not-found") {
             console.debug(
-              "Profile image did not exist in storage - skipping deletion"
+              "Profile image did not exist in storage - skipping deletion",
             );
           } else {
             // Log other deletion errors as warnings
             console.warn(
               "Could not delete profile image:",
-              deleteError.message
+              deleteError.message,
             );
           }
         }
@@ -144,13 +144,13 @@ export function useProfileEdit({ t, onShake }: UseProfileEditOptions) {
           // Handle object-not-found errors gracefully
           if (deleteError.code === "storage/object-not-found") {
             console.debug(
-              "Old profile image did not exist in storage - skipping deletion"
+              "Old profile image did not exist in storage - skipping deletion",
             );
           } else {
             // Log other deletion errors as warnings
             console.warn(
               "Could not delete old profile image:",
-              deleteError.message
+              deleteError.message,
             );
           }
         }

@@ -1,4 +1,20 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act, waitFor } from "@testing-library/react-native";
+
+// Internal imports
 import { useProfileSettings } from "../useProfileSettings";
 
 // Mocks
@@ -35,7 +51,7 @@ describe("useProfileSettings", () => {
 
   it("initializes with correct values", () => {
     const { result } = renderHook(() =>
-      useProfileSettings({ t: (key) => key })
+      useProfileSettings({ t: (key) => key }),
     );
     expect(result.current.notificationsEnabled).toBe(true);
     expect(result.current.hapticsEnabled).toBe(true);
@@ -44,7 +60,7 @@ describe("useProfileSettings", () => {
   it("toggles notifications and calls API", async () => {
     mockUpdateUserProfile.mockResolvedValue(true);
     const { result } = renderHook(() =>
-      useProfileSettings({ t: (key) => key })
+      useProfileSettings({ t: (key) => key }),
     );
 
     await act(async () => {
@@ -60,7 +76,7 @@ describe("useProfileSettings", () => {
   it("toggles haptics and calls API", async () => {
     mockUpdateUserProfile.mockResolvedValue(true);
     const { result } = renderHook(() =>
-      useProfileSettings({ t: (key) => key })
+      useProfileSettings({ t: (key) => key }),
     );
 
     await act(async () => {
@@ -75,7 +91,7 @@ describe("useProfileSettings", () => {
 
   it("toggles language", async () => {
     const { result } = renderHook(() =>
-      useProfileSettings({ t: (key) => key })
+      useProfileSettings({ t: (key) => key }),
     );
 
     await act(async () => {
@@ -88,7 +104,7 @@ describe("useProfileSettings", () => {
   it("reverts state on API error", async () => {
     mockUpdateUserProfile.mockRejectedValue(new Error("API Error"));
     const { result } = renderHook(() =>
-      useProfileSettings({ t: (key) => key })
+      useProfileSettings({ t: (key) => key }),
     );
 
     await act(async () => {

@@ -1,4 +1,20 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act, waitFor } from "@testing-library/react-native";
+
+// Internal imports
 import { useLocation } from "../useLocation";
 import * as Location from "expo-location";
 
@@ -24,7 +40,7 @@ describe("useLocation", () => {
     // Mock location
     const mockLocation = { coords: { latitude: 10, longitude: 20 } };
     (Location.getLastKnownPositionAsync as jest.Mock).mockResolvedValue(
-      mockLocation
+      mockLocation,
     );
 
     const { result } = renderHook(() => useLocation());
@@ -66,7 +82,7 @@ describe("useLocation", () => {
     });
     // Request returns granted
     (Location.requestForegroundPermissionsAsync as jest.Mock).mockResolvedValue(
-      { status: "granted" }
+      { status: "granted" },
     );
 
     (Location.getCurrentPositionAsync as jest.Mock).mockResolvedValue({

@@ -92,7 +92,7 @@ export const ReportFormCard: React.FC<ReportFormCardProps> = ({
           heading: null,
           speed: null,
         },
-        timestamp: Date.now(),
+        timestamp: 0,
       }
     : null;
 

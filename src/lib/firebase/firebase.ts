@@ -41,7 +41,7 @@ if (
   !firebaseConfig.appId
 ) {
   throw new Error(
-    "Firebase configuration is missing. Make sure you have a .env file with all the required EXPO_PUBLIC_FIREBASE_ variables."
+    "Firebase configuration is missing. Make sure you have a .env file with all the required EXPO_PUBLIC_FIREBASE_ variables.",
   );
 }
 
@@ -59,14 +59,14 @@ if (!getApps().length) {
 // Initialize Firebase services
 const auth = firebaseAuth.initializeAuth(app, {
   persistence: (firebaseAuth as any).getReactNativePersistence(
-    ReactNativeAsyncStorage
+    ReactNativeAsyncStorage,
   ),
 });
 const db = getFirestore(app);
 const storage = getStorage(app);
 
 console.log(
-  "[Firebase] Firebase services obtained (Auth, Firestore, Storage)."
+  "[Firebase] Firebase services obtained (Auth, Firestore, Storage).",
 );
 
 export { app, auth, db, storage };

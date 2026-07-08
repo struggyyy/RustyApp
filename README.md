@@ -28,7 +28,7 @@
 ## ✨ Features
 
 - **Report Vehicles**: Easily snap a photo, pinpoint the location, and add a description for any abandoned vehicle you find.
-- **Track Status**: Monitor your reports in real-time as they move from *Submitted* to *Accepted* and finally *Completed*.
+- **Track Status**: Monitor your reports in real-time as they move from _Submitted_ to _Accepted_ and finally _Completed_.
 - **Gamification**: Contribute to your community and track your impact with every verified report.
 - **Interactive Map**: Explore the history of your reported vehicles on a user-friendly map.
 - **Optimized UI**: Enjoy a sleek interface with optimal visibility during the day.
@@ -52,6 +52,7 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - **[Node.js](https://nodejs.org/)** (LTS version recommended)
 - **Git**
 - **Expo CLI**: Install globally via `npm install -g expo-cli`
@@ -59,6 +60,7 @@
 - **[Expo Go](https://expo.dev/client)** app on your physical device (optional)
 
 ### Installation & Configuration
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/struggyyy/RustyApp.git
@@ -76,13 +78,16 @@
    - **Android**: Place `google-services.json` in the root directory.
    - **iOS**: Place `GoogleService-Info.plist` in the root directory.
    - **Service Account**: Place `firebase-service-account.json` in the root directory.
-   *(Note: Collaborators must request these from the project lead)*
+     _(Note: Collaborators must request these from the project lead)_
 
 ### Running the App
+
 Start the development server:
+
 ```bash
 npx expo start
 ```
+
 - Press **`a`** to open in the Android Emulator.
 - Press **`i`** to open in the iOS Simulator.
 - Scan the QR code with **Expo Go** to run on a physical device.
@@ -108,7 +113,6 @@ We maintain code reliability and high standards through Jest unit and integratio
 
 - **Run Tests**: `npm run test` (Jest test suite)
 - **Watch Tests**: `npm run test:watch` (Jest test runner in watch mode)
-
 
 ---
 

@@ -117,7 +117,7 @@ function MapScreenComponent() {
   useFocusEffect(
     React.useCallback(() => {
       fetchReports();
-    }, [fetchReports])
+    }, [fetchReports]),
   );
 
   // Modal navigation handlers
@@ -125,7 +125,7 @@ function MapScreenComponent() {
     if (selectedReports[currentReportIndex]) {
       setModalVisible(false);
       router.push(
-        `/my-reports?reportId=${selectedReports[currentReportIndex].id}`
+        `/my-reports?reportId=${selectedReports[currentReportIndex].id}`,
       );
     }
   };

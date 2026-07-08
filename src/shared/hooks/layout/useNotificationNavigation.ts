@@ -23,7 +23,7 @@ export const useNotificationNavigation = () => {
 
   useEffect(() => {
     const handleNotificationResponse = (
-      response: Notifications.NotificationResponse
+      response: Notifications.NotificationResponse,
     ) => {
       const data = response.notification.request.content.data;
       if (data && data.type === "new_report" && data.reportId) {
@@ -48,7 +48,7 @@ export const useNotificationNavigation = () => {
 
     // Handle background/foreground taps
     const subscription = Notifications.addNotificationResponseReceivedListener(
-      handleNotificationResponse
+      handleNotificationResponse,
     );
 
     return () => subscription.remove();

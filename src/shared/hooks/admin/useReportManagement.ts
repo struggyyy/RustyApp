@@ -59,7 +59,7 @@ export function useReportManagement(isAdmin: boolean) {
         setLoading(true);
         fetchAllReports();
       }
-    }, [fetchAllReports, isAdmin])
+    }, [fetchAllReports, isAdmin]),
   );
 
   // Handle pull-to-refresh
@@ -74,13 +74,13 @@ export function useReportManagement(isAdmin: boolean) {
   const handleReportDelete = async (deletedReportId: string) => {
     try {
       const reportToDelete = reports.find(
-        (report) => report.id === deletedReportId
+        (report) => report.id === deletedReportId,
       );
       if (reportToDelete) {
         await deleteReport(deletedReportId, reportToDelete.imageUrl);
       }
       setReports((prevReports) =>
-        prevReports.filter((report) => report.id !== deletedReportId)
+        prevReports.filter((report) => report.id !== deletedReportId),
       );
     } catch (error) {
       console.error("Error deleting report:", error);
@@ -90,7 +90,7 @@ export function useReportManagement(isAdmin: boolean) {
   // Update report status and sync local state
   const handleStatusChange = async (
     reportId: string,
-    newStatus: ReportStatus
+    newStatus: ReportStatus,
   ) => {
     try {
       const report = reports.find((r) => r.id === reportId);
@@ -100,13 +100,13 @@ export function useReportManagement(isAdmin: boolean) {
           report.userId,
           report.status,
           newStatus,
-          report.imageUrl
+          report.imageUrl,
         );
       }
       setReports((prevReports) =>
         prevReports.map((report) =>
-          report.id === reportId ? { ...report, status: newStatus } : report
-        )
+          report.id === reportId ? { ...report, status: newStatus } : report,
+        ),
       );
     } catch (error) {
       console.error("Error updating report status:", error);

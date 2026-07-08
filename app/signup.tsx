@@ -47,7 +47,7 @@ export default function SignupScreen() {
   useFocusEffect(
     React.useCallback(() => {
       clearError();
-    }, [clearError])
+    }, [clearError]),
   );
 
   // Local state
@@ -135,7 +135,7 @@ export default function SignupScreen() {
           values.email,
           values.password,
           values.nickname,
-          currentLanguage
+          currentLanguage,
         );
 
         // Navigation is handled by useAuthNavigation hook

@@ -33,7 +33,7 @@ export const useImagePicker = () => {
   // Pick image from camera or gallery with configurable options
   const pickImage = async (
     useCamera: boolean,
-    options: ImagePickerOptions = {}
+    options: ImagePickerOptions = {},
   ) => {
     // MOCK MODE: Bypass native picker to prevent crashes/reloads during demo
     // and force the requested VW Bus image.
