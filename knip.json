@@ -6,10 +6,7 @@
     "expo-image",
     "expo-splash-screen",
     "@babel/core",
-    "expo-system-ui",
-    "expo-asset",
-    "expo-font",
-    "expo-haptics"
+    "expo-system-ui"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreWorkspaces": [],

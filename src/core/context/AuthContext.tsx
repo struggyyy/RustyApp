@@ -32,30 +32,8 @@ import { usePushNotifications } from "@/shared/hooks/auth/usePushNotifications";
 import { useProfileManagement } from "@/shared/hooks/profile/useProfileManagement";
 import { useAuthActions } from "@/shared/hooks/auth/useAuthActions";
 import { useAccountDeletion } from "@/shared/hooks/auth/useAccountDeletion";
-
-// Define the shape of the user profile data stored in Firestore
-export interface UserProfile {
-  id: string;
-  email: string;
-  displayName?: string | null;
-  phoneNumber?: string | null;
-  profileImage?: string | null;
-  createdAt: any;
-  updatedAt?: any;
-  role?: "user" | "admin";
-  notificationPreferences?: {
-    email: boolean;
-    push: boolean;
-    haptics: boolean;
-  };
-  pushToken?: string;
-  language?: string;
-  points?: number;
-  adminPreferences?: {
-    selectedStatuses?: ReportStatus[];
-    maxDistance?: number;
-  };
-}
+import { UserProfile } from "@/shared/types/user";
+export type { UserProfile };
 
 // Define the shape of the Auth Context state
 interface AuthContextType {

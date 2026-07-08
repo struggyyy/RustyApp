@@ -12,42 +12,27 @@
  *                                                                         *
  ************************************************************************** */
 // Internal imports
-import { UserProfile } from "@/shared/types/user";
-import {
-  requestNotificationPermissions,
-  getPushToken,
-  storePushToken,
-} from "@/lib/notifications";
+import { ReportStatus } from "@/shared/types/reports";
 
-// Hook for managing push notification registration
-export const usePushNotifications = () => {
-  // Register for push notifications and store token
-  const registerForPushNotifications = async (
-    userProfile: UserProfile,
-    userId: string,
-  ) => {
-    try {
-      // Check if push notifications are enabled
-      if (userProfile.notificationPreferences?.push !== false) {
-        const hasPermission = await requestNotificationPermissions();
-
-        if (hasPermission) {
-          const token = await getPushToken();
-
-          if (token && token !== userProfile.pushToken) {
-            await storePushToken(userId, token);
-          }
-        }
-      }
-    } catch (error) {
-      console.error(
-        "[usePushNotifications] Error registering for push notifications:",
-        error,
-      );
-    }
+export interface UserProfile {
+  id: string;
+  email: string;
+  displayName?: string | null;
+  phoneNumber?: string | null;
+  profileImage?: string | null;
+  createdAt: any;
+  updatedAt?: any;
+  role?: "user" | "admin";
+  notificationPreferences?: {
+    email: boolean;
+    push: boolean;
+    haptics: boolean;
   };
-
-  return {
-    registerForPushNotifications,
+  pushToken?: string;
+  language?: string;
+  points?: number;
+  adminPreferences?: {
+    selectedStatuses?: ReportStatus[];
+    maxDistance?: number;
   };
-};
+}

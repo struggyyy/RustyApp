@@ -1,6 +1,6 @@
 /** *************************************************************************
  *                                                                         *
- *                       Copyright (c) 2025, @struggyyy                    *
+ *                       Copyright (c) 2026, @struggyyy                    *
  *                                                                         *
  *                             Project: Rusty                              *
  *                                                                         *
@@ -19,7 +19,7 @@ import { ref, deleteObject } from "firebase/storage";
 // Internal imports
 import { db, storage } from "@/lib/firebase/firebase";
 import { getReportsByUserId } from "@/lib/firebase/reports";
-import { UserProfile } from "@/core/context/AuthContext";
+import { UserProfile } from "@/shared/types/user";
 
 // Hook for account deletion functionality
 export const useAccountDeletion = () => {

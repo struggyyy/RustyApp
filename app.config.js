@@ -33,6 +33,8 @@ export default {
       },
     },
     android: {
+      // When running 'npx expo run:android' throws INSTALL_FAILED_VERSION_DOWNGRADE error, bump this versionCode
+      versionCode: 19,
       adaptiveIcon: {
         foregroundImage: "./assets/AdaptiveIcon.png",
         backgroundColor: "#BD5151",
@@ -68,6 +70,7 @@ export default {
 
     plugins: [
       "expo-router",
+      "expo-asset",
       [
         "expo-location",
         {
