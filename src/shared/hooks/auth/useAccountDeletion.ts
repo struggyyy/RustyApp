@@ -26,21 +26,21 @@ export const useAccountDeletion = () => {
   // Delete user account and ALL associated data atomically
   const deleteAccount = async (
     currentUser: any,
-    profile: UserProfile | null
+    profile: UserProfile | null,
   ): Promise<void> => {
     if (!currentUser) {
       throw new Error("No user is currently logged in to delete.");
     }
 
     console.log(
-      `[useAccountDeletion] Starting account deletion for user: ${currentUser.uid}`
+      `[useAccountDeletion] Starting account deletion for user: ${currentUser.uid}`,
     );
 
     try {
       // 1. Get all user reports
       const reports = await getReportsByUserId(currentUser.uid);
       console.log(
-        `[useAccountDeletion] Found ${reports.length} reports to delete.`
+        `[useAccountDeletion] Found ${reports.length} reports to delete.`,
       );
 
       // 2. Delete all report images from Storage (blocking operation)
@@ -55,7 +55,7 @@ export const useAccountDeletion = () => {
       // 3. Delete user's profile picture from Storage (blocking operation)
       if (profile?.profileImage) {
         console.log(
-          `[useAccountDeletion] Deleting profile image: ${profile.profileImage}`
+          `[useAccountDeletion] Deleting profile image: ${profile.profileImage}`,
         );
         const profileImageRef = ref(storage, profile.profileImage);
         imageDeletionPromises.push(deleteObject(profileImageRef));
@@ -65,7 +65,7 @@ export const useAccountDeletion = () => {
       if (imageDeletionPromises.length > 0) {
         await Promise.all(imageDeletionPromises);
         console.log(
-          "[useAccountDeletion] All associated images have been deleted from Storage."
+          "[useAccountDeletion] All associated images have been deleted from Storage.",
         );
       }
 
@@ -80,13 +80,13 @@ export const useAccountDeletion = () => {
 
       await batch.commit();
       console.log(
-        "[useAccountDeletion] All Firestore documents (reports and user profile) deleted."
+        "[useAccountDeletion] All Firestore documents (reports and user profile) deleted.",
       );
 
       // 5. Delete Firebase Auth user (only after all data is successfully deleted)
       await deleteUser(currentUser);
       console.log(
-        `[useAccountDeletion] Firebase Auth user deleted successfully: ${currentUser.uid}`
+        `[useAccountDeletion] Firebase Auth user deleted successfully: ${currentUser.uid}`,
       );
     } catch (e: any) {
       console.error("[useAccountDeletion] Account deletion process failed:", e);

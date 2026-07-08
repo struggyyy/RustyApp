@@ -1,4 +1,20 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act, waitFor } from "@testing-library/react-native";
+
+// Internal imports
 import { useReportManagement } from "../useReportManagement";
 import { getAllReports, deleteReport } from "@/lib/firebase/reports";
 
@@ -10,7 +26,7 @@ jest.mock("@/lib/firebase/reports", () => ({
 }));
 
 jest.mock("expo-router", () => ({
-  useFocusEffect: (cb: any) => require("react").useEffect(cb, []), // Run once on mount
+  useFocusEffect: (cb: any) => jest.requireActual("react").useEffect(cb, []), // Run once on mount
 }));
 
 describe("useReportManagement", () => {

@@ -71,11 +71,11 @@ export const useEmailVerification = ({
             if (emailToVerify) {
               const normalizedEmail = emailToVerify.trim().toLowerCase();
               AsyncStorage.removeItem(
-                `emailResendCooldownExpiry_${normalizedEmail}`
+                `emailResendCooldownExpiry_${normalizedEmail}`,
               ).catch(() => {});
             }
             setFeedbackKey((prevKey) =>
-              prevKey === "auth.cooldownMessage" ? "" : prevKey
+              prevKey === "auth.cooldownMessage" ? "" : prevKey,
             );
             return 0;
           }
@@ -111,7 +111,7 @@ export const useEmailVerification = ({
         const expiryTime = Date.now() + COOLDOWN_SECONDS * 1000;
         await AsyncStorage.setItem(
           `emailResendCooldownExpiry_${normalizedEmail}`,
-          expiryTime.toString()
+          expiryTime.toString(),
         );
       }
     } catch (err: any) {
@@ -123,7 +123,7 @@ export const useEmailVerification = ({
           const expiryTime = Date.now() + COOLDOWN_SECONDS * 1000;
           AsyncStorage.setItem(
             `emailResendCooldownExpiry_${normalizedEmail}`,
-            expiryTime.toString()
+            expiryTime.toString(),
           );
         }
         setFeedbackKey("auth.cooldownMessage");

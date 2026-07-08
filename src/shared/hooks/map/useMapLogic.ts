@@ -84,13 +84,13 @@ export const useMapLogic = () => {
   // Modal navigation handlers
   const goToPrev = useCallback(() => {
     setCurrentReportIndex((prev) =>
-      prev > 0 ? prev - 1 : selectedReports.length - 1
+      prev > 0 ? prev - 1 : selectedReports.length - 1,
     );
   }, [selectedReports.length]);
 
   const goToNext = useCallback(() => {
     setCurrentReportIndex((prev) =>
-      prev < selectedReports.length - 1 ? prev + 1 : 0
+      prev < selectedReports.length - 1 ? prev + 1 : 0,
     );
   }, [selectedReports.length]);
 
@@ -103,14 +103,14 @@ export const useMapLogic = () => {
             r.location.latitude,
             r.location.longitude,
             report.location.latitude,
-            report.location.longitude
-          ) <= 50
+            report.location.longitude,
+          ) <= 50,
       );
       setSelectedReports(reportsAtLocation);
       setCurrentReportIndex(reportsAtLocation.indexOf(report));
       setModalVisible(true);
     },
-    []
+    [],
   );
 
   return {

@@ -32,12 +32,12 @@ const DistancePickerSection: React.FC<DistancePickerSectionProps> = ({
   style,
 }) => {
   const [selectedDistanceIndex, setSelectedDistanceIndex] = useState(
-    (maxDistance || 5) - 1
+    (maxDistance || 5) - 1,
   );
 
   // Distance options from 1 to 50 km
   const distanceOptions = Array.from({ length: 50 }, (_, i) =>
-    (i + 1).toString()
+    (i + 1).toString(),
   );
 
   // Set default values if not already set

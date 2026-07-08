@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
 // Helper function for date formatting
 const formatDate = (date: Date): string => {
   return `${String(date.getDate()).padStart(2, "0")}.${String(
-    date.getMonth() + 1
+    date.getMonth() + 1,
   ).padStart(2, "0")}.${date.getFullYear()}`;
 };
 

@@ -47,7 +47,7 @@ import {
 export const uploadReportImage = (
   imageUri: string,
   userId: string,
-  fileName: string
+  fileName: string,
 ): Promise<string> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -82,24 +82,24 @@ export const uploadReportImage = (
         async () => {
           try {
             console.log(
-              "uploadReportImage: Upload complete! Getting download URL..."
+              "uploadReportImage: Upload complete! Getting download URL...",
             );
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             console.log(
               "uploadReportImage: Download URL received:",
-              downloadURL
+              downloadURL,
             );
             resolve(downloadURL);
           } catch (error) {
             console.error(
               "Error getting download URL after successful upload:",
-              error
+              error,
             );
             reject(
-              new Error("Image uploaded, but failed to get download URL.")
+              new Error("Image uploaded, but failed to get download URL."),
             );
           }
-        }
+        },
       );
     } catch (error) {
       console.error("Error preparing image for upload or during fetch:", error);
@@ -123,7 +123,7 @@ export const createReport = async (reportData: {
       description: reportData.description,
       location: new GeoPoint(
         reportData.location.latitude,
-        reportData.location.longitude
+        reportData.location.longitude,
       ),
       imageUrl: reportData.imageUrl,
       createdAt: serverTimestamp(),
@@ -136,14 +136,14 @@ export const createReport = async (reportData: {
     // Send notification to all admins about the new report
     try {
       console.log(
-        `[createReport] Sending new report notification to admins for report ${docRef.id}...`
+        `[createReport] Sending new report notification to admins for report ${docRef.id}...`,
       );
       await sendNewReportNotification(docRef.id);
       console.log(`[createReport] New report notification sent successfully`);
     } catch (notificationError) {
       console.error(
         "[createReport] Error sending new report notification:",
-        notificationError
+        notificationError,
       );
       // Don't throw error for notification failure - report creation should still succeed
     }
@@ -155,7 +155,7 @@ export const createReport = async (reportData: {
       createdAt: Timestamp.now(), // Use a client-side timestamp for immediate feedback
       location: new GeoPoint(
         reportData.location.latitude,
-        reportData.location.longitude
+        reportData.location.longitude,
       ),
       status: "Submitted",
       points: 0,
@@ -174,7 +174,7 @@ export const getReportsByUserId = async (userId: string): Promise<Report[]> => {
     const q = query(
       reportsRef,
       where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
     );
 
     const querySnapshot = await getDocs(q);
@@ -214,7 +214,7 @@ export const updateReportStatus = async (
   userId: string,
   currentStatus: ReportStatus,
   newStatus: ReportStatus,
-  imageUrl?: string
+  imageUrl?: string,
 ): Promise<void> => {
   if (currentStatus === newStatus) return; // No change, do nothing
 
@@ -249,13 +249,13 @@ export const updateReportStatus = async (
 
     await batch.commit();
     console.log(
-      `Report ${reportId} status updated to ${newStatus}. User ${userId} points adjusted by ${pointsDifference}.`
+      `Report ${reportId} status updated to ${newStatus}. User ${userId} points adjusted by ${pointsDifference}.`,
     );
 
     // Send push notification if enabled
     try {
       console.log(
-        `[updateReportStatus] Checking notification settings for user ${userId}...`
+        `[updateReportStatus] Checking notification settings for user ${userId}...`,
       );
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
@@ -265,22 +265,22 @@ export const updateReportStatus = async (
         const userRole = userData.role;
 
         console.log(
-          `[updateReportStatus] User ${userId} push enabled: ${pushEnabled}`
+          `[updateReportStatus] User ${userId} push enabled: ${pushEnabled}`,
         );
         console.log(
-          `[updateReportStatus] User ${userId} has push token: ${!!pushToken}`
+          `[updateReportStatus] User ${userId} has push token: ${!!pushToken}`,
         );
         console.log(`[updateReportStatus] User ${userId} role: ${userRole}`);
         console.log(
           `[updateReportStatus] Push token preview: ${
             pushToken ? pushToken.substring(0, 20) + "..." : "null"
-          }`
+          }`,
         );
 
         // Only send notifications to regular users, not admins
         if (pushToken && pushEnabled && userRole !== "admin") {
           console.log(
-            `[updateReportStatus] Sending push notification to user ${userId}...`
+            `[updateReportStatus] Sending push notification to user ${userId}...`,
           );
           const userLanguage = userData.language || "en"; // Default to English if no language set
           await sendReportStatusNotification(
@@ -288,32 +288,32 @@ export const updateReportStatus = async (
             reportId,
             currentStatus,
             newStatus,
-            userLanguage
+            userLanguage,
           );
           console.log(
-            `[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`
+            `[updateReportStatus] Push notification sent successfully to user ${userId} for report ${reportId}`,
           );
         } else {
           const skipReason = !pushToken
             ? "no push token"
             : !pushEnabled
-            ? "push disabled"
-            : userRole === "admin"
-            ? "user is admin"
-            : "unknown";
+              ? "push disabled"
+              : userRole === "admin"
+                ? "user is admin"
+                : "unknown";
           console.log(
-            `[updateReportStatus] Skipping push notification: ${skipReason}`
+            `[updateReportStatus] Skipping push notification: ${skipReason}`,
           );
         }
       } else {
         console.log(
-          `[updateReportStatus] User document not found for ${userId}`
+          `[updateReportStatus] User document not found for ${userId}`,
         );
       }
     } catch (notificationError) {
       console.error(
         "[updateReportStatus] Error sending push notification:",
-        notificationError
+        notificationError,
       );
       // Don't throw error for notification failure
     }
@@ -357,7 +357,7 @@ export const deleteReport = async (reportId: string, imageUrl: string) => {
     await deleteDoc(reportDocRef);
 
     console.log(
-      `Report ${reportId} and associated image deleted successfully.`
+      `Report ${reportId} and associated image deleted successfully.`,
     );
   } catch (error) {
     console.error("Error deleting report:", error);

@@ -1,5 +1,3 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
 # dependencies
 node_modules/
 
@@ -7,7 +5,6 @@ node_modules/
 .expo/
 dist/
 web-build/
-expo-env.d.ts
 
 # Native
 android/
@@ -63,3 +60,47 @@ fastlane/gc_keys.json
 
 # Local Roadmap
 FUTURE IMPROVEMENTS.md
+
+# ==================================
+# MAXIMUM SECURITY & EDITOR PARANOIA
+# ==================================
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# OS Files
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+firebase-debug.log*
+
+# Extra Secrets (Catch-all)
+*.cert
+*.crt
+*.der
+*.p12
+*.p8
+*.keystore
+*.jks
+*.mobileprovision
+*.orig.*
+*.sqlite
+*.db
+local.properties
+firebase-service-account.json
+google-services.json
+GoogleService-Info.plist

@@ -34,7 +34,7 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface LanguageProviderProps {
@@ -105,7 +105,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
         } catch (profileError) {
           console.warn(
             "Failed to update profile language (user might be offline or unauthenticated):",
-            profileError
+            profileError,
           );
           // Don't throw here, as changing language locally is successful
         }

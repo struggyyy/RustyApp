@@ -49,14 +49,15 @@ export function MapControls({
           onPress={onGoToMyLocation}
           style={myLocationStyle}
         >
-          <MaterialIcons name={myLocationIcon} size={24} color={colors.primary} />
+          <MaterialIcons
+            name={myLocationIcon}
+            size={24}
+            color={colors.primary}
+          />
         </FloatingActionButton>
       )}
       {showExpandMap && onExpandMap && (
-        <FloatingActionButton
-          onPress={onExpandMap}
-          style={expandStyle}
-        >
+        <FloatingActionButton onPress={onExpandMap} style={expandStyle}>
           <MaterialIcons name={expandIcon} size={24} color={colors.primary} />
         </FloatingActionButton>
       )}

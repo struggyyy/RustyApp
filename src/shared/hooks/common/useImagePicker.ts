@@ -30,7 +30,7 @@ export const useImagePicker = () => {
   // Pick image from camera or gallery with configurable options
   const pickImage = async (
     useCamera: boolean,
-    options: ImagePickerOptions = {}
+    options: ImagePickerOptions = {},
   ) => {
     // Default configuration
     const {

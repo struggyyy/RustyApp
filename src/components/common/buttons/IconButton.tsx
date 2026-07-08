@@ -54,7 +54,7 @@ const IconButtonContainer = styled.TouchableOpacity<IconButtonContainerProps>(
       : props.backgroundColor || "transparent",
     justifyContent: "center",
     alignItems: "center",
-  })
+  }),
 );
 
 // Main icon button component

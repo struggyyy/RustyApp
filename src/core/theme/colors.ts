@@ -47,7 +47,7 @@ const palette = {
 
 // Utility functions
 export const getStatusColor = (
-  status: ReportStatus | string | undefined
+  status: ReportStatus | string | undefined,
 ): string => {
   if (!status) return palette.status.Submitted;
   const safeStatus = status as ReportStatus;

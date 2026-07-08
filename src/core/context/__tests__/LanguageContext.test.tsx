@@ -1,5 +1,21 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import React from "react";
 import { render, waitFor, act } from "@testing-library/react-native";
+
+// Internal imports
 import { LanguageProvider, useLanguage } from "../LanguageContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../AuthContext";
@@ -42,7 +58,7 @@ describe("LanguageContext", () => {
     render(
       <LanguageProvider>
         <TestComponent />
-      </LanguageProvider>
+      </LanguageProvider>,
     );
 
     await waitFor(() => {
@@ -56,7 +72,7 @@ describe("LanguageContext", () => {
     render(
       <LanguageProvider>
         <TestComponent />
-      </LanguageProvider>
+      </LanguageProvider>,
     );
 
     await waitFor(() => {
@@ -74,7 +90,7 @@ describe("LanguageContext", () => {
     render(
       <LanguageProvider>
         <TestComponent />
-      </LanguageProvider>
+      </LanguageProvider>,
     );
 
     await waitFor(() => {
@@ -96,14 +112,16 @@ describe("LanguageContext", () => {
     let changeLangFn: any;
     const TriggerComponent = () => {
       const { changeLanguage } = useLanguage();
-      changeLangFn = changeLanguage;
+      React.useEffect(() => {
+        changeLangFn = changeLanguage;
+      }, [changeLanguage]);
       return null;
     };
 
     render(
       <LanguageProvider>
         <TriggerComponent />
-      </LanguageProvider>
+      </LanguageProvider>,
     );
 
     await waitFor(() => expect(changeLangFn).toBeDefined());

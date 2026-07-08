@@ -136,7 +136,7 @@ export default function ReportScreen() {
             });
           }
         }, 150);
-      }
+      },
     );
 
     return () => {

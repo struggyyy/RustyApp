@@ -46,7 +46,7 @@ const InputContainer = styled(Animated.View)<{ hasError?: boolean }>(
     borderWidth: 1,
     borderColor: hasError ? theme.colors.error : theme.colors.border.default,
     paddingHorizontal: theme.spacing.M,
-  })
+  }),
 );
 
 const StyledTextInput = styled.TextInput.attrs({
@@ -66,7 +66,7 @@ const IconContainer = styled.TouchableOpacity({
 export const AuthInput = forwardRef<TextInput, AuthInputProps>(
   (
     { hasError, rightIcon, onRightIconPress, containerStyle, ...props },
-    ref
+    ref,
   ) => {
     return (
       <InputContainer hasError={hasError} style={containerStyle}>
@@ -88,7 +88,7 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(
         )}
       </InputContainer>
     );
-  }
+  },
 );
 
 AuthInput.displayName = "AuthInput";

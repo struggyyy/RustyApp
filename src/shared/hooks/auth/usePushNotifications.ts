@@ -24,7 +24,7 @@ export const usePushNotifications = () => {
   // Register for push notifications and store token
   const registerForPushNotifications = async (
     userProfile: UserProfile,
-    userId: string
+    userId: string,
   ) => {
     try {
       // Check if push notifications are enabled
@@ -42,7 +42,7 @@ export const usePushNotifications = () => {
     } catch (error) {
       console.error(
         "[usePushNotifications] Error registering for push notifications:",
-        error
+        error,
       );
     }
   };

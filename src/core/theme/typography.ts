@@ -53,7 +53,7 @@ const typography = {
   // Helper function for creating custom text styles
   createTextStyle: (
     size: number,
-    weight: keyof typeof fontFamily.primary = "regular"
+    weight: keyof typeof fontFamily.primary = "regular",
   ) => ({
     fontSize: size,
     fontFamily: fontFamily.primary[weight],

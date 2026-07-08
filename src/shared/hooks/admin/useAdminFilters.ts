@@ -51,7 +51,7 @@ export function useAdminFilters(reports: ReportType[]) {
     // Filter by selected statuses
     if (selectedStatuses.length > 0) {
       filtered = filtered.filter((report) =>
-        selectedStatuses.includes(report.status)
+        selectedStatuses.includes(report.status),
       );
     }
 
@@ -62,7 +62,7 @@ export function useAdminFilters(reports: ReportType[]) {
           currentLocation.coords.latitude,
           currentLocation.coords.longitude,
           report.location.latitude,
-          report.location.longitude
+          report.location.longitude,
         );
         // Convert meters to kilometers for comparison
         const distanceInKm = distanceInMeters / 1000;
@@ -93,7 +93,7 @@ export function useAdminFilters(reports: ReportType[]) {
         console.error("Failed to save admin preferences:", error);
       }
     },
-    [updateUserProfile]
+    [updateUserProfile],
   );
 
   // Filter change handlers with preference persistence
@@ -102,7 +102,7 @@ export function useAdminFilters(reports: ReportType[]) {
       setSelectedStatuses(statuses);
       savePreferences(statuses, maxDistance);
     },
-    [savePreferences, maxDistance]
+    [savePreferences, maxDistance],
   );
 
   const handleDistanceFilterChange = useCallback(
@@ -110,7 +110,7 @@ export function useAdminFilters(reports: ReportType[]) {
       setMaxDistance(distance);
       savePreferences(selectedStatuses, distance);
     },
-    [savePreferences, selectedStatuses]
+    [savePreferences, selectedStatuses],
   );
 
   return {

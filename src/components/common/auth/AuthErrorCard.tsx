@@ -55,7 +55,7 @@ const CardContainer = styled.View<{ type: "error" | "success" | "info" }>(
       alignItems: "center",
       width: "100%",
     };
-  }
+  },
 );
 
 const IconContainer = styled.View({
@@ -83,7 +83,7 @@ const MessageText = styled.Text<{ type: "error" | "success" | "info" }>(
       flex: 1,
       fontWeight: "500",
     };
-  }
+  },
 );
 
 export const AuthErrorCard: React.FC<AuthErrorCardProps> = ({

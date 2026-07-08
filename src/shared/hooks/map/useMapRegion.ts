@@ -31,7 +31,7 @@ const FALLBACK_REGION = {
 // Custom hook to manage map region based on location and reports
 export const useMapRegion = (
   location: LocationObject | null,
-  reports: Report[]
+  reports: Report[],
 ) => {
   // State for the map region, initialized to default fallback coordinates
   const [mapRegion, setMapRegion] = useState<

@@ -19,7 +19,7 @@ export const getDistance = (
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number => {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180;
@@ -39,7 +39,7 @@ export const getDistance = (
 // Using geo: URI scheme which is more universal and Google Play Store compliant
 export const openNavigation = async (
   latitude: number,
-  longitude: number
+  longitude: number,
 ): Promise<void> => {
   const url = `geo:${latitude},${longitude}?q=${latitude},${longitude}`;
   try {

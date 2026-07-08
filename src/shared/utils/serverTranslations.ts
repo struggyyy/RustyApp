@@ -27,7 +27,7 @@ type Language = "en" | "pl";
 export function translate(
   key: string,
   language: Language = "en",
-  interpolations?: Record<string, string>
+  interpolations?: Record<string, string>,
 ): string {
   const fallbackLang: Language = "en";
   const lang = translations[language] ? language : fallbackLang;
@@ -63,7 +63,7 @@ export function translate(
 // Translates a report status to the user's language
 export function translateStatus(
   status: ReportStatus | string,
-  language: Language = "en"
+  language: Language = "en",
 ): string {
   const statusKey = (() => {
     switch (status) {

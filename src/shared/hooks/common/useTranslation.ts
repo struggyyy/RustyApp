@@ -41,7 +41,7 @@ export const useTranslation = () => {
       const result = i18n.t(key, options);
       return typeof result === "string" ? result : String(result);
     },
-    [currentLanguage]
+    [currentLanguage],
   );
 
   return {

@@ -6,43 +6,18 @@
     "target": "esnext",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@screens/*": [
-        "src/screens/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
-      "@context/*": [
-        "src/core/context/*"
-      ],
-      "@api/*": [
-        "src/api/*"
-      ],
-      "@services/*": [
-        "src/services/*"
-      ],
-      "@utils/*": [
-        "src/shared/utils/*"
-      ],
-      "@theme/*": [
-        "src/core/theme/*"
-      ],
-      "@navigation/*": [
-        "src/navigation/*"
-      ],
-      "@assets/*": [
-        "assets/*"
-      ]
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@screens/*": ["src/screens/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@context/*": ["src/core/context/*"],
+      "@api/*": ["src/api/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      "@theme/*": ["src/core/theme/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@assets/*": ["assets/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

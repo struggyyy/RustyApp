@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],
+  "project": ["src/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],
+  "ignoreDependencies": [
+    "expo-image",
+    "expo-splash-screen",
+    "@babel/core",
+    "expo-system-ui",
+    "expo-asset",
+    "expo-font",
+    "expo-haptics"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreWorkspaces": [],
+  "rules": {
+    "exports": "warn",
+    "types": "warn"
+  }
+}

@@ -1,6 +1,21 @@
+/** *************************************************************************
+ *                                                                         *
+ *                       Copyright (c) 2026, @struggyyy                    *
+ *
+ *                              Project: Rusty                             *
+ *
+ *                         All Rights Reserved                             *
+ *
+ *         This is unpublished proprietary source code of @struggyyy.      *
+ *        The copyright notice above does not evidence any actual          *
+ *              or intended publication of such source code.               *
+ *
+ ************************************************************************** */
+// Test-specific imports
 import { renderHook, act, waitFor } from "@testing-library/react-native";
-import { useReports } from "../useReports";
 
+// Internal imports
+import { useReports } from "../useReports";
 import { getReportsByUserId } from "@/lib/firebase/reports";
 
 // Mocks
@@ -44,7 +59,7 @@ describe("useReports", () => {
 
   it("handles fetch errors", async () => {
     (getReportsByUserId as jest.Mock).mockRejectedValue(
-      new Error("Fetch failed")
+      new Error("Fetch failed"),
     );
 
     const { result } = renderHook(() => useReports());

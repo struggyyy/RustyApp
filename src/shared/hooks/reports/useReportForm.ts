@@ -37,7 +37,7 @@ export function useReportForm() {
 
   const handleSubmit = async (
     imageUri: string | null,
-    location: Location.LocationObject | null
+    location: Location.LocationObject | null,
   ) => {
     if (isSubmittingRef.current) return;
 
@@ -84,7 +84,7 @@ export function useReportForm() {
 
   const isFormReady = (
     imageUri: string | null,
-    location: Location.LocationObject | null
+    location: Location.LocationObject | null,
   ) =>
     !!imageUri &&
     !!description.trim() &&

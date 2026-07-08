@@ -16,7 +16,7 @@ import { ReportStatus } from "@/shared/types/reports";
 
 // Maps report status values to translation keys
 export const getStatusTranslationKey = (
-  status: ReportStatus | string | undefined
+  status: ReportStatus | string | undefined,
 ): string => {
   const safeStatus = status as ReportStatus;
 
@@ -36,7 +36,7 @@ export const getStatusTranslationKey = (
 
 // Maps report status values to note translation keys
 export const getStatusNoteTranslationKey = (
-  status: ReportStatus | string | undefined
+  status: ReportStatus | string | undefined,
 ): string => {
   const safeStatus = status as ReportStatus;
 

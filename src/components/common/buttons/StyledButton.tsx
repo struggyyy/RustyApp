@@ -46,8 +46,8 @@ const ButtonTouchable = styled.TouchableOpacity<{
     props.variant === "secondary"
       ? theme.colors.text.primary
       : props.isDisabled
-      ? theme.colors.primary
-      : theme.colors.primary,
+        ? theme.colors.primary
+        : theme.colors.primary,
   borderRadius: spacing.radius.M,
   padding: spacing.M,
   alignItems: "center",

@@ -26,10 +26,10 @@ export const useProfileManagement = () => {
   const createInitialProfile = async (
     userToCreateFor: User,
     nickname?: string,
-    language?: "en" | "pl"
+    language?: "en" | "pl",
   ) => {
     console.log(
-      `[useProfileManagement] Creating initial profile for: ${userToCreateFor.uid}`
+      `[useProfileManagement] Creating initial profile for: ${userToCreateFor.uid}`,
     );
     const userDocRef = doc(db, "users", userToCreateFor.uid);
     const initialProfileData: UserProfile = {
@@ -45,13 +45,13 @@ export const useProfileManagement = () => {
     try {
       await setDoc(userDocRef, initialProfileData);
       console.log(
-        "[useProfileManagement] Initial user profile created in Firestore."
+        "[useProfileManagement] Initial user profile created in Firestore.",
       );
       return initialProfileData;
     } catch (creationError: any) {
       console.error(
         "[useProfileManagement] Failed to create initial profile:",
-        creationError
+        creationError,
       );
       throw creationError;
     }
@@ -61,28 +61,28 @@ export const useProfileManagement = () => {
   const updateUserProfile = async (
     userId: string,
     updates: Partial<UserProfile>,
-    setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>
+    setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
   ) => {
     try {
       console.log(
         `[useProfileManagement] Updating Firestore profile for user: ${userId}`,
-        updates
+        updates,
       );
       const userDocRef = doc(db, "users", userId);
       const updateData = { ...updates, updatedAt: serverTimestamp() };
       await updateDoc(userDocRef, updateData);
       console.log(
-        "[useProfileManagement] Firestore profile updated successfully."
+        "[useProfileManagement] Firestore profile updated successfully.",
       );
 
       // Optimistically update local profile state
       setProfile((prev: UserProfile | null) =>
-        prev ? { ...prev, ...updateData } : null
+        prev ? { ...prev, ...updateData } : null,
       );
     } catch (e: any) {
       console.error(
         "[useProfileManagement] Firestore profile update error:",
-        e
+        e,
       );
       throw e;
     }
@@ -96,19 +96,19 @@ export const useProfileManagement = () => {
       photoURL?: string | null;
       email?: string;
     },
-    setUser: React.Dispatch<React.SetStateAction<any>>
+    setUser: React.Dispatch<React.SetStateAction<any>>,
   ) => {
     try {
       console.log(
         `[useProfileManagement] Updating Firebase Auth profile for user: ${currentUser.uid}`,
-        updates
+        updates,
       );
 
       // Separate email update if provided, as it might require verification
       if (updates.email && updates.email !== currentUser.email) {
         await currentUser.updateEmail(updates.email);
         console.log(
-          "[useProfileManagement] User email update initiated/completed."
+          "[useProfileManagement] User email update initiated/completed.",
         );
         // Remove email from the profile update object
         delete updates.email;
@@ -127,7 +127,7 @@ export const useProfileManagement = () => {
               : currentUser.photoURL,
         });
         console.log(
-          "[useProfileManagement] Firebase Auth profile (displayName/photoURL) updated."
+          "[useProfileManagement] Firebase Auth profile (displayName/photoURL) updated.",
         );
       }
 
@@ -144,13 +144,13 @@ export const useProfileManagement = () => {
     userId: string,
     fileUri: string,
     updateUserAuth: (updates: { photoURL?: string }) => Promise<void>,
-    updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>
+    updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>,
   ): Promise<string | undefined> => {
     if (!userId) throw new Error("User ID is required for upload.");
 
     try {
       console.log(
-        `[useProfileManagement] Uploading profile image for user: ${userId}`
+        `[useProfileManagement] Uploading profile image for user: ${userId}`,
       );
 
       // Create blob from file URI
@@ -163,14 +163,14 @@ export const useProfileManagement = () => {
       const storageRef = ref(storage, `profileImages/${userId}/${imageId}`);
 
       console.log(
-        `[useProfileManagement] Uploading to storage path: ${storageRef.fullPath}`
+        `[useProfileManagement] Uploading to storage path: ${storageRef.fullPath}`,
       );
 
       // Upload file
       const snapshot = await uploadBytes(storageRef, blob);
       console.log(
         "[useProfileManagement] Image uploaded successfully:",
-        snapshot.metadata.fullPath
+        snapshot.metadata.fullPath,
       );
 
       // Get download URL
@@ -182,7 +182,7 @@ export const useProfileManagement = () => {
       await updateUserProfile({ profileImage: downloadURL });
 
       console.log(
-        "[useProfileManagement] Profile image URL updated in Auth and Firestore."
+        "[useProfileManagement] Profile image URL updated in Auth and Firestore.",
       );
       return downloadURL;
     } catch (e: any) {

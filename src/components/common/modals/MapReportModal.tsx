@@ -188,10 +188,7 @@ const MapReportModal: React.FC<MapReportModalProps> = ({
 
           <View style={styles.actionButtons}>
             {onViewReport && (
-              <HapticButton
-                onPress={onViewReport}
-                style={styles.actionButton}
-              >
+              <HapticButton onPress={onViewReport} style={styles.actionButton}>
                 <Text style={styles.actionButtonText}>{t("common.more")}</Text>
               </HapticButton>
             )}

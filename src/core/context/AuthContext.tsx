@@ -71,7 +71,7 @@ interface AuthContextType {
     email: string,
     password: string,
     nickname: string,
-    language?: "en" | "pl"
+    language?: "en" | "pl",
   ) => Promise<User | null>;
   logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
@@ -87,7 +87,7 @@ interface AuthContextType {
   }) => Promise<void>;
   uploadProfileImage: (
     userId: string,
-    fileUri: string
+    fileUri: string,
   ) => Promise<string | undefined>;
   deleteAccount: () => Promise<void>;
 }
@@ -209,7 +209,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     email: string,
     password: string,
     nickname: string,
-    language?: "en" | "pl"
+    language?: "en" | "pl",
   ): Promise<User | null> => {
     // Create a new user account and initialize their profile
     setLoading(true);
@@ -220,7 +220,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const newProfile = await createInitialProfile(
           newUser,
           nickname,
-          language
+          language,
         );
         setProfile(newProfile);
         setProfileLoaded(true);
@@ -378,7 +378,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Upload and update profile image
   const uploadProfileImage = async (
     userId: string,
-    fileUri: string
+    fileUri: string,
   ): Promise<string | undefined> => {
     // Upload and update the user's profile image
     if (!userId) throw new Error("User ID is required for upload.");
@@ -389,7 +389,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         userId,
         fileUri,
         (updates) => updateUserAuth(updates),
-        (updates) => updateUserProfile(updates)
+        (updates) => updateUserProfile(updates),
       );
     } catch (e: any) {
       setError(e.message || "Failed to upload image.");
@@ -465,7 +465,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       uploadProfileImage,
       deleteAccount,
     }),
-    [user, profile, loading, initialLoading, error, isAdmin, profileLoaded]
+    [user, profile, loading, initialLoading, error, isAdmin, profileLoaded],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

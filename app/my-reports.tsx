@@ -86,7 +86,7 @@ export default function MyReportsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchReports();
-    }, [fetchReports])
+    }, [fetchReports]),
   );
 
   // Render the main UI

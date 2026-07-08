@@ -63,7 +63,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
 }) => {
   // Current language state synced with i18n
   const [currentLanguage, setCurrentLanguage] = React.useState<"en" | "pl">(
-    i18n.language as "en" | "pl"
+    i18n.language as "en" | "pl",
   );
 
   // Listen for i18n language changes

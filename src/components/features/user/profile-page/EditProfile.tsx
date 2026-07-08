@@ -16,7 +16,6 @@ import React, { useRef } from "react";
 import { ActivityIndicator, Animated } from "react-native";
 
 // External libraries
-// External libraries
 import { useAuth } from "@context/AuthContext";
 import { useHaptics } from "@context/HapticsContext";
 import { useTranslation } from "@/shared/hooks/common/useTranslation";
@@ -39,7 +38,7 @@ const ProfileCard = styled.View<{ isExpanded: boolean }>(
     marginBottom: 12,
     flexDirection: props.isExpanded ? "column" : "row",
     alignItems: props.isExpanded ? "stretch" : "center",
-  })
+  }),
 );
 
 const CollapsedProfileContent = styled.View({
@@ -247,8 +246,9 @@ const EditProfile: React.FC<EditProfileProps> = ({
   const { t } = useTranslation();
   const { user, profile, initialLoading } = useAuth();
   const haptics = useHaptics();
+  const defaultShake = useRef(new Animated.Value(0)).current;
 
-  const shake = shakeAnimation || useRef(new Animated.Value(0)).current;
+  const shake = shakeAnimation || defaultShake;
 
   // Handle photo selection from device gallery
   const handleChoosePhoto = async () => {
