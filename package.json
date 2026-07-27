@@ -85,7 +85,7 @@
     "protobufjs": "^8.6.3",
     "@protobufjs/utf8": "^1.1.1",
     "@xmldom/xmldom": "^0.9.10",
-    "fast-uri": "^3.1.1",
+    "fast-uri": "^3.1.4",
     "postcss": "^8.5.10",
     "uuid": "^14.0.0"
   },
