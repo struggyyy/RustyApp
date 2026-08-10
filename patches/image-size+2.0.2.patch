@@ -1,0 +1,20 @@
+diff --git a/node_modules/image-size/dist/index.cjs b/node_modules/image-size/dist/index.cjs
+index bde0210..11cb53b 100644
+--- a/node_modules/image-size/dist/index.cjs
++++ b/node_modules/image-size/dist/index.cjs
+@@ -173,6 +173,7 @@ var HEIF = {
+         width = rawWidth - cropRight;
+       }
+       images.push({ height, width });
++      if (ispeBox.size <= 0) break;
+       currentOffset = ispeBox.offset + ispeBox.size;
+     }
+     if (images.length === 0) {
+@@ -255,6 +256,7 @@ var ICNS = {
+       const imageHeader = readImageHeader(input, imageOffset);
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
++      if (imageHeader[1] <= 0) break;
+       imageOffset += imageHeader[1];
+     }
+     if (images.length === 0) {
