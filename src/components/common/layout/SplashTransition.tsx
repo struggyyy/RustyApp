@@ -39,15 +39,25 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
   isLoading,
   children,
 }) => {
-  const [isAppReady, setIsAppReady] = useState(false);
-  const [isAnimationFinished, setIsAnimationFinished] = useState(false);
+  const isInitialMount = useRef(true);
+  const [isAppReady, setIsAppReady] = useState(true);
+  const [isAnimationFinished, setIsAnimationFinished] = useState(true);
 
   // Animation values
   const scale = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
-  // Reset state when loading starts again (e.g. Admin Redirect)
+  // Track initial cold start completion vs subsequent loading states (e.g. Admin Redirect)
   useEffect(() => {
+    if (isInitialMount.current) {
+      if (!isLoading) {
+        // Initial cold start loading finished — mark initial mount as complete
+        isInitialMount.current = false;
+      }
+      return;
+    }
+
+    // Reset state when loading starts again in-app
     if (isLoading && isAnimationFinished) {
       setIsAnimationFinished(false);
       setIsAppReady(false);
@@ -57,7 +67,7 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
   }, [isLoading, isAnimationFinished, scale, opacity]);
 
   useEffect(() => {
-    if (!isLoading && !isAppReady) {
+    if (!isInitialMount.current && !isLoading && !isAppReady) {
       // Loading just finished, mount the app
       setIsAppReady(true);
 
@@ -84,6 +94,8 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
         clearTimeout(safetyTimeout);
         setIsAnimationFinished(true);
       });
+
+      return () => clearTimeout(safetyTimeout);
     }
   }, [isLoading, isAppReady, scale, opacity]);
 
@@ -93,10 +105,17 @@ export const SplashTransition: React.FC<SplashTransitionProps> = ({
       <View style={StyleSheet.absoluteFill}>{children}</View>
 
       {!isAnimationFinished && (
-        <Animated.View style={[styles.overlay, { opacity }]}>
+        <Animated.View
+          style={[styles.overlay, { opacity }]}
+          testID="splash-transition-overlay"
+        >
           {/* The Spinner - rendered first so it gets covered by the circle */}
           {!isAppReady && (
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator
+              size="large"
+              color={colors.primary}
+              testID="splash-transition-spinner"
+            />
           )}
 
           {/* Expanding Red Circle */}

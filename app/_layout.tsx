@@ -12,9 +12,10 @@
  *                                                                         *
  ************************************************************************** */
 // React specific imports
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 // External libraries
+import * as SplashScreen from "expo-splash-screen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack, useRouter } from "expo-router";
 import {
@@ -29,6 +30,7 @@ import { LanguageProvider } from "@context/LanguageContext";
 import { AlertProvider } from "@context/AlertContext";
 import { LayoutProvider } from "@context/LayoutContext";
 import HeaderBackButton from "@components/common/buttons/HeaderBackButton";
+import SplashScreenView from "@components/common/layout/SplashScreenView";
 import { SplashTransition } from "@components/common/layout/SplashTransition";
 import CustomAlert from "@components/common/modals/CustomAlert";
 import colors from "@theme/colors";
@@ -36,6 +38,8 @@ import { useAuthNavigation } from "@/shared/hooks/layout/useAuthNavigation";
 import { useDeepLinking } from "@/shared/hooks/layout/useDeepLinking";
 import { useNotificationNavigation } from "@/shared/hooks/layout/useNotificationNavigation";
 import "@/core/i18n/i18n"; // Initialize i18n
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Main authenticated navigation component
 function AuthenticatedStack() {
@@ -126,6 +130,14 @@ function AuthenticatedStack() {
 
 // Root layout component with all providers
 export default function RootLayout() {
+  const [nativeSplashHidden, setNativeSplashHidden] = useState(false);
+
+  useEffect(() => {
+    // Hide native splash once JS overlay has mounted to ensure seamless transition
+    SplashScreen.hideAsync().catch(() => {});
+    setNativeSplashHidden(true);
+  }, []);
+
   return (
     <GestureHandlerRootView
       style={{ flex: 1, backgroundColor: colors.background.primary }}
@@ -143,9 +155,11 @@ export default function RootLayout() {
                   translucent={true}
                   backgroundColor="transparent"
                 />
-                <LayoutProvider>
-                  <AuthenticatedStack />
-                </LayoutProvider>
+                <SplashScreenView isLoading={!nativeSplashHidden}>
+                  <LayoutProvider>
+                    <AuthenticatedStack />
+                  </LayoutProvider>
+                </SplashScreenView>
                 <CustomAlert />
               </AlertProvider>
             </HapticsProvider>
