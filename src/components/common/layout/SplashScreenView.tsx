@@ -34,7 +34,7 @@ export default function SplashScreenView({
   isLoading = false,
   onAnimationFinish,
   children,
-  logoSize = 170,
+  logoSize = 200,
   testID = "splash-screen-view",
 }: SplashScreenViewProps) {
   const [isAppReady, setIsAppReady] = useState(false);
