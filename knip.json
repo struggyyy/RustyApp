@@ -4,9 +4,10 @@
   "project": ["src/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],
   "ignoreDependencies": [
     "expo-image",
-    "expo-splash-screen",
     "@babel/core",
-    "expo-system-ui"
+    "expo-system-ui",
+    "@emnapi/core",
+    "@emnapi/runtime"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreWorkspaces": [],
