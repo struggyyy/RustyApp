@@ -13,10 +13,7 @@
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production",
-      "node": {
-        "npmInstallCommand": "npm install"
-      }
+      "channel": "production"
     }
   },
   "submit": {
