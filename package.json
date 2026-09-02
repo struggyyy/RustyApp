@@ -11,12 +11,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "knip": "knip",
+    "check:knip": "knip",
     "check-circular": "madge --circular --extensions ts,tsx --ts-config tsconfig.json src app",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "check": "npm run format:check && npm run typecheck && npm run lint && npm run knip && npm run check-circular && npm run test",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm run check:knip && npm run check-circular && npm run test",
     "postinstall": "patch-package"
   },
   "dependencies": {

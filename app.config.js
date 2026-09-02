@@ -1,4 +1,5 @@
-// Dummy comment for git
+import fs from "fs";
+
 export default {
   expo: {
     name: "Rusty",
@@ -59,7 +60,11 @@ export default {
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
-      googleServicesFile: "./google-services.json",
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_JSON ??
+        (fs.existsSync("./google-services.json")
+          ? "./google-services.json"
+          : undefined),
     },
     extra: {
       eas: {
