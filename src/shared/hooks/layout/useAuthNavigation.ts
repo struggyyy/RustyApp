@@ -157,16 +157,18 @@ export const useAuthNavigation = () => {
   // Determine if loading screen should be shown
   const shouldShowLoading =
     !isReady ||
-    (user && !profileLoaded && !isAuthRoute && !isVerifyEmailRoute) ||
-    isRedirectingToAdmin ||
-    isWaitingForMap ||
-    isWaitingForAdminData;
+    initialLoading ||
+    !!(user && !profileLoaded && !isAuthRoute && !isVerifyEmailRoute) ||
+    !!isRedirectingToAdmin ||
+    !!isWaitingForMap ||
+    !!isWaitingForAdminData;
 
   // Check if user is trying to access admin routes without permission
-  const isAdminRouteAccessDenied =
+  const isAdminRouteAccessDenied = !!(
     user &&
     !isAdmin &&
-    (segments[0] === "admin" || segments[0] === "admin-profile");
+    (segments[0] === "admin" || segments[0] === "admin-profile")
+  );
 
   return {
     shouldShowLoading,

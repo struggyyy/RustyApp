@@ -42,12 +42,15 @@ import "@/core/i18n/i18n"; // Initialize i18n
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Main authenticated navigation component
-function AuthenticatedStack() {
+function AuthenticatedStack({
+  shouldShowLoading,
+  isAdminRouteAccessDenied,
+}: {
+  shouldShowLoading: boolean;
+  isAdminRouteAccessDenied: boolean;
+}) {
   // Router for navigation actions
   const router = useRouter();
-
-  // Custom hooks for authentication navigation and deep linking
-  const { shouldShowLoading, isAdminRouteAccessDenied } = useAuthNavigation();
   const { isAdmin, profileLoaded } = useAuth();
 
   // Initialize deep linking and notification listeners
@@ -128,9 +131,9 @@ function AuthenticatedStack() {
   );
 }
 
-// Root layout component with all providers
-export default function RootLayout() {
+function AppContent() {
   const [nativeSplashHidden, setNativeSplashHidden] = useState(false);
+  const { shouldShowLoading, isAdminRouteAccessDenied } = useAuthNavigation();
 
   useEffect(() => {
     // Hide native splash once JS overlay has mounted to ensure seamless transition
@@ -138,6 +141,21 @@ export default function RootLayout() {
     setNativeSplashHidden(true);
   }, []);
 
+  // Keep static splash screen until native splash hides AND auth state resolves initial route
+  const isInitialLoading = !nativeSplashHidden || shouldShowLoading;
+
+  return (
+    <SplashScreenView isLoading={isInitialLoading}>
+      <AuthenticatedStack
+        shouldShowLoading={shouldShowLoading}
+        isAdminRouteAccessDenied={isAdminRouteAccessDenied}
+      />
+    </SplashScreenView>
+  );
+}
+
+// Root layout component with all providers
+export default function RootLayout() {
   return (
     <GestureHandlerRootView
       style={{ flex: 1, backgroundColor: colors.background.primary }}
@@ -150,17 +168,15 @@ export default function RootLayout() {
           <LanguageProvider>
             <HapticsProvider>
               <AlertProvider>
-                <ExpoStatusBar
-                  style="dark"
-                  translucent={true}
-                  backgroundColor="transparent"
-                />
-                <SplashScreenView isLoading={!nativeSplashHidden}>
-                  <LayoutProvider>
-                    <AuthenticatedStack />
-                  </LayoutProvider>
-                </SplashScreenView>
-                <CustomAlert />
+                <LayoutProvider>
+                  <ExpoStatusBar
+                    style="dark"
+                    translucent={true}
+                    backgroundColor="transparent"
+                  />
+                  <AppContent />
+                  <CustomAlert />
+                </LayoutProvider>
               </AlertProvider>
             </HapticsProvider>
           </LanguageProvider>
