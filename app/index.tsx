@@ -13,7 +13,7 @@
  ************************************************************************** */
 // React-specific imports
 import React from "react";
-import { ActivityIndicator, Text, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 
 // Internal imports
 import colors from "@theme/colors";
@@ -22,22 +22,11 @@ import colors from "@theme/colors";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: colors.background.primary,
-  },
-  loadingText: {
-    marginTop: 10,
-    color: colors.text.primary,
   },
 });
 
-// Initial loading screen while auth guard determines navigation
+// Initial placeholder screen while auth guard determines navigation
 export default function Index() {
-  return (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.loadingText}>Loading...</Text>
-    </View>
-  );
+  return <View style={styles.container} />;
 }
