@@ -49,18 +49,8 @@ export default function SplashScreenView({
     onAnimationFinish?.();
   }, [onAnimationFinish]);
 
-  // Reset state when loading starts again
   useEffect(() => {
-    if (isLoading && isAnimationFinished) {
-      setIsAnimationFinished(false);
-      setIsAppReady(false);
-      logoOpacity.setValue(1);
-      backgroundOpacity.setValue(1);
-    }
-  }, [isLoading, isAnimationFinished, logoOpacity, backgroundOpacity]);
-
-  useEffect(() => {
-    if (!isLoading && !isAppReady) {
+    if (!isLoading && !isAppReady && !isAnimationFinished) {
       // Loading just finished — mark app as ready and begin exit animation
       setIsAppReady(true);
 
@@ -95,7 +85,14 @@ export default function SplashScreenView({
 
       return () => clearTimeout(safetyTimeout);
     }
-  }, [isLoading, isAppReady, logoOpacity, backgroundOpacity, handleFinish]);
+  }, [
+    isLoading,
+    isAppReady,
+    isAnimationFinished,
+    logoOpacity,
+    backgroundOpacity,
+    handleFinish,
+  ]);
 
   return (
     <View style={styles.container}>
