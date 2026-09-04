@@ -22,7 +22,7 @@ export default {
     runtimeVersion: "1.0.0",
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.anonymous.rusty",
+      bundleIdentifier: "com.struggyyy.rusty",
       associatedDomains: ["applinks:rusty-7faf0.firebaseapp.com"],
       config: {
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
@@ -37,7 +37,7 @@ export default {
         monochromeImage: "./assets/MonochromeIcon.png",
         backgroundColor: "#BD5151",
       },
-      package: "com.anonymous.rusty",
+      package: "com.struggyyy.rusty",
       softwareKeyboardLayoutMode: "pan",
       config: {
         googleMaps: {
