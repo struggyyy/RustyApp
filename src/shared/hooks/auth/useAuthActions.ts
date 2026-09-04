@@ -153,10 +153,10 @@ export const useAuthActions = () => {
       url: "https://rusty-7faf0.firebaseapp.com/__/auth/action",
       handleCodeInApp: true,
       iOS: {
-        bundleId: "com.anonymous.rusty",
+        bundleId: "com.struggyyy.rusty",
       },
       android: {
-        packageName: "com.anonymous.rusty",
+        packageName: "com.struggyyy.rusty",
         installApp: true,
         minimumVersion: "1",
       },
