@@ -101,7 +101,9 @@
     "browserslist": "^4.28.8",
     "compression": "^1.8.2",
     "source-map-js": "^1.2.2",
-    "braces": "npm:@cekrem/braces@^3.0.4"
+    "braces": "npm:@cekrem/braces@^3.0.4",
+    "shell-quote": "^1.12.0",
+    "smol-toml": "^1.9.1"
   },
   "private": true
 }
