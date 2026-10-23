@@ -98,7 +98,10 @@
     "image-size": "^2.0.4",
     "nanoid": "^3.3.18",
     "decode-uri-component": "^0.5.0",
-    "browserslist": "^4.28.8"
+    "browserslist": "^4.28.8",
+    "compression": "^1.8.2",
+    "source-map-js": "^1.2.2",
+    "braces": "npm:@cekrem/braces@^3.0.4"
   },
   "private": true
 }
