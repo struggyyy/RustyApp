@@ -102,7 +102,8 @@
     "source-map-js": "^1.2.2",
     "braces": "npm:@cekrem/braces@^3.0.4",
     "shell-quote": "^1.12.0",
-    "smol-toml": "^1.9.1"
+    "smol-toml": "^1.9.1",
+    "zod": "^4.6.7"
   },
   "private": true
 }
