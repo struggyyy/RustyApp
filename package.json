@@ -80,7 +80,7 @@
     "form-data": "^4.0.6",
     "js-yaml": "^4.3.1",
     "ws": "^8.21.0",
-    "minimatch": "^10.2.3",
+    "minimatch": "^11.0.5",
     "@tootallnate/once": "^3.0.1",
     "undici": "^6.29.1",
     "lodash": "^4.18.1",
@@ -97,7 +97,7 @@
     "@grpc/grpc-js": "^1.13.6",
     "image-size": "^2.0.4",
     "nanoid": "^3.3.18",
-    "decode-uri-component": "^0.5.0",
+    "decode-uri-component": "^0.5.1",
     "browserslist": "^4.28.8",
     "compression": "^1.8.2",
     "source-map-js": "^1.2.2",
@@ -105,7 +105,8 @@
     "shell-quote": "^1.12.0",
     "smol-toml": "^1.9.1",
     "zod": "^4.6.7",
-    "deepmerge": "npm:@stackline/deepmerge@^1.1.2"
+    "deepmerge": "npm:@stackline/deepmerge@^1.1.2",
+    "glob": "^14.0.4"
   },
   "private": true
 }
