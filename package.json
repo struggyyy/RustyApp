@@ -104,7 +104,8 @@
     "braces": "npm:@cekrem/braces@^3.0.4",
     "shell-quote": "^1.12.0",
     "smol-toml": "^1.9.1",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "deepmerge": "npm:@stackline/deepmerge@^1.1.2"
   },
   "private": true
 }
